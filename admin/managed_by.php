@@ -164,7 +164,7 @@ $lock = '<i class="fas fa-fw fa-lock text-body-secondary ms-1" title="Set by ' .
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <form action="post.php" method="post" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-                                    <button type="submit" name="managed_checkin_now" class="btn btn-light"><i class="fas fa-fw fa-sync-alt me-2"></i>Check in now</button>
+                                    <button type="submit" name="managed_checkin_now" class="btn btn-light"><i class="fas fa-fw fa-sync-alt me-2"></i>Check In Now</button>
                                 </form>
                                 <?php if (!managedRequired()) { ?>
                                     <form action="post.php" method="post" class="d-inline">

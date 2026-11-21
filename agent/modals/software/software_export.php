@@ -80,7 +80,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label class="form-label">Expiring In</label>
+            <label class="form-label">Expiring in</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
@@ -107,7 +107,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Software Type</label>
+            <label class="form-label">Software type</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="software_type">
@@ -118,7 +118,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">License Type</label>
+            <label class="form-label">License type</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-certificate"></i></span>
                 <select class="form-select select2" name="license_type">

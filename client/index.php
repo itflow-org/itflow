@@ -276,7 +276,7 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
             </div>
             <?php if (!mysqli_num_rows($recent)) { ?>
                 <?= emptyStateHtml(['title' => 'No open tickets', 'text' => 'Something not working? Raise a ticket and we will pick it up.', 'icon' => 'fa-life-ring', 'filtered' => false,
-                    'actions' => [['label' => 'New ticket', 'href' => 'ticket_add.php']]]) ?>
+                    'actions' => [['label' => 'New Ticket', 'href' => 'ticket_add.php']]]) ?>
             <?php } else { ?>
                 <ul class="itflow-portal-list">
                     <?php while ($row = mysqli_fetch_assoc($recent)) {

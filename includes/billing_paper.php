@@ -296,7 +296,7 @@ $paper_bill_lines = array_filter([
                         <?php if (!empty($paper['ai'])) { ?>
                             <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mt-2 pt-2 border-top" data-billing-ai>
                                 <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/billing/billing_ai_writer.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>">
-                                    <i class="fas fa-magic me-1"></i>Write it with AI
+                                    <i class="fas fa-magic me-1"></i>Write It with AI
                                 </button>
                                 <span class="small text-body-secondary">Say what it's for - lines from your catalog, labor at the client's rate.</span>
                             </div>

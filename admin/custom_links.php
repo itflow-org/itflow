@@ -178,12 +178,12 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($can_reorder) { ?>
                                     <?php if ($position > 0) { ?>
                                         <a class="dropdown-item" href="post.php?move_custom_link=<?= $custom_link_id ?>&direction=up&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move up
+                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move Up
                                         </a>
                                     <?php } ?>
                                     <?php if ($position < $num_rows[0] - 1) { ?>
                                         <a class="dropdown-item" href="post.php?move_custom_link=<?= $custom_link_id ?>&direction=down&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move down
+                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move Down
                                         </a>
                                     <?php } ?>
                                 <?php } ?>

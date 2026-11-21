@@ -474,7 +474,7 @@ if (!$config_module_enable_ticketing) {
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="email" value="<?= escapeHtml($preview_first) ?>" data-preview-key>
                                             <button type="submit" name="send_email_preview" class="btn btn-sm btn-primary" <?= emailReady() ? '' : 'disabled title="Set up Sending first"' ?>>
-                                                <i class="fas fa-fw fa-paper-plane me-1"></i>Send me a copy
+                                                <i class="fas fa-fw fa-paper-plane me-1"></i>Send Me a Copy
                                             </button>
                                         </form>
                                     </div>

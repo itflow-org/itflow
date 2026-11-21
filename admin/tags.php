@@ -128,7 +128,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tag/tag_merge.php" data-bulk="true">
-                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into one...
+                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into One...
                                         </a>
                                         <?php if ($show_archived) { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_tags">
@@ -222,7 +222,7 @@ $csrf = $_SESSION['csrf_token'];
                                                 <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tag/tag_merge.php?tag_ids[]=<?= $tag_id ?>">
-                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into...
+                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge Into...
                                             </a>
                                             <?php if ($used) { ?>
                                                 <a class="dropdown-item" href="<?= escapeHtml($list_url) ?>">

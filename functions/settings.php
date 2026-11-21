@@ -35,7 +35,7 @@ function settingsGroups() {
  */
 function settingsPages() {
     return [
-        'company' => ['group' => 'company', 'title' => 'Company details', 'icon' => 'fa-briefcase', 'url' => 'settings_company.php',
+        'company' => ['group' => 'company', 'title' => 'Company Details', 'icon' => 'fa-briefcase', 'url' => 'settings_company.php',
             'about' => 'Your company as it shows on invoices, quotes and emails - its name, address, contact details and logo.'],
         'localization' => ['group' => 'company', 'title' => 'Localization', 'icon' => 'fa-globe', 'url' => 'settings_localization.php',
             'about' => 'The language dates and numbers are written in, the currency you bill in, and your timezone.'],
@@ -49,9 +49,9 @@ function settingsPages() {
             'about' => 'How projects are numbered.'],
         'quote' => ['group' => 'work', 'title' => 'Quotes', 'icon' => 'fa-comment-dollar', 'url' => 'settings_quote.php', 'module' => 'accounting',
             'about' => 'How quotes are numbered, what goes at the foot of them, and who hears when one is answered.'],
-        'invoice' => ['group' => 'work', 'title' => 'Invoices and billing', 'icon' => 'fa-file-invoice-dollar', 'url' => 'settings_invoice.php', 'module' => 'accounting',
+        'invoice' => ['group' => 'work', 'title' => 'Invoices and Billing', 'icon' => 'fa-file-invoice-dollar', 'url' => 'settings_invoice.php', 'module' => 'accounting',
             'about' => 'Invoice numbering, late fees, reminders and statements, and how time, expenses and trips are billed.'],
-        'purchase_order' => ['group' => 'work', 'title' => 'Purchase orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'purchasing',
+        'purchase_order' => ['group' => 'work', 'title' => 'Purchase Orders', 'icon' => 'fa-file-signature', 'url' => 'settings_purchase_order.php', 'module' => 'purchasing',
             'about' => 'How purchase orders are numbered, and whether one needs approving before it is ordered.'],
         'kb' => ['group' => 'work', 'title' => 'Knowledge Base', 'icon' => 'fa-book', 'url' => 'settings_kb.php', 'module' => 'kb',
             'about' => 'Whether the public help center is open - the articles anyone can read, for anyone with the link.'],
@@ -61,9 +61,9 @@ function settingsPages() {
             'about' => 'Which alerts ITFlow raises, what it tells your agents about their tickets, and which emails and texts clients get.'],
         'security' => ['group' => 'access', 'title' => 'Security', 'icon' => 'fa-shield-alt', 'url' => 'settings_security.php',
             'about' => 'The sign-in page, two-step sign-in, failed sign-ins, API keys and shared links.'],
-        'client_portal' => ['group' => 'access', 'title' => 'Client portal', 'icon' => 'fa-user-shield', 'url' => 'settings_client_portal.php', 'module' => 'portal',
+        'client_portal' => ['group' => 'access', 'title' => 'Client Portal', 'icon' => 'fa-user-shield', 'url' => 'settings_client_portal.php', 'module' => 'portal',
             'about' => 'How your clients\' contacts sign in to the portal, and the announcements they see there.'],
-        'identity' => ['group' => 'access', 'title' => 'Single sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
+        'identity' => ['group' => 'access', 'title' => 'Single Sign-on', 'icon' => 'fa-fingerprint', 'url' => 'identity_providers.php', 'module' => 'portal',
             'about' => 'Contacts signing in to the client portal with their Microsoft 365 account.'],
         'module' => ['group' => 'system', 'title' => 'Modules', 'icon' => 'fa-cube', 'url' => 'settings_module.php',
             'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing, the calendar, the Knowledge Base and the client portal, and the parts that come with them - and white-labelling.'],

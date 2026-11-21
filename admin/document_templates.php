@@ -111,10 +111,10 @@ $csrf = $_SESSION['csrf_token'];
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/document_templates.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter document templates
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Document Templates
                     </a>
                 </div>
             </div>
@@ -209,14 +209,14 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if (!$row['document_template_archived_at']) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document_template/document_template_use.php?id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New document for a client
+                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New Document for a Client
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document_template/document_template_use_several.php?id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For several clients
+                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For Several Clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document_template/document_template_required.php?id=<?= $template_id ?>">
-                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who should have one
+                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who Should Have One
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_document_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
@@ -251,7 +251,7 @@ $csrf = $_SESSION['csrf_token'];
         'archived' => $show_archived,
         'views' => ['show'],
         'view' => $show === 'required' ? ['title' => 'No required templates', 'text' => 'Set one up from its page - <strong>Who should have one</strong> - to see which clients are missing a document from it.'] : null,
-        'text' => 'A document ready to start a client\'s from - a runbook, a build sheet, a plan. Agents start one from <strong>Document from template</strong> in a client\'s Files. Maintenance > Starter Content has a set for an MSP.',
+        'text' => 'A document ready to start a client\'s from - a runbook, a build sheet, a plan. Agents start one from <strong>Document from Template</strong> in a client\'s Files. Maintenance > Starter Content has a set for an MSP.',
         'actions' => [['label' => 'New Document Template', 'modal' => $add_url, 'size' => 'xl']],
     ];
     require_once "../includes/filter_footer.php";

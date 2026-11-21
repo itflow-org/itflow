@@ -210,7 +210,7 @@ $used_meter = function ($spent, $plan) {
                     </table>
                 </div>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
-                    <button type="submit" name="save_budget" value="1" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save budget</button>
+                    <button type="submit" name="save_budget" value="1" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save Budget</button>
                     <a class="btn btn-light" href="<?= escapeHtml(reportUrl(['view' => null])) ?>">Cancel</a>
                     <span class="small text-body-secondary ms-sm-2">Leave a month empty for no budget. Amounts are per month, before tax as you record expenses.</span>
                 </div>

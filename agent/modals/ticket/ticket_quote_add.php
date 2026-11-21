@@ -83,7 +83,7 @@ ob_start();
 ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Create quote from ticket</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Create Quote from Ticket</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
 
@@ -107,7 +107,7 @@ ob_start();
 
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label class="form-label">Quote Category <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Quote category <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
 
@@ -126,7 +126,7 @@ ob_start();
             <div class="row">
                 <div class="col-sm-6">
                     <div class="mb-3">
-                        <label class="form-label">Quote Date <strong class="text-danger">*</strong></label>
+                        <label class="form-label">Quote date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
@@ -157,7 +157,7 @@ ob_start();
             <?php $description = "Ticket: {$ticket_prefix}{$ticket_number} - $ticket_subject\n"; ?>
 
             <div class="mb-3">
-                <label class="form-label">Item Description</label>
+                <label class="form-label">Item description</label>
                 <div class="input-group">
                     <textarea class="form-control" rows="10" name="item_description"><?= trim($description) ?></textarea>
                 </div>

@@ -83,7 +83,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-inbox me-2"></i>Mail Queue</h3>
         <div class="card-tools">
-            <a class="btn btn-outline-light" href="settings_mail.php?tab=tests" title="Send a test email"><i class="fas fa-vial"></i><span class="d-none d-lg-inline ms-2">Send a test</span></a>
+            <a class="btn btn-outline-light" href="settings_mail.php?tab=tests" title="Send a test email"><i class="fas fa-vial"></i><span class="d-none d-lg-inline ms-2">Send a Test</span></a>
         </div>
     </div>
 
@@ -114,7 +114,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_retry_emails" title="Failed or cancelled ones - from the start, at the next run">
-                                    <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Retry now
+                                    <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Retry Now
                                 </button>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_cancel_emails" title="Ones still to be sent or tried again">
                                     <i class="fas fa-fw fa-ban text-secondary me-2"></i>Cancel
@@ -228,7 +228,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" <?= $view ?>><i class="fas fa-fw fa-envelope-open text-secondary me-2"></i>View</a>
                                     <?php if (mailQueueCan($row, 'retry')) { ?>
-                                        <a class="dropdown-item" href="post.php?retry_mail=<?= $email_id ?>&csrf_token=<?= $csrf ?>" title="From the start, at the next run" data-email-retry><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Retry now</a>
+                                        <a class="dropdown-item" href="post.php?retry_mail=<?= $email_id ?>&csrf_token=<?= $csrf ?>" title="From the start, at the next run" data-email-retry><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Retry Now</a>
                                     <?php } ?>
                                     <?php if (mailQueueCan($row, 'cancel')) { ?>
                                         <a class="dropdown-item" href="post.php?cancel_mail=<?= $email_id ?>&csrf_token=<?= $csrf ?>" data-email-cancel><i class="fas fa-fw fa-ban text-secondary me-2"></i>Cancel</a>

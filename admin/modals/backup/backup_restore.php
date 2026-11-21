@@ -24,7 +24,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-undo me-2"></i>Restore a backup</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-undo me-2"></i>Restore a Backup</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-backup-restore>

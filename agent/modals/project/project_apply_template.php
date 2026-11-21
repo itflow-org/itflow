@@ -22,7 +22,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-cubes me-2"></i>Tickets from a template <small class="ms-1 opacity-75"><?= escapeHtml(projectReference($project)) ?></small></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-cubes me-2"></i>Tickets from a Template <small class="ms-1 opacity-75"><?= escapeHtml(projectReference($project)) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -53,7 +53,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="apply_project_template" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add tickets</button>
+        <button type="submit" name="apply_project_template" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add Tickets</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

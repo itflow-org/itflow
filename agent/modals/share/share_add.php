@@ -276,13 +276,13 @@ ob_start();
             </div>
             <div class="form-text mb-3">Give it to them another way - by phone or text, not with the link.</div>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-share-qr-toggle><i class="fas fa-qrcode me-2"></i>QR code</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-share-qr-toggle><i class="fas fa-qrcode me-2"></i>QR Code</button>
         <div class="text-center mt-3 p-3 bg-white rounded border" data-share-qr hidden></div>
     </div>
 
     <div class="modal-footer">
         <button type="submit" class="btn btn-primary text-bold" data-share-make><i class="fas fa-<?= $type === 'Request' ? 'paper-plane' : 'link' ?> me-2"></i><?= $type === 'Request' ? 'Make the request' : 'Make the link' ?></button>
-        <button type="button" class="btn btn-outline-secondary" data-share-again hidden><i class="fas fa-redo me-2"></i>Make another</button>
+        <button type="button" class="btn btn-outline-secondary" data-share-again hidden><i class="fas fa-redo me-2"></i>Make Another</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><span data-share-close>Cancel</span></button>
     </div>
 </form>

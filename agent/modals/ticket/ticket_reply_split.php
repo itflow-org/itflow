@@ -32,7 +32,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-code-branch me-2"></i>Split into a new ticket <small class="ms-1 opacity-75"><?= $reference ?></small></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-code-branch me-2"></i>Split into a New Ticket <small class="ms-1 opacity-75"><?= $reference ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -92,7 +92,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="split_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-code-branch me-2"></i>Make the new ticket</button>
+        <button type="submit" name="split_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-code-branch me-2"></i>Make the New Ticket</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

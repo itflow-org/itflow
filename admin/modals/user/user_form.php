@@ -219,8 +219,8 @@ $value = function ($key) use ($form) {
             </div>
             <div class="btn-group btn-group-sm" role="group" aria-label="Set every client shown">
                 <button type="button" class="btn btn-outline-secondary" data-user-access-all="" title="Every client shown">Clear</button>
-                <button type="button" class="btn btn-outline-success" data-user-access-all="allow" title="Every client shown">All only</button>
-                <button type="button" class="btn btn-outline-danger" data-user-access-all="deny" title="Every client shown">All never</button>
+                <button type="button" class="btn btn-outline-success" data-user-access-all="allow" title="Every client shown">All Only</button>
+                <button type="button" class="btn btn-outline-danger" data-user-access-all="deny" title="Every client shown">All Never</button>
             </div>
             <span class="small fw-semibold ms-auto" data-user-access-summary></span>
         </div>

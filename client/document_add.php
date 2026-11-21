@@ -22,7 +22,7 @@ $upload = !empty($_GET['upload']);
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1><?= $upload ? 'Upload a file' : 'New document' ?></h1>
+        <h1><?= $upload ? 'Upload a File' : 'New Document' ?></h1>
         <p><?= $upload ? 'A PDF, Word or text document to keep with your others' : 'Write something down for your team and ours - a how-to, a list, a record' ?></p>
     </div>
     <div class="btn-group" role="group" aria-label="Write or upload">
@@ -69,7 +69,7 @@ $upload = !empty($_GET['upload']);
                     <textarea class="form-control tinymce" name="document_content" data-required></textarea>
                     <div class="invalid-feedback d-block" data-editor-required-note hidden>Write something in the document.</div>
                 </div>
-                <button type="submit" class="btn btn-primary" name="client_add_document"><i class="fas fa-check me-2"></i>Save document</button>
+                <button type="submit" class="btn btn-primary" name="client_add_document"><i class="fas fa-check me-2"></i>Save Document</button>
             <?php } ?>
         </form>
     </div>

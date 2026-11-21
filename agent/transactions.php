@@ -255,8 +255,8 @@ $is_card = $account && $account['type'] === 3;
                     <?php } ?>
                     <?php if ($can_edit) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - expenses</a>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - income</a>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
                     <?php } ?>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="accounts.php"><i class="fa fa-fw fa-piggy-bank text-secondary me-2"></i>Accounts</a>

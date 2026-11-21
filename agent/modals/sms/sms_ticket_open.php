@@ -29,7 +29,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Open a ticket <small class="ms-1 opacity-75">from <?= escapeHtml(smsNumberText($number)) ?></small></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Open a Ticket <small class="ms-1 opacity-75">from <?= escapeHtml(smsNumberText($number)) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -96,7 +96,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="sms_open_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Open ticket</button>
+        <button type="submit" name="sms_open_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Open Ticket</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

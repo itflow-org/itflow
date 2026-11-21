@@ -137,7 +137,7 @@ ob_start();
             <a href="post.php?remove_ticket_helper=<?= $ticket_id ?>&user_id=<?= $edit_user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger confirm-link me-auto"
                 data-confirm-title="Take <?= escapeHtml($helper['user_name']) ?> off this ticket?" data-confirm-button="Take off"
                 data-confirm-text="<?= $helper['start'] !== '' ? 'Their booking is cancelled, and they are emailed the cancellation.' : 'It goes from their lists.' ?>">
-                <i class="fa fa-user-minus me-2"></i>Take off
+                <i class="fa fa-user-minus me-2"></i>Take Off
             </a>
         <?php } ?>
         <?php if (($helper || $agents) && $is_open) { ?>

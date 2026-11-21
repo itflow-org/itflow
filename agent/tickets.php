@@ -301,7 +301,7 @@ $export_extra = [
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="recurring_tickets.php<?= $client_url ? '?' . rtrim($client_url, '&') : '' ?>">
-                        <i class="fa fa-fw fa-redo-alt me-2"></i>Recurring tickets
+                        <i class="fa fa-fw fa-redo-alt me-2"></i>Recurring Tickets
                     </a>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'client', 'status', 'billing', 'category', 'priority', 'assigned', 'sla', 'project', 'tags', 'q'], $export_extra) ?>">
@@ -376,33 +376,33 @@ $export_extra = [
                                         <i class="fas fa-fw fa-user-check me-2"></i>Assign
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_priority.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set priority
+                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_category.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-tag me-2"></i>Set category
+                                        <i class="fas fa-fw fa-tag me-2"></i>Set Category
                                     </a>
                                     <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="ticket" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_add_project.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-project-diagram me-2"></i>Add to a project
+                                        <i class="fas fa-fw fa-project-diagram me-2"></i>Add to a Project
                                     </a>
                                     <?php if (ticketLinksReady()) { ?>
                                         <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_link_tickets">
-                                            <i class="fas fa-fw fa-link me-2"></i>Link together
+                                            <i class="fas fa-fw fa-link me-2"></i>Link Together
                                         </button>
                                     <?php } ?>
                                     <?php if ($view === 'list' && ticketReadsReady()) { ?>
                                         <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_mark_tickets_read">
-                                            <i class="fas fa-fw fa-envelope-open me-2"></i>Mark as read
+                                            <i class="fas fa-fw fa-envelope-open me-2"></i>Mark as Read
                                         </button>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_reply.php" data-modal-size="lg" data-bulk="true">
-                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or add a note
+                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or Add a Note
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_merge.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-clone me-2"></i>Merge into a ticket
+                                        <i class="fas fa-fw fa-clone me-2"></i>Merge into a Ticket
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_resolve.php" data-modal-size="lg" data-bulk="true">
                                         <i class="fas fa-fw fa-check me-2"></i>Resolve

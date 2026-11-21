@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_
                         <input type="password" class="form-control" placeholder="The same again" name="confirm_password" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" aria-label="New password again" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3" name="password_reset_set_password">Set password</button>
+                    <button type="submit" class="btn btn-primary w-100 mb-3" name="password_reset_set_password">Set Password</button>
                 </form>
 
             <?php } else { ?>
@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_
                             <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                             <input type="email" class="form-control" placeholder="Email address" name="email" maxlength="200" autocomplete="email" aria-label="Email address" required<?= $message_type === 'success' ? '' : ' autofocus' ?>>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 mb-3" name="password_reset_email_request">Email me a link</button>
+                        <button type="submit" class="btn btn-primary w-100 mb-3" name="password_reset_email_request">Email Me a Link</button>
                     </form>
                 <?php } else { ?>
                     <div class="alert alert-secondary small">Email is not set up here, so a link can't be sent - ask us to reset it for you.</div>

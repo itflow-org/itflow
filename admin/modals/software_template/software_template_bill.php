@@ -18,7 +18,7 @@ ob_start();
 
 if (!$template) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Bill seats</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Bill Seats</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That license template no longer exists.</div>
@@ -38,7 +38,7 @@ if (!$template) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Bill seats <small class="ms-1 opacity-75"><?= escapeHtml($template['software_template_name']) ?></small></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Bill Seats <small class="ms-1 opacity-75"><?= escapeHtml($template['software_template_name']) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -50,7 +50,7 @@ if (!$template) { ?>
             <div class="text-center text-secondary py-4">
                 <?= $template['product_name'] !== null ? 'The product it is sold as, <strong>' . escapeHtml($template['product_name']) . '</strong>, is archived.' : 'It isn\'t sold as a product yet.' ?>
                 Pick the product it is sold as on the template, then bill its licenses from here.
-                <div class="mt-3"><button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>"><i class="fas fa-edit me-1"></i>Edit the template</button></div>
+                <div class="mt-3"><button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>"><i class="fas fa-edit me-1"></i>Edit the Template</button></div>
             </div>
         <?php } elseif (!$licenses) { ?>
             <div class="text-center text-secondary py-4"><i class="fas fa-check text-success me-1"></i><?= $picked ? 'Every one of them is billed already.' : 'No licenses made from it yet.' ?></div>
@@ -125,7 +125,7 @@ if (!$template) { ?>
     </div>
     <div class="modal-footer">
         <?php if ($sellable && $licenses) { ?>
-            <button type="submit" name="bill_software_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add to recurring invoices</button>
+            <button type="submit" name="bill_software_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add to Recurring Invoices</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $sellable && $licenses ? 'Cancel' : 'Close' ?></button>
     </div>

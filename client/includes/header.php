@@ -159,7 +159,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                 </div>
             </form>
             <a class="btn btn-outline-secondary d-none d-xl-inline-flex d-xxl-none" href="/client/search.php" title="Search" aria-label="Search"><i class="fas fa-search"></i></a>
-            <a class="btn btn-primary d-none d-sm-inline-flex align-items-center text-nowrap" href="/client/ticket_add.php"><i class="fas fa-plus me-2"></i>New ticket</a>
+            <a class="btn btn-primary d-none d-sm-inline-flex align-items-center text-nowrap" href="/client/ticket_add.php"><i class="fas fa-plus me-2"></i>New Ticket</a>
 
             <div class="dropdown">
                 <button type="button" class="itflow-portal-account" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Your account">
@@ -173,7 +173,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                         <div class="small"><?= escapeHtml($session_client_name) ?></div>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user me-2"></i>Your account</a>
+                    <a class="dropdown-item<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user me-2"></i>Your Account</a>
                     <a class="dropdown-item<?= $portal_page === 'activity.php' ? ' active' : '' ?>" href="/client/activity.php"><i class="fas fa-fw fa-list me-2"></i>Activity</a>
                     <a class="dropdown-item d-xl-none<?= $portal_page === 'search.php' ? ' active' : '' ?>" href="/client/search.php"><i class="fas fa-fw fa-search me-2"></i>Search</a>
                     <button type="button" class="dropdown-item" data-portal-theme-toggle>
@@ -181,9 +181,9 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                     </button>
                     <div class="dropdown-divider"></div>
                     <?php if ($portal_view_as) { ?>
-                        <a class="dropdown-item" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times me-2"></i>Exit view</a>
+                        <a class="dropdown-item" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times me-2"></i>Exit View</a>
                     <?php } else { ?>
-                        <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
+                        <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign Out</a>
                     <?php } ?>
                 </div>
             </div>
@@ -229,14 +229,14 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                 <a class="itflow-portal-menu-link<?= in_array($portal_page, $item['pages'], true) ? ' active' : '' ?>" href="<?= escapeHtml($item['href']) ?>"<?= !empty($item['new_tab']) ? ' target="_blank" rel="noopener noreferrer"' : '' ?><?= !empty($item['title']) ? ' title="' . escapeHtml($item['title']) . '"' : '' ?>><i class="<?= escapeHtml($item['icon_class'] ?? 'fas fa-fw ' . $item['icon']) ?>"></i><?= escapeHtml($item['label']) ?></a>
             <?php } ?>
         <?php } ?>
-        <div class="itflow-portal-menu-heading">Your account</div>
-        <a class="itflow-portal-menu-link<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user"></i>Your account</a>
+        <div class="itflow-portal-menu-heading">Your Account</div>
+        <a class="itflow-portal-menu-link<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user"></i>Your Account</a>
         <a class="itflow-portal-menu-link<?= $portal_page === 'activity.php' ? ' active' : '' ?>" href="/client/activity.php"><i class="fas fa-fw fa-list"></i>Activity</a>
         <button type="button" class="itflow-portal-menu-link" data-portal-theme-toggle><i class="fas fa-fw <?= $portal_dark ? 'fa-sun' : 'fa-moon' ?>"></i><?= $portal_dark ? 'Light mode' : 'Dark mode' ?></button>
         <?php if ($portal_view_as) { ?>
-            <a class="itflow-portal-menu-link" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times"></i>Exit view</a>
+            <a class="itflow-portal-menu-link" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times"></i>Exit View</a>
         <?php } else { ?>
-            <a class="itflow-portal-menu-link" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt"></i>Sign out</a>
+            <a class="itflow-portal-menu-link" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt"></i>Sign Out</a>
         <?php } ?>
     </div>
 </div>

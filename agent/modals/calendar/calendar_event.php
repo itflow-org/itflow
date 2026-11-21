@@ -208,7 +208,7 @@ ob_start();
                 <a class="dropdown-item confirm-link" href="post.php?skip_event_occurrence=<?= $event_id ?>&date=<?= escapeHtml($occurrence) ?>&csrf_token=<?= $csrf ?>"
                     data-confirm-title="Skip <?= date('D, M j', strtotime($occurrence)) ?>?" data-confirm-button="Skip it"
                     data-confirm-text="Only this one is dropped - the rest of the series stays.<?= $invited ? ' Everyone who has the invitation is sent the update.' : '' ?>">
-                    <i class="fas fa-fw fa-forward me-2"></i>Skip this one
+                    <i class="fas fa-fw fa-forward me-2"></i>Skip This One
                 </a>
             <?php } ?>
             <?php if ($can_delete) { ?>

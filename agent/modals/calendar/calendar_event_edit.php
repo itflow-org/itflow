@@ -47,7 +47,7 @@ ob_start();
 
     <div class="modal-body">
         <?php if ($repeats) { ?>
-            <div class="alert alert-info py-2 small"><i class="fas fa-fw fa-redo me-1"></i>This changes every occurrence. To drop a single one, use <strong>Skip this one</strong> on it.</div>
+            <div class="alert alert-info py-2 small"><i class="fas fa-fw fa-redo me-1"></i>This changes every occurrence. To drop a single one, use <strong>Skip This One</strong> on it.</div>
         <?php } ?>
         <?php require 'calendar_event_form.php'; ?>
     </div>

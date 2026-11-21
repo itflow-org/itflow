@@ -118,10 +118,10 @@ $facts = array_filter([
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if (!$archived) { ?>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New license for a client</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New License for a Client</button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to make one"></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For several clients</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For Several Clients</a>
                         <?php if ($coverage && $coverage['missing']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>For <?= $missing_text ?></a>
                         <?php } ?>
@@ -132,7 +132,7 @@ $facts = array_filter([
             <div class="dropdown">
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have It</a>
                     <a class="dropdown-item" href="post.php?copy_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
                     <a class="dropdown-item" href="post.php?export_software_template=<?= $software_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <?php if ($archived) { ?>
@@ -187,9 +187,9 @@ $facts = array_filter([
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $renew_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-redo-alt me-2"></i>Renew</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $true_up_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-balance-scale me-2"></i>True up seats</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $true_up_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-balance-scale me-2"></i>True Up Seats</a>
                             <?php if ($has_product) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $bill_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Bill seats</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $bill_url ?>" data-modal-size="lg" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Bill Seats</a>
                             <?php } ?>
                         </div>
                     </div>
@@ -260,12 +260,12 @@ $facts = array_filter([
                                         <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $renew_url ?>?id=<?= $software_id ?>"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Renew</a>
-                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $true_up_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-balance-scale text-secondary me-2"></i>True up seats</a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $true_up_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-balance-scale text-secondary me-2"></i>True Up Seats</a>
                                             <?php if ($has_product && !$billing) { ?>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $bill_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Bill seats</a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $bill_url ?>&software_ids[]=<?= $software_id ?>"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Bill Seats</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="/agent/software.php?client_id=<?= $client_id ?>"><i class="fas fa-fw fa-cube text-secondary me-2"></i>The client's Licenses</a>
+                                            <a class="dropdown-item" href="/agent/software.php?client_id=<?= $client_id ?>"><i class="fas fa-fw fa-cube text-secondary me-2"></i>The Client's Licenses</a>
                                         </div>
                                     </div>
                                 </td>

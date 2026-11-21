@@ -77,7 +77,7 @@ $empty_state_skip = true;
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-bell me-2"></i>Notifications</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-light" data-notify-all data-notify-reload <?= $unread_count ? '' : 'disabled' ?>>
-                <i class="fas fa-check-double me-2"></i>Mark all as read
+                <i class="fas fa-check-double me-2"></i>Mark All as Read
             </button>
         </div>
     </div>
@@ -136,7 +136,7 @@ $empty_state_skip = true;
                 'title' => "You're all caught up",
                 'text' => 'Nothing new since you last looked.',
                 'icon' => 'fa-check',
-                'actions' => [['label' => 'See all notifications', 'href' => 'notifications.php?view=all', 'icon' => 'fa-bell']],
+                'actions' => [['label' => 'See All Notifications', 'href' => 'notifications.php?view=all', 'icon' => 'fa-bell']],
             ] : null,
         ]) ?>
 

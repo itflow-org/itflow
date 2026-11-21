@@ -88,7 +88,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Shortened Name</label>
+                    <label class="form-label">Shortened name</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" value="<?= $client_abbreviation ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">

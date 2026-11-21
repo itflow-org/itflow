@@ -82,7 +82,7 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
         <?php if ($delete) { ?>
             <button type="submit" name="delete_ticket_status" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i>Delete</button>
         <?php } else { ?>
-            <button type="submit" name="switch_off_ticket_status" class="btn btn-primary text-bold"><i class="fas fa-power-off me-2"></i>Switch off</button>
+            <button type="submit" name="switch_off_ticket_status" class="btn btn-primary text-bold"><i class="fas fa-power-off me-2"></i>Switch Off</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

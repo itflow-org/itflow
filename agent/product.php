@@ -144,7 +144,7 @@ if (!$product) {
                             <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More stock actions"></button>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('count') ?>"><i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Count</a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-fw fa-minus-circle text-secondary me-2"></i>Write off</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-fw fa-minus-circle text-secondary me-2"></i>Write Off</a>
                             </div>
                         </div>
                     <?php } ?>
@@ -332,7 +332,7 @@ if (!$product) {
                             <div class="card-footer d-flex flex-wrap gap-2 d-print-none">
                                 <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-url="<?= $stock_url('receive') ?>"><i class="fas fa-dolly me-1"></i>Receive</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('count') ?>"><i class="fas fa-clipboard-check me-1"></i>Count</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-minus-circle me-1"></i>Write off</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-minus-circle me-1"></i>Write Off</button>
                             </div>
                         <?php } ?>
                     <?php } else { ?>

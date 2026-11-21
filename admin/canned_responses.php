@@ -115,10 +115,10 @@ $csrf = $_SESSION['csrf_token'];
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/canned_responses.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter canned responses
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Canned Responses
                     </a>
                 </div>
             </div>
@@ -227,7 +227,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($owner_id) { ?>
                                     <a class="dropdown-item confirm-link" href="post.php?share_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones and every agent is offered it. <?= escapeHtml($row['owner_name'] ?? 'Its agent') ?> can't change it after." data-confirm-button="Share">
-                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with everyone
+                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with Everyone
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>

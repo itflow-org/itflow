@@ -383,7 +383,7 @@ if (mysqli_num_rows($sql) == 0) {
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-primary ajax-modal flex-shrink-0"
                                     data-modal-url="modals/rack/rack_device_add.php?id=<?= $rack_id ?>&asset_id=<?= $unracked_id ?>">
-                                    Rack it
+                                    Rack It
                                 </button>
                             </div>
                         <?php } ?>

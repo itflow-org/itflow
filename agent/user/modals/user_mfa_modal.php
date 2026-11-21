@@ -19,7 +19,7 @@ $mfa_secret = $_SESSION['mfa_token'];
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-mobile-alt me-2"></i>Turn on multi-factor authentication</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-mobile-alt me-2"></i>Turn On Multi-factor Authentication</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
@@ -28,7 +28,7 @@ $mfa_secret = $_SESSION['mfa_token'];
                     <?php require __DIR__ . '/../includes/mfa_setup.php'; ?>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="enable_mfa" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Turn on</button>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Turn On</button>
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
                 </div>
             </form>

@@ -315,8 +315,8 @@ function filesFolderTree($parent_id, $depth = 0) {
         $menu = '';
         if ($can_edit) {
             $menu = '<div class="dropdown itflow-folder-menu"><button type="button" class="btn btn-sm" data-bs-toggle="dropdown" title="Folder actions"><i class="fas fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-end">'
-                . "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/folder/folder_add.php?client_id=$client_id&amp;current_folder_id=$id\"><i class=\"fas fa-fw fa-folder-plus me-2\"></i>New folder inside</a>"
-                . "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/folder/folder_rename.php?id=$id\"><i class=\"fas fa-fw fa-pen me-2\"></i>Rename or move</a>"
+                . "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/folder/folder_add.php?client_id=$client_id&amp;current_folder_id=$id\"><i class=\"fas fa-fw fa-folder-plus me-2\"></i>New Folder Inside</a>"
+                . "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/folder/folder_rename.php?id=$id\"><i class=\"fas fa-fw fa-pen me-2\"></i>Rename or Move</a>"
                 . ($can_delete ? "<div class=\"dropdown-divider\"></div><a class=\"dropdown-item text-danger ajax-modal\" href=\"#\" data-modal-url=\"modals/folder/folder_delete.php?id=$id\"><i class=\"fas fa-fw fa-trash me-2\"></i>Delete</a>" : '')
                 . '</div></div>';
         }
@@ -352,14 +352,14 @@ $preview = []; // the grid's previewer payload
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to add"></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>">
-                            <i class="fas fa-fw fa-file-alt me-2"></i>New document
+                            <i class="fas fa-fw fa-file-alt me-2"></i>New Document
                         </a>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_add_from_template.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>">
-                            <i class="fas fa-fw fa-puzzle-piece me-2"></i>Document from template
+                            <i class="fas fa-fw fa-puzzle-piece me-2"></i>Document from Template
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&current_folder_id=<?= $folder_id ?>">
-                            <i class="fas fa-fw fa-folder-plus me-2"></i>New folder
+                            <i class="fas fa-fw fa-folder-plus me-2"></i>New Folder
                         </a>
                     </div>
                 </div>
@@ -445,7 +445,7 @@ $preview = []; // the grid's previewer payload
                                         <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_download_files" title="Documents go in as web pages">
-                                        <i class="fas fa-fw fa-file-archive me-2"></i>Download as zip
+                                        <i class="fas fa-fw fa-file-archive me-2"></i>Download as Zip
                                     </button>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_files">
@@ -458,7 +458,7 @@ $preview = []; // the grid's previewer payload
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_delete_files">
-                                            <i class="fas fa-fw fa-trash me-2"></i>Delete for good
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete for Good
                                         </button>
                                     <?php } ?>
                                 <?php } ?>
@@ -529,11 +529,11 @@ $preview = []; // the grid's previewer payload
                             <a class="dropdown-item" href="post.php?download_folder_zip=<?= $folder_id ?>&client_id=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-file-archive me-2"></i><?= $folder_id ? 'Download as zip' : 'Download everything as zip' ?></a>
                             <?php if ($folder_id && $can_edit) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&current_folder_id=<?= $folder_id ?>"><i class="fas fa-fw fa-folder-plus me-2"></i>New folder inside</a>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_rename.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename or move</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&current_folder_id=<?= $folder_id ?>"><i class="fas fa-fw fa-folder-plus me-2"></i>New Folder Inside</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/folder/folder_rename.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename or Move</a>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/folder/folder_delete.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete folder</a>
+                                    <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/folder/folder_delete.php?id=<?= $folder_id ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete Folder</a>
                                 <?php } ?>
                             <?php } ?>
                         </div>
@@ -562,8 +562,8 @@ $preview = []; // the grid's previewer payload
                         'text' => $can_edit ? ($type_filter === 'document' ? 'Write one here - a procedure, a how-to, notes on the site.' : 'Drop files here to upload them.') : '',
                     ] : null),
                     'actions' => $can_edit ? [
-                        ['label' => 'Upload files', 'modal' => $upload_url, 'icon' => 'fa-cloud-upload-alt'],
-                        ['label' => 'New document', 'modal' => "modals/document/document_add.php?client_id=$client_id&folder_id=$folder_id", 'size' => 'xl', 'icon' => 'fa-file-alt'],
+                        ['label' => 'Upload Files', 'modal' => $upload_url, 'icon' => 'fa-cloud-upload-alt'],
+                        ['label' => 'New Document', 'modal' => "modals/document/document_add.php?client_id=$client_id&folder_id=$folder_id", 'size' => 'xl', 'icon' => 'fa-file-alt'],
                     ] : [],
                 ]) ?>
 

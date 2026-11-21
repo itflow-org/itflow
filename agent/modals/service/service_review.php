@@ -83,7 +83,7 @@ ob_start();
 
     <div class="modal-footer">
         <a class="me-auto small" href="<?= escapeHtml(serviceUrl($service_id, $client_id)) ?>">Open the service</a>
-        <button type="submit" name="review_service" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Mark reviewed</button>
+        <button type="submit" name="review_service" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Mark Reviewed</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

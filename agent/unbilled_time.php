@@ -321,7 +321,7 @@ $hours_text = function ($hours) {
                         Done tickets are drawn from them each night - the tickets here are beyond them, done outside the days they cover, or put back.
                     </div>
                     <?php if ($can_edit && $prepaid_left > 0) { ?>
-                        <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-info flex-shrink-0 text-nowrap" formnovalidate title="Draw these tickets from the prepaid hours now"><i class="fas fa-fw fa-arrow-down me-1"></i>Draw now</button>
+                        <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-info flex-shrink-0 text-nowrap" formnovalidate title="Draw these tickets from the prepaid hours now"><i class="fas fa-fw fa-arrow-down me-1"></i>Draw Now</button>
                     <?php } ?>
                 </div>
             <?php } ?>
@@ -330,7 +330,7 @@ $hours_text = function ($hours) {
                 <div class="card-header bg-dark py-2 d-flex align-items-center">
                     <h3 class="card-title mt-2 me-auto"><i class="fas fa-fw fa-user-clock me-2"></i>Unbilled Time<?= $client_view ? '' : ' by client' ?></h3>
                     <?php if ($client_view) { ?>
-                        <a class="btn btn-dark btn-sm me-1" href="unbilled_time.php" title="Every client's unbilled time"><i class="fas fa-users me-1"></i>All clients</a>
+                        <a class="btn btn-dark btn-sm me-1" href="unbilled_time.php" title="Every client's unbilled time"><i class="fas fa-users me-1"></i>All Clients</a>
                     <?php } ?>
                     <?php if ($with_time && reportCanOpen('tickets_unbilled')) { ?>
                         <a class="btn btn-dark btn-sm" href="reports/tickets_unbilled.php<?= $client_view ? "?client_id=$client_id" : '' ?>" title="The Unbilled Work report"><i class="fas fa-chart-bar me-1"></i>Report</a>
@@ -617,7 +617,7 @@ $hours_text = function ($hours) {
                             <?php if ($client_view) { ?>
                                 <button type="submit" name="unbilled_write_off" value="1" class="btn btn-outline-danger confirm-link" formnovalidate
                                     data-confirm-title="Mark them not billable?" data-confirm-text="The ticked tickets<?= $total['extras'] ? ', ' . ($total['expenses'] && $total['trips'] ? 'expenses and trips' : ($total['expenses'] ? 'expenses' : 'trips')) : '' ?> stop being billable and leave this list. <?= $total['tickets'] ? "Their time stays logged on them, and each one's history says it." : 'They stay as our cost.' ?>" data-confirm-button="Not billable">
-                                    <i class="fas fa-ban me-2"></i>Not billable
+                                    <i class="fas fa-ban me-2"></i>Not Billable
                                 </button>
                             <?php } ?>
                         </div>

@@ -285,7 +285,7 @@ ob_start();
     <?php } ?>
     <?php if ($can_unbill) { ?>
         <a class="btn btn-outline-secondary confirm-link" href="post.php?expense_unbill=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . ' is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and it waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take off Invoice</span></a>
+            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . ' is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and it waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take Off Invoice</span></a>
     <?php } ?>
     <?php if ($can_delete && !$is_transfer && $cleared) { ?>
         <?= reconcileLockedButtonHtml($cleared) ?>

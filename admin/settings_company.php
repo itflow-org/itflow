@@ -47,7 +47,7 @@ echo settingsPageStart('company');
             <?= settingsSectionStart('company', 'Your company', 'As it is named on invoices, quotes and the emails ITFlow sends.') ?>
                 <?= settingsInput('company_name', $company['company_name'], ['icon' => 'fa-building', 'required' => true, 'maxlength' => 200, 'placeholder' => 'Company name', 'autocomplete' => 'organization']) ?>
                 <?= settingsInput('company_tax_id', $company['company_tax_id'], ['icon' => 'fa-balance-scale', 'maxlength' => 200, 'placeholder' => 'Tax ID',
-                    'help' => 'Shown on invoices when Invoices and billing says so.']) ?>
+                    'help' => 'Shown on invoices when Invoices and Billing says so.']) ?>
             <?= settingsSectionEnd() ?>
 
             <?= settingsSectionStart('address', 'Address', 'Where your company is - on invoices, and the country phone numbers start from.') ?>
@@ -87,7 +87,7 @@ echo settingsPageStart('company');
                     'Click it to ' . ($logo_url !== '' ? 'change it' : 'add one') . ' - a PNG or JPG. A wide one prints best, and a PNG keeps a see-through background.');
                 ?>
                 <?php if ($logo_url !== '') { ?>
-                    <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-danger mt-2 confirm-link" data-settings-remove-logo><i class="fas fa-trash me-2"></i>Take the logo off</a>
+                    <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-danger mt-2 confirm-link" data-settings-remove-logo><i class="fas fa-trash me-2"></i>Take the Logo Off</a>
                 <?php } ?>
             <?= settingsSectionEnd() ?>
 

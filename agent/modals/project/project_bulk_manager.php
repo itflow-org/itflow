@@ -44,7 +44,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_project_manager" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set manager</button>
+        <button type="submit" name="bulk_edit_project_manager" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set Manager</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

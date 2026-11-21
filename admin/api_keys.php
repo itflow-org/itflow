@@ -89,7 +89,7 @@ $csrf = $_SESSION['csrf_token'];
                     : ($address_one ? 'It\'s' : 'They\'re') . ' turned away now - move ' . ($address_one ? 'it' : 'each') . ' to the X-API-Key header and give it a new key.' ?>
             </div>
             <?php if ($address_taken) { ?>
-                <a class="btn btn-sm btn-warning text-nowrap" href="settings_security.php#api">Security settings</a>
+                <a class="btn btn-sm btn-warning text-nowrap" href="settings_security.php#api">Security Settings</a>
             <?php } ?>
         </div>
     <?php } ?>

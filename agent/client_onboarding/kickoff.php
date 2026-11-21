@@ -95,5 +95,5 @@ while ($co_contact = mysqli_fetch_assoc($co_sql)) {
             </div>
         <?php } ?>
     </div>
-    <button type="submit" name="client_onboarding_kickoff" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-flag me-2"></i>Start the project</button>
+    <button type="submit" name="client_onboarding_kickoff" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-flag me-2"></i>Start the Project</button>
 </form>

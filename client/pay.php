@@ -51,18 +51,18 @@ if ($selection) {
 $back = 'unpaid_invoices.php' . ($checkout && !empty($checkout['ids']) ? '?' . http_build_query(['select' => implode(',', array_map('intval', (array) $checkout['ids']))]) : '');
 ?>
 
-<a class="itflow-portal-back" href="<?= escapeHtml($back) ?>"><i class="fas fa-chevron-left"></i>Pay invoices</a>
+<a class="itflow-portal-back" href="<?= escapeHtml($back) ?>"><i class="fas fa-chevron-left"></i>Pay Invoices</a>
 
 <?php if (!$selection) { ?>
 
     <div class="itflow-portal-page-head">
         <div>
-            <h1>Pay by card</h1>
+            <h1>Pay by Card</h1>
         </div>
     </div>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => escapeHtml($error), 'text' => 'Nothing has been charged.', 'icon' => 'fa-credit-card', 'filtered' => false,
-            'actions' => [['label' => 'Back to Pay invoices', 'href' => $back, 'icon' => 'fa-arrow-left']]]) ?>
+            'actions' => [['label' => 'Back to Pay Invoices', 'href' => $back, 'icon' => 'fa-arrow-left']]]) ?>
     </section>
 
 <?php } else {

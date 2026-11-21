@@ -162,7 +162,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                     </a>
                     <?php if ($session_is_admin) { ?>
                         <a class="dropdown-item" href="/admin/project_templates.php">
-                            <i class="fa fa-fw fa-cubes me-2"></i>Project templates
+                            <i class="fa fa-fw fa-cubes me-2"></i>Project Templates
                         </a>
                     <?php } ?>
                 </div>
@@ -227,15 +227,15 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_bulk_manager.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-user-tie me-2"></i>Set manager
+                                        <i class="fas fa-fw fa-user-tie me-2"></i>Set Manager
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_bulk_due.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-calendar-day me-2"></i>Set due date
+                                        <i class="fas fa-fw fa-calendar-day me-2"></i>Set Due Date
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_complete_projects"
                                         data-confirm-text="Each one with no open tickets is marked complete. Any with open tickets stay as they are.">
-                                        <i class="fas fa-fw fa-check me-2"></i>Mark complete
+                                        <i class="fas fa-fw fa-check me-2"></i>Mark Complete
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_reopen_projects">
                                         <i class="fas fa-fw fa-redo me-2"></i>Reopen
@@ -410,15 +410,15 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/project/project.php?id=<?= $project_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit) { ?>
                                         <?php if ($is_open) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?<?= $row_client_id ? "client_id=$row_client_id&" : '' ?>project_id=<?= $project_id ?>">
-                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New ticket
+                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New Ticket
                                             </a>
                                         <?php } ?>
                                         <?php if (!$row['project_archived_at']) { ?>
@@ -429,10 +429,10 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                         <div class="dropdown-divider"></div>
                                         <?php if ($is_open) { ?>
                                             <?php if ($s['open']) { ?>
-                                                <span class="dropdown-item disabled" title="Resolve or close its tickets first"><i class="fas fa-fw fa-check me-2"></i>Mark complete <small>(<?= $s['open'] ?> open)</small></span>
+                                                <span class="dropdown-item disabled" title="Resolve or close its tickets first"><i class="fas fa-fw fa-check me-2"></i>Mark Complete <small>(<?= $s['open'] ?> open)</small></span>
                                             <?php } else { ?>
                                                 <a class="dropdown-item confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">
-                                                    <i class="fas fa-fw fa-check text-success me-2"></i>Mark complete
+                                                    <i class="fas fa-fw fa-check text-success me-2"></i>Mark Complete
                                                 </a>
                                             <?php } ?>
                                         <?php } elseif ($state === 'completed') { ?>

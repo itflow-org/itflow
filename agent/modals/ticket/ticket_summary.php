@@ -43,7 +43,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($can_note) { ?>
             <button type="submit" name="add_ticket_ai_note" class="btn btn-primary text-bold" data-ai-summary-save disabled title="Put it on the ticket as an internal note">
-                <i class="fas fa-fw fa-sticky-note me-2"></i>Save as a note
+                <i class="fas fa-fw fa-sticky-note me-2"></i>Save as a Note
             </button>
         <?php } ?>
         <button type="button" class="btn btn-light border" data-ai-summary-copy disabled><i class="fas fa-fw fa-copy me-2"></i>Copy</button>

@@ -543,7 +543,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software.php?id=<?= $software_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($can_edit && !$software_archived_at) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">

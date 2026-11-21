@@ -13,7 +13,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>Export the master key</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>Export the Master Key</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -36,7 +36,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="backup_master_key" class="btn btn-primary text-bold"><i class="fas fa-fw fa-key me-2"></i>Show the master key</button>
+        <button type="submit" name="backup_master_key" class="btn btn-primary text-bold"><i class="fas fa-fw fa-key me-2"></i>Show the Master Key</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

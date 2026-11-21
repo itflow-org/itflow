@@ -78,7 +78,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
         <div class="alert alert-info d-flex flex-wrap align-items-center gap-2">
             <i class="fas fa-file-csv"></i>
             <span class="me-auto"><?= escapeHtml($import['file_name']) ?> is part way through - nothing from it is imported yet.</span>
-            <a class="btn btn-sm btn-primary" href="expense_import.php?step=<?= $import['map'] ? 'review' : 'columns' ?>">Carry on with it</a>
+            <a class="btn btn-sm btn-primary" href="expense_import.php?step=<?= $import['map'] ? 'review' : 'columns' ?>">Carry on with It</a>
         </div>
     <?php } ?>
 

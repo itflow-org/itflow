@@ -128,7 +128,7 @@ ob_start();
         </div>
 
         <div class="d-flex align-items-start gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" data-ai-try title="Sends it a one-line request, as it is here - recorded in AI Usage as a test"><i class="fas fa-fw fa-paper-plane me-1"></i>Try it</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm text-nowrap" data-ai-try title="Sends it a one-line request, as it is here - recorded in AI Usage as a test"><i class="fas fa-fw fa-paper-plane me-1"></i>Try It</button>
             <div class="small pt-1 min-w-0" data-ai-try-result></div>
         </div>
 

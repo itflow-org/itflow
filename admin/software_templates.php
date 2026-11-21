@@ -126,10 +126,10 @@ $csrf = $_SESSION['csrf_token'];
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/license_templates.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter license templates
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter License Templates
                     </a>
                 </div>
             </div>
@@ -238,14 +238,14 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if (!$row['software_template_archived_at']) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software_template/software_template_use.php?id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New license for a client
+                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New License for a Client
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software_template/software_template_use_several.php?id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For several clients
+                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For Several Clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_required.php?id=<?= $template_id ?>">
-                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who should have it
+                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who Should Have It
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
@@ -285,7 +285,7 @@ $csrf = $_SESSION['csrf_token'];
         'view' => $show === 'required' ? ['title' => 'No required templates', 'text' => 'Set one up from its page - <strong>Who should have it</strong> - to see which clients are missing a license from it.'] : null,
         'text' => 'A license you sell or look after again and again - Microsoft 365 Business Premium, an endpoint protection agent, a backup product - ready to start a client\'s from. Agents start one from <strong>New License</strong> on a client\'s Licenses.',
         'actions' => [['label' => 'New License Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Import', 'modal' => 'modals/software_template/software_template_import.php', 'icon' => 'fa-file-upload'],
-            ['label' => 'Starter license templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
+            ['label' => 'Starter License Templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

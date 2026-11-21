@@ -74,7 +74,7 @@ ob_start();
             <div class="form-text">A rate on a date that already has one replaces it.</div>
         </div>
         <div class="modal-footer">
-            <button type="submit" name="add_labor_cost_rate" class="btn btn-primary text-bold"><i class="fas fa-fw fa-check me-2"></i>Save the rate</button>
+            <button type="submit" name="add_labor_cost_rate" class="btn btn-primary text-bold"><i class="fas fa-fw fa-check me-2"></i>Save the Rate</button>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>
     </form>

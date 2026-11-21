@@ -74,7 +74,7 @@ echo settingsPageStart('theme');
                         <?= settingsInput('favicon', '', ['icon' => 'fa-image', 'type' => 'file', 'label' => $own_favicon ? 'Replace it' : 'Use your own', 'accept' => '.ico,image/x-icon,image/vnd.microsoft.icon',
                             'data' => ['settings-preview' => 'settingsFaviconPreview'], 'help' => 'An .ico file, up to 1 MB.']) ?>
                         <?php if ($own_favicon) { ?>
-                            <a href="post.php?reset_favicon&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-secondary mt-2 confirm-link" data-settings-reset-favicon><i class="fas fa-redo-alt me-2"></i>Back to ITFlow's icon</a>
+                            <a href="post.php?reset_favicon&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-secondary mt-2 confirm-link" data-settings-reset-favicon><i class="fas fa-redo-alt me-2"></i>Back to ITFlow's Icon</a>
                         <?php } ?>
                     </div>
                 </div>

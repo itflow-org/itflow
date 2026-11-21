@@ -141,7 +141,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Warranty Expiring In</label>
+            <label class="form-label">Warranty expiring in</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">

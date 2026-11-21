@@ -185,12 +185,12 @@ echo agentBannersHtml($project_client_id);
                     <i class="fas fa-plus me-2"></i>New Ticket
                 </button>
                 <div class="dropdown">
-                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Add tickets</button>
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Add Tickets</button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <?= linkPickerButton('project', $project_id, 'ticket', 'Tickets already raised', 'dropdown-item', 'fas fa-fw fa-life-ring text-secondary me-2') ?>
                         <?php if ($has_templates) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>">
-                                <i class="fas fa-fw fa-cubes text-secondary me-2"></i>From a project template
+                                <i class="fas fa-fw fa-cubes text-secondary me-2"></i>From a Project Template
                             </a>
                         <?php } ?>
                     </div>
@@ -204,11 +204,11 @@ echo agentBannersHtml($project_client_id);
             <?php if ($can_edit && $is_open) { ?>
                 <?php if ($stats['open']) { ?>
                     <button type="button" class="btn btn-outline-success" disabled title="<?= $stats['open'] ?> of its tickets <?= $stats['open'] === 1 ? 'is' : 'are' ?> still open - resolve or close them first">
-                        <i class="fas fa-check me-2"></i>Mark complete
+                        <i class="fas fa-check me-2"></i>Mark Complete
                     </button>
                 <?php } else { ?>
                     <a class="btn <?= $stats['tickets'] ? 'btn-success' : 'btn-outline-success' ?> confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">
-                        <i class="fas fa-check me-2"></i>Mark complete
+                        <i class="fas fa-check me-2"></i>Mark Complete
                     </a>
                 <?php } ?>
             <?php } elseif ($can_edit && $state === 'completed') { ?>
@@ -223,7 +223,7 @@ echo agentBannersHtml($project_client_id);
                     </button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="tickets.php?<?= $project_client_id ? "client_id=$project_client_id&" : '' ?>project=<?= $project_id ?>&show=all">
-                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Its tickets on the ticket list
+                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Its Tickets on the Ticket List
                         </a>
                         <div class="dropdown-divider"></div>
                         <?php if ($project['project_archived_at']) { ?>
@@ -256,7 +256,7 @@ echo agentBannersHtml($project_client_id);
         <i class="fas fa-fw fa-<?= ['overdue' => 'calendar-times', 'over_budget' => 'hourglass-end', 'ready' => 'flag-checkered', 'stalled' => 'hourglass-half'][$flag['key']] ?? 'info-circle' ?>"></i>
         <span class="flex-grow-1"><?= escapeHtml($flag['text']) ?></span>
         <?php if ($flag['key'] === 'ready' && $can_edit) { ?>
-            <a class="btn btn-sm btn-success confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">Mark complete</a>
+            <a class="btn btn-sm btn-success confirm-link" href="post.php?complete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $reference ?> is marked complete.">Mark Complete</a>
         <?php } ?>
     </div>
 <?php } ?>
@@ -383,14 +383,14 @@ echo agentBannersHtml($project_client_id);
                                         <i class="fas fa-fw fa-user-check me-2"></i>Assign
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_priority.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set priority
+                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_category.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-tag me-2"></i>Set category
+                                        <i class="fas fa-fw fa-tag me-2"></i>Set Category
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_reply.php" data-modal-size="lg" data-bulk="true">
-                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or add a note
+                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Reply or Add a Note
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_resolve.php" data-modal-size="lg" data-bulk="true">
                                         <i class="fas fa-fw fa-check me-2"></i>Resolve
@@ -398,7 +398,7 @@ echo agentBannersHtml($project_client_id);
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="remove_tickets_from_project"
                                         data-confirm-text="The tickets stay as they are, just no longer part of this project.">
-                                        <i class="fas fa-fw fa-unlink me-2"></i>Take off the project
+                                        <i class="fas fa-fw fa-unlink me-2"></i>Take Off the Project
                                     </button>
                                 </div>
                             </div>
@@ -501,7 +501,7 @@ echo agentBannersHtml($project_client_id);
                                 <div class="d-flex justify-content-center gap-2 mt-3">
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $new_ticket_url ?>"><i class="fas fa-plus me-2"></i>New Ticket</button>
                                     <?php if ($has_templates) { ?>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>"><i class="fas fa-cubes me-2"></i>From a template</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/project/project_apply_template.php?project_id=<?= $project_id ?>"><i class="fas fa-cubes me-2"></i>From a Template</button>
                                     <?php } ?>
                                 </div>
                             <?php } ?>

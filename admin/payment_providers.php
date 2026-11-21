@@ -188,21 +188,21 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <a class="dropdown-item" href="post.php?check_payment_provider_connection=<?= $provider_id ?>&csrf_token=<?= $csrf ?>" title="Whether <?= escapeHtml($name) ?> still takes its secret key, and whose account it is">
-                                    <i class="fas fa-fw fa-plug text-secondary me-2"></i>Check connection
+                                    <i class="fas fa-fw fa-plug text-secondary me-2"></i>Check Connection
                                 </a>
                                 <?php if ($fees_on && $activity['waiting']) { ?>
                                     <a class="dropdown-item" href="post.php?record_payment_provider_fees=<?= $provider_id ?>&csrf_token=<?= $csrf ?>" title="What the Payment Provider Fees job does every few minutes - for the card payments whose fee is still to record">
-                                        <i class="fas fa-fw fa-receipt text-secondary me-2"></i>Record fees now
+                                        <i class="fas fa-fw fa-receipt text-secondary me-2"></i>Record Fees Now
                                     </a>
                                 <?php } ?>
                                 <?php if ($on) { ?>
                                     <a class="dropdown-item confirm-link" href="post.php?turn_payment_provider_off=<?= $provider_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Turn <?= escapeHtml($name) ?> off?" data-confirm-text="Clients won't be able to pay by card, and autopay with its saved cards is skipped until it is on again. Its cards are kept." data-confirm-button="Turn off">
-                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn off
+                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn Off
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item" href="post.php?turn_payment_provider_on=<?= $provider_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn on
+                                        <i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn On
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>

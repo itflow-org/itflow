@@ -43,7 +43,7 @@ $gs_cron_command = gettingStartedCronCommand();
                 <div class="small text-body-secondary mb-2">Someone switched it off in Maintenance &gt; Cron, and every job stops itself while it is off.</div>
                 <form action="post.php" method="post" class="m-0">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <button type="submit" name="getting_started_cron_on" value="1" class="btn btn-primary"><i class="fas fa-toggle-on me-2"></i>Turn cron on</button>
+                    <button type="submit" name="getting_started_cron_on" value="1" class="btn btn-primary"><i class="fas fa-toggle-on me-2"></i>Turn Cron On</button>
                 </form>
             </div>
         </li>

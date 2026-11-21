@@ -15,7 +15,7 @@ ob_start();
 
 if (!$portal_user) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fas fa-fw fa-user-circle me-2"></i>Portal access</h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-user-circle me-2"></i>Portal Access</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That portal user is gone - their contact may have been deleted.</div>
@@ -68,7 +68,7 @@ if (!$portal_user) { ?>
         </div>
         <div class="modal-footer">
             <?php if (!$archived) { ?>
-                <button type="submit" name="portal_user_access_on" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Turn on</button>
+                <button type="submit" name="portal_user_access_on" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Turn On</button>
             <?php } ?>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>

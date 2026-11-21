@@ -183,7 +183,7 @@ $provider = smsProvider();
                     </td>
                     <td class="text-end pe-3 text-nowrap">
                         <?php if ($show === 'unmatched' && $can_work) { ?>
-                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/sms/sms_ticket_open.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-life-ring me-1"></i><span class="d-none d-sm-inline">Open ticket</span></button>
+                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/sms/sms_ticket_open.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-life-ring me-1"></i><span class="d-none d-sm-inline">Open Ticket</span></button>
                         <?php } ?>
                         <?php if (($show !== 'codes' && $can_work) || ($codes && $can_codes)) { ?>
                             <div class="dropdown dropstart d-inline-block">
@@ -191,20 +191,20 @@ $provider = smsProvider();
                                 <div class="dropdown-menu">
                                     <?php if ($show === 'unmatched') { ?>
                                         <a class="dropdown-item" href="post.php?sms_dismiss=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-check text-secondary me-2"></i>Dismiss</a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name this number</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name This Number</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?sms_mark_spam=<?= $message_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Mark as spam?" data-confirm-button="Mark as spam"
-                                            data-confirm-text="<?= escapeHtml(smsNumberText($number)) ?> is blocked - what it sends goes straight to Spam, and its texts here go there now."><i class="fas fa-fw fa-ban me-2"></i>Mark as spam</a>
+                                            data-confirm-text="<?= escapeHtml(smsNumberText($number)) ?> is blocked - what it sends goes straight to Spam, and its texts here go there now."><i class="fas fa-fw fa-ban me-2"></i>Mark as Spam</a>
                                     <?php } elseif ($codes) { ?>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name this sender</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms/sms_label.php?id=<?= $message_id ?>"><i class="fas fa-fw fa-tag text-secondary me-2"></i>Name This Sender</a>
                                         <?php if (lookupUserPermission('module_credential') >= 2 && $row['sms_message_body'] !== null) { ?>
                                             <a class="dropdown-item confirm-link" href="post.php?sms_not_code=<?= $message_id ?>&csrf_token=<?= $csrf ?>"
                                                 data-confirm-title="Not a code?" data-confirm-button="Move to Unmatched"
-                                                data-confirm-text="It moves to Unmatched, where everyone who works tickets sees its words."><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not a code</a>
+                                                data-confirm-text="It moves to Unmatched, where everyone who works tickets sees its words."><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not a Code</a>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <a class="dropdown-item" href="post.php?sms_not_spam=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not spam</a>
+                                        <a class="dropdown-item" href="post.php?sms_not_spam=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-undo text-secondary me-2"></i>Not Spam</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger" href="post.php?sms_delete=<?= $message_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                     <?php } ?>

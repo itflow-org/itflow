@@ -24,7 +24,7 @@ ob_start();
 
         <!-- Type -->
         <div class="mb-3">
-            <label class="form-label" for="interface_type">Interface Type</label>
+            <label class="form-label" for="interface_type">Interface type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
                 <select class="form-select select2" id="interface_type" name="bulk_type">

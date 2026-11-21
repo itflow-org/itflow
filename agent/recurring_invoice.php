@@ -289,7 +289,7 @@ echo agentBannersHtml($client_id);
                 <div class="card-header d-flex align-items-center">
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-users text-secondary me-2"></i>Seats</h3>
                     <?php if ($can_edit && $seat_drift) { ?>
-                        <a class="btn btn-sm btn-outline-warning" href="post.php?recurring_invoice_sync=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-sync-alt me-1"></i>Update now</a>
+                        <a class="btn btn-sm btn-outline-warning" href="post.php?recurring_invoice_sync=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-sync-alt me-1"></i>Update Now</a>
                     <?php } ?>
                 </div>
                 <div class="list-group list-group-flush">
@@ -388,7 +388,7 @@ echo agentBannersHtml($client_id);
 
         <div class="card mb-3">
             <div class="card-header d-flex align-items-center">
-                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices Made <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $generated_count ?></span></h3>
+                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices made <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $generated_count ?></span></h3>
                 <?php if ($generated_count > count($generated)) { ?>
                     <a class="small" href="invoices.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>">All</a>
                 <?php } ?>

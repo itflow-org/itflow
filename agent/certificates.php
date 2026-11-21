@@ -217,7 +217,7 @@ $export_extra = [
                             <div class="dropdown-menu dropdown-menu-end">
                                 <?php if (!$archived) { ?>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_check_certificates">
-                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Check now
+                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Check Now
                                     </button>
                                 <?php } ?>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_favorite_certificates">
@@ -402,11 +402,11 @@ $export_extra = [
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($host) { ?>
                                         <a class="dropdown-item" href="https://<?= escapeHtml($host['display']) ?>" target="_blank" rel="noopener noreferrer">
-                                            <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the site
+                                            <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the Site
                                         </a>
                                     <?php } ?>
                                     <?php if ($can_edit && !$certificate_archived_at) { ?>
@@ -415,7 +415,7 @@ $export_extra = [
                                         </a>
                                         <?php if ($host) { ?>
                                             <a class="dropdown-item" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check now
+                                                <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check Now
                                             </a>
                                         <?php } ?>
                                         <a class="dropdown-item" href="post.php?<?= $certificate_favorite ? 'unfavorite_certificate' : 'favorite_certificate' ?>=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

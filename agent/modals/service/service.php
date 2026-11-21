@@ -143,11 +143,11 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <a class="btn btn-outline-secondary ajax-modal me-auto" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml('modals/ticket/ticket_add.php?' . http_build_query(['client_id' => $client_id, 'service_id' => $service_id])) ?>">
-            <i class="fas fa-life-ring me-2"></i>Report a problem
+            <i class="fas fa-life-ring me-2"></i>Report a Problem
         </a>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <a class="btn btn-primary" href="<?= $page_url ?>"><i class="fas fa-arrow-right me-2"></i>Open service</a>
+    <a class="btn btn-primary" href="<?= $page_url ?>"><i class="fas fa-arrow-right me-2"></i>Open Service</a>
 </div>
 
 <?php

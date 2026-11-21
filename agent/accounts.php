@@ -109,11 +109,11 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                     <?php if ($can_edit) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - expenses</a>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - income</a>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
-                    <a class="dropdown-item" href="transactions.php"><i class="fa fa-fw fa-list-alt text-secondary me-2"></i>Every account's transactions</a>
+                    <a class="dropdown-item" href="transactions.php"><i class="fa fa-fw fa-list-alt text-secondary me-2"></i>Every Account's Transactions</a>
                     <a class="dropdown-item" href="transactions.php?show=transfers"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>Transfers</a>
                 </div>
             </div>
@@ -210,8 +210,8 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-list-alt text-secondary me-2"></i>Transactions</a>
-                                <a class="dropdown-item" href="income.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Income into it</a>
-                                <a class="dropdown-item" href="expenses.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses from it</a>
+                                <a class="dropdown-item" href="income.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Income into It</a>
+                                <a class="dropdown-item" href="expenses.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses from It</a>
                                 <a class="dropdown-item" href="reconcile.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
                                 <?php if ($can_edit && !$account['account_archived_at']) { ?>
                                     <div class="dropdown-divider"></div>
@@ -219,7 +219,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                                     <?php if ($card) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?to=<?= $account_id ?>"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Pay the Card</a>
                                     <?php } else { ?>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?from=<?= $account_id ?>"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>Transfer from it</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?from=<?= $account_id ?>"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>Transfer from It</a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <?php if (abs($balance) < 0.005) { ?>

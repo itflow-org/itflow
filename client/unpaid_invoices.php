@@ -49,7 +49,7 @@ $pay_token = bin2hex(random_bytes(16));
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Pay invoices</h1>
+        <h1>Pay Invoices</h1>
         <p>Tick what to pay - it goes through as one card payment.</p>
     </div>
 </div>
@@ -58,14 +58,14 @@ $pay_token = bin2hex(random_bytes(16));
 
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => 'Card payments are not set up', 'text' => 'To pay, use the payment details on each invoice.', 'icon' => 'fa-credit-card', 'filtered' => false,
-            'actions' => [['label' => 'Invoices to pay', 'href' => 'invoices.php?tab=open', 'icon' => 'fa-file-invoice-dollar']]]) ?>
+            'actions' => [['label' => 'Invoices to Pay', 'href' => 'invoices.php?tab=open', 'icon' => 'fa-file-invoice-dollar']]]) ?>
     </section>
 
 <?php } elseif (!$open) { ?>
 
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => 'Nothing to pay', 'text' => 'You are all paid up - thank you.', 'icon' => 'fa-check', 'filtered' => false,
-            'actions' => [['label' => 'Your payments', 'href' => 'payments.php', 'icon' => 'fa-receipt']]]) ?>
+            'actions' => [['label' => 'Your Payments', 'href' => 'payments.php', 'icon' => 'fa-receipt']]]) ?>
     </section>
 
 <?php } else { ?>

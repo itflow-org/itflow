@@ -253,7 +253,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if (userInvitesReady() && !$agent_user_limit_reached) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_invite_bulk.php?role=<?= $role_filter ?>">
-                            <i class="fa fa-fw fa-users text-secondary me-2"></i>Invite several
+                            <i class="fa fa-fw fa-users text-secondary me-2"></i>Invite Several
                         </a>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
@@ -264,11 +264,11 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fa fa-fw fa-user-tag text-secondary me-2"></i>Roles
                     </a>
                     <a class="dropdown-item" href="settings_security.php">
-                        <i class="fa fa-fw fa-shield-alt text-secondary me-2"></i>Security settings
+                        <i class="fa fa-fw fa-shield-alt text-secondary me-2"></i>Security Settings
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/user/user_all_reset_password.php">
-                        <i class="fas fa-fw fa-skull-crossbones me-2"></i>Incident response
+                        <i class="fas fa-fw fa-skull-crossbones me-2"></i>Incident Response
                     </a>
                 </div>
             </div>
@@ -324,20 +324,20 @@ $csrf = $_SESSION['csrf_token'];
                                         data-confirm-title="Email them a password link?" data-confirm-icon="info"
                                         data-confirm-text="Each one who signs in with a password is emailed a link to choose a new one, good for <?= PORTAL_RESET_LINK_MINUTES ?> minutes. Their password stays as it is until they use it."
                                         data-confirm-button="Email the links">
-                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a password link
+                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a Password Link
                                     </button>
                                 <?php } ?>
                                 <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_portal_reset_mfa"
                                     data-confirm-text="They sign in with their password alone until they set two-step sign-in up again, and are emailed that it was turned off. For a lost or replaced phone."
                                     data-confirm-button="Turn off two-step">
-                                    <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn off two-step sign-in
+                                    <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn Off Two-step Sign-in
                                 </button>
                                 <?php if ($portal_access !== 'off') { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_portal_access_off"
                                         data-confirm-text="They are signed out of the client portal and can't sign in. Their contact stays as it is - turn their access back on here or from the contact."
                                         data-confirm-button="Turn off access">
-                                        <i class="fas fa-fw fa-user-slash me-2"></i>Turn off portal access
+                                        <i class="fas fa-fw fa-user-slash me-2"></i>Turn Off Portal Access
                                     </button>
                                 <?php } ?>
                             </div>
@@ -350,10 +350,10 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-lock text-secondary me-2"></i>Require MFA
                                 </button>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_unrequire_mfa_users">
-                                    <i class="fas fa-fw fa-lock-open text-secondary me-2"></i>Stop requiring MFA
+                                    <i class="fas fa-fw fa-lock-open text-secondary me-2"></i>Stop Requiring MFA
                                 </button>
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_revoke_remember_users">
-                                    <i class="fas fa-fw fa-laptop text-secondary me-2"></i>Forget remembered browsers
+                                    <i class="fas fa-fw fa-laptop text-secondary me-2"></i>Forget Remembered Browsers
                                 </button>
                                 <?php if ($show !== 'archived') { ?>
                                     <div class="dropdown-divider"></div>
@@ -494,15 +494,15 @@ $csrf = $_SESSION['csrf_token'];
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="<?= $contact_url ?>">
-                                        <i class="fas fa-fw fa-address-card text-secondary me-2"></i>Open contact
+                                        <i class="fas fa-fw fa-address-card text-secondary me-2"></i>Open Contact
                                     </a>
                                     <?php if ($is_on && intval($config_client_portal_enable)) { ?>
                                         <a class="dropdown-item" href="/agent/post.php?portal_view_as=<?= $contact_id ?>&csrf_token=<?= $csrf ?>" title="The portal as they see it, read only">
-                                            <i class="fas fa-fw fa-eye text-secondary me-2"></i>View the portal as them
+                                            <i class="fas fa-fw fa-eye text-secondary me-2"></i>View the Portal as Them
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item" href="audit_logs.php?user=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Log
                                     </a>
                                     <?php if ($is_on && $portal_mail_ready) { ?>
                                         <?php if ($is_local) { ?>
@@ -510,12 +510,12 @@ $csrf = $_SESSION['csrf_token'];
                                                 data-confirm-title="Email <?= $name ?> a password link?" data-confirm-icon="info"
                                                 data-confirm-text="<?= $name ?> is emailed a link to choose a new password, good for <?= PORTAL_RESET_LINK_MINUTES ?> minutes. Their password stays as it is until they use it."
                                                 data-confirm-button="Email the link">
-                                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a password link
+                                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Email a Password Link
                                             </a>
                                         <?php } ?>
                                         <?php if (!$login) { ?>
                                             <a class="dropdown-item" href="post.php?portal_user_invite=<?= $user_id ?>&csrf_token=<?= $csrf ?>">
-                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the invite again
+                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the Invite Again
                                             </a>
                                         <?php } ?>
                                     <?php } ?>
@@ -523,7 +523,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <a class="dropdown-item confirm-link" href="post.php?portal_user_reset_mfa=<?= $user_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-text="<?= $name ?> signs in with their password alone until they set two-step sign-in up again, and is emailed that it was turned off. For a lost or replaced phone."
                                             data-confirm-button="Turn off two-step">
-                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn off two-step sign-in
+                                            <i class="fas fa-fw fa-mobile-alt text-secondary me-2"></i>Turn Off Two-step Sign-in
                                         </a>
                                     <?php } ?>
                                     <?php if ($remember_count) { ?>
@@ -537,12 +537,12 @@ $csrf = $_SESSION['csrf_token'];
                                             data-confirm-title="Turn off portal access for <?= $name ?>?"
                                             data-confirm-text="<?= $name ?> is signed out of the client portal and can't sign in. Their contact stays as it is - turn their access back on here or from the contact."
                                             data-confirm-button="Turn off access">
-                                            <i class="fas fa-fw fa-user-slash me-2"></i>Turn off portal access
+                                            <i class="fas fa-fw fa-user-slash me-2"></i>Turn Off Portal Access
                                         </a>
                                     <?php } elseif ($can_turn_on) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/portal_user/portal_user_access.php?id=<?= $user_id ?>">
-                                            <i class="fas fa-fw fa-user-check text-secondary me-2"></i>Turn on portal access
+                                            <i class="fas fa-fw fa-user-check text-secondary me-2"></i>Turn On Portal Access
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -641,24 +641,24 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="dropdown-menu">
                                 <?php if ($invite_mail_ready) { ?>
                                     <a class="dropdown-item" href="post.php?resend_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send again
+                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send Again
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item confirm-link" href="post.php?link_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Get a new invite link?" data-confirm-icon="info"
                                     data-confirm-text="A new link is made for you to send <?= $invite_name ?> yourself, shown once. Any link sent before stops working, and it works for <?= USER_INVITE_LINK_DAYS ?> days."
                                     data-confirm-button="Get the link">
-                                    <i class="fas fa-fw fa-link text-secondary me-2"></i>Get the link
+                                    <i class="fas fa-fw fa-link text-secondary me-2"></i>Get the Link
                                 </a>
                                 <a class="dropdown-item" href="audit_logs.php?q=<?= rawurlencode($invite['invite_email']) ?>">
-                                    <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                    <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Log
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?cancel_user_invite=<?= $invite_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Cancel <?= $invite_name ?>'s invite?"
                                     data-confirm-text="The link <?= $invite_name ?> has stops working<?= $agent_user_limit > 0 && !$invite_expired ? ', and the seat it holds is free again' : '' ?>. Invite them again any time."
                                     data-confirm-button="Cancel invite">
-                                    <i class="fas fa-fw fa-ban me-2"></i>Cancel invite
+                                    <i class="fas fa-fw fa-ban me-2"></i>Cancel Invite
                                 </a>
                             </div>
                         </div>
@@ -774,14 +774,14 @@ $csrf = $_SESSION['csrf_token'];
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="audit_logs.php?user=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit log
+                                        <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Log
                                     </a>
                                     <?php if ($is_self) { ?>
                                         <a class="dropdown-item" href="/agent/user/user_details.php">
-                                            <i class="fas fa-fw fa-user-cog text-secondary me-2"></i>Your account
+                                            <i class="fas fa-fw fa-user-cog text-secondary me-2"></i>Your Account
                                         </a>
                                     <?php } elseif ($is_archived) { ?>
                                         <div class="dropdown-divider"></div>

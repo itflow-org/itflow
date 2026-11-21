@@ -26,7 +26,7 @@ unset($_SESSION['portal_invite_form']);
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Invite people</h1>
+        <h1>Invite People</h1>
         <p>To the portal for <?= escapeHtml($session_client_name) ?> - they put in their own name, phone and password</p>
     </div>
 </div>
@@ -36,7 +36,7 @@ unset($_SESSION['portal_invite_form']);
         <?php if (!$ready) { ?>
             <section class="itflow-portal-panel">
                 <?= emptyStateHtml(['title' => "Invites can't be sent just now", 'text' => 'Add the person on Contacts instead, or ask us to set them up.', 'icon' => 'fa-paper-plane', 'filtered' => false,
-                    'actions' => [['label' => 'Add a person', 'href' => 'contact.php?new=1', 'icon' => 'fa-user-plus']]]) ?>
+                    'actions' => [['label' => 'Add a Person', 'href' => 'contact.php?new=1', 'icon' => 'fa-user-plus']]]) ?>
             </section>
         <?php } else { ?>
             <form class="itflow-portal-panel" action="post.php" method="post" autocomplete="off" data-portal-once>
@@ -67,7 +67,7 @@ unset($_SESSION['portal_invite_form']);
                         <div class="form-text">Without either, they see the tickets they raise.</div>
                     </fieldset>
 
-                    <button type="submit" class="btn btn-primary" name="portal_invites_send"><i class="fas fa-paper-plane me-2"></i>Send invites</button>
+                    <button type="submit" class="btn btn-primary" name="portal_invites_send"><i class="fas fa-paper-plane me-2"></i>Send Invites</button>
                 </div>
             </form>
         <?php } ?>

@@ -91,7 +91,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
     <div class="d-flex align-items-center gap-3 min-w-0">
         <?= portalAvatarHtml((string) ($me['contact_name'] ?? ''), $session_contact_photo ? "/uploads/clients/$session_client_id/$session_contact_photo" : '', 'lg') ?>
         <div class="min-w-0">
-            <h1>Your account</h1>
+            <h1>Your Account</h1>
             <p>Your details, the emails you get from us and how you sign in</p>
         </div>
     </div>
@@ -153,7 +153,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                         <input type="tel" class="form-control" id="contactMobile" name="mobile" maxlength="200" value="<?= escapeHtml($mobile_input) ?>" data-itflow-phone="mobile_country_code">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" name="set_contact_phone"><i class="fas fa-check me-2"></i>Save numbers</button>
+                <button type="submit" class="btn btn-primary" name="set_contact_phone"><i class="fas fa-check me-2"></i>Save Numbers</button>
             </div>
         </form>
 
@@ -270,7 +270,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                             <input type="password" class="form-control" id="confirmPassword" name="confirm_password" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary" name="portal_password_change"><i class="fas fa-check me-2"></i>Change password</button>
+                    <button type="submit" class="btn btn-primary" name="portal_password_change"><i class="fas fa-check me-2"></i>Change Password</button>
                 </form>
 
                 <ul class="itflow-portal-list border-top">
@@ -283,9 +283,9 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                             <span class="itflow-portal-ticket-meta"><span><?= $session_mfa_on ? 'Signing in asks for a code from your authenticator app' : 'A code from an app on your phone, as well as your password' ?></span></span>
                         </span>
                         <?php if (!$session_mfa_on && !$mfa_setup) { ?>
-                            <a class="btn btn-sm btn-primary text-nowrap" href="profile.php?mfa=setup#security">Turn on</a>
+                            <a class="btn btn-sm btn-primary text-nowrap" href="profile.php?mfa=setup#security">Turn On</a>
                         <?php } elseif ($session_mfa_on && !$mfa_required) { ?>
-                            <button type="button" class="btn btn-sm btn-outline-secondary text-nowrap" data-bs-toggle="collapse" data-bs-target="#mfaOffForm" aria-expanded="false" aria-controls="mfaOffForm">Turn off</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary text-nowrap" data-bs-toggle="collapse" data-bs-target="#mfaOffForm" aria-expanded="false" aria-controls="mfaOffForm">Turn Off</button>
                         <?php } ?>
                     </li>
                 </ul>
@@ -309,9 +309,9 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                         </ol>
                         <?= otpCodeInput('verify_code', ['class' => 'mb-3', 'submit' => true, 'autofocus' => true]) ?>
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" class="btn btn-primary" name="portal_mfa_enable"><i class="fas fa-check me-2"></i>Turn on</button>
+                            <button type="submit" class="btn btn-primary" name="portal_mfa_enable"><i class="fas fa-check me-2"></i>Turn On</button>
                             <?php if (!$portal_mfa_setup_needed) { ?>
-                                <a class="btn btn-light" href="profile.php">Not now</a>
+                                <a class="btn btn-light" href="profile.php">Not Now</a>
                             <?php } ?>
                         </div>
                     </form>
@@ -328,7 +328,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                                 <input type="password" class="form-control" id="mfaOffPassword" name="current_password" autocomplete="current-password" required>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-outline-danger" name="portal_mfa_disable"><i class="fas fa-times me-2"></i>Turn off two-step sign-in</button>
+                        <button type="submit" class="btn btn-outline-danger" name="portal_mfa_disable"><i class="fas fa-times me-2"></i>Turn Off Two-step Sign-in</button>
                     </form>
                 <?php } elseif ($session_mfa_on) { ?>
                     <div class="itflow-portal-panel-body border-top small text-body-secondary py-2"><?= escapeHtml($session_company_name) ?> asks everyone to use it, so it stays on. Lost your phone? Ask us to reset it.</div>
@@ -338,7 +338,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                     <form class="itflow-portal-panel-body border-top d-flex align-items-center justify-content-between gap-2" action="post.php" method="post" data-portal-once>
                         <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                         <span class="small text-body-secondary"><?= $remembered ?> browser<?= $remembered === 1 ? ' skips' : 's skip' ?> the code for <?= intval($config_login_remember_me_expire) ?> day<?= intval($config_login_remember_me_expire) === 1 ? '' : 's' ?> after signing in</span>
-                        <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap" name="portal_forget_browsers">Forget them</button>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap" name="portal_forget_browsers">Forget Them</button>
                     </form>
                 <?php } ?>
 

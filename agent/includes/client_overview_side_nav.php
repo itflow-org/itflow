@@ -42,7 +42,7 @@ $num_vendors = $row['num'];
     <div class="sidebar-brand">
         <a class="brand-link" href="clients.php">
             <i class="fas fa-arrow-left me-2"></i>
-            <span class="brand-text h6 mb-0">Back | <strong>Across clients</strong></span>
+            <span class="brand-text h6 mb-0">Back | <strong>Across Clients</strong></span>
         </a>
     </div>
 

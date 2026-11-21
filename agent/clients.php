@@ -356,7 +356,7 @@ $total_leads = intval($row['leads']);
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_onboard) { ?>
                             <a class="dropdown-item" href="<?= clientOnboardingUrl() ?>" data-onboard-new>
-                                <i class="fa fa-fw fa-route me-2"></i>Onboard a client
+                                <i class="fa fa-fw fa-route me-2"></i>Onboard a Client
                             </a>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
@@ -754,7 +754,7 @@ $total_leads = intval($row['leads']);
         'text' => $leads_filter ? 'Prospects you are talking to, kept apart from your clients.' : 'Add the companies you look after, or import them all at once.',
         'actions' => $can_edit ? array_merge(
             [['label' => $leads_filter ? 'New Lead' : 'New Client', 'modal' => 'modals/client/client_add.php' . ($leads_filter ? '?lead=1' : '')]],
-            $leads_filter || !$can_onboard ? [] : [['label' => 'Onboard a client', 'href' => clientOnboardingUrl(), 'icon' => 'fa-route']],
+            $leads_filter || !$can_onboard ? [] : [['label' => 'Onboard a Client', 'href' => clientOnboardingUrl(), 'icon' => 'fa-route']],
             $leads_filter ? [] : [['label' => 'Import', 'modal' => 'modals/import/import.php?kind=clients', 'icon' => 'fa-upload', 'size' => 'lg']]
         ) : [],
     ];

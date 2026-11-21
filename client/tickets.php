@@ -108,7 +108,7 @@ $empty_titles = [
         <?php } else {
             [$title, $text, $icon] = $empty_titles[$tab]; ?>
             <?= emptyStateHtml(['title' => $title, 'text' => $text, 'icon' => $icon, 'filtered' => false,
-                'actions' => in_array($tab, ['open', 'all'], true) ? [['label' => 'New ticket', 'href' => 'ticket_add.php']] : []]) ?>
+                'actions' => in_array($tab, ['open', 'all'], true) ? [['label' => 'New Ticket', 'href' => 'ticket_add.php']] : []]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

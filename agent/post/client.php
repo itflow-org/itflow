@@ -172,7 +172,7 @@ if (isset($_POST['set_client_portal_signup'])) {
     $client_name = escapeSql($client['client_name']);
     logAudit("Client", "Edit", "$session_name " . ($on ? 'let people at ' . escapeSql(implode(', ', $domains)) . " sign up for the client portal for $client_name" : "stopped people signing up for the client portal for $client_name"), $client_id, $client_id);
     if ($on) {
-        flashAlert('People with an address at <strong>' . escapeHtml(implode(', ', $domains)) . '</strong> can sign up now' . (portalSignupOn() ? '' : ' - once signing up is turned on in Admin > Settings > Client portal'));
+        flashAlert('People with an address at <strong>' . escapeHtml(implode(', ', $domains)) . '</strong> can sign up now' . (portalSignupOn() ? '' : ' - once signing up is turned on in Admin > Settings > Client Portal'));
     } else {
         flashAlert('Signing up is off for <strong>' . escapeHtml($client['client_name']) . '</strong> - invite people instead');
     }

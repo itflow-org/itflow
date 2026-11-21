@@ -32,7 +32,7 @@ isset($mysqli) || die("Direct file access is not allowed");
 if (!empty($canned_picker_groups) || intval($canned_picker_ticket_id) > 0) { ?>
     <div class="dropdown itflow-canned-picker mb-2" id="<?= escapeHtml($canned_picker_id) ?>" data-canned-picker data-editor="<?= escapeHtml($canned_picker_editor) ?>" data-ticket-id="<?= intval($canned_picker_ticket_id) ?>" data-canned-filled="<?= escapeHtml(implode('|', array_keys(CANNED_RESPONSE_PLACEHOLDERS))) ?>">
         <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" data-canned-toggle>
-            <i class="fas fa-fw fa-comment-dots me-1"></i>Canned response
+            <i class="fas fa-fw fa-comment-dots me-1"></i>Canned Response
         </button>
         <span class="small text-body-secondary ms-2 d-none d-md-inline">or type <kbd>/</kbd> in the reply</span>
         <div class="dropdown-menu p-0 itflow-canned-menu">
@@ -65,11 +65,11 @@ if (!empty($canned_picker_groups) || intval($canned_picker_ticket_id) > 0) { ?>
                 <?php if (intval($canned_picker_ticket_id) > 0) { ?>
                     <a class="dropdown-item small ajax-modal" href="#" data-modal-size="lg" data-canned-save-open
                         data-modal-url="/agent/user/modals/canned_response_save.php?<?= escapeHtml(http_build_query(['ticket_id' => intval($canned_picker_ticket_id), 'editor' => $canned_picker_editor, 'picker' => $canned_picker_id])) ?>">
-                        <i class="fas fa-fw fa-save text-secondary me-2"></i>Save your reply as a canned response
+                        <i class="fas fa-fw fa-save text-secondary me-2"></i>Save Your Reply as a Canned Response
                     </a>
                 <?php } ?>
                 <a class="dropdown-item small" href="/agent/user/user_canned_responses.php" target="_blank" title="Opens in a new tab - your reply stays here">
-                    <i class="fas fa-fw fa-user text-secondary me-2"></i>Your canned responses
+                    <i class="fas fa-fw fa-user text-secondary me-2"></i>Your Canned Responses
                 </a>
             </div>
         </div>

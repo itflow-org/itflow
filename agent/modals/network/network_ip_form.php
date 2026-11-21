@@ -35,7 +35,7 @@ $ip_input = function ($name, $id, $value, $required) use ($ip_split, $ip_fixed_o
 ?>
 
 <div class="mb-3">
-    <label class="form-label">IP Address <strong class="text-danger">*</strong></label>
+    <label class="form-label">IP address <strong class="text-danger">*</strong></label>
     <?= $ip_input('ip_address', 'networkIpAddress', $ip_split ? $ip_host_value : $ip_value, true) ?>
     <div class="small mt-1" id="networkIpFeedback"></div>
     <div class="small text-body-secondary d-flex flex-wrap column-gap-3">

@@ -161,7 +161,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                             <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                         <?php } else { ?>
                                             <?php if (!$u['default']) { ?>
-                                                <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star text-secondary me-2"></i>Make default</a>
+                                                <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star text-secondary me-2"></i>Make Default</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/tax/tax_archive.php?id=<?= $tax_id ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>

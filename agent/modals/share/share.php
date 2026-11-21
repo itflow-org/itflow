@@ -167,7 +167,7 @@ ob_start();
                     <form action="post.php" method="post" class="m-0">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="item_id" value="<?= $item_id ?>">
-                        <button type="submit" name="share_request_save" value="1" class="btn btn-sm btn-primary text-bold"><i class="fas fa-save me-2"></i>Save to credentials</button>
+                        <button type="submit" name="share_request_save" value="1" class="btn btn-sm btn-primary text-bold"><i class="fas fa-save me-2"></i>Save to Credentials</button>
                     </form>
                     <a class="btn btn-sm btn-outline-danger confirm-link" href="post.php?share_request_discard=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="What they sent is deleted without being saved."><i class="fas fa-trash me-2"></i>Discard</a>
                 </div>

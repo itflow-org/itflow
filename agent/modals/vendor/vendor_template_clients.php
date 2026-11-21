@@ -99,7 +99,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_vendor_template_to_clients" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add to clients</button>
+        <button type="submit" name="add_vendor_template_to_clients" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add to Clients</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

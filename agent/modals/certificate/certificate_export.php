@@ -76,7 +76,7 @@ ob_start();
         <?php } ?>
 
         <div class="mb-3">
-            <label class="form-label">Expiring In</label>
+            <label class="form-label">Expiring in</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
@@ -90,7 +90,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Last Check</label>
+            <label class="form-label">Last check</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-shield-alt"></i></span>
                 <select class="form-select select2" name="problems">

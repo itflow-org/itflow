@@ -33,7 +33,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-plus-circle me-2"></i>Quick ticket</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-plus-circle me-2"></i>Quick Ticket</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="/agent/post.php" method="post" autocomplete="off" id="quickTicketForm" data-timer="<?= escapeHtml($quick['timer']) ?>" data-call="<?= $from_call ? 1 : 0 ?>" data-primary="<?= $quick['primary'] ? 1 : 0 ?>" data-open-tickets="<?= $quick['open_tickets'] ? 1 : 0 ?>">

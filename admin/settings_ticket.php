@@ -35,7 +35,7 @@ echo settingsPageStart('ticket');
                     <?= settingsSwitch('config_ticket_email_parse_unknown_senders', $config_ticket_email_parse_unknown_senders, ['help' => 'From someone who isn\'t a contact, at a domain no client has - otherwise those are left in the mailbox, flagged and unread.']) ?>
                     <?php // What an email from someone with some subject would become, without sending one (functions/ticket_mail_try.php) ?>
                     <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/ticket_mail/ticket_mail_try.php" data-ticket-mail-try><i class="fas fa-vial me-2"></i>Try an email</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/ticket_mail/ticket_mail_try.php" data-ticket-mail-try><i class="fas fa-vial me-2"></i>Try an Email</button>
                         <span class="small text-body-secondary">What an email from someone would become - a reply, a ticket, or left in the mailbox - and why. Uses the saved settings.</span>
                     </div>
                 </div>
@@ -116,7 +116,7 @@ echo settingsPageStart('ticket');
                             . ($assigned_sent_by ? 'Sent on moving into <strong>' . escapeHtml(implode(', ', $assigned_sent_by)) . '</strong>.' : 'No status sends it yet.')]) ?>
                     <?php if (ticketNoResponseReady()) { ?>
                         <?= settingsTextarea('config_ticket_no_response_message', ticketNoResponseMessage(), ['rows' => 7, 'maxlength' => 5000,
-                            'help' => 'For a client who never answered: the arrow beside a ticket\'s Resolve button has <strong>Resolve - no response</strong>, which sends this - changed for the ticket first, if need be - in place of the usual "resolved" words, resolves it, and closes it later without asking how we did. <code>[Agent]</code> is whoever sends it.']) ?>
+                            'help' => 'For a client who never answered: the arrow beside a ticket\'s Resolve button has <strong>Resolve - No Response</strong>, which sends this - changed for the ticket first, if need be - in place of the usual "resolved" words, resolves it, and closes it later without asking how we did. <code>[Agent]</code> is whoever sends it.']) ?>
                     <?php } ?>
                 <?= settingsSectionEnd() ?>
             <?php } ?>

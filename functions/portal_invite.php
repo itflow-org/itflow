@@ -604,7 +604,7 @@ function portalMailInviteAccepted($invite_id) {
  * ---------- signing up ----------
  */
 
-/** Is signing up on for the portal as a whole (Admin > Settings > Client portal)? */
+/** Is signing up on for the portal as a whole (Admin > Settings > Client Portal)? */
 function portalSignupOn() {
     global $mysqli;
     static $on = null;

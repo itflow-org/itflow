@@ -325,7 +325,7 @@ $status_looks = [
                             <?php } ?>
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a class="btn <?= $state === 'off' ? 'btn-primary' : 'btn-outline-primary' ?>" href="post.php?enable_cron=1&amp;csrf_token=<?= $csrf ?>" data-cron-switch="on">
-                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn cron on
+                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn Cron On
                                 </a>
                             </div>
                         <?php } ?>
@@ -396,24 +396,24 @@ $status_looks = [
                                                 <span class="dropdown-item disabled"><i class="fas fa-fw fa-play me-2"></i><?= $job['state'] === 'queued' ? 'Queued to run' : 'Running now' ?></span>
                                             <?php } else { ?>
                                                 <a class="dropdown-item" href="post.php?run_cron_job=<?= $job['id'] ?>&amp;csrf_token=<?= $csrf ?>" data-cron-run>
-                                                    <i class="fas fa-fw fa-play text-secondary me-2"></i>Run now
+                                                    <i class="fas fa-fw fa-play text-secondary me-2"></i>Run Now
                                                 </a>
                                             <?php } ?>
                                             <button class="dropdown-item ajax-modal" type="button" data-modal-url="modals/cron/cron_edit.php?id=<?= $job['id'] ?>" data-cron-edit>
-                                                <i class="fas fa-fw fa-clock text-secondary me-2"></i>Change the schedule
+                                                <i class="fas fa-fw fa-clock text-secondary me-2"></i>Change the Schedule
                                             </button>
                                             <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($by_hand($job['script'])) ?>" title="For running it yourself on the server, where it shows what it does as it goes">
-                                                <i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy the command to run it
+                                                <i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy the Command to Run It
                                             </button>
                                             <div class="dropdown-divider"></div>
                                             <?php if ($job['enabled']) { ?>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?disable_cron_job=<?= $job['id'] ?>&amp;csrf_token=<?= $csrf ?>" data-cron-off
                                                     data-confirm-title="Turn <?= escapeHtml($job['label']) ?> off?" data-confirm-text="It stops running on its schedule until it's turned back on. Run now still works." data-confirm-button="Turn it off">
-                                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn off
+                                                    <i class="fas fa-fw fa-power-off me-2"></i>Turn Off
                                                 </a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item" href="post.php?enable_cron_job=<?= $job['id'] ?>&amp;csrf_token=<?= $csrf ?>" data-cron-on>
-                                                    <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Turn on
+                                                    <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Turn On
                                                 </a>
                                             <?php } ?>
                                         </div>
@@ -458,7 +458,7 @@ $status_looks = [
                 </table>
             </div>
             <div class="card-footer small text-body-secondary">
-                <strong>Run now</strong> doesn't run a job in your browser - cron picks it up within a minute, and this page shows how it went. What each job did is in <a href="app_logs.php">App Logs</a>.
+                <strong>Run Now</strong> doesn't run a job in your browser - cron picks it up within a minute, and this page shows how it went. What each job did is in <a href="app_logs.php">App Logs</a>.
             </div>
         </div>
 
@@ -545,7 +545,7 @@ $status_looks = [
                     </div>
                     <div class="d-flex flex-wrap gap-2 mt-3">
                         <button type="submit" name="edit_cron_alerts" class="btn btn-sm btn-primary"><i class="fas fa-fw fa-check me-1"></i>Save</button>
-                        <button type="submit" name="test_cron_alert" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-paper-plane me-1"></i>Send a test</button>
+                        <button type="submit" name="test_cron_alert" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-paper-plane me-1"></i>Send a Test</button>
                     </div>
                 </form>
                 <hr>
@@ -592,7 +592,7 @@ $status_looks = [
                 <p class="text-body-secondary">Stops every job at once, without touching their schedules. It's for a restored backup or a test copy, which would otherwise email your clients and charge their cards. Turning it back on picks up exactly where this leaves off.</p>
                 <a class="btn btn-sm btn-light border text-danger confirm-link" href="post.php?disable_cron=1&amp;csrf_token=<?= $csrf ?>" data-cron-switch="off"
                     data-confirm-title="Turn cron off?" data-confirm-text="No email is sent, no email becomes a ticket, and nothing is invoiced or backed up until it's turned back on." data-confirm-button="Turn it off">
-                    <i class="fas fa-fw fa-power-off me-2"></i>Turn cron off
+                    <i class="fas fa-fw fa-power-off me-2"></i>Turn Cron Off
                 </a>
             </div>
         </div>

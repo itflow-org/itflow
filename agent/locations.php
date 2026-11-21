@@ -371,7 +371,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location.php?id=<?= $location_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($can_edit) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
@@ -380,7 +380,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                         <?= tagMenuItem('location', $location_id) ?>
                                         <?php if (!$location_primary && !$location_archived_at) { ?>
                                             <a class="dropdown-item" href="post.php?make_location_primary=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-building text-secondary me-2"></i>Make primary
+                                                <i class="fas fa-fw fa-building text-secondary me-2"></i>Make Primary
                                             </a>
                                         <?php } ?>
                                         <?php if (!$location_primary) { ?>

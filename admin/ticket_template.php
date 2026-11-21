@@ -123,7 +123,7 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
         </div>
         <div class="d-flex flex-wrap gap-2">
             <?php if (!$archived) { ?>
-                <a class="btn btn-primary" href="/agent/tickets.php?new_from_template=<?= $ticket_template_id ?>"><i class="fas fa-fw fa-plus me-2"></i>New ticket from it</a>
+                <a class="btn btn-primary" href="/agent/tickets.php?new_from_template=<?= $ticket_template_id ?>"><i class="fas fa-fw fa-plus me-2"></i>New Ticket from It</a>
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">

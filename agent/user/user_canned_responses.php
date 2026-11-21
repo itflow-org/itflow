@@ -201,7 +201,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <?php if ($session_is_admin && !$row['canned_response_archived_at']) { ?>
                                         <a class="dropdown-item confirm-link" href="/admin/post.php?share_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Share <?= $name ?> with everyone?" data-confirm-text="It moves to the shared ones in Admin > Templates > Canned Responses, and every agent is offered it." data-confirm-button="Share">
-                                            <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with everyone
+                                            <i class="fas fa-fw fa-users text-secondary me-2"></i>Share with Everyone
                                         </a>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
@@ -220,7 +220,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item" href="post.php?copy_canned_response_to_yours=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A new one of yours starting from this one, to change as you like">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to yours
+                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to Yours
                                     </a>
                                 <?php } ?>
                             </div>
@@ -239,7 +239,7 @@ $csrf = $_SESSION['csrf_token'];
         'views' => ['show'],
         'title' => 'No canned responses of your own yet',
         'text' => 'Yours are offered to you alone, first in the picker above a reply. Make one here, copy a shared one, or write a reply on a ticket and save it from the picker with <strong>Save your reply as a canned response</strong>.',
-        'actions' => [['label' => 'New Canned Response', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'See the shared ones', 'href' => $pill_url('shared'), 'icon' => 'fa-users']],
+        'actions' => [['label' => 'New Canned Response', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'See the Shared Ones', 'href' => $pill_url('shared'), 'icon' => 'fa-users']],
         'view' => $yours ? [] : [
             'title' => 'No shared canned responses',
             'icon' => 'fa-users',

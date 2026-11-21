@@ -2893,7 +2893,7 @@ function recurringInvoiceCreate(array $in, $by) {
  * calls it on 'invoice_pay', which every one of those roads fires.
  *
  *   - A lead that pays becomes a client, while settings.config_invoice_paid_lead_to_client
- *     is on (Admin > Settings > Invoices and billing, Paid).
+ *     is on (Admin > Settings > Invoices and Billing, Paid).
  *   - A ticket waiting on the invoice that is still open gets an internal note
  *     that it was paid, goes back to Open from On Hold, and the agent it is
  *     assigned to is told - in ITFlow and by email. Waiting on it: tied to it

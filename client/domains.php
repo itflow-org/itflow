@@ -45,7 +45,7 @@ function domainsState($expiry) {
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Domains &amp; certificates</h1>
+        <h1>Domains &amp; Certificates</h1>
         <p>Your domain names and the certificates that keep your sites secure</p>
     </div>
 </div>

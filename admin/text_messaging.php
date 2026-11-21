@@ -66,7 +66,7 @@ $csrf = $_SESSION['csrf_token'];
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-sms me-2"></i>Text Messaging</h3>
         <div class="card-tools">
             <a class="btn btn-outline-light me-1 ajax-modal" href="#" data-modal-url="modals/sms_provider/sms_numbers.php" title="Numbers that replied STOP, and numbers blocked as spam">
-                <i class="fas fa-fw fa-ban"></i><span class="d-none d-lg-inline ms-2">Opted out and blocked</span><?php if ($opted_out + $blocked) { ?> <span class="badge text-bg-light ms-1"><?= $opted_out + $blocked ?></span><?php } ?>
+                <i class="fas fa-fw fa-ban"></i><span class="d-none d-lg-inline ms-2">Opted Out and Blocked</span><?php if ($opted_out + $blocked) { ?> <span class="badge text-bg-light ms-1"><?= $opted_out + $blocked ?></span><?php } ?>
             </a>
             <a class="btn btn-outline-light me-1" href="text_messages.php"><i class="fas fa-fw fa-list"></i><span class="d-none d-lg-inline ms-2">Text Messages</span></a>
             <?php if ($can_add) { ?>
@@ -150,22 +150,22 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($on) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sms_provider/sms_test.php?id=<?= $provider_id ?>">
-                                        <i class="fas fa-fw fa-vial text-secondary me-2"></i>Send a test text
+                                        <i class="fas fa-fw fa-vial text-secondary me-2"></i>Send a Test Text
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item confirm-link" href="post.php?new_sms_inbound_key=<?= $provider_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Make a new address for texts to come back to?" data-confirm-button="Make a new one"
                                     data-confirm-text="The one <?= escapeHtml($name) ?> has stops working - paste the new one into its portal, or texts to the number won't reach ITFlow.">
-                                    <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>New inbound address
+                                    <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>New Inbound Address
                                 </a>
                                 <?php if ($on) { ?>
                                     <a class="dropdown-item confirm-link" href="post.php?turn_sms_provider_off=<?= $provider_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Turn <?= escapeHtml($name) ?> off?" data-confirm-text="No texts go out, and texts to the number aren't taken in until it is on again. Waiting texts wait." data-confirm-button="Turn off">
-                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn off
+                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn Off
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item" href="post.php?turn_sms_provider_on=<?= $provider_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn on
+                                        <i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn On
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>

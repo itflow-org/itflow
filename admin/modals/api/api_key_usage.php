@@ -107,7 +107,7 @@ if (!$row) { ?>
 
 </div>
 <div class="modal-footer">
-    <a class="btn btn-outline-secondary me-auto" href="/admin/audit_logs.php?type=<?= urlencode('API Key') ?>&amp;entity=<?= $api_key_id ?>"><i class="fas fa-fw fa-history me-2"></i>Its history</a>
+    <a class="btn btn-outline-secondary me-auto" href="/admin/audit_logs.php?type=<?= urlencode('API Key') ?>&amp;entity=<?= $api_key_id ?>"><i class="fas fa-fw fa-history me-2"></i>Its History</a>
     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/api/api_key_edit.php?id=<?= $api_key_id ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>

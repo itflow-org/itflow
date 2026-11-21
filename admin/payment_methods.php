@@ -192,7 +192,7 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($used['total']) { ?>
                                     <a class="dropdown-item" href="<?= escapeHtml($records_url) ?>">
-                                        <i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>See its transactions
+                                        <i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>See Its Transactions
                                     </a>
                                 <?php } ?>
                                 <?php if (!$archived) {

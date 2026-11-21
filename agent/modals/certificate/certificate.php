@@ -233,7 +233,7 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <?php if ($host) { ?>
-            <a class="btn btn-outline-secondary me-auto" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Check now</a>
+            <a class="btn btn-outline-secondary me-auto" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Check Now</a>
         <?php } ?>
         <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/certificate/certificate_edit.php?id=<?= $certificate_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>

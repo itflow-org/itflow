@@ -79,7 +79,7 @@ foreach ($sources as $key => $source) {
             <div class="card-body">
 
                 <?php if ($can_add_event) { ?>
-                    <button type="button" class="btn btn-primary w-100 mb-3" id="calendarNewEvent"><i class="fas fa-plus me-2"></i>New event</button>
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="calendarNewEvent"><i class="fas fa-plus me-2"></i>New Event</button>
                 <?php } ?>
 
                 <label class="form-label small text-body-secondary text-uppercase fw-semibold mb-1" for="calendarAgent">Whose</label>

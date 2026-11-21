@@ -166,7 +166,7 @@ ob_start();
                     <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
                     <textarea class="form-control" name="item_description" rows="<?= $ai_describe ? 3 : 2 ?>" data-ticket-invoice-description><?= escapeHtml(billingTimeDescription($row)) ?></textarea>
                     <?php if ($ai_describe) { ?>
-                        <button type="button" class="btn btn-outline-secondary" data-ticket-invoice-ai title="Say what was done, from the replies and notes - for the client"><i class="fas fa-fw fa-magic"></i><span class="d-none d-sm-inline ms-1">Write it</span></button>
+                        <button type="button" class="btn btn-outline-secondary" data-ticket-invoice-ai title="Say what was done, from the replies and notes - for the client"><i class="fas fa-fw fa-magic"></i><span class="d-none d-sm-inline ms-1">Write It</span></button>
                     <?php } ?>
                 </div>
                 <?php if ($ai_describe) { ?>

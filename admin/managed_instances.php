@@ -183,10 +183,10 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if (!$show_removed) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/managed_instance/managed_instance_form.php?id=<?= $instance_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                     <?php if ($health['state'] !== 'pending' && $url !== '') { ?>
-                                        <a class="dropdown-item" href="post.php?managed_support_sign_in=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-sign-in-alt text-secondary me-2"></i>Sign in as support</a>
+                                        <a class="dropdown-item" href="post.php?managed_support_sign_in=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-sign-in-alt text-secondary me-2"></i>Sign In as Support</a>
                                         <?php if (!empty($update['available'])) { ?>
                                             <a class="dropdown-item confirm-link" href="post.php?managed_command=update_now&id=<?= $instance_id ?>&csrf_token=<?= $csrf ?>"
-                                                data-confirm-title="Update <?= $name ?>?" data-confirm-text="It updates its files and then its database at its next check-in. Make sure it has a backup." data-confirm-button="Update"><i class="fas fa-fw fa-download text-secondary me-2"></i>Update now</a>
+                                                data-confirm-title="Update <?= $name ?>?" data-confirm-text="It updates its files and then its database at its next check-in. Make sure it has a backup." data-confirm-button="Update"><i class="fas fa-fw fa-download text-secondary me-2"></i>Update Now</a>
                                         <?php } ?>
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>

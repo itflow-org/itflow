@@ -608,11 +608,11 @@ if (isset($_GET['ticket_id'])) {
                                                 <i class="fas fa-fw fa-check me-2"></i>Resolve
                                             </a>
                                             <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" title="More ways to resolve">
-                                                <span class="visually-hidden">More ways to resolve</span>
+                                                <span class="visually-hidden">More Ways to Resolve</span>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_resolve_no_response.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                    <i class="fas fa-fw fa-comment-slash me-2"></i>Resolve - no response...
+                                                    <i class="fas fa-fw fa-comment-slash me-2"></i>Resolve - No Response...
                                                     <div class="small text-body-secondary ms-4">Tell a client who never answered, and close without asking how we did</div>
                                                 </a>
                                             </div>
@@ -656,12 +656,12 @@ if (isset($_GET['ticket_id'])) {
                                         <?php } ?>
                                         <?php if ($ai_document_available) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_document.php?ticket_id=<?= $ticket_id ?>" data-modal-size="xl" title="A document for next time, drafted by AI from the ticket">
-                                                <i class="fas fa-fw fa-file-medical me-2"></i>Write up as a document
+                                                <i class="fas fa-fw fa-file-medical me-2"></i>Write Up as a Document
                                             </a>
                                         <?php } ?>
                                         <?php if ($kb_write_up_available) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/kb/kb_article_from_ticket.php?ticket_id=<?= $ticket_id ?>" data-modal-size="xl" title="A draft article for every client, <?= aiReady('Documentation') ? 'written by AI' : 'started' ?> from the ticket">
-                                                <i class="fas fa-fw fa-book-medical me-2"></i>Write up for the Knowledge Base
+                                                <i class="fas fa-fw fa-book-medical me-2"></i>Write Up for the Knowledge Base
                                             </a>
                                         <?php } ?>
                                         <?php if (($ai_summary_available || $ai_document_available || $kb_write_up_available) && ($show_trips || $can_edit_ticket)) { ?>
@@ -669,7 +669,7 @@ if (isset($_GET['ticket_id'])) {
                                         <?php } ?>
                                         <?php if ($show_trips) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                <i class="fas fa-fw fa-route me-2"></i>Log a trip
+                                                <i class="fas fa-fw fa-route me-2"></i>Log a Trip
                                             </a>
                                             <?php if ($can_edit_ticket) { ?>
                                                 <div class="dropdown-divider"></div>
@@ -677,32 +677,32 @@ if (isset($_GET['ticket_id'])) {
                                         <?php } ?>
                                         <?php if ($can_edit_ticket) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
-                                                <i class="fas fa-fw fa-clone me-2"></i>Merge into another ticket
+                                                <i class="fas fa-fw fa-clone me-2"></i>Merge into Another Ticket
                                             </a>
                                             <?php if (ticketLinksReady()) { ?>
                                                 <?= linkPickerButton('ticket', $ticket_id, 'ticket', 'Link related tickets', 'dropdown-item', 'fas fa-fw fa-link me-2') ?>
                                             <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#" id="clientChangeTicketModalLoad" data-modal-url="modals/ticket/ticket_change_client.php?ticket_id=<?= $ticket_id ?>">
-                                                <i class="fas fa-fw fa-people-carry me-2"></i>Move to another client
+                                                <i class="fas fa-fw fa-people-carry me-2"></i>Move to Another Client
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?copy_ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                <i class="fas fa-fw fa-copy me-2"></i>Copy as a new ticket
+                                                <i class="fas fa-fw fa-copy me-2"></i>Copy as a New Ticket
                                             </a>
                                             <?php if (!$ticket_is_closed) { ?>
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_apply_template.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                    <i class="fas fa-fw fa-cube me-2"></i>Apply a template
+                                                    <i class="fas fa-fw fa-cube me-2"></i>Apply a Template
                                                 </a>
                                             <?php } ?>
                                             <?php if ($show_quote_button || $show_invoice_button) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <?php if ($show_quote_button) { ?>
                                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_quote_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                        <i class="fas fa-fw fa-comment-dollar me-2"></i>Create quote
+                                                        <i class="fas fa-fw fa-comment-dollar me-2"></i>Create Quote
                                                     </a>
                                                 <?php } ?>
                                                 <?php if ($show_invoice_button) { ?>
                                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_invoice_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                        <i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Create invoice
+                                                        <i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Create Invoice
                                                     </a>
                                                 <?php } ?>
                                             <?php } ?>
@@ -712,7 +712,7 @@ if (isset($_GET['ticket_id'])) {
                                                     data-confirm-title="Delete <?= $ticket_reference ?>?"
                                                     data-confirm-text="The ticket, its conversation and its attachments are removed for good."
                                                     data-confirm-button="Delete ticket">
-                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete ticket
+                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete Ticket
                                                 </a>
                                             <?php } ?>
                                         <?php } ?>
@@ -1203,7 +1203,7 @@ if (isset($_GET['ticket_id'])) {
                                                 <?php if ($ticket_reply_type === "Client" && !$ticket_is_closed) { ?>
                                                     <a href="#" class="dropdown-item ajax-modal" data-modal-size="lg"
                                                         data-modal-url="modals/ticket/ticket_reply_split.php?id=<?= $ticket_reply_id ?>">
-                                                        <i class="fas fa-fw fa-code-branch me-2"></i>Split into a new ticket
+                                                        <i class="fas fa-fw fa-code-branch me-2"></i>Split into a New Ticket
                                                     </a>
                                                 <?php } ?>
                                                 <a href="#" class="dropdown-item ajax-modal" data-modal-size="lg"
@@ -1712,10 +1712,10 @@ if (isset($_GET['ticket_id'])) {
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item" href="post.php?complete_all_tasks=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-check-double me-2"></i>Mark all complete
+                                                <i class="fas fa-fw fa-check-double me-2"></i>Mark All Complete
                                             </a>
                                             <a class="dropdown-item" href="post.php?undo_complete_all_tasks=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="far fa-fw fa-square me-2"></i>Mark all incomplete
+                                                <i class="far fa-fw fa-square me-2"></i>Mark All Incomplete
                                             </a>
                                         </div>
                                     </div>
@@ -1825,11 +1825,11 @@ if (isset($_GET['ticket_id'])) {
                                                         </a>
                                                         <?php if (!$task_completed_at) { ?>
                                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_task_approver_add.php?id=<?= $task_id ?>">
-                                                                <i class="fas fa-fw fa-shield-alt me-2"></i>Require approval
+                                                                <i class="fas fa-fw fa-shield-alt me-2"></i>Require Approval
                                                             </a>
                                                         <?php } else { ?>
                                                             <a class="dropdown-item" href="post.php?undo_complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-task-toggle>
-                                                                <i class="fas fa-fw fa-undo me-2"></i>Mark incomplete
+                                                                <i class="fas fa-fw fa-undo me-2"></i>Mark Incomplete
                                                             </a>
                                                         <?php } ?>
                                                         <div class="dropdown-divider"></div>
@@ -1884,7 +1884,7 @@ if (isset($_GET['ticket_id'])) {
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_watcher.php?ticket_id=<?= $ticket_id ?>">
-                                                <i class="fas fa-fw fa-eye me-2"></i>Add watcher
+                                                <i class="fas fa-fw fa-eye me-2"></i>Add Watcher
                                             </a>
                                         </div>
                                     </div>

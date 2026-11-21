@@ -99,7 +99,7 @@ ob_start();
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
         <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger confirm-link me-auto" data-confirm-title="Remove from the schedule?" data-confirm-text="A cancellation email goes to the assigned agent, and to the contact and watchers if client notifications are on." data-confirm-button="Remove from schedule">
-            <i class="fa fa-calendar-times me-2"></i>Remove from schedule
+            <i class="fa fa-calendar-times me-2"></i>Remove from Schedule
         </a>
     <?php } ?>
         <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>

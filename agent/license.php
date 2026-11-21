@@ -429,7 +429,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                             <div class="itflow-asset-empty">
                                 <div>Nothing and nobody on this license yet.</div>
                                 <?php if ($can_edit) { ?>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-3 ajax-modal" data-modal-url="modals/software/software_seats.php?id=<?= $software_id ?>"><i class="fas fa-users me-2"></i>Add devices and users</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-3 ajax-modal" data-modal-url="modals/software/software_seats.php?id=<?= $software_id ?>"><i class="fas fa-users me-2"></i>Add Devices and Users</button>
                                 <?php } ?>
                             </div>
                         <?php } ?>

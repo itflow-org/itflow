@@ -119,7 +119,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Created From</label>
+            <label class="form-label">Created from</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
@@ -127,7 +127,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Created To</label>
+            <label class="form-label">Created to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">

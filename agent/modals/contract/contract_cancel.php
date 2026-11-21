@@ -55,8 +55,8 @@ if (!$contract || $contract['contract_status'] !== 'Active') { ?>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="cancel_contract" class="btn btn-danger text-bold"><i class="fas fa-ban me-2"></i>Cancel contract</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Keep it</button>
+        <button type="submit" name="cancel_contract" class="btn btn-danger text-bold"><i class="fas fa-ban me-2"></i>Cancel Contract</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Keep It</button>
     </div>
 </form>
 

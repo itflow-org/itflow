@@ -290,14 +290,14 @@
             const ask = el('div', 'mt-2 small');
             ask.appendChild(el('div', 'mb-2', 'Throw away the time without a ticket? It isn\'t on any ticket.'));
             const choices = el('div', 'd-flex justify-content-end gap-2');
-            choices.appendChild(textButton('Keep it', 'btn-outline-secondary', function () { confirming = null; }));
-            choices.appendChild(textButton('Throw it away', 'btn-danger', function () { confirming = null; callDiscard(); }));
+            choices.appendChild(textButton('Keep It', 'btn-outline-secondary', function () { confirming = null; }));
+            choices.appendChild(textButton('Throw It Away', 'btn-danger', function () { confirming = null; callDiscard(); }));
             ask.appendChild(choices);
             row.appendChild(ask);
         } else {
             const give = el('div', 'd-flex flex-wrap gap-2 mt-2');
             if (quickTicket) {
-                give.appendChild(textButton('New ticket', 'btn-outline-primary', newTicket));
+                give.appendChild(textButton('New Ticket', 'btn-outline-primary', newTicket));
             }
             give.appendChild(textButton(finding ? 'Close' : 'Add to a ticket', 'btn-outline-secondary', function () { finding = !finding; }));
             row.appendChild(give);
@@ -469,8 +469,8 @@
                 const ask = el('div', 'mt-2 small');
                 ask.appendChild(el('div', 'mb-2', 'Throw away the time on ' + name + '? It hasn\'t been logged on the ticket.'));
                 const choices = el('div', 'd-flex justify-content-end gap-2');
-                choices.appendChild(textButton('Keep it', 'btn-outline-secondary', function () { confirming = null; }));
-                choices.appendChild(textButton('Throw it away', 'btn-danger', function () { confirming = null; discard(t.id); }));
+                choices.appendChild(textButton('Keep It', 'btn-outline-secondary', function () { confirming = null; }));
+                choices.appendChild(textButton('Throw It Away', 'btn-danger', function () { confirming = null; discard(t.id); }));
                 ask.appendChild(choices);
                 row.appendChild(ask);
             }

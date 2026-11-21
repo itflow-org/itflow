@@ -47,7 +47,7 @@ echo settingsPageStart('notification');
                             'help' => 'Addresses, separated by commas. Empty, every admin gets it.']) ?>
                     </div>
                     <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
-                        <button type="submit" form="weeklySummaryNow" class="btn btn-sm btn-outline-secondary" <?= empty($config_smtp_provider) ? 'disabled' : '' ?> data-weekly-now><i class="fas fa-paper-plane me-2"></i>Send me one now</button>
+                        <button type="submit" form="weeklySummaryNow" class="btn btn-sm btn-outline-secondary" <?= empty($config_smtp_provider) ? 'disabled' : '' ?> data-weekly-now><i class="fas fa-paper-plane me-2"></i>Send Me One Now</button>
                         <span class="small text-body-secondary">The last seven days, to <?= escapeHtml($session_email ?? 'you') ?> - to see what it looks like.</span>
                     </div>
                 <?= settingsSectionEnd() ?>

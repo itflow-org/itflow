@@ -245,7 +245,7 @@ $page_title = $row['document_name'];
                             <?php if ($can_edit) { ?>
                                 <span class="d-flex flex-wrap gap-2 mt-2">
                                     <?php if ($review) { ?>
-                                        <a class="btn btn-sm <?= $review['due'] ? 'btn-warning' : 'btn-light border' ?>" href="post.php?mark_document_reviewed=<?= $document_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-check me-1"></i>Mark reviewed</a>
+                                        <a class="btn btn-sm <?= $review['due'] ? 'btn-warning' : 'btn-light border' ?>" href="post.php?mark_document_reviewed=<?= $document_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-check me-1"></i>Mark Reviewed</a>
                                     <?php } ?>
                                     <?php if (documentReviewOwnReady()) {
                                         // How often - its template's, or its own
@@ -253,7 +253,7 @@ $page_title = $row['document_name'];
                                             + DOCUMENT_TEMPLATE_REVIEW_MONTHS;
                                         $review_current = $row['document_review_months'] !== null ? (string) intval($row['document_review_months']) : ($template_review_months !== null ? 'template' : '0'); ?>
                                         <span class="dropdown">
-                                            <button type="button" class="btn btn-sm btn-light border dropdown-toggle" data-bs-toggle="dropdown" title="How often it's reviewed"><i class="fas fa-redo-alt me-1"></i>How often</button>
+                                            <button type="button" class="btn btn-sm btn-light border dropdown-toggle" data-bs-toggle="dropdown" title="How often it's reviewed"><i class="fas fa-redo-alt me-1"></i>How Often</button>
                                             <span class="dropdown-menu">
                                                 <?php foreach ($review_choices as $months => $label) { ?>
                                                     <a class="dropdown-item<?= (string) $months === $review_current ? ' active' : '' ?>" href="post.php?set_document_review=<?= $document_id ?>&months=<?= $months ?>&csrf_token=<?= $csrf ?>"><?= escapeHtml($months === 0 && $template_review_months === null ? 'Never - not on a schedule' : $label) ?></a>

@@ -131,13 +131,13 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                     <?php if ($plan['next_free']) { ?>
                         <div class="btn-group">
                             <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml($plan['next_free']) ?>" title="The first address nothing has, outside the DHCP range - copy it">
-                                <i class="fas fa-magic me-2"></i>Next free <span class="font-monospace ms-1"><?= escapeHtml($plan['next_free']) ?></span>
+                                <i class="fas fa-magic me-2"></i>Next Free <span class="font-monospace ms-1"><?= escapeHtml($plan['next_free']) ?></span>
                             </button>
                             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['ip' => $plan['next_free']])) ?>" title="Document it"><i class="fas fa-plus"></i></button>
                         </div>
                     <?php } ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['next' => 1])) ?>">
-                        <i class="fas fa-plus me-2"></i>Document an address
+                        <i class="fas fa-plus me-2"></i>Document an Address
                     </button>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
                         <i class="fas fa-edit me-2"></i>Edit
@@ -161,12 +161,12 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                 </form>
                             <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_ip_import.php?network_id=<?= $network_id ?>">
-                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import addresses
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import Addresses
                             </a>
                         <?php } ?>
                         <?php if ($usage['documented']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_ip_export.php?network_id=<?= $network_id ?>">
-                                <i class="fas fa-fw fa-download text-secondary me-2"></i>Export addresses
+                                <i class="fas fa-fw fa-download text-secondary me-2"></i>Export Addresses
                             </a>
                         <?php } ?>
                         <?php if ($can_edit) { ?>
@@ -473,7 +473,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                         <?php } else { ?>
                             <div class="itflow-asset-empty">
                                 Nothing documented and no device on it yet.
-                                <?php if ($can_edit) { ?><div class="mt-2"><button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['next' => 1])) ?>"><i class="fas fa-plus me-2"></i>Document an address</button></div><?php } ?>
+                                <?php if ($can_edit) { ?><div class="mt-2"><button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="<?= escapeHtml($ip_add_url(['next' => 1])) ?>"><i class="fas fa-plus me-2"></i>Document an Address</button></div><?php } ?>
                             </div>
                         <?php } ?>
 

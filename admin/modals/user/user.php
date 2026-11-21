@@ -116,9 +116,9 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a class="btn btn-outline-secondary me-auto" href="audit_logs.php?user=<?= $user_id ?>"><i class="fas fa-history me-2"></i>Audit log</a>
+    <a class="btn btn-outline-secondary me-auto" href="audit_logs.php?user=<?= $user_id ?>"><i class="fas fa-history me-2"></i>Audit Log</a>
     <?php if ($is_self) { ?>
-        <a class="btn btn-primary" href="/agent/user/user_details.php"><i class="fas fa-user-cog me-2"></i>Your account</a>
+        <a class="btn btn-primary" href="/agent/user/user_details.php"><i class="fas fa-user-cog me-2"></i>Your Account</a>
     <?php } elseif ($is_archived) { ?>
         <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>"><i class="fas fa-redo me-2"></i>Restore</button>
     <?php } else { ?>

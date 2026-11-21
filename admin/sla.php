@@ -242,25 +242,25 @@ $pill_url = function ($view) use ($on_days) {
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($on_days) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/holiday_generate.php" data-sla-us-holidays>
-                                    <i class="fas fa-fw fa-magic text-secondary me-2"></i>Add US holidays
+                                    <i class="fas fa-fw fa-magic text-secondary me-2"></i>Add US Holidays
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/sla_add.php">
                                     <i class="fas fa-fw fa-stopwatch text-secondary me-2"></i>New SLA
                                 </a>
                             <?php } else { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/holiday_add.php">
-                                    <i class="fas fa-fw fa-calendar-times text-secondary me-2"></i>New closure day
+                                    <i class="fas fa-fw fa-calendar-times text-secondary me-2"></i>New Closure Day
                                 </a>
                                 <a class="dropdown-item" href="ticket_statuses.php" title="Which statuses pause the resolution clock">
-                                    <i class="fas fa-fw fa-pause-circle text-secondary me-2"></i>Ticket statuses
+                                    <i class="fas fa-fw fa-pause-circle text-secondary me-2"></i>Ticket Statuses
                                 </a>
                             <?php } ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="/agent/reports/sla_summary.php">
-                                <i class="fas fa-fw fa-chart-line text-secondary me-2"></i>SLA Performance report
+                                <i class="fas fa-fw fa-chart-line text-secondary me-2"></i>SLA Performance Report
                             </a>
                             <a class="dropdown-item" href="/agent/reports/sla_by_client.php">
-                                <i class="fas fa-fw fa-users text-secondary me-2"></i>SLA by Client report
+                                <i class="fas fa-fw fa-users text-secondary me-2"></i>SLA by Client Report
                             </a>
                         </div>
                     </div>
@@ -429,7 +429,7 @@ $pill_url = function ($view) use ($on_days) {
                 'text' => 'Holidays and other days the office is shut. No SLA clock runs on them.',
                 'actions' => [
                     ['label' => 'New Closure Day', 'modal' => 'modals/sla/holiday_add.php'],
-                    ['label' => 'Add US holidays', 'modal' => 'modals/sla/holiday_generate.php', 'icon' => 'fa-magic'],
+                    ['label' => 'Add US Holidays', 'modal' => 'modals/sla/holiday_generate.php', 'icon' => 'fa-magic'],
                 ],
             ] : [
                 'thing' => 'SLAs',

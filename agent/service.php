@@ -185,7 +185,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
             <div class="d-flex flex-wrap gap-2 d-print-none">
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-outline-danger ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($report_url) ?>">
-                        <i class="fas fa-life-ring me-2"></i>Report a problem
+                        <i class="fas fa-life-ring me-2"></i>Report a Problem
                     </button>
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
@@ -203,7 +203,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/service/service_review.php?id=<?= $service_id ?>">
-                        <i class="fas fa-clipboard-check me-2"></i>Mark reviewed
+                        <i class="fas fa-clipboard-check me-2"></i>Mark Reviewed
                     </button>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>">
                         <i class="fas fa-edit me-2"></i>Edit
@@ -227,7 +227,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                 <?php } ?>
                             <?php } else { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&service_id=<?= $service_id ?>">
-                                    <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>New runbook document
+                                    <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>New Runbook Document
                                 </a>
                                 <a class="dropdown-item" href="post.php?<?= $is_favorite ? 'unfavorite_service' : 'favorite_service' ?>=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="<?= $is_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $is_favorite ? 'Unstar' : 'Star' ?>
@@ -600,7 +600,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                 <div class="d-flex gap-2">
                                     <?= linkPickerButton('service', $service_id, 'ticket', 'Link', 'btn btn-sm btn-outline-secondary', 'fas fa-link me-2') ?>
                                     <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($report_url) ?>">
-                                        <i class="fas fa-plus me-2"></i>Report a problem
+                                        <i class="fas fa-plus me-2"></i>Report a Problem
                                     </button>
                                 </div>
                             <?php } ?>

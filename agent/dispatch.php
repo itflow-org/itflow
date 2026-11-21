@@ -205,7 +205,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 <div class="alert alert-danger small mt-3 mb-0" data-dispatch-schedule-error hidden></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Schedule it</button>
+                <button type="submit" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Schedule It</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
             </div>
         </form>
@@ -222,7 +222,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
             </div>
             <div class="modal-body small" data-dispatch-confirm-text></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dispatch-confirm-ok>Take it off</button>
+                <button type="button" class="btn btn-danger" data-dispatch-confirm-ok>Take It Off</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>

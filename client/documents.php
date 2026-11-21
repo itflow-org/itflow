@@ -72,8 +72,8 @@ function documentsUrl(array $changes) {
             </div>
         </form>
         <div class="btn-group">
-            <a class="btn btn-primary" href="document_add.php"><i class="fas fa-plus me-2"></i>New document</a>
-            <a class="btn btn-outline-primary" href="document_add.php?upload=1"><i class="fas fa-upload me-2"></i>Upload a file</a>
+            <a class="btn btn-primary" href="document_add.php"><i class="fas fa-plus me-2"></i>New Document</a>
+            <a class="btn btn-outline-primary" href="document_add.php?upload=1"><i class="fas fa-upload me-2"></i>Upload a File</a>
         </div>
     </div>
 </div>
@@ -93,7 +93,7 @@ function documentsUrl(array $changes) {
             <?= emptyStateHtml(['thing' => 'documents', 'filtered' => true, 'match_text' => 'No document mentions &ldquo;' . escapeHtml($q) . '&rdquo;.', 'clear_url' => documentsUrl(['q' => null, 'page' => null])]) ?>
         <?php } else { ?>
             <?= emptyStateHtml(['title' => 'No documents yet', 'text' => 'Guides and records we share with you show here - and you can add your own.', 'icon' => 'fa-folder-open', 'filtered' => false,
-                'actions' => [['label' => 'New document', 'href' => 'document_add.php'], ['label' => 'Upload a file', 'href' => 'document_add.php?upload=1', 'icon' => 'fa-upload']]]) ?>
+                'actions' => [['label' => 'New Document', 'href' => 'document_add.php'], ['label' => 'Upload a File', 'href' => 'document_add.php?upload=1', 'icon' => 'fa-upload']]]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

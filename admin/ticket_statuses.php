@@ -182,18 +182,18 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($tickets) { ?>
                                     <a class="dropdown-item" href="<?= escapeHtml($tickets_url) ?>">
-                                        <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>See its tickets
+                                        <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>See Its Tickets
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_reorder) { ?>
                                     <?php if ($position > 0) { ?>
                                         <a class="dropdown-item" href="post.php?move_ticket_status=<?= $ticket_status_id ?>&direction=up&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move up
+                                            <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move Up
                                         </a>
                                     <?php } ?>
                                     <?php if ($position < $num_rows[0] - 1) { ?>
                                         <a class="dropdown-item" href="post.php?move_ticket_status=<?= $ticket_status_id ?>&direction=down&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move down
+                                            <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move Down
                                         </a>
                                     <?php } ?>
                                 <?php } ?>
@@ -201,11 +201,11 @@ $csrf = $_SESSION['csrf_token'];
                                     <div class="dropdown-divider"></div>
                                     <?php if ($active) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_status/ticket_status_remove.php?id=<?= $ticket_status_id ?>&action=off" title="Kept, but it can't be picked - and it comes off the board">
-                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch off
+                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch Off
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item" href="post.php?switch_on_ticket_status=<?= $ticket_status_id ?>&csrf_token=<?= $csrf ?>" title="Back in the pickers and on the board">
-                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch on
+                                            <i class="fas fa-fw fa-power-off text-secondary me-2"></i>Switch On
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/ticket_status/ticket_status_remove.php?id=<?= $ticket_status_id ?>&action=delete">

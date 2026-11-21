@@ -102,7 +102,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="settings_logs.php">
-                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and forwarding
+                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and Forwarding
                     </a>
                     <a class="dropdown-item" href="audit_logs.php">
                         <i class="fas fa-fw fa-history text-secondary me-2"></i>Audit Logs

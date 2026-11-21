@@ -212,11 +212,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/service/service_bulk_edit.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-edit me-2"></i>Importance, category, review
+                                        <i class="fas fa-fw fa-edit me-2"></i>Importance, Category, Review
                                     </a>
                                     <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_review_services"
                                         data-confirm-text="Each one is marked reviewed today, and its next review set from its schedule.">
-                                        <i class="fas fa-fw fa-clipboard-check me-2"></i>Mark reviewed
+                                        <i class="fas fa-fw fa-clipboard-check me-2"></i>Mark Reviewed
                                     </button>
                                     <?php if ($show !== 'archived') { ?>
                                         <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="service" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -385,21 +385,21 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit && !$is_archived) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml('modals/ticket/ticket_add.php?' . http_build_query(['client_id' => $row_client_id, 'service_id' => $service_id])) ?>">
-                                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Report a problem
+                                            <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Report a Problem
                                         </a>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>">
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
                                         <?= tagMenuItem('service', $service_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/service/service_review.php?id=<?= $service_id ?>">
-                                            <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Mark reviewed
+                                            <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Mark Reviewed
                                         </a>
                                         <a class="dropdown-item" href="post.php?<?= $is_favorite ? 'unfavorite_service' : 'favorite_service' ?>=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="<?= $is_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $is_favorite ? 'Unstar' : 'Star' ?>

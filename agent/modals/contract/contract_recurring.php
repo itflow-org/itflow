@@ -134,7 +134,7 @@ if ($refuse !== '') { ?>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="make_contract_recurring" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Make it</button>
+                <button type="submit" name="make_contract_recurring" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Make It</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </form>
@@ -158,7 +158,7 @@ if ($refuse !== '') { ?>
                 <div class="form-text"><?= escapeHtml($contract['client_name']) ?>'s recurring invoices that aren't another contract's.<?= $draft ? ' An active one is paused until the contract is active.' : ' A paused one starts now, its missed runs skipped.' ?></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="link_contract_recurring" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Link it</button>
+                <button type="submit" name="link_contract_recurring" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Link It</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </form>

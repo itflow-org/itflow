@@ -131,7 +131,7 @@ $csrf = $_SESSION['csrf_token'];
             <?php if ($search_misses) { ?>
                 <!-- What readers searched for and didn't find (modals/kb/kb_search_misses.php) -->
                 <button type="button" class="btn btn-outline-light ajax-modal" data-modal-size="lg" data-modal-url="modals/kb/kb_search_misses.php" title="What readers searched Help and the help center for, and didn't find - in the last <?= KB_SEARCH_MISS_DAYS ?> days">
-                    <i class="fas fa-search-minus"></i><span class="d-none d-lg-inline ms-2">Not found</span><span class="badge rounded-pill text-bg-warning ms-2"><?= $search_misses ?></span>
+                    <i class="fas fa-search-minus"></i><span class="d-none d-lg-inline ms-2">Not Found</span><span class="badge rounded-pill text-bg-warning ms-2"><?= $search_misses ?></span>
                 </button>
             <?php } ?>
             <div class="btn-group">
@@ -196,14 +196,14 @@ $csrf = $_SESSION['csrf_token'];
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/kb/kb_article_bulk_category.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-list-ul me-2"></i>Set category
+                                        <i class="fas fa-fw fa-list-ul me-2"></i>Set Category
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_publish_kb_articles">
                                         <i class="fas fa-fw fa-check-circle me-2"></i>Publish
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_draft_kb_articles">
-                                        <i class="fas fa-fw fa-pencil-alt me-2"></i>Make drafts
+                                        <i class="fas fa-fw fa-pencil-alt me-2"></i>Make Drafts
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_archive_kb_articles">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
@@ -331,7 +331,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <?= tagMenuItem('kb_article', $kb_article_id) ?>
                                             <?php if ($row['kb_article_published_at']) { ?>
                                                 <a class="dropdown-item" href="post.php?draft_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Back to a draft - not finished">
-                                                    <i class="fas fa-fw fa-pencil-alt text-secondary me-2"></i>Make draft
+                                                    <i class="fas fa-fw fa-pencil-alt text-secondary me-2"></i>Make Draft
                                                 </a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item" href="post.php?publish_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>">
@@ -340,7 +340,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <?php } ?>
                                             <?php if ($review) { ?>
                                                 <a class="dropdown-item" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>">
-                                                    <i class="fas fa-fw fa-calendar-check text-secondary me-2"></i>Mark reviewed
+                                                    <i class="fas fa-fw fa-calendar-check text-secondary me-2"></i>Mark Reviewed
                                                 </a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>

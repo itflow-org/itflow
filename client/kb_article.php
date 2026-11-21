@@ -35,7 +35,7 @@ if (!$article) { ?>
     <a class="itflow-portal-back" href="kb.php"><i class="fas fa-chevron-left"></i>Help</a>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => "That article isn't here", 'text' => 'It may have been taken down, or isn\'t shared with you.', 'icon' => 'fa-book', 'filtered' => false,
-            'actions' => [['label' => 'All help', 'href' => 'kb.php', 'icon' => 'fa-arrow-left']]]) ?>
+            'actions' => [['label' => 'All Help', 'href' => 'kb.php', 'icon' => 'fa-arrow-left']]]) ?>
     </section>
     <?php
     require_once "includes/footer.php";
@@ -74,7 +74,7 @@ if ($category_id) {
     </div>
     <div class="d-flex flex-wrap gap-2 d-print-none">
         <button type="button" class="btn btn-outline-secondary" data-portal-print><i class="fas fa-print me-2"></i>Print</button>
-        <a class="btn btn-outline-secondary" href="<?= escapeHtml(portalAskUrl('Question about ' . $article['kb_article_title'])) ?>"><i class="fas fa-question-circle me-2"></i>Still stuck? Ask us</a>
+        <a class="btn btn-outline-secondary" href="<?= escapeHtml(portalAskUrl('Question about ' . $article['kb_article_title'])) ?>"><i class="fas fa-question-circle me-2"></i>Still Stuck? Ask Us</a>
     </div>
 </div>
 

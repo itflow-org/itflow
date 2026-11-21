@@ -389,7 +389,7 @@ echo agentBannersHtml($client_id);
                                             <?php if ($payment['payment_method'] === 'Stripe') { ?>
                                                 <a class="dropdown-item text-warning confirm-link" href="post.php?refund_payment_stripe=<?= $payment_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-text="The payment is refunded to the client's card through Stripe.">
-                                                    <i class="fas fa-fw fa-undo me-2"></i>Refund through Stripe
+                                                    <i class="fas fa-fw fa-undo me-2"></i>Refund Through Stripe
                                                 </a>
                                             <?php } ?>
                                             <?php if ($can_edit_payments) { ?>

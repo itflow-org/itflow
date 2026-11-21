@@ -18,7 +18,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-people-carry me-2"></i>Move to another client <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
+        <i class="fa fa-fw fa-people-carry me-2"></i>Move to Another Client <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -66,7 +66,7 @@ ob_start();
 
     <div class="modal-footer">
         <button type="submit" name="change_client_ticket" class="btn btn-primary text-bold">
-            <i class="fa fa-check me-2"></i>Move ticket
+            <i class="fa fa-check me-2"></i>Move Ticket
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
             <i class="fa fa-times me-2"></i>Cancel

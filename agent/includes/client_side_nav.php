@@ -4,7 +4,7 @@
     <div class="sidebar-brand">
         <a class="brand-link" href="/agent/clients.php<?= $client_is_lead ? '?leads=1' : '' ?>">
             <i class="fas fa-arrow-left me-2"></i>
-            <span class="brand-text fs-6 text-body-secondary"><?= $client_is_lead ? 'All leads' : 'All clients' ?></span>
+            <span class="brand-text fs-6 text-body-secondary"><?= $client_is_lead ? 'All Leads' : 'All Clients' ?></span>
         </a>
     </div>
 

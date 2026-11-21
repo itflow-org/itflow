@@ -78,10 +78,10 @@ $action_link = function (array $item, $class) {
         <h3 class="card-title mt-1"><i class="fas fa-fw fa-bug me-2"></i>Debug</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-outline-light clipboardjs" data-clipboard-target="#debugReport" title="Everything here as plain text, for a forum post or a support email - without host names, paths or keys" data-debug-copy>
-                <i class="fas fa-fw fa-copy"></i><span class="d-none d-md-inline ms-2">Copy for support</span>
+                <i class="fas fa-fw fa-copy"></i><span class="d-none d-md-inline ms-2">Copy for Support</span>
             </button>
             <a href="debug.php<?= $exact ? '?exact=1' : '' ?>" class="btn btn-outline-light ms-1" title="Check everything again">
-                <i class="fas fa-fw fa-redo-alt"></i><span class="d-none d-md-inline ms-2">Check again</span>
+                <i class="fas fa-fw fa-redo-alt"></i><span class="d-none d-md-inline ms-2">Check Again</span>
             </a>
         </div>
     </div>
@@ -217,7 +217,7 @@ $action_link = function (array $item, $class) {
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <button type="submit" name="repair_database_collation" class="btn btn-warning btn-sm confirm-link" data-confirm-title="Repair collations?" data-confirm-button="Repair"
                                             data-confirm-icon="question" data-confirm-text="<?= escapeHtml($collation_confirm) ?>">
-                                            <i class="fas fa-fw fa-wrench me-2"></i>Repair collations
+                                            <i class="fas fa-fw fa-wrench me-2"></i>Repair Collations
                                         </button>
                                     </form>
                                 </div>

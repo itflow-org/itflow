@@ -130,10 +130,10 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                     <?php if ($latest_state && $latest_state['key'] === 'countersign') { ?>
                         <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/contract/contract_countersign.php?id=<?= intval($latest['contract_signature_id']) ?>"><i class="fas fa-pen-nib me-2"></i>Countersign</button>
                     <?php } elseif ($can_send && $status === 'Draft' && (!$latest_state || !contractSignaturePending($latest))) { ?>
-                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to sign</button>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to Sign</button>
                     <?php } ?>
                     <?php if ($status === 'Draft') { ?>
-                        <button type="button" class="btn btn-<?= $can_send ? 'outline-primary' : 'primary' ?> ajax-modal" data-modal-url="modals/contract/contract_activate.php?id=<?= $contract_id ?>"><i class="fas fa-check me-2"></i>Make active</button>
+                        <button type="button" class="btn btn-<?= $can_send ? 'outline-primary' : 'primary' ?> ajax-modal" data-modal-url="modals/contract/contract_activate.php?id=<?= $contract_id ?>"><i class="fas fa-check me-2"></i>Make Active</button>
                     <?php } elseif ($contract['contract_end_date']) { ?>
                         <button type="button" class="btn btn-outline-primary ajax-modal" data-modal-url="modals/contract/contract_renew.php?id=<?= $contract_id ?>"><i class="fas fa-sync-alt me-2"></i>Renew</button>
                     <?php } ?>
@@ -145,12 +145,12 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                 <a class="dropdown-item" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= $contract_id ?>"><i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document</a>
                                 <a class="dropdown-item" href="post.php?export_contract_pdf=<?= $contract_id ?>"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF</a>
                                 <?php if ($can_send && $status !== 'Draft') { ?>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-file-signature text-secondary me-2"></i>Send to sign</a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-file-signature text-secondary me-2"></i>Send to Sign</a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
                             <?php } ?>
                             <?php if ($can_hours && !$show_hours) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contract/contract_hours_add.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-hourglass-half text-secondary me-2"></i>Add prepaid hours</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contract/contract_hours_add.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-hourglass-half text-secondary me-2"></i>Add Prepaid Hours</a>
                             <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contract/contract_add.php?client_id=<?= $client_id ?>&copy=<?= $contract_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                             <?php if ($status === 'Active') { ?>
@@ -219,7 +219,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                         <?php if (!$latest) { ?>
                             <p class="small text-body-secondary mb-<?= $can_send ? '3' : '0' ?>">Not sent to the client to sign yet. They sign from a link in an email, or in the client portal; you countersign after.</p>
                             <?php if ($can_send) { ?>
-                                <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to sign</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to Sign</button>
                             <?php } ?>
                         <?php } else { ?>
                             <ul class="itflow-contract-trail mb-3">
@@ -251,7 +251,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                         <div class="dropdown-menu">
                                             <?php if ($latest_state['key'] !== 'countersign') { ?>
                                                 <a class="dropdown-item confirm-link" href="post.php?resend_contract_signature=<?= intval($latest['contract_signature_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                    data-confirm-title="Send the link again?" data-confirm-text="To <?= escapeHtml($latest['contract_signature_sent_to_name'] . ' at ' . $latest['contract_signature_sent_to_email']) ?>." data-confirm-button="Send"><i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the link again</a>
+                                                    data-confirm-title="Send the link again?" data-confirm-text="To <?= escapeHtml($latest['contract_signature_sent_to_name'] . ' at ' . $latest['contract_signature_sent_to_email']) ?>." data-confirm-button="Send"><i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send the Link Again</a>
                                             <?php } ?>
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?withdraw_contract_signature=<?= intval($latest['contract_signature_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                 data-confirm-title="Withdraw the request?" data-confirm-text="Its link stops working for signing<?= $latest_state['key'] === 'countersign' ? ' - the signature already on it is set aside' : '' ?>." data-confirm-button="Withdraw"><i class="fas fa-fw fa-undo me-2"></i>Withdraw</a>
@@ -259,7 +259,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                     </div>
                                 <?php } ?>
                                 <?php if ($can_send && !contractSignaturePending($latest) && $status !== 'Draft') { ?>
-                                    <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to sign</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-url="modals/contract/contract_send.php?id=<?= $contract_id ?>"><i class="fas fa-file-signature me-2"></i>Send to Sign</button>
                                 <?php } ?>
                             </div>
                             <?php if (count($rounds) > 1) { ?>
@@ -334,7 +334,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                         <?php } else { ?>
                             <p class="small text-body-secondary mb-<?= $can_link ? '3' : '0' ?>">Not billed by a recurring invoice. Make one, or link one of the client's - it runs while the contract is active.</p>
                             <?php if ($can_link) { ?>
-                                <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-size="lg" data-modal-url="modals/contract/contract_recurring.php?id=<?= $contract_id ?>"><i class="fas fa-redo-alt me-2"></i>Recurring invoice</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm ajax-modal" data-modal-size="lg" data-modal-url="modals/contract/contract_recurring.php?id=<?= $contract_id ?>"><i class="fas fa-redo-alt me-2"></i>Recurring Invoice</button>
                             <?php } ?>
                         <?php } ?>
                     </div>
@@ -448,10 +448,10 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                 <form action="post.php" method="post" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="contract_id" value="<?= $contract_id ?>">
-                                    <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-outline-secondary" title="Draw the time on the client's done tickets now, not tonight"><i class="fas fa-fw fa-arrow-down"></i><span class="d-none d-sm-inline ms-1">Draw now</span></button>
+                                    <button type="submit" name="draw_contract_hours" value="1" class="btn btn-sm btn-outline-secondary" title="Draw the time on the client's done tickets now, not tonight"><i class="fas fa-fw fa-arrow-down"></i><span class="d-none d-sm-inline ms-1">Draw Now</span></button>
                                 </form>
                             <?php } ?>
-                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/contract/contract_hours_add.php?id=<?= $contract_id ?>" title="Add hours"><i class="fas fa-fw fa-plus"></i><span class="d-none d-sm-inline ms-1">Add hours</span></button>
+                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/contract/contract_hours_add.php?id=<?= $contract_id ?>" title="Add hours"><i class="fas fa-fw fa-plus"></i><span class="d-none d-sm-inline ms-1">Add Hours</span></button>
                         <?php } ?>
                     </div>
                     <div class="card-body">

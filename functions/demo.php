@@ -233,7 +233,7 @@ function demoModeGuestGuard(): void
         . '<link rel="stylesheet" href="' . staticFileUrl('/css/itflow_custom.css') . '"></head><body class="hold-transition login-page"><div class="login-box"><div class="card" data-demo-guest><div class="card-body p-4 text-center">'
         . '<i class="fas fa-flask fa-2x text-info mb-3" aria-hidden="true"></i><h1 class="h4 mb-2">Sign in to the demo first</h1>'
         . '<p class="text-body-secondary">This is a demo, so links from it open only for someone signed in to it.</p>'
-        . '<a href="/login.php" class="btn btn-primary"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign in</a></div></div></div></body></html>');
+        . '<a href="/login.php" class="btn btn-primary"><i class="fas fa-fw fa-sign-in-alt me-2"></i>Sign In</a></div></div></div></body></html>');
 }
 
 /*

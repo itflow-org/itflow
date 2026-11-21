@@ -33,7 +33,7 @@ $forms = ticketTemplatePortalForms($session_client_id, $sees_all);
 $form_key = (string) ($_GET['form'] ?? '');
 $form = $form_key !== '' && $form_key !== 'problem' ? ticketTemplatePortalForm(intval($form_key), $session_client_id, $sees_all) : null;
 $choosing = $forms && $form_key === '' && !isset($_GET['subject']) && !isset($_GET['asset']);
-$back = $forms && !$choosing ? ['ticket_add.php', 'New ticket'] : ['tickets.php', 'Tickets'];
+$back = $forms && !$choosing ? ['ticket_add.php', 'New Ticket'] : ['tickets.php', 'Tickets'];
 
 $categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
     WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -56,13 +56,13 @@ $reply_times = portalReplyTimes();
 <?php if ($form_key !== '' && $form_key !== 'problem' && !$form) { ?>
 
     <?= emptyStateHtml(['title' => "That form isn't here", 'text' => 'It may have been taken down, or it is not one for you. Tell us what you need instead.', 'icon' => 'fa-clipboard-list', 'filtered' => false,
-        'actions' => [['label' => 'New ticket', 'href' => 'ticket_add.php', 'icon' => 'fa-plus']]]) ?>
+        'actions' => [['label' => 'New Ticket', 'href' => 'ticket_add.php', 'icon' => 'fa-plus']]]) ?>
 
 <?php } elseif ($choosing) { ?>
 
     <div class="itflow-portal-page-head">
         <div>
-            <h1>New ticket</h1>
+            <h1>New Ticket</h1>
             <p>What do you need?</p>
         </div>
     </div>
@@ -166,7 +166,7 @@ $reply_times = portalReplyTimes();
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" name="add_ticket_from_form"><i class="fas fa-paper-plane me-2"></i>Send request</button>
+                <button type="submit" class="btn btn-primary" name="add_ticket_from_form"><i class="fas fa-paper-plane me-2"></i>Send Request</button>
             </form>
         </div>
 
@@ -179,7 +179,7 @@ $reply_times = portalReplyTimes();
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>New ticket</h1>
+        <h1>New Ticket</h1>
         <p>Tell us what is wrong and we will get on it.</p>
     </div>
 </div>
@@ -261,7 +261,7 @@ $reply_times = portalReplyTimes();
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" name="add_ticket"><i class="fas fa-paper-plane me-2"></i>Send ticket</button>
+            <button type="submit" class="btn btn-primary" name="add_ticket"><i class="fas fa-paper-plane me-2"></i>Send Ticket</button>
         </form>
     </div>
 

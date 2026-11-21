@@ -94,7 +94,7 @@ ob_start();
                                 <div><?= invoiceDuePill(['state' => 'open', 'days' => -$other_days]) ?></div>
                             </div>
                             <span class="itflow-money text-nowrap"><?= escapeHtml(billingMoney($other['balance'], $other['invoice_currency_code'])) ?></span>
-                            <a class="btn btn-sm btn-outline-secondary ajax-modal text-nowrap" href="#" data-bs-dismiss="modal" data-modal-url="modals/payment/payment_add.php?id=<?= intval($other['invoice_id']) ?>">Pay this one</a>
+                            <a class="btn btn-sm btn-outline-secondary ajax-modal text-nowrap" href="#" data-bs-dismiss="modal" data-modal-url="modals/payment/payment_add.php?id=<?= intval($other['invoice_id']) ?>">Pay This One</a>
                         </li>
                     <?php } ?>
                 </ul>

@@ -107,7 +107,7 @@ $page_title = 'Update Prices';
                     </div>
                     <?php if ($can_edit) { ?>
                         <div class="btn-group btn-group-sm" role="group" aria-label="Set the new prices">
-                            <button type="button" class="btn btn-outline-secondary" data-reprice-fill="catalog" title="Every line here at <?= escapeHtml(billingMoney($group['product_price'], $currency)) ?>"><i class="fas fa-tag me-1"></i>Catalog price</button>
+                            <button type="button" class="btn btn-outline-secondary" data-reprice-fill="catalog" title="Every line here at <?= escapeHtml(billingMoney($group['product_price'], $currency)) ?>"><i class="fas fa-tag me-1"></i>Catalog Price</button>
                             <?php if ($ratio && $percent != 0) { ?>
                                 <button type="button" class="btn btn-outline-secondary" data-reprice-fill="ratio" data-ratio="<?= $ratio ?>" title="Each line's price changed by the same <?= escapeHtml((string) $percent) ?>%"><i class="fas fa-percent me-1"></i><?= $percent > 0 ? '+' : '' ?><?= escapeHtml((string) $percent) ?>% each</button>
                             <?php } ?>

@@ -243,10 +243,10 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                             <div class="dropdown-menu dropdown-menu-end">
                                 <?php if (!$archived) { ?>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_refresh_domains">
-                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Look up now
+                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Look Up Now
                                     </button>
                                     <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#domainBulkVendorModal">
-                                        <i class="fas fa-fw fa-building me-2"></i>Set registrar or host
+                                        <i class="fas fa-fw fa-building me-2"></i>Set Registrar or Host
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="domain" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -396,10 +396,10 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="https://<?= $domain_name ?>" target="_blank" rel="noopener noreferrer">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the website
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open the Website
                                     </a>
                                     <?php if ($can_edit && !$domain_archived_at) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>">
@@ -407,7 +407,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                         </a>
                                         <?= tagMenuItem('domain', $domain_id) ?>
                                         <a class="dropdown-item" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Look up now
+                                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Look Up Now
                                         </a>
                                         <a class="dropdown-item" href="post.php?<?= $domain_favorite ? 'unfavorite_domain' : 'favorite_domain' ?>=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="<?= $domain_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $domain_favorite ? 'Unstar' : 'Star' ?>
@@ -465,7 +465,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>Set registrar or host</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>Set Registrar or Host</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -486,7 +486,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                 <div class="form-text"><?= $client_url ? "The client's vendors, and ours." : 'Across clients only our own vendors can be set - open a client to use theirs.' ?></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" form="bulkActions" name="bulk_set_domain_vendor" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set it</button>
+                <button type="submit" form="bulkActions" name="bulk_set_domain_vendor" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set It</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
             </div>
         </div>

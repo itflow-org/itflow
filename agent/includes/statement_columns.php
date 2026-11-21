@@ -34,7 +34,7 @@ $sign_options = $columns_side === 'income'
 
 <div class="card mb-3">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-columns me-2"></i>Which column is which <span class="fw-normal text-white-50 ms-1"><?= count($import['rows']) ?> lines</span></h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-columns me-2"></i>Which Column Is Which <span class="fw-normal text-white-50 ms-1"><?= count($import['rows']) ?> lines</span></h3>
     </div>
     <form action="post.php" method="post" autocomplete="off" id="<?= escapeHtml($columns_form_id) ?>">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

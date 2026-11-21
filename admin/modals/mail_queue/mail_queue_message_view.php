@@ -134,10 +134,10 @@ if (!$row) { ?>
                 data-confirm-title="Delete this email?" data-confirm-text="<?= $status === 3 ? 'It has been sent - this only takes it off the list.' : 'It won\'t be sent.' ?>" data-confirm-button="Delete"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
         <?php } ?>
         <?php if (mailQueueCan($row, 'retry')) { ?>
-            <a class="btn btn-primary" href="post.php?retry_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" title="From the start, at the next run" data-email-retry><i class="fas fa-fw fa-redo-alt me-2"></i>Retry now</a>
+            <a class="btn btn-primary" href="post.php?retry_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" title="From the start, at the next run" data-email-retry><i class="fas fa-fw fa-redo-alt me-2"></i>Retry Now</a>
         <?php } ?>
         <?php if (mailQueueCan($row, 'cancel')) { ?>
-            <a class="btn btn-outline-secondary" href="post.php?cancel_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" data-email-cancel><i class="fas fa-fw fa-ban me-2"></i>Cancel it</a>
+            <a class="btn btn-outline-secondary" href="post.php?cancel_mail=<?= intval($row['email_id']) ?>&csrf_token=<?= $csrf ?>" data-email-cancel><i class="fas fa-fw fa-ban me-2"></i>Cancel It</a>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

@@ -17,7 +17,7 @@ ob_start();
 
 if (!$template) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-clipboard-check me-2"></i>Who should have one</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-clipboard-check me-2"></i>Who Should Have One</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That document template no longer exists.</div>
@@ -28,7 +28,7 @@ if (!$template) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-clipboard-check me-2"></i>Who should have one <small class="ms-1 opacity-75"><?= escapeHtml($template['document_template_name']) ?></small></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-clipboard-check me-2"></i>Who Should Have One <small class="ms-1 opacity-75"><?= escapeHtml($template['document_template_name']) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

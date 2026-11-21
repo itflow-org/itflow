@@ -102,7 +102,7 @@ ob_start();
                 <?php if (shareCanMake('Export')) { ?>
                     <button type="button" class="btn btn-outline-primary me-auto ajax-modal" data-bs-dismiss="modal" data-client-export-share data-modal-size="lg"
                         data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= $client_id ?>" title="A secure link to the PDF instead - for someone outside">
-                        <i class="fas fa-fw fa-share-alt me-2"></i>Share a link
+                        <i class="fas fa-fw fa-share-alt me-2"></i>Share a Link
                     </button>
                 <?php } ?>
                 <button type="submit" name="export_client_pdf" value="1" class="btn btn-primary text-bold" data-client-export-submit>

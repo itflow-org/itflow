@@ -57,7 +57,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Shortened Name</label>
+                    <label class="form-label">Shortened name</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" maxlength="6" oninput="this.value = this.value.toUpperCase()">
@@ -123,7 +123,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">State / Province</label>
+                    <label class="form-label">State / province</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                         <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200">
@@ -131,7 +131,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Postal Code</label>
+                    <label class="form-label">Postal code</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                         <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200">
@@ -173,7 +173,7 @@ ob_start();
                     </div>
                 </div>
 
-                <label class="form-label">Location Fax</label>
+                <label class="form-label">Location fax</label>
                 <div class="row g-2">
                     <div class="col-9">
                         <div class="mb-3">
@@ -191,7 +191,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-contact">
 
                 <div class="mb-3">
-                    <label class="form-label">Primary Contact <strong class="text-danger">*</strong></label>
+                    <label class="form-label">Primary contact <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                         <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" maxlength="200" required autofocus>
@@ -241,7 +241,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Contact Email</label>
+                    <label class="form-label">Contact email</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address" maxlength="200">

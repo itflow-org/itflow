@@ -291,7 +291,7 @@
             '<div class="itflow-notify-head">' +
                 '<span class="fw-semibold">Notifications</span>' +
                 '<button type="button" class="btn btn-link btn-sm p-0 ms-auto text-decoration-none" data-notify-all>' +
-                    '<i class="fas fa-check-double me-1" aria-hidden="true"></i>Mark all as read</button>' +
+                    '<i class="fas fa-check-double me-1" aria-hidden="true"></i>Mark All as Read</button>' +
             '</div>' +
             '<div class="nav nav-underline itflow-notify-tabs" role="tablist">' +
                 '<button type="button" class="nav-link active" role="tab" aria-selected="true" data-notify-view="unread">' +

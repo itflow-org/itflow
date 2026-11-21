@@ -21,7 +21,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-cube me-2"></i>Apply a template <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-cube me-2"></i>Apply a Template <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

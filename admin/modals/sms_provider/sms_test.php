@@ -18,7 +18,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-vial me-2"></i>Send a test text</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-vial me-2"></i>Send a Test Text</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

@@ -18,7 +18,7 @@ ob_start();
 
 if (!$template) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-balance-scale me-2"></i>True up seats</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-balance-scale me-2"></i>True Up Seats</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That license template no longer exists.</div>
@@ -32,7 +32,7 @@ if (!$template) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-balance-scale me-2"></i>True up seats <small class="ms-1 opacity-75"><?= escapeHtml($template['software_template_name']) ?></small></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-balance-scale me-2"></i>True Up Seats <small class="ms-1 opacity-75"><?= escapeHtml($template['software_template_name']) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -80,7 +80,7 @@ if (!$template) { ?>
     </div>
     <div class="modal-footer">
         <?php if ($licenses) { ?>
-            <button type="submit" name="true_up_software_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>True up</button>
+            <button type="submit" name="true_up_software_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>True Up</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $licenses ? 'Cancel' : 'Close' ?></button>
     </div>

@@ -24,7 +24,7 @@ $provider = billingStripeProvider();
 if (!$provider) { ?>
     <div class="itflow-portal-page-head">
         <div>
-            <h1>Cards &amp; autopay</h1>
+            <h1>Cards &amp; Autopay</h1>
         </div>
     </div>
     <section class="itflow-portal-panel">
@@ -55,7 +55,7 @@ $fee_terms = $fee_rates ? ' Each card payment has a card fee added: ' . billingC
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Cards &amp; autopay</h1>
+        <h1>Cards &amp; Autopay</h1>
         <p>Save a card to pay invoices in a click, and have recurring invoices paid on their own.</p>
     </div>
 </div>
@@ -97,7 +97,7 @@ $fee_terms = $fee_rates ? ' Each card payment has a card fee added: ' . billingC
             <?php } ?>
             <div class="itflow-portal-panel-body border-top">
                 <?php if ($customer !== '') { ?>
-                    <button type="button" class="btn btn-outline-primary" data-stripe-add-card<?= $autostart ? ' hidden' : '' ?>><i class="fas fa-plus me-2"></i>Add a card</button>
+                    <button type="button" class="btn btn-outline-primary" data-stripe-add-card<?= $autostart ? ' hidden' : '' ?>><i class="fas fa-plus me-2"></i>Add a Card</button>
                     <div data-stripe-add-card-holder data-stripe-key="<?= escapeHtml($provider['payment_provider_public_key']) ?>"<?= $autostart ? ' data-autostart' : '' ?> hidden>
                         <p class="small text-body-secondary">By saving a card you agree <?= escapeHtml($company['company_name'] ?? 'we') ?> may charge it for invoices you pay with it, and for the recurring invoices you set to autopay.<?= escapeHtml($fee_terms) ?></p>
                         <div class="text-body-secondary small" data-stripe-loading><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Loading Stripe...</div>
@@ -108,7 +108,7 @@ $fee_terms = $fee_rates ? ' Each card payment has a card fee added: ' . billingC
                     <form action="post.php" method="post" data-portal-once>
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <p class="small text-body-secondary">By saving a card you agree <?= escapeHtml($company['company_name'] ?? 'we') ?> may charge it for invoices you pay with it, and for the recurring invoices you set to autopay.<?= escapeHtml($fee_terms) ?> Stripe keeps the card details, under its privacy policy and terms.</p>
-                        <button type="submit" class="btn btn-outline-primary" name="create_stripe_customer"><i class="fas fa-plus me-2"></i>Add a card</button>
+                        <button type="submit" class="btn btn-outline-primary" name="create_stripe_customer"><i class="fas fa-plus me-2"></i>Add a Card</button>
                     </form>
                 <?php } ?>
             </div>

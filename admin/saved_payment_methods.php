@@ -224,7 +224,7 @@ $page_title = 'Saved Cards';
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="?<?= escapeHtml(http_build_query(['client' => $client_id])) ?>">
-                                    <i class="fas fa-fw fa-filter text-secondary me-2"></i>This client's cards
+                                    <i class="fas fa-fw fa-filter text-secondary me-2"></i>This Client's Cards
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_saved_payment=<?= $saved_id ?>&csrf_token=<?= $csrf ?>"

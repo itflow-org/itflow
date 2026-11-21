@@ -124,10 +124,10 @@ $page_title = $row['kb_article_title'];
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if (!$archived) { ?>
                             <?php if ($published) { ?>
-                                <a class="dropdown-item" href="post.php?draft_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Back to a draft - not finished"><i class="fas fa-fw fa-pencil-alt me-2"></i>Make draft</a>
+                                <a class="dropdown-item" href="post.php?draft_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Back to a draft - not finished"><i class="fas fa-fw fa-pencil-alt me-2"></i>Make Draft</a>
                             <?php } ?>
                             <?php if ($review) { ?>
-                                <a class="dropdown-item" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-calendar-check me-2"></i>Mark reviewed</a>
+                                <a class="dropdown-item" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-calendar-check me-2"></i>Mark Reviewed</a>
                             <?php } ?>
                             <a class="dropdown-item" href="post.php?copy_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="A new draft starting from this one"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
                             <div class="dropdown-divider"></div>
@@ -290,7 +290,7 @@ $page_title = $row['kb_article_title'];
                                 &middot; <?= lcfirst(KB_REVIEW_MONTHS[intval($row['kb_article_review_months'])] ?? '') ?>
                             </span>
                             <?php if ($can_edit) { ?>
-                                <a class="btn btn-sm <?= $review['due'] ? 'btn-warning' : 'btn-light border' ?> mt-2" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-check me-1"></i>Mark reviewed</a>
+                                <a class="btn btn-sm <?= $review['due'] ? 'btn-warning' : 'btn-light border' ?> mt-2" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-check me-1"></i>Mark Reviewed</a>
                             <?php } ?>
                         <?php } elseif (intval($row['kb_article_review_months']) > 0 && !$archived) { ?>
                             <span class="text-body-secondary">Reviewed <?= lcfirst(KB_REVIEW_MONTHS[intval($row['kb_article_review_months'])] ?? '') ?> once it's published</span>
@@ -354,7 +354,7 @@ $page_title = $row['kb_article_title'];
                                 </div>
                             </div>
                             <?php if ($open && $can_edit) { ?>
-                                <a class="btn btn-sm btn-light border flex-shrink-0" href="post.php?deal_with_kb_feedback=<?= intval($answer['kb_article_feedback_id']) ?>&csrf_token=<?= $csrf ?>" title="You've seen to it - it leaves Needs a look"><i class="fas fa-check me-1"></i>Dealt with</a>
+                                <a class="btn btn-sm btn-light border flex-shrink-0" href="post.php?deal_with_kb_feedback=<?= intval($answer['kb_article_feedback_id']) ?>&csrf_token=<?= $csrf ?>" title="You've seen to it - it leaves Needs a look"><i class="fas fa-check me-1"></i>Dealt With</a>
                             <?php } ?>
                         </li>
                     <?php } ?>

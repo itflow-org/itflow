@@ -242,7 +242,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                     <?php if ($client_url && $invites_on) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>">
-                        <i class="fa fa-fw fa-user-plus me-2"></i>Invite to the portal
+                        <i class="fa fa-fw fa-user-plus me-2"></i>Invite to the Portal
                     </a>
                     <?php } ?>
                     <?php if ($client_url) { ?>
@@ -461,7 +461,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                 </div>
                 <?php } elseif ($client_url && $can_edit) { ?>
                 <div class="col-lg col-md-6 text-md-end">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>"><i class="fas fa-user-plus me-2"></i>Invite people</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>"><i class="fas fa-user-plus me-2"></i>Invite People</button>
                 </div>
                 <?php } ?>
 
@@ -533,11 +533,11 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="post.php?resend_portal_invite=<?= $invite_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send again
+                                        <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send Again
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger confirm-link" href="post.php?cancel_portal_invite=<?= $invite_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-ban me-2"></i>Cancel invite
+                                        <i class="fas fa-fw fa-ban me-2"></i>Cancel Invite
                                     </a>
                                 </div>
                             </div>
@@ -691,7 +691,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                                         <?php if ($row_new_ticket) { ?>
                                             <!-- A ticket for them, without opening the contact first -->
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
-                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New ticket
+                                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>New Ticket
                                             </a>
                                         <?php } ?>
                                     <?php if ($can_edit) { ?>
@@ -746,7 +746,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
         'views' => ['role'],
         'title' => 'No invites waiting',
         'text' => 'Invite people to the client portal by email - they put in their own name, phone and password when they accept, and are added to the contacts then.',
-        'actions' => $can_edit && $client_url ? [['label' => 'Invite people', 'modal' => "modals/contact/contact_invite.php?$client_url", 'icon' => 'fa-user-plus']] : [],
+        'actions' => $can_edit && $client_url ? [['label' => 'Invite People', 'modal' => "modals/contact/contact_invite.php?$client_url", 'icon' => 'fa-user-plus']] : [],
     ] : [
         'thing' => 'contacts',
         'icon' => 'fa-address-book',

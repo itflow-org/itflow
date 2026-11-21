@@ -35,7 +35,7 @@ if (!$client) {
 
 if ($refuse !== '') { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>Invite people</h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>Invite People</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5"><?= escapeHtml($refuse) ?></div>
@@ -84,7 +84,7 @@ if ($refuse !== '') { ?>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="send_portal_invites" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Send invites</button>
+        <button type="submit" name="send_portal_invites" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Send Invites</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -291,10 +291,10 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket.php?id=<?= $ticket_id ?>">
-                                    <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                    <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                 </a>
                                 <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                    <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                    <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                 </a>
                                 <?php if ($can_edit && !$is_closed) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
@@ -303,11 +303,11 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                     <?= tagMenuItem('ticket', $ticket_id) ?>
                                     <?php if (!$mine) { ?>
                                         <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me
+                                            <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to Me
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
-                                        <i class="fas fa-fw fa-clone text-secondary me-2"></i>Merge into a ticket
+                                        <i class="fas fa-fw fa-clone text-secondary me-2"></i>Merge into a Ticket
                                     </a>
                                     <?php if ($is_open) { ?>
                                         <div class="dropdown-divider"></div>

@@ -131,7 +131,7 @@ $csrf = $_SESSION['csrf_token'];
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $clients_url ?>">
-                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add one to clients
+                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add One to Clients
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $import_url ?>">
@@ -142,10 +142,10 @@ $csrf = $_SESSION['csrf_token'];
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/vendor_templates.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter vendor templates
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Vendor Templates
                     </a>
                 </div>
             </div>
@@ -273,11 +273,11 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if (!$row['vendor_template_archived_at']) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $clients_url ?>?template_id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add to clients
+                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Add to Clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor_template/vendor_template_required.php?id=<?= $template_id ?>">
-                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who should have it
+                                    <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who Should Have It
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
@@ -318,7 +318,7 @@ $csrf = $_SESSION['csrf_token'];
             'out' => ['title' => 'Every vendor is in step', 'text' => 'Every client\'s vendor made from a template says what the template says.']][$show] ?? null,
         'text' => 'A vendor your clients use again and again - an ISP, a hardware maker, the software they run - set up once with its support line, hours and site, ready to add to any client. Agents start one from <strong>New Vendor</strong> on a client\'s Vendors.',
         'actions' => [['label' => 'New Vendor Template', 'modal' => $add_url, 'size' => 'lg'], ['label' => 'Import', 'modal' => $import_url, 'icon' => 'fa-file-upload'],
-            ['label' => 'Starter vendor templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
+            ['label' => 'Starter Vendor Templates', 'href' => 'starter_content.php', 'icon' => 'fa-seedling']],
     ];
     require_once "../includes/filter_footer.php";
     ?>

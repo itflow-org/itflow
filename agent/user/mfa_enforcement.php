@@ -75,7 +75,7 @@ $mfa_secret = $_SESSION['mfa_token'];
                     <?php require __DIR__ . '/includes/mfa_setup.php'; ?>
 
                     <div class="mb-3"></div>
-                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fa fa-check me-2"></i>Turn on MFA</button>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fa fa-check me-2"></i>Turn On MFA</button>
                     <a class="small text-body-secondary" href="post.php?logout">Sign out</a>
                 </form>
 

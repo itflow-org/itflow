@@ -638,7 +638,7 @@
                             '<div class="small text-body-secondary mb-3">or paste one, or</div>' +
                             '<div class="d-flex flex-wrap justify-content-center gap-2">' +
                                 '<span class="btn btn-primary"><i class="fas fa-upload me-2"></i><span data-pick-choose></span></span>' +
-                                '<button type="button" class="btn btn-outline-primary" data-camera hidden><i class="fas fa-camera me-2"></i>Take a photo</button>' +
+                                '<button type="button" class="btn btn-outline-primary" data-camera hidden><i class="fas fa-camera me-2"></i>Take a Photo</button>' +
                             '</div>' +
                             '<div class="form-text mt-2" data-pick-types></div>' +
                         '</div>' +
@@ -670,7 +670,7 @@
                                     '<button type="button" class="btn btn-outline-secondary" data-rotate title="Turn it a quarter" aria-label="Turn it a quarter"><i class="fas fa-fw fa-redo"></i></button>' +
                                     '<button type="button" class="btn btn-outline-secondary" data-fit title="The whole picture" aria-label="The whole picture"><i class="fas fa-fw fa-expand"></i></button>' +
                                 '</div>' +
-                                '<button type="button" class="btn btn-sm btn-outline-secondary" data-trim><i class="fas fa-crop-alt me-1"></i>Trim the edges</button>' +
+                                '<button type="button" class="btn btn-sm btn-outline-secondary" data-trim><i class="fas fa-crop-alt me-1"></i>Trim the Edges</button>' +
                                 '<span class="ms-auto small text-body-secondary text-nowrap" data-size></span>' +
                             '</div>' +
                             '<div class="small text-body-secondary mt-2">Drag the corners and edges in to what you want to keep.</div>' +
@@ -682,7 +682,7 @@
                     '</div>' +
                     '<div class="modal-footer">' +
                         '<button type="button" class="btn btn-outline-danger me-auto" data-remove><i class="fas fa-trash me-2"></i>Remove</button>' +
-                        '<button type="button" class="btn btn-outline-secondary" data-another hidden><i class="fas fa-images me-2"></i>Choose another</button>' +
+                        '<button type="button" class="btn btn-outline-secondary" data-another hidden><i class="fas fa-images me-2"></i>Choose Another</button>' +
                         '<button type="button" class="btn btn-primary text-bold" data-use disabled><i class="fas fa-check me-2"></i><span data-use-label>Use this picture</span></button>' +
                         '<button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>' +
                     '</div>' +

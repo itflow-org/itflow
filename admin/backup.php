@@ -216,7 +216,7 @@ $status_looks = [
                 <strong>A restore is waiting to start</strong> - the <?= escapeHtml($restore_label) ?>, asked for by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?> <?= $ago((string) ($restore_status['queued'] ?? $restore_status['at'] ?? '')) ?>.
                 <?= $cron_is_running ? 'Cron starts it within a minute.' : 'Cron isn\'t running, so it starts when cron does - and not at all once ' . BACKUP_RESTORE_WAIT_MINUTES . ' minutes have gone by.' ?>
                 <div class="mt-2">
-                    <a class="btn btn-sm btn-light border confirm-link" href="post.php?cancel_restore=1&amp;csrf_token=<?= $csrf ?>" data-confirm-title="Cancel the restore?" data-confirm-text="Nothing is changed, and nothing is restored." data-confirm-button="Cancel it"><i class="fas fa-fw fa-ban me-1"></i>Cancel the restore</a>
+                    <a class="btn btn-sm btn-light border confirm-link" href="post.php?cancel_restore=1&amp;csrf_token=<?= $csrf ?>" data-confirm-title="Cancel the restore?" data-confirm-text="Nothing is changed, and nothing is restored." data-confirm-button="Cancel it"><i class="fas fa-fw fa-ban me-1"></i>Cancel the Restore</a>
                 </div>
             <?php } elseif ($restore_state === 'running') { ?>
                 <strong>Restoring</strong> the <?= escapeHtml($restore_label) ?> - started <?= $ago((string) ($restore_status['started'] ?? $restore_status['at'] ?? '')) ?> by <?= escapeHtml((string) ($restore_status['who'] ?? '')) ?>.
@@ -306,14 +306,14 @@ $status_looks = [
                         <?php if (!in_array($state, ['nokey', 'working'], true)) { ?>
                             <div class="d-flex flex-wrap gap-2 mt-3">
                                 <a class="btn btn-primary" href="post.php?queue_backup=full&amp;csrf_token=<?= $csrf ?>" data-backup-now>
-                                    <i class="fas fa-fw fa-box-open me-2"></i>Back up now
+                                    <i class="fas fa-fw fa-box-open me-2"></i>Back Up Now
                                 </a>
                                 <a class="btn btn-outline-secondary" href="post.php?queue_backup=database&amp;csrf_token=<?= $csrf ?>">
-                                    <i class="fas fa-fw fa-database me-2"></i>Database only
+                                    <i class="fas fa-fw fa-database me-2"></i>Database Only
                                 </a>
                             </div>
                             <p class="mb-0 mt-2 small text-body-secondary">
-                                <strong>Back up now</strong> makes a Full Backup: the database and every uploaded file. <strong>Database only</strong> is smaller and quicker, without attachments or documents.
+                                <strong>Back Up Now</strong> makes a Full Backup: the database and every uploaded file. <strong>Database Only</strong> is smaller and quicker, without attachments or documents.
                             </p>
                         <?php } ?>
                     </div>
@@ -403,10 +403,10 @@ $status_looks = [
                                     <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu">
                                         <?php if ($backup_path !== false) { ?>
-                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup_path) ?>" title="For restoring it from the command line"><i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy its path on this server</button>
+                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup_path) ?>" title="For restoring it from the command line"><i class="fas fa-fw fa-terminal text-secondary me-2"></i>Copy Its Path on This Server</button>
                                         <?php } ?>
                                         <?php if ($status === 'Complete' && (string) $backup['backup_sha256'] !== '') { ?>
-                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup['backup_sha256']) ?>" title="To check a copy is the same file"><i class="fas fa-fw fa-fingerprint text-secondary me-2"></i>Copy its SHA-256 checksum</button>
+                                            <button type="button" class="dropdown-item clipboardjs" data-clipboard-text="<?= escapeHtml($backup['backup_sha256']) ?>" title="To check a copy is the same file"><i class="fas fa-fw fa-fingerprint text-secondary me-2"></i>Copy Its SHA-256 Checksum</button>
                                         <?php } ?>
                                         <?php if ($status === 'Complete' && $backup['backup_type'] !== BACKUP_TYPE_MASTER_KEY) { ?>
                                             <button type="button" class="dropdown-item ajax-modal" data-modal-url="modals/backup/backup_restore.php?backup_id=<?= $backup_id ?>" data-backup-restore-open="<?= $backup_id ?>">
@@ -454,11 +454,11 @@ $status_looks = [
                         <div class="d-flex gap-2 flex-shrink-0">
                             <?php if (!$schedule_on) { ?>
                                 <a class="btn btn-sm btn-primary" href="post.php?enable_cron_job=<?= $backup_job_id ?>&amp;csrf_token=<?= $csrf ?>" data-backup-schedule-on>
-                                    <i class="fas fa-fw fa-power-off me-1"></i>Turn on
+                                    <i class="fas fa-fw fa-power-off me-1"></i>Turn On
                                 </a>
                             <?php } ?>
                             <button type="button" class="btn btn-sm btn-light border ajax-modal" data-modal-url="modals/cron/cron_edit.php?id=<?= $backup_job_id ?>" data-backup-schedule-edit>
-                                <i class="fas fa-fw fa-clock me-1"></i>Change the time
+                                <i class="fas fa-fw fa-clock me-1"></i>Change the Time
                             </button>
                         </div>
                     <?php } ?>
@@ -677,7 +677,7 @@ $config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@
             <div class="card-body small">
                 <p class="text-body-secondary">The master key that opens every saved credential. A restore brings the vault back by itself, as long as one user still knows their password - this is for when none does.</p>
                 <button type="button" class="btn btn-sm btn-light border ajax-modal" data-modal-url="modals/backup/backup_master_key.php" data-backup-master-key-export>
-                    <i class="fas fa-fw fa-key me-2"></i>Export the master key
+                    <i class="fas fa-fw fa-key me-2"></i>Export the Master Key
                 </button>
             </div>
         </div>

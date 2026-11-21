@@ -138,7 +138,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/category/category_merge.php" data-bulk="true">
-                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into one...
+                                            <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into One...
                                         </a>
                                         <?php if ($show_archived) { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_categories">
@@ -227,17 +227,17 @@ $csrf = $_SESSION['csrf_token'];
                                                 <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/category/category_merge.php?category_ids[]=<?= $category_id ?>">
-                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge into...
+                                                <i class="fas fa-fw fa-compress-alt text-secondary me-2"></i>Merge Into...
                                             </a>
                                             <?php if ($can_reorder) { ?>
                                                 <?php if ($position > 0) { ?>
                                                     <a class="dropdown-item" href="post.php?move_category=<?= $category_id ?>&direction=up&csrf_token=<?= $csrf ?>">
-                                                        <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move up
+                                                        <i class="fas fa-fw fa-arrow-up text-secondary me-2"></i>Move Up
                                                     </a>
                                                 <?php } ?>
                                                 <?php if ($position < $num_rows[0] - 1) { ?>
                                                     <a class="dropdown-item" href="post.php?move_category=<?= $category_id ?>&direction=down&csrf_token=<?= $csrf ?>">
-                                                        <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move down
+                                                        <i class="fas fa-fw fa-arrow-down text-secondary me-2"></i>Move Down
                                                     </a>
                                                 <?php } ?>
                                             <?php } ?>

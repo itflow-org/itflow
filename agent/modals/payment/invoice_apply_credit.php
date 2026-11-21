@@ -37,7 +37,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Credit Amount <strong class="text-danger">*</strong></label>
+            <label class="form-label">Credit amount <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-wallet"></i></span>
                 <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount_credit_applied" value="<?= number_format($credit_balance, 2, '.', '') ?>" placeholder="0.00" required>

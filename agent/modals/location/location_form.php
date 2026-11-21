@@ -138,7 +138,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             </div>
         </div>
         <div class="col-md-4">
-            <label class="form-label">State / Province</label>
+            <label class="form-label">State / province</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                 <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200" value="<?= $location_state ?>">

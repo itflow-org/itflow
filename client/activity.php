@@ -60,11 +60,11 @@ function activityUrl(array $changes) {
 }
 ?>
 
-<a class="itflow-portal-back" href="profile.php"><i class="fas fa-chevron-left"></i>Your account</a>
+<a class="itflow-portal-back" href="profile.php"><i class="fas fa-chevron-left"></i>Your Account</a>
 
 <div class="itflow-portal-page-head">
     <div>
-        <h1>Your activity</h1>
+        <h1>Your Activity</h1>
         <p>Every time you signed in, and what you did here</p>
     </div>
 </div>

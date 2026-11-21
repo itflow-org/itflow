@@ -85,7 +85,7 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
             <?= escapeHtml(implode(', ', array_slice(array_column($low_stock, 'product_name'), 0, 4)) . (count($low_stock) > 4 ? ' and ' . (count($low_stock) - 4) . ' more' : '')) ?>.</span>
         <form action="post.php" method="post" class="m-0">
             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-            <button type="submit" name="order_items_low_stock" class="btn btn-sm btn-warning"><i class="fas fa-fw fa-cart-plus me-1"></i>Add them to the list</button>
+            <button type="submit" name="order_items_low_stock" class="btn btn-sm btn-warning"><i class="fas fa-fw fa-cart-plus me-1"></i>Add Them to the List</button>
         </form>
     </div>
 <?php } ?>

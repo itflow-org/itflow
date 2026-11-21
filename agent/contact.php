@@ -657,7 +657,7 @@ if (!$can_support) {
                                                         </a>
                                                         <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                             data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
-                                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
+                                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
                                                         </a>
                                                         <?php if (lookupUserPermission('module_support') >= 3) { ?>
                                                             <div class="dropdown-divider"></div>

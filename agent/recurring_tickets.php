@@ -211,7 +211,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_force_recurring_tickets"
                                         data-confirm-text="A ticket is raised now from each one, and its next run moves on.">
-                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Raise now
+                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Raise Now
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_pause_recurring_tickets">
                                         <i class="fas fa-fw fa-pause me-2"></i>Pause
@@ -224,18 +224,18 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                         <i class="fas fa-fw fa-user-check me-2"></i>Assign
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_priority_edit.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set priority
+                                        <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_category_edit.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-tag me-2"></i>Set category
+                                        <i class="fas fa-fw fa-tag me-2"></i>Set Category
                                     </a>
                                     <?php if ($config_module_enable_accounting && lookupUserPermission('module_sales') >= 2) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_billable_edit.php" data-bulk="true">
-                                            <i class="fas fa-fw fa-dollar-sign me-2"></i>Set billing
+                                            <i class="fas fa-fw fa-dollar-sign me-2"></i>Set Billing
                                         </a>
                                     <?php } ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_next_run_edit.php" data-bulk="true">
-                                        <i class="fas fa-fw fa-calendar-day me-2"></i>Set next run
+                                        <i class="fas fa-fw fa-calendar-day me-2"></i>Set Next Run
                                     </a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
@@ -373,7 +373,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                         </a>
                                         <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
-                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
+                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
                                         </a>
                                         <?php if ($paused) { ?>
                                             <a class="dropdown-item" href="post.php?resume_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

@@ -159,7 +159,7 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if ($agent_count) { ?>
                                     <a class="dropdown-item" href="users.php?role=<?= $role_id ?>">
-                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Its agents
+                                        <i class="fas fa-fw fa-users text-secondary me-2"></i>Its Agents
                                     </a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>

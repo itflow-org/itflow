@@ -197,10 +197,10 @@ $csrf = $_SESSION['csrf_token'];
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                 <?php } ?>
                                 <?php if ($usable) { ?>
-                                    <a class="dropdown-item" href="post.php?sync_rmm=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>" data-rmm-sync title="Bring in its linked clients' devices now"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Sync now</a>
+                                    <a class="dropdown-item" href="post.php?sync_rmm=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>" data-rmm-sync title="Bring in its linked clients' devices now"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Sync Now</a>
                                 <?php } ?>
                                 <?php if ($kind) { ?>
-                                    <a class="dropdown-item" href="post.php?test_rmm_provider=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-vial text-secondary me-2"></i>Test the connection</a>
+                                    <a class="dropdown-item" href="post.php?test_rmm_provider=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-vial text-secondary me-2"></i>Test the Connection</a>
                                 <?php } ?>
                                 <?php if ($dashboard !== '') { ?>
                                     <a class="dropdown-item" href="<?= escapeHtml($dashboard) ?>" target="_blank" rel="noopener noreferrer"><i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open <?= escapeHtml($kind['short']) ?></a>
@@ -209,10 +209,10 @@ $csrf = $_SESSION['csrf_token'];
                                     <a class="dropdown-item confirm-link" href="post.php?turn_rmm_provider_off=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Turn <?= escapeHtml($name) ?> off?" data-confirm-button="Turn off"
                                         data-confirm-text="Nothing more is brought in from it. Assets keep what it last said about them until it is on again.">
-                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn off
+                                        <i class="fas fa-fw fa-toggle-off text-secondary me-2"></i>Turn Off
                                     </a>
                                 <?php } else { ?>
-                                    <a class="dropdown-item" href="post.php?turn_rmm_provider_on=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn on</a>
+                                    <a class="dropdown-item" href="post.php?turn_rmm_provider_on=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-toggle-on text-secondary me-2"></i>Turn On</a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_rmm_provider=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"

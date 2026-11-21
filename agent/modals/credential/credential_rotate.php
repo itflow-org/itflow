@@ -52,14 +52,14 @@ ob_start();
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Make one up"><i class="fas fa-fw fa-magic"></i></button>
             <div class="dropdown-menu dropdown-menu-end">
                 <a class="dropdown-item" href="#" data-rotate-generate="passphrase"><i class="fas fa-fw fa-font text-secondary me-2"></i>Passphrase</a>
-                <a class="dropdown-item" href="#" data-rotate-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 characters</a>
-                <a class="dropdown-item" href="#" data-rotate-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 characters</a>
+                <a class="dropdown-item" href="#" data-rotate-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 Characters</a>
+                <a class="dropdown-item" href="#" data-rotate-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 Characters</a>
             </div>
         </div>
         <div class="form-text">Set it on the device or site first, then save it here.<?= credentialPasswordHistoryReady() ? ' The old one is kept under Earlier passwords on its quick look, in case something still uses it.' : ' The old one is gone once you do.' ?></div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="rotate_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Save new password</button>
+        <button type="submit" name="rotate_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Save New Password</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

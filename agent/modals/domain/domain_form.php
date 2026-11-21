@@ -152,7 +152,7 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
                 </div>
             <?php } ?>
             <div class="col-12 d-flex flex-wrap align-items-center gap-3">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-domain-same><i class="fas fa-clone me-2"></i>Registrar does it all</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-domain-same><i class="fas fa-clone me-2"></i>Registrar Does It All</button>
                 <span class="form-text mt-0">Someone missing? Add them as a vendor - the client's own, or one of ours if we host it.</span>
             </div>
         </div>

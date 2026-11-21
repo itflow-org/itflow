@@ -228,7 +228,7 @@ ob_start();
         <button type="button" class="btn btn-outline-secondary ajax-modal me-auto" data-modal-url="modals/share/share_add.php?type=Credential&amp;id=<?= $credential_id ?>"><i class="fas fa-share-alt me-2"></i>Share</button>
     <?php } ?>
     <?php if ($can_edit) { ?>
-        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/credential/credential_rotate.php?id=<?= $credential_id ?>"><i class="fas fa-sync-alt me-2"></i>Change password</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/credential/credential_rotate.php?id=<?= $credential_id ?>"><i class="fas fa-sync-alt me-2"></i>Change Password</button>
         <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>

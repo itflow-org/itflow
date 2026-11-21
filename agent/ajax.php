@@ -1672,7 +1672,7 @@ if (isset($_GET['ticket_also_open'])) {
                     . '<a class="text-body" href="' . escapeHtml($also_url) . '">' . escapeHtml($row['ticket_subject']) . '</a></div>'
                     . '<div class="text-body-secondary text-truncate">' . escapeHtml($also_who) . ' · ' . escapeHtml(timeAgo($row['ticket_updated_at'] ?: $row['ticket_created_at'])) . '</div></div>'
                     . '<span class="flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span>'
-                    . '<button type="button" class="btn btn-sm btn-outline-dark flex-shrink-0" data-ticket-work="' . intval($row['ticket_id']) . '" data-url="' . escapeHtml($also_url) . '">Work on this one</button></div>';
+                    . '<button type="button" class="btn btn-sm btn-outline-dark flex-shrink-0" data-ticket-work="' . intval($row['ticket_id']) . '" data-url="' . escapeHtml($also_url) . '">Work on This One</button></div>';
             } else {
                 $html .= '<div class="d-flex align-items-center gap-2 text-truncate">' . ticketLink($row)
                     . ' <span class="ms-auto flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span></div>';

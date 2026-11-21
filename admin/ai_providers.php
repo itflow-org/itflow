@@ -189,7 +189,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-plug text-secondary me-2"></i>Test
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ai/ai_model_edit.php?provider=<?= $provider_id ?>">
-                                    <i class="fas fa-fw fa-plus text-secondary me-2"></i>Add a model
+                                    <i class="fas fa-fw fa-plus text-secondary me-2"></i>Add a Model
                                 </a>
                                 <a class="dropdown-item" href="ai_usage.php?provider=<?= $provider_id ?>">
                                     <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Usage

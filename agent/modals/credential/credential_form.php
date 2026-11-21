@@ -110,8 +110,8 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Make one up"><i class="fas fa-fw fa-magic"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="#" data-credential-generate="passphrase"><i class="fas fa-fw fa-font text-secondary me-2"></i>Passphrase <small class="text-body-secondary">easy to read out</small></a>
-                    <a class="dropdown-item" href="#" data-credential-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 characters</a>
-                    <a class="dropdown-item" href="#" data-credential-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 characters</a>
+                    <a class="dropdown-item" href="#" data-credential-generate="20"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 20 Characters</a>
+                    <a class="dropdown-item" href="#" data-credential-generate="32"><i class="fas fa-fw fa-random text-secondary me-2"></i>Random, 32 Characters</a>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2 mt-1 small" data-credential-strength hidden>

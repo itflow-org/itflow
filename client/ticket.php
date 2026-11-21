@@ -39,7 +39,7 @@ if (!$ticket) {
     <a class="itflow-portal-back" href="tickets.php"><i class="fas fa-chevron-left"></i>Tickets</a>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => "That ticket isn't here", 'text' => 'It may belong to someone else at your company, or the link is out of date.', 'icon' => 'fa-life-ring', 'filtered' => false,
-            'actions' => [['label' => 'Your tickets', 'href' => 'tickets.php', 'icon' => 'fa-list']]]) ?>
+            'actions' => [['label' => 'Your Tickets', 'href' => 'tickets.php', 'icon' => 'fa-list']]]) ?>
     </section>
     <?php
     require_once "includes/footer.php";
@@ -136,7 +136,7 @@ $reply_by = portalTicketReplyBy($ticket_id);
     <div class="d-flex flex-wrap align-items-center gap-2">
         <?= portalTicketStateHtml($ticket) ?>
         <?php if (!$resolved && !$closed && $task_count === $task_done) { ?>
-            <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $csrf ?>" class="btn btn-outline-success confirm-link" data-confirm-title="Is it fixed?" data-confirm-text="We will mark it resolved - you can reopen it if it comes back." data-confirm-button="Yes, it is fixed" data-confirm-icon="question"><i class="fas fa-check me-2"></i>It's fixed</a>
+            <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $csrf ?>" class="btn btn-outline-success confirm-link" data-confirm-title="Is it fixed?" data-confirm-text="We will mark it resolved - you can reopen it if it comes back." data-confirm-button="Yes, it is fixed" data-confirm-icon="question"><i class="fas fa-check me-2"></i>It's Fixed</a>
         <?php } ?>
     </div>
 </div>
@@ -223,7 +223,7 @@ $reply_by = portalTicketReplyBy($ticket_id);
                         <i class="fas fa-paperclip me-2"></i>Drop files here, or <label for="replyFiles">choose files</label> - screenshots, documents, error logs
                         <div class="itflow-portal-files" data-portal-files hidden></div>
                     </div>
-                    <button type="submit" class="btn btn-primary" name="add_ticket_comment"><i class="fas fa-paper-plane me-2"></i>Send reply</button>
+                    <button type="submit" class="btn btn-primary" name="add_ticket_comment"><i class="fas fa-paper-plane me-2"></i>Send Reply</button>
                 </form>
             </section>
 
@@ -232,8 +232,8 @@ $reply_by = portalTicketReplyBy($ticket_id);
             <section class="itflow-portal-panel">
                 <?= emptyStateHtml(['title' => 'We think this is fixed', 'text' => 'Close it if everything is working - or reopen it if it is not, and tell us what is still wrong.', 'icon' => 'fa-check', 'filtered' => false]) ?>
                 <div class="d-flex flex-wrap justify-content-center gap-2 pb-4 px-3">
-                    <a href="post.php?close_ticket=<?= $ticket_id ?>&csrf_token=<?= $csrf ?>" class="btn btn-success confirm-link" data-confirm-title="Close this ticket?" data-confirm-text="Glad it is sorted. You can raise a new ticket any time." data-confirm-button="Close it" data-confirm-icon="question"><i class="fas fa-check-circle me-2"></i>Yes, close it</a>
-                    <a href="post.php?reopen_ticket=<?= $ticket_id ?>&csrf_token=<?= $csrf ?>" class="btn btn-outline-secondary"><i class="fas fa-redo me-2"></i>No, reopen it</a>
+                    <a href="post.php?close_ticket=<?= $ticket_id ?>&csrf_token=<?= $csrf ?>" class="btn btn-success confirm-link" data-confirm-title="Close this ticket?" data-confirm-text="Glad it is sorted. You can raise a new ticket any time." data-confirm-button="Close it" data-confirm-icon="question"><i class="fas fa-check-circle me-2"></i>Yes, Close It</a>
+                    <a href="post.php?reopen_ticket=<?= $ticket_id ?>&csrf_token=<?= $csrf ?>" class="btn btn-outline-secondary"><i class="fas fa-redo me-2"></i>No, Reopen It</a>
                 </div>
             </section>
 
@@ -245,7 +245,7 @@ $reply_by = portalTicketReplyBy($ticket_id);
                     <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                     <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
                     <button type="submit" class="btn btn-outline-success" name="add_ticket_feedback" value="Good"><i class="far fa-smile me-2"></i>Good</button>
-                    <button type="submit" class="btn btn-outline-danger" name="add_ticket_feedback" value="Bad"><i class="far fa-frown me-2"></i>Not good</button>
+                    <button type="submit" class="btn btn-outline-danger" name="add_ticket_feedback" value="Bad"><i class="far fa-frown me-2"></i>Not Good</button>
                 </form>
             </section>
 
@@ -253,7 +253,7 @@ $reply_by = portalTicketReplyBy($ticket_id);
 
             <div class="itflow-portal-event"><span>Closed and rated <?= $ticket['ticket_feedback'] === 'Good' ? 'good' : 'not good' ?> - thank you for the feedback.</span></div>
             <div class="text-center mt-3">
-                <a class="btn btn-outline-primary" href="ticket_add.php"><i class="fas fa-plus me-2"></i>Raise a new ticket</a>
+                <a class="btn btn-outline-primary" href="ticket_add.php"><i class="fas fa-plus me-2"></i>Raise a New Ticket</a>
             </div>
 
         <?php } ?>

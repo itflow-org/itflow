@@ -19,7 +19,7 @@ ob_start();
 
 if (!$template || $template['document_template_archived_at']) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>New document</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>New Document</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That document template is gone or archived.</div>

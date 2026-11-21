@@ -197,7 +197,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
         <?php if ($can_edit) { ?>
             <a class="btn btn-sm btn-warning confirm-link" href="post.php?reconcile_correct_opening=<?= intval($opening['reconciliation_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
                 data-confirm-title="Correct the opening balance?" data-confirm-text="<?= escapeHtml($account['account_name']) ?>'s opening balance moves by <?= $money($opening_gap) ?>, to <?= $money(floatval($account['opening_balance']) + $opening_gap) ?>, and every balance after it with it. Undoing the brought forward reconciliation puts it back."
-                data-confirm-button="Correct it"><i class="fas fa-wrench me-1"></i>Correct the opening balance</a>
+                data-confirm-button="Correct it"><i class="fas fa-wrench me-1"></i>Correct the Opening Balance</a>
         <?php } ?>
     </div>
     <?php
@@ -274,7 +274,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                             title="Once the difference is nothing"><i class="fas fa-check me-2"></i>Finish</button>
                         <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#reconcileStatement" data-bs-toggle="collapse"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Change the statement</a>
+                            <a class="dropdown-item" href="#reconcileStatement" data-bs-toggle="collapse"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Change the Statement</a>
                             <div class="dropdown-divider"></div>
                             <h6 class="dropdown-header">Add what the statement has</h6>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?account_id=<?= $account_id ?>"><i class="fa fa-fw fa-cart-plus text-secondary me-2"></i>New Expense</a>
@@ -299,7 +299,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                 <input type="hidden" name="reconciliation_id" value="<?= intval($open['reconciliation_id']) ?>">
                 <?php $statement_form($open); ?>
                 <div class="mt-3">
-                    <button type="submit" name="reconcile_update" class="btn btn-primary btn-sm"><i class="fas fa-check me-2"></i>Save the statement</button>
+                    <button type="submit" name="reconcile_update" class="btn btn-primary btn-sm"><i class="fas fa-check me-2"></i>Save the Statement</button>
                     <button type="button" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target="#reconcileStatement"><i class="fas fa-times me-2"></i>Cancel</button>
                 </div>
             </form>
@@ -316,8 +316,8 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
             </div>
             <?php if ($can_edit) { ?>
                 <div class="col-lg-8 col-md-6 text-md-end">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-reconcile-all="1"><i class="far fa-check-square me-1"></i>Tick all shown</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-reconcile-all="0"><i class="far fa-square me-1"></i>Untick all shown</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-reconcile-all="1"><i class="far fa-check-square me-1"></i>Tick All Shown</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-reconcile-all="0"><i class="far fa-square me-1"></i>Untick All Shown</button>
                 </div>
             <?php } ?>
         </div>
@@ -467,7 +467,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
             <input type="hidden" name="account_id" value="<?= $account_id ?>">
             <h6 class="fw-semibold mb-3">The next statement</h6>
             <?php $statement_form(null); ?>
-            <button type="submit" name="reconcile_start" class="btn btn-primary mt-3"><i class="fas fa-play me-2"></i>Start reconciling</button>
+            <button type="submit" name="reconcile_start" class="btn btn-primary mt-3"><i class="fas fa-play me-2"></i>Start Reconciling</button>
         </form>
     <?php } ?>
 

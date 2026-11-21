@@ -325,7 +325,7 @@ if (mysqli_num_rows($sql) == 0) {
                     </a>
                 <?php } ?>
                 <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-text="<?= escapeHtml(assetDetailsText($asset_id)) ?>" title="Copy its make, serial, OS, address, warranty and where it is as text - for a vendor's support case or an email">
-                    <i class="far fa-clipboard me-2"></i>Copy details
+                    <i class="far fa-clipboard me-2"></i>Copy Details
                 </button>
                 <?php if ($can_edit) { ?>
                     <div class="dropdown">
@@ -714,7 +714,7 @@ if (mysqli_num_rows($sql) == 0) {
                                         <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_multiple_add.php?asset_id=<?= $asset_id ?>">
-                                                <i class="fa fa-fw fa-th me-2"></i>Add a run of ports
+                                                <i class="fa fa-fw fa-th me-2"></i>Add a Run of Ports
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_import.php?asset_id=<?= $asset_id ?>">
                                                 <i class="fa fa-fw fa-upload me-2"></i>Import
@@ -853,7 +853,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                             </a>
                                                             <?php if (!$interface_primary) { ?>
                                                                 <a class="dropdown-item" href="post.php?primary_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                    <i class="fas fa-fw fa-star text-secondary me-2"></i>Make primary
+                                                                    <i class="fas fa-fw fa-star text-secondary me-2"></i>Make Primary
                                                                 </a>
                                                             <?php } ?>
                                                             <?php if ($link) { ?>
@@ -865,7 +865,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                             <?php } ?>
                                                             <?php if ($row['interface_network_id'] && $ip !== false) { ?>
                                                                 <a class="dropdown-item" href="<?= escapeHtml(networkUrl($row['interface_network_id'], $client_id)) ?>#addresses">
-                                                                    <i class="fas fa-fw fa-list-ol text-secondary me-2"></i>On the address plan
+                                                                    <i class="fas fa-fw fa-list-ol text-secondary me-2"></i>On the Address Plan
                                                                 </a>
                                                             <?php } ?>
                                                             <?php if ($can_delete && !$interface_primary) { ?>
@@ -987,7 +987,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                             </a>
                                                             <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                                 data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
-                                                                <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
+                                                                <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
                                                             </a>
                                                             <?php if ($can_delete) { ?>
                                                                 <div class="dropdown-divider"></div>

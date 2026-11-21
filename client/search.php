@@ -102,7 +102,7 @@ $found = array_sum(array_column($sections, 'total'));
 <?php } elseif (!$found) { ?>
     <section class="itflow-portal-panel">
         <?= emptyStateHtml(['title' => 'Nothing found', 'text' => 'Nothing mentions &ldquo;' . escapeHtml($q) . '&rdquo;. Try another word - or ask us.', 'icon' => 'fa-search', 'filtered' => false,
-            'actions' => [['label' => 'Ask us', 'href' => portalAskUrl($q), 'icon' => 'fa-plus']]]) ?>
+            'actions' => [['label' => 'Ask Us', 'href' => portalAskUrl($q), 'icon' => 'fa-plus']]]) ?>
     </section>
 <?php } else { ?>
     <?php foreach ($sections as $key => $section) {

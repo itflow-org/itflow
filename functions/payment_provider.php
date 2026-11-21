@@ -609,7 +609,7 @@ function paymentProviderProblems() {
 }
 
 /*
- * How card payments stand, in a sentence for Settings > Invoices and billing
+ * How card payments stand, in a sentence for Settings > Invoices and Billing
  * (Paid online) - escaped HTML: none set up, turned off, or on - live or
  * test, where they go, the card limit and how many in the last 30 days.
  */

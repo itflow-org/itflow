@@ -34,7 +34,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-file-alt me-2"></i>New document<?php if ($link_name) { ?> <small class="opacity-75 ms-1">for <?= escapeHtml($link_name) ?></small><?php } ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-file-alt me-2"></i>New Document<?php if ($link_name) { ?> <small class="opacity-75 ms-1">for <?= escapeHtml($link_name) ?></small><?php } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

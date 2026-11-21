@@ -55,10 +55,10 @@ if ($can_invite && portalSignupOn() && intval(mysqli_fetch_row(mysqli_query($mys
             </div>
         </form>
         <?php if ($can_invite) { ?>
-            <a class="btn btn-outline-primary" href="invite.php"><i class="fas fa-paper-plane me-2"></i>Invite people</a>
+            <a class="btn btn-outline-primary" href="invite.php"><i class="fas fa-paper-plane me-2"></i>Invite People</a>
         <?php } ?>
         <?php if ($manage) { ?>
-            <a class="btn btn-primary" href="contact.php?new=1"><i class="fas fa-user-plus me-2"></i>Add a person</a>
+            <a class="btn btn-primary" href="contact.php?new=1"><i class="fas fa-user-plus me-2"></i>Add a Person</a>
         <?php } ?>
     </div>
 </div>
@@ -93,7 +93,7 @@ if ($can_invite && portalSignupOn() && intval(mysqli_fetch_row(mysqli_query($mys
                             <form action="post.php" method="post" class="d-flex gap-1">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="invite_id" value="<?= intval($invite['invite_id']) ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-primary" name="portal_invite_resend" value="1" title="Email it again, with a new link"><i class="fas fa-paper-plane"></i><span class="d-none d-md-inline ms-1">Send again</span></button>
+                                <button type="submit" class="btn btn-sm btn-outline-primary" name="portal_invite_resend" value="1" title="Email it again, with a new link"><i class="fas fa-paper-plane"></i><span class="d-none d-md-inline ms-1">Send Again</span></button>
                                 <button type="submit" class="btn btn-sm btn-outline-danger confirm-link" name="portal_invite_cancel" value="1" title="Cancel the invite"
                                     data-confirm-title="Cancel the invite to <?= escapeHtml($invite['invite_email']) ?>?" data-confirm-text="Its link stops working. You can invite them again later." data-confirm-button="Cancel invite"><i class="fas fa-times"></i><span class="d-none d-md-inline ms-1">Cancel</span></button>
                             </form>

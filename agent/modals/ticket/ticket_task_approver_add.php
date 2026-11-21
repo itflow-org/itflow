@@ -29,7 +29,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt me-2"></i>Require approval <small class="ms-1 opacity-75"><?= $task_name ?></small></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt me-2"></i>Require Approval <small class="ms-1 opacity-75"><?= $task_name ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -76,7 +76,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Require approval</button>
+        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Require Approval</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 

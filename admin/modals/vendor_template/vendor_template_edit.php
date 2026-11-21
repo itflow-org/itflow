@@ -14,7 +14,7 @@ ob_start();
 
 if (!$template) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-building me-2"></i>Vendor template</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-building me-2"></i>Vendor Template</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That vendor template is gone - it may have been deleted.</div>

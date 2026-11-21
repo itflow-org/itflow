@@ -119,7 +119,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-map-pin"></i></span>
                 <input type="text" class="form-control font-monospace" name="ip" placeholder="192.168.1.10" maxlength="200" value="<?= $form_ip_mode === 'static' ? escapeHtml($form_ip) : '' ?>" data-interface-ip>
-                <button type="button" class="btn btn-outline-secondary" data-interface-next title="The first address on the network nothing has, outside the DHCP range" <?= $form_network_id ? '' : 'disabled' ?>><i class="fas fa-magic me-1"></i>Next free</button>
+                <button type="button" class="btn btn-outline-secondary" data-interface-next title="The first address on the network nothing has, outside the DHCP range" <?= $form_network_id ? '' : 'disabled' ?>><i class="fas fa-magic me-1"></i>Next Free</button>
             </div>
             <div class="small mt-1" data-interface-feedback></div>
         </div>

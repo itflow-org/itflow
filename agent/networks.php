@@ -236,7 +236,7 @@ $csrf = $_SESSION['csrf_token'];
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_bulk_edit.php?<?= $client_url ?>" data-bulk="true">
-                                        <i class="fas fa-fw fa-edit me-2"></i>Type and site
+                                        <i class="fas fa-fw fa-edit me-2"></i>Type and Site
                                     </a>
                                     <?php if ($show !== 'archived') { ?>
                                         <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="network" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -399,10 +399,10 @@ $csrf = $_SESSION['csrf_token'];
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/network/network.php?id=<?= $network_id ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <a class="dropdown-item" href="<?= $url ?>" target="_blank">
-                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a New Tab
                                     </a>
                                     <?php if ($can_edit && !$is_archived) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
@@ -410,7 +410,7 @@ $csrf = $_SESSION['csrf_token'];
                                         </a>
                                         <?= tagMenuItem('network', $network_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_ip_add.php?network_id=<?= $network_id ?>&next=1">
-                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Document an address
+                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Document an Address
                                         </a>
                                         <a class="dropdown-item" href="post.php?<?= $is_favorite ? 'unfavorite_network' : 'favorite_network' ?>=<?= $network_id ?>&csrf_token=<?= $csrf ?>">
                                             <i class="<?= $is_favorite ? 'far' : 'fas' ?> fa-fw fa-star text-secondary me-2"></i><?= $is_favorite ? 'Unstar' : 'Star' ?>

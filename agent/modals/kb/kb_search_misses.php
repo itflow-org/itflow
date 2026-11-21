@@ -25,7 +25,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-search-minus me-2"></i>Not found</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-search-minus me-2"></i>Not Found</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body p-0">
@@ -65,7 +65,7 @@ ob_start();
                             <?php if ($can_edit) { ?>
                                 <a class="btn btn-sm btn-light border ajax-modal" href="#" data-bs-dismiss="modal" data-modal-size="xl"
                                     data-modal-url="modals/kb/kb_article_add.php?<?= escapeHtml(http_build_query(['title' => ucfirst($query)])) ?>" title="A new article, starting with these words as its title">
-                                    <i class="fas fa-plus me-1"></i>Write an article
+                                    <i class="fas fa-plus me-1"></i>Write an Article
                                 </a>
                                 <a class="btn btn-sm btn-link text-secondary" href="post.php?<?= escapeHtml(http_build_query(['dismiss_kb_search_miss' => $query, 'csrf_token' => $csrf])) ?>" title="Take it off the list"><i class="fas fa-times"></i></a>
                             <?php } ?>
@@ -83,7 +83,7 @@ ob_start();
     <?php if ($can_edit && $misses) { ?>
         <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?dismiss_kb_search_misses=1&csrf_token=<?= $csrf ?>"
             data-confirm-title="Clear the list?" data-confirm-text="Every search on it comes off. One searched again comes back." data-confirm-button="Clear the list">
-            <i class="fas fa-broom me-2"></i>Clear the list
+            <i class="fas fa-broom me-2"></i>Clear the List
         </a>
     <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>

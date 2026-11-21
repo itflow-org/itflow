@@ -92,7 +92,7 @@ function invoicesUrl(array $changes) {
             </div>
         </form>
         <?php if ($owed > 0 && $cards) { ?>
-            <a class="btn btn-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay invoices</a>
+            <a class="btn btn-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay Invoices</a>
         <?php } ?>
     </div>
 </div>

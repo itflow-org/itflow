@@ -101,12 +101,12 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit && $is_open) { ?>
-        <button type="button" class="btn btn-outline-secondary me-auto ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?<?= $project_client_id ? "client_id=$project_client_id&" : '' ?>project_id=<?= $project_id ?>"><i class="fas fa-plus me-2"></i>New ticket</button>
+        <button type="button" class="btn btn-outline-secondary me-auto ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?<?= $project_client_id ? "client_id=$project_client_id&" : '' ?>project_id=<?= $project_id ?>"><i class="fas fa-plus me-2"></i>New Ticket</button>
     <?php } ?>
     <?php if ($can_edit && !$project['project_archived_at']) { ?>
         <button type="button" class="btn btn-light ajax-modal" data-modal-size="lg" data-modal-url="modals/project/project_edit.php?id=<?= $project_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-project-diagram me-2"></i>Open project</a>
+    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-project-diagram me-2"></i>Open Project</a>
 </div>
 
 <?php

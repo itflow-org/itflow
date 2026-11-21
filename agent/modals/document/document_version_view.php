@@ -50,10 +50,10 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a class="btn btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_changes.php?document_id=<?= intval($row['document_version_document_id']) ?>&version_id=<?= $document_version_id ?>"><i class="fas fa-exchange-alt me-2"></i>What changed</a>
+    <a class="btn btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_changes.php?document_id=<?= intval($row['document_version_document_id']) ?>&version_id=<?= $document_version_id ?>"><i class="fas fa-exchange-alt me-2"></i>What Changed</a>
     <?php if ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?delete_document_version=<?= $document_version_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="This version is removed from the history for good.">
-            <i class="fas fa-trash me-2"></i>Delete version
+            <i class="fas fa-trash me-2"></i>Delete Version
         </a>
     <?php } ?>
     <?php if ($can_edit) { ?>
@@ -61,7 +61,7 @@ ob_start();
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="document_version_id" value="<?= $document_version_id ?>">
             <button type="submit" name="restore_document_version" class="btn btn-primary text-bold confirm-link" data-confirm-title="Put this version back?" data-confirm-text="What the document says now is kept in its history." data-confirm-button="Restore">
-                <i class="fas fa-undo me-2"></i>Restore this version
+                <i class="fas fa-undo me-2"></i>Restore This Version
             </button>
         </form>
     <?php } ?>

@@ -42,7 +42,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-comment-slash me-2"></i>Resolve - no response <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small>
+        <i class="fa fa-fw fa-comment-slash me-2"></i>Resolve - No Response <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>

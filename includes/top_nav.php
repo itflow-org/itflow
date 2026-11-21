@@ -23,10 +23,10 @@
                 <a class="nav-link<?= $across_here ? ' active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                     title="Contacts, locations and documentation of every client together" aria-label="Across clients">
                     <i class="fas fa-layer-group" aria-hidden="true"></i>
-                    <span class="d-none d-md-inline ms-2 dropdown-toggle">Across clients</span>
+                    <span class="d-none d-md-inline ms-2 dropdown-toggle">Across Clients</span>
                 </a>
                 <div class="dropdown-menu" data-bs-theme="<?= !empty($user_config_theme_dark) ? 'dark' : 'light' ?>">
-                    <h6 class="dropdown-header d-md-none">Across clients</h6>
+                    <h6 class="dropdown-header d-md-none">Across Clients</h6>
                     <?php foreach ($across_groups as $across_group => $across_pages) {
                         $across_pages = array_filter($across_pages, function ($page) { return $page[3]; });
                         if (!$across_pages) {

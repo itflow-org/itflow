@@ -530,7 +530,7 @@ function poCreate($vendor_id, array $order_item_ids, &$error = '') {
             }
         }
         if (!$po_id) {
-            $error = "A purchase order number couldn't be given - check the next number in Admin > Settings > Purchase orders.";
+            $error = "A purchase order number couldn't be given - check the next number in Admin > Settings > Purchase Orders.";
             return 0;
         }
         $po = poRow($po_id);

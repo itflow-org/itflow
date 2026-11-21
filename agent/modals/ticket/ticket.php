@@ -251,12 +251,12 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit && !$mine) { ?>
-        <a class="btn btn-outline-secondary me-auto" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-hand-paper me-2"></i>Assign to me</a>
+        <a class="btn btn-outline-secondary me-auto" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-hand-paper me-2"></i>Assign to Me</a>
     <?php } ?>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-light ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-life-ring me-2"></i>Open ticket</a>
+    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-life-ring me-2"></i>Open Ticket</a>
 </div>
 
 <?php

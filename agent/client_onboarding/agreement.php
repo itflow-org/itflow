@@ -98,6 +98,6 @@ foreach ($co_templates as $co_template_id => $co_template) {
                 </div>
             <?php } ?>
         </div>
-        <button type="submit" name="client_onboarding_agreement" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-file-signature me-2"></i>Start the contract</button>
+        <button type="submit" name="client_onboarding_agreement" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-file-signature me-2"></i>Start the Contract</button>
     </form>
 <?php } ?>

@@ -119,12 +119,12 @@ $filter_url = function ($changes) {
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_export) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-book me-2"></i>Share the IT documentation
+                            <i class="fa fa-fw fa-book me-2"></i>Share the IT Documentation
                         </a>
                     <?php } ?>
                     <?php if ($can_request) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the client for a login
+                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the Client for a Login
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_end && $counts['']) { ?>
@@ -134,7 +134,7 @@ $filter_url = function ($changes) {
                             <input type="hidden" name="client_id" value="<?= intval($client_id) ?>">
                             <button type="submit" name="share_revoke_all" value="1" class="dropdown-item text-danger confirm-link"
                                 data-confirm-text="Every open link for <?= $client_name ?> stops working straight away - <?= $counts[''] ?> of them. Requests not answered yet are cancelled too.">
-                                <i class="fa fa-fw fa-unlink me-2"></i>Turn off every open link
+                                <i class="fa fa-fw fa-unlink me-2"></i>Turn Off Every Open Link
                             </button>
                         </form>
                     <?php } ?>
@@ -195,7 +195,7 @@ $filter_url = function ($changes) {
                             <div class="dropdown-menu dropdown-menu-end">
                                 <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="share_bulk_revoke" value="1"
                                     data-confirm-text="The ticked links stop working straight away.">
-                                    <i class="fas fa-fw fa-unlink me-2"></i>Turn off
+                                    <i class="fas fa-fw fa-unlink me-2"></i>Turn Off
                                 </button>
                             </div>
                         </div>
@@ -339,12 +339,12 @@ $filter_url = function ($changes) {
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Details and history
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Details and History
                                     </a>
                                     <?= shareItemMenuLink($row) ?>
                                     <?php if ($can_end_row && $state === 'received') { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                            <i class="fas fa-fw fa-save text-secondary me-2"></i>Review and save
+                                            <i class="fas fa-fw fa-save text-secondary me-2"></i>Review and Save
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?share_request_discard=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
@@ -380,8 +380,8 @@ $filter_url = function ($changes) {
         'text' => 'Share a credential, document or file from its menu' . ($can_note || $can_request || $can_export ? ', or send a secure note, the IT documentation or ask for a login here' : '') . '.',
         'actions' => array_merge(
             $can_note ? [['label' => 'Secure Note', 'modal' => 'modals/share/share_add.php?type=Note&client_id=' . intval($client_id), 'icon' => 'fa-user-secret']] : [],
-            $can_export ? [['label' => 'IT documentation', 'modal' => 'modals/share/share_add.php?type=Export&client_id=' . intval($client_id), 'icon' => 'fa-book', 'size' => 'lg']] : [],
-            $can_request ? [['label' => 'Ask the client for a login', 'modal' => 'modals/share/share_add.php?type=Request&client_id=' . intval($client_id), 'icon' => 'fa-inbox']] : []
+            $can_export ? [['label' => 'IT Documentation', 'modal' => 'modals/share/share_add.php?type=Export&client_id=' . intval($client_id), 'icon' => 'fa-book', 'size' => 'lg']] : [],
+            $can_request ? [['label' => 'Ask the Client for a Login', 'modal' => 'modals/share/share_add.php?type=Request&client_id=' . intval($client_id), 'icon' => 'fa-inbox']] : []
         ),
     ];
     require_once "../includes/filter_footer.php";

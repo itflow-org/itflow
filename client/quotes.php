@@ -87,7 +87,7 @@ function quotesUrl(array $changes) {
             <?= emptyStateHtml(['title' => 'No accepted quotes', 'text' => '', 'icon' => 'fa-thumbs-up', 'filtered' => false]) ?>
         <?php } else { ?>
             <?= emptyStateHtml(['title' => 'No quotes yet', 'text' => 'Need something priced up? Raise a ticket and we will put a quote together.', 'icon' => 'fa-comment-dollar', 'filtered' => false,
-                'actions' => [['label' => 'Ask for a quote', 'href' => portalAskUrl('Quote request'), 'icon' => 'fa-plus']]]) ?>
+                'actions' => [['label' => 'Ask for a Quote', 'href' => portalAskUrl('Quote request'), 'icon' => 'fa-plus']]]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

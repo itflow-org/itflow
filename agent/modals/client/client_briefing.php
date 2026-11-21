@@ -58,7 +58,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($can_keep) { ?>
             <button type="submit" name="add_document" class="btn btn-primary text-bold" data-ai-briefing-save disabled title="Keep it in their documents">
-                <i class="fas fa-fw fa-file-alt me-2"></i>Save as a document
+                <i class="fas fa-fw fa-file-alt me-2"></i>Save as a Document
             </button>
         <?php } ?>
         <button type="button" class="btn btn-light border" data-ai-briefing-copy disabled><i class="fas fa-fw fa-copy me-2"></i>Copy</button>

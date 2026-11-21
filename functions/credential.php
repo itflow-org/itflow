@@ -360,10 +360,10 @@ function credentialTableHtml(array $rows, array $options = []) {
 
         $html .= '<td class="text-nowrap">' . (credentialAgePill(credentialAge($row['credential_password_changed_at']), true) ?: '<span class="text-body-secondary">-</span>') . '</td>';
 
-        $actions = '<a class="dropdown-item ajax-modal" href="#" data-modal-url="' . $quick . '"><i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look</a>';
+        $actions = '<a class="dropdown-item ajax-modal" href="#" data-modal-url="' . $quick . '"><i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look</a>';
         if ($can_edit && !$archived) {
             $actions .= '<a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_edit.php?id=' . $id . '"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>'
-                . '<a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_rotate.php?id=' . $id . '"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Change password</a>';
+                . '<a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_rotate.php?id=' . $id . '"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Change Password</a>';
         }
         if ($can_share && !$archived) {
             $actions .= '<a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Credential&amp;id=' . $id . '"><i class="fas fa-fw fa-share-alt text-secondary me-2"></i>Share</a>';

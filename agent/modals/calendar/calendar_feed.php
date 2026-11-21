@@ -25,7 +25,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-mobile-alt me-2"></i>My calendar link</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-mobile-alt me-2"></i>My Calendar Link</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -102,15 +102,15 @@ ob_start();
                 <div class="dropdown-menu">
                     <a class="dropdown-item confirm-link" href="post.php?calendar_feed_regenerate=1&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Make a new link?" data-confirm-button="New link"
-                        data-confirm-text="The link you have now stops working - anywhere it is subscribed needs the new one."><i class="fas fa-fw fa-sync me-2"></i>Make a new link</a>
+                        data-confirm-text="The link you have now stops working - anywhere it is subscribed needs the new one."><i class="fas fa-fw fa-sync me-2"></i>Make a New Link</a>
                     <a class="dropdown-item text-danger confirm-link" href="post.php?calendar_feed_stop=1&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Stop the link?" data-confirm-button="Stop it"
-                        data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop the link</a>
+                        data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop the Link</a>
                 </div>
             </div>
             <button type="submit" name="calendar_feed_save" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <?php } else { ?>
-            <button type="submit" name="calendar_feed_save" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make my link</button>
+            <button type="submit" name="calendar_feed_save" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make My Link</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

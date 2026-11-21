@@ -80,7 +80,7 @@ function kbPortalUrl(array $changes) {
                 <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search help" aria-label="Search help" maxlength="200">
             </div>
         </form>
-        <a class="btn btn-outline-primary" href="ticket_add.php"><i class="fas fa-plus me-2"></i>Ask us</a>
+        <a class="btn btn-outline-primary" href="ticket_add.php"><i class="fas fa-plus me-2"></i>Ask Us</a>
     </div>
 </div>
 
@@ -97,10 +97,10 @@ function kbPortalUrl(array $changes) {
     <?php if (!$total) { ?>
         <?php if ($q !== '') { ?>
             <?= emptyStateHtml(['thing' => 'articles', 'filtered' => true, 'match_text' => 'No article mentions &ldquo;' . escapeHtml($q) . '&rdquo;.', 'clear_url' => kbPortalUrl(['q' => null, 'page' => null]),
-                'actions' => [['label' => 'Ask us', 'href' => portalAskUrl($q), 'icon' => 'fa-plus']]]) ?>
+                'actions' => [['label' => 'Ask Us', 'href' => portalAskUrl($q), 'icon' => 'fa-plus']]]) ?>
         <?php } else { ?>
             <?= emptyStateHtml(['title' => 'Nothing here yet', 'text' => 'How-tos and answers we share with you show here. Ask us anything in the meantime.', 'icon' => 'fa-book', 'filtered' => false,
-                'actions' => [['label' => 'Ask us', 'href' => 'ticket_add.php', 'icon' => 'fa-plus']]]) ?>
+                'actions' => [['label' => 'Ask Us', 'href' => 'ticket_add.php', 'icon' => 'fa-plus']]]) ?>
         <?php } ?>
     <?php } else { ?>
         <ul class="itflow-portal-list">

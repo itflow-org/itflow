@@ -85,7 +85,7 @@ ob_start();
                 <i class="fas fa-fw fa-tags me-1"></i><?= $catalog_count ? "Lines come from your catalog of $catalog_count where one fits, at its prices" : 'Your catalog is empty, so only labor will have a price' ?>;
                 labor <?= $rate > 0 ? 'at ' . escapeHtml(billingMoney($rate, $currency)) . ' an hour' : 'has no rate - set one for the client or as the default' ?>. Nothing goes on until you add it.
             </div>
-            <button type="button" class="btn btn-primary mt-3" data-ai-billing-write><i class="fas fa-fw fa-magic me-2"></i>Write it</button>
+            <button type="button" class="btn btn-primary mt-3" data-ai-billing-write><i class="fas fa-fw fa-magic me-2"></i>Write It</button>
         </div>
 
         <div class="mt-3" data-ai-billing-status aria-live="polite"></div>

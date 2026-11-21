@@ -167,6 +167,6 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
         <?php } ?>
     <?php } ?>
 
-    <button type="submit" name="client_onboarding_it" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-check me-2"></i>Add them</button>
+    <button type="submit" name="client_onboarding_it" value="1" class="btn btn-primary" data-gs-save><i class="fas fa-check me-2"></i>Add Them</button>
 </form>
 <?php unset($_SESSION['co_kept_it']); ?>

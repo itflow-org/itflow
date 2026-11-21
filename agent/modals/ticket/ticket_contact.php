@@ -25,7 +25,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user me-2"></i>Change contact <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-user me-2"></i>Change Contact <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

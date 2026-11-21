@@ -144,21 +144,21 @@ foreach (vendorTemplateFieldLabels() as $field) {
             <?php if (!$archived) { ?>
                 <?php if ($missing_text) { ?>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to clients</button>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to Clients</button>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to add it"></button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $clients_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>To <?= $missing_text ?></a>
                         </div>
                     </div>
                 <?php } else { ?>
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to clients</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $clients_url ?>"><i class="fas fa-fw fa-users me-2"></i>Add to Clients</button>
                 <?php } ?>
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who should have it</a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have It</a>
                     <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
                     <a class="dropdown-item" href="post.php?export_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="/agent/reports/vendor_templates.php" title="Reports > Vendor Templates"><i class="fas fa-fw fa-chart-bar me-2"></i>How they are used</a>
@@ -217,7 +217,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                             <i class="fas fa-fw fa-layer-group me-1"></i>Bulk Action (<span id="selectedCount"></span>)
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $in_line_url ?>" data-bulk="true"><i class="fas fa-fw fa-sync-alt me-2"></i>Bring in line</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $in_line_url ?>" data-bulk="true"><i class="fas fa-fw fa-sync-alt me-2"></i>Bring in Line</a>
                         </div>
                     </div>
                 <?php } ?>
@@ -246,7 +246,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                         <button type="button" class="btn btn-sm btn-primary ms-auto ajax-modal" data-modal-size="lg" data-view-action
                             data-modal-url="<?= escapeHtml($in_line_url . '&' . implode('&', array_map(function ($id) {
                                 return 'vendor_ids[]=' . $id;
-                            }, array_keys($vendors)))) ?>"><i class="fas fa-fw fa-sync-alt me-1"></i>Bring these in line</button>
+                            }, array_keys($vendors)))) ?>"><i class="fas fa-fw fa-sync-alt me-1"></i>Bring These in Line</button>
                     </div>
                 <?php } ?>
             <?php } ?>
@@ -300,9 +300,9 @@ foreach (vendorTemplateFieldLabels() as $field) {
                                     <div class="dropdown dropstart">
                                         <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="<?= $vendor_url ?>"><i class="fas fa-fw fa-building text-secondary me-2"></i>Open their vendor</a>
+                                            <a class="dropdown-item" href="<?= $vendor_url ?>"><i class="fas fa-fw fa-building text-secondary me-2"></i>Open Their Vendor</a>
                                             <?php if ($differences) { ?>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $update_url ?>?vendor_id=<?= $vendor_id ?>"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Bring in line</a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $update_url ?>?vendor_id=<?= $vendor_id ?>"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Bring in Line</a>
                                             <?php } ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item confirm-link" href="/agent/post.php?unlink_vendor_template=<?= $vendor_id ?>&amp;csrf_token=<?= $csrf ?>"

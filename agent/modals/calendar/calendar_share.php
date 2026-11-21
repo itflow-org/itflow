@@ -92,16 +92,16 @@ ob_start();
                 <div class="dropdown-menu">
                     <a class="dropdown-item confirm-link" href="post.php?regenerate_calendar_feed=<?= $calendar_id ?>&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Make a new link?" data-confirm-button="New link"
-                        data-confirm-text="The current link stops working - everyone subscribed needs the new one."><i class="fas fa-fw fa-sync me-2"></i>Make a new link</a>
+                        data-confirm-text="The current link stops working - everyone subscribed needs the new one."><i class="fas fa-fw fa-sync me-2"></i>Make a New Link</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger confirm-link" href="post.php?unshare_calendar=<?= $calendar_id ?>&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Stop sharing?" data-confirm-button="Stop sharing"
-                        data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop sharing</a>
+                        data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop Sharing</a>
                 </div>
             </div>
             <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <?php } else { ?>
-            <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make the link</button>
+            <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make the Link</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

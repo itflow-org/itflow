@@ -24,7 +24,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Next Run Date <strong class="text-danger">*</strong></label>
+            <label class="form-label">Next run date <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                 <input class="form-control" type="date" name="next_run_date" min="<?= date("Y-m-d"); ?>" max="2999-12-31">

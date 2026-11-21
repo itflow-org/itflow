@@ -13,7 +13,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-upload me-2"></i>Import canned responses</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-upload me-2"></i>Import Canned Responses</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">

@@ -18,7 +18,7 @@
                         <a href="/admin/getting_started.php" class="nav-link" data-nav-getting-started>
                             <i class="nav-icon fas fa-flag-checkered"></i>
                             <p>
-                                Get started
+                                Get Started
                                 <?php if (!$nav_getting_started['finished']) { ?>
                                     <span class="right badge text-light" data-bs-toggle="tooltip" title="Steps done or skipped"><?= $nav_getting_started['done'] ?>/<?= $nav_getting_started['total'] ?></span>
                                 <?php } ?>

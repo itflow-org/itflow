@@ -173,16 +173,16 @@ ob_start();
     <?php if ($vendor_dial || $vendor_email || $vendor_website_url || ($client_id && $can_support_edit && !$vendor_archived)) { ?>
         <div class="d-flex flex-wrap gap-2 mt-3">
             <?php if ($vendor_dial) { ?>
-                <a class="btn btn-sm btn-outline-primary" href="tel:<?= escapeHtml($vendor_dial) ?><?= $vendor['vendor_extension'] ? ',' . escapeHtml($vendor['vendor_extension']) : '' ?>"><i class="fas fa-phone me-1"></i>Call support</a>
+                <a class="btn btn-sm btn-outline-primary" href="tel:<?= escapeHtml($vendor_dial) ?><?= $vendor['vendor_extension'] ? ',' . escapeHtml($vendor['vendor_extension']) : '' ?>"><i class="fas fa-phone me-1"></i>Call Support</a>
             <?php } ?>
             <?php if ($vendor_email) { ?>
                 <a class="btn btn-sm btn-outline-primary" href="mailto:<?= $vendor_email ?>"><i class="fas fa-envelope me-1"></i>Email</a>
             <?php } ?>
             <?php if ($vendor_website_url) { ?>
-                <a class="btn btn-sm btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Support site</a>
+                <a class="btn btn-sm btn-outline-primary" href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Support Site</a>
             <?php } ?>
             <?php if ($client_id && $can_support_edit && !$vendor_archived) { ?>
-                <a class="btn btn-sm btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>"><i class="fas fa-life-ring me-1"></i>New case</a>
+                <a class="btn btn-sm btn-outline-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>"><i class="fas fa-life-ring me-1"></i>New Case</a>
             <?php } ?>
         </div>
     <?php } ?>
@@ -247,7 +247,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="<?= $page_url ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open vendor</a>
+    <a href="<?= $page_url ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open Vendor</a>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>

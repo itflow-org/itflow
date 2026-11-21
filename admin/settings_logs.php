@@ -189,7 +189,7 @@ $retention_field = function ($name, $forever_name, $days, $label, $help) {
             </div>
             <?= settingsSectionEnd() ?>
 
-            <?= settingsSaveBar('edit_log_settings', 'Save', '<button type="submit" name="test_log_forward" class="btn btn-outline-secondary" title="Saves, then sends one test message to the server"><i class="fas fa-paper-plane me-2"></i>Save and send a test</button>') ?>
+            <?= settingsSaveBar('edit_log_settings', 'Save', '<button type="submit" name="test_log_forward" class="btn btn-outline-secondary" title="Saves, then sends one test message to the server"><i class="fas fa-paper-plane me-2"></i>Save and Send a Test</button>') ?>
         </div>
     </div>
 </form>

@@ -100,10 +100,10 @@ $csrf = $_SESSION['csrf_token'];
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/ticket_templates.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How They Are Used
                     </a>
                     <a class="dropdown-item" href="starter_content.php">
-                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter templates
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter Templates
                     </a>
                 </div>
             </div>
@@ -212,7 +212,7 @@ $csrf = $_SESSION['csrf_token'];
                                 </a>
                                 <?php if (!$row['ticket_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="/agent/tickets.php?new_from_template=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New ticket from it
+                                        <i class="fas fa-fw fa-plus text-secondary me-2"></i>New Ticket from It
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="post.php?copy_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">

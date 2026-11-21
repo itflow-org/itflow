@@ -26,7 +26,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-life-ring me-2"></i>Add ticket templates <small class="ms-1 opacity-75"><?= escapeHtml($name) ?></small></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-life-ring me-2"></i>Add Ticket Templates <small class="ms-1 opacity-75"><?= escapeHtml($name) ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

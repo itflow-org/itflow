@@ -150,7 +150,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Assigned To</label>
+            <label class="form-label">Assigned to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
                 <select class="form-select select2" name="assigned">
@@ -187,7 +187,7 @@ ob_start();
         <?= tagExportFieldHtml('ticket', $tag_filter) ?>
 
         <div class="mb-3">
-            <label class="form-label">Opened From</label>
+            <label class="form-label">Opened from</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
@@ -195,7 +195,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Opened To</label>
+            <label class="form-label">Opened to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">

@@ -110,10 +110,10 @@ $view_empty = [
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="/agent/reports/audit_activity.php">
-                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Activity report
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Activity Report
                     </a>
                     <a class="dropdown-item" href="settings_logs.php">
-                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and forwarding
+                        <i class="fas fa-fw fa-cog text-secondary me-2"></i>Keeping and Forwarding
                     </a>
                     <a class="dropdown-item" href="app_logs.php">
                         <i class="fas fa-fw fa-clipboard-list text-secondary me-2"></i>App Logs

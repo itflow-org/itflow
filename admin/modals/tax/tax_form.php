@@ -99,7 +99,7 @@ $tax_part_row = function ($key, array $part = []) {
         </div>
         <template data-tax-part-template><?= $tax_part_row('__KEY__') ?></template>
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm" data-tax-add-part><i class="fas fa-plus me-1"></i>Add a part</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-tax-add-part><i class="fas fa-plus me-1"></i>Add a Part</button>
             <span class="ms-auto">Comes to <strong data-tax-total><?= $t ? taxPercentText($t['tax_percent']) : '0' ?>%</strong></span>
         </div>
         <small class="text-secondary d-block mt-1">Each part is shown on its own on invoices, with its registration number - or the tax's. <em>On top</em> charges a part on the line plus the parts above it. Name a part the same as another tax's (PA Sales Tax at 6%) and Tax Collected adds them up together.</small>

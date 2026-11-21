@@ -51,7 +51,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($items) { ?>
             <button type="submit" name="clear_starter_unused" value="<?= escapeHtml($pack) ?>" class="btn btn-danger text-bold" data-starter-add>
-                <i class="fas fa-fw fa-archive me-2"></i>Archive them
+                <i class="fas fa-fw fa-archive me-2"></i>Archive Them
             </button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>

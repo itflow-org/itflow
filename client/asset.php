@@ -75,7 +75,7 @@ $facts = array_filter([
         <?php if ($link) { ?>
             <a class="btn btn-outline-secondary" href="<?= $link ?>" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-2"></i>Open</a>
         <?php } ?>
-        <a class="btn btn-primary" href="ticket_add.php?asset=<?= $asset_id ?>"><i class="fas fa-life-ring me-2"></i>Report a problem</a>
+        <a class="btn btn-primary" href="ticket_add.php?asset=<?= $asset_id ?>"><i class="fas fa-life-ring me-2"></i>Report a Problem</a>
     </div>
 </div>
 

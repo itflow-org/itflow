@@ -168,7 +168,7 @@ $filter_url = function ($changes) use ($client_url) {
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_request) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the client for a login
+                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the Client for a Login
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_edit) { ?>
@@ -184,7 +184,7 @@ $filter_url = function ($changes) use ($client_url) {
                     <?php } ?>
                     <?php if (reportCanOpen('credential_rotation')) { ?>
                     <a class="dropdown-item text-dark" href="reports/credential_rotation.php<?= $client_url ? '?client_id=' . intval($client_id) : '' ?>">
-                        <i class="fa fa-fw fa-history me-2"></i>Rotation report
+                        <i class="fa fa-fw fa-history me-2"></i>Rotation Report
                     </a>
                     <?php } ?>
                 </div>
@@ -427,7 +427,7 @@ $filter_url = function ($changes) use ($client_url) {
                                 <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $quick_url ?>">
-                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick Look
                                     </a>
                                     <?php if ($can_edit && !$credential_archived_at) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
@@ -435,7 +435,7 @@ $filter_url = function ($changes) use ($client_url) {
                                         </a>
                                         <?= tagMenuItem('credential', $credential_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_rotate.php?id=<?= $credential_id ?>">
-                                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Change password
+                                            <i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Change Password
                                         </a>
                                     <?php } ?>
                                     <?php if ($can_share && !$credential_archived_at) { ?>

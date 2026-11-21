@@ -83,10 +83,10 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <?php if (!$archived) { ?>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New document for a client</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New Document for a Client</button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to make one"></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For several clients</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For Several Clients</a>
                         <?php if ($coverage && $coverage['missing']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>For <?= $missing_text ?></a>
                         <?php } ?>
@@ -223,7 +223,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                         <?php } ?>
                     </div>
                 <?php } else { ?>
-                    <div class="small text-secondary">No documents made from it yet - counting started with this version of ITFlow. Agents start one from <strong>Document from template</strong> in a client's Files.</div>
+                    <div class="small text-secondary">No documents made from it yet - counting started with this version of ITFlow. Agents start one from <strong>Document from Template</strong> in a client's Files.</div>
                 <?php } ?>
             </div>
         </div>

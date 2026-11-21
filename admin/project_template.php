@@ -16,7 +16,7 @@ $template = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT project_template_na
 if (!$template) { ?>
     <div class="text-center mt-5">
         <h1 class="h3 text-secondary">Nothing to see here</h1>
-        <a class="btn btn-secondary mt-3" href="project_templates.php"><i class="fa fa-fw fa-arrow-left me-2"></i>Project templates</a>
+        <a class="btn btn-secondary mt-3" href="project_templates.php"><i class="fa fa-fw fa-arrow-left me-2"></i>Project Templates</a>
     </div>
     <?php
     require_once "../includes/footer.php";
@@ -69,7 +69,7 @@ $archived = !empty($template['project_template_archived_at']);
         </div>
         <div class="d-flex flex-wrap gap-2 d-print-none">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/project_template/project_template_ticket_template_add.php?project_template_id=<?= $project_template_id ?>">
-                <i class="fas fa-plus me-2"></i>Add ticket templates
+                <i class="fas fa-plus me-2"></i>Add Ticket Templates
             </button>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/project_template/project_template_edit.php?project_template_id=<?= $project_template_id ?>">
                 <i class="fas fa-edit me-2"></i>Edit

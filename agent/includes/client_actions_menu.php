@@ -80,7 +80,7 @@
     <?php if (lookupUserPermission("module_client") >= 3) {
         // The same company added twice - everything moves to the one kept (modals/client/client_merge.php) ?>
         <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/client/client_merge.php?client_id=<?= $client_id ?>">
-            <i class="fas fa-fw fa-compress-alt me-2"></i>Merge into another client
+            <i class="fas fa-fw fa-compress-alt me-2"></i>Merge into Another Client
         </a>
     <?php } ?>
 

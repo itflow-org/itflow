@@ -53,7 +53,7 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?delete_kb_article_version=<?= $kb_article_version_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="This version is removed from the history for good.">
-            <i class="fas fa-trash me-2"></i>Delete version
+            <i class="fas fa-trash me-2"></i>Delete Version
         </a>
     <?php } ?>
     <?php if ($can_edit) { ?>
@@ -61,7 +61,7 @@ ob_start();
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="kb_article_version_id" value="<?= $kb_article_version_id ?>">
             <button type="submit" name="restore_kb_article_version" class="btn btn-primary text-bold confirm-link" data-confirm-title="Put this version back?" data-confirm-text="What the article says now is kept in its versions." data-confirm-button="Restore">
-                <i class="fas fa-undo me-2"></i>Restore this version
+                <i class="fas fa-undo me-2"></i>Restore This Version
             </button>
         </form>
     <?php } ?>
