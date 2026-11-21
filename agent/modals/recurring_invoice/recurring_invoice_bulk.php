@@ -72,7 +72,7 @@ ob_start();
             <label class="form-label">Billed <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                <select class="form-select" name="frequency" required>
+                <select class="form-select select2" name="frequency" required>
                     <?php foreach (recurringInvoiceFrequencies() as $frequency => $label) { ?>
                         <option value="<?= $frequency ?>" <?= $one && $one['recurring_invoice_frequency'] === $frequency ? 'selected' : '' ?>><?= $label ?></option>
                     <?php } ?>

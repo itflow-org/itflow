@@ -261,7 +261,7 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw <?= $spec['icon'] ?>"></i></span>
                     <?php if ($spec['input'] === 'select') { ?>
-                        <select class="form-select" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>">
+                        <select class="form-select select2" name="spec[<?= $spec_key ?>]" id="<?= $spec_id ?>">
                             <option value="">-</option>
                             <?php foreach ($spec['options'] as $spec_option) { ?>
                                 <option <?= strcasecmp($spec_option, $spec_value) === 0 ? 'selected' : '' ?>><?= escapeHtml($spec_option) ?></option>

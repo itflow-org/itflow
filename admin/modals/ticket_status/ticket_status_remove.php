@@ -56,7 +56,7 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
                 <label class="form-label">Move <?= $tickets === 1 ? 'it' : 'them' ?> to <?php if ($delete) { ?><strong class="text-danger">*</strong><?php } ?></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                    <select class="form-select" name="move_to"<?= $delete ? ' required' : '' ?>>
+                    <select class="form-select select2" name="move_to"<?= $delete ? ' required' : '' ?>>
                         <?php if (!$delete) { ?>
                             <option value="0">Leave them in <?= $name ?></option>
                         <?php } ?>

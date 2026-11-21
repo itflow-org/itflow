@@ -100,7 +100,7 @@ ob_start();
                         <label class="form-label">Bill it on</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                            <select class="form-select" name="recurring[<?= $frequency ?>][to]" data-quote-recurring-to>
+                            <select class="form-select select2" name="recurring[<?= $frequency ?>][to]" data-quote-recurring-to>
                                 <option value="0">A new recurring invoice, billed <?= strtolower($frequencies[$frequency]) ?></option>
                                 <?php foreach ($options as $recurring_id => $option) { ?>
                                     <option value="<?= $recurring_id ?>">Add to <?= escapeHtml(billingNumber('recurring', $option)) ?><?= trim((string) $option['recurring_invoice_scope']) !== '' ? ' - ' . escapeHtml($option['recurring_invoice_scope']) : '' ?> (<?= $money($option['recurring_invoice_amount']) ?> a <?= $period ?>)</option>
@@ -119,7 +119,7 @@ ob_start();
                         <label class="form-label">Its invoices</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
-                            <select class="form-select" name="recurring[<?= $frequency ?>][auto_send]">
+                            <select class="form-select select2" name="recurring[<?= $frequency ?>][auto_send]">
                                 <option value="1">Emailed as they are made</option>
                                 <option value="0">Left as drafts to check</option>
                             </select>

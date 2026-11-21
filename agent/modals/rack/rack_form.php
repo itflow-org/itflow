@@ -61,7 +61,7 @@ isset($mysqli) || die("Direct file access is not allowed");
                 <label class="form-label">Unit numbering</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-sort-numeric-down"></i></span>
-                    <select class="form-select" name="units_descending">
+                    <select class="form-select select2" name="units_descending">
                         <option value="0" <?php if (!$rack_units_descending) { echo "selected"; } ?>>U1 at the bottom (standard)</option>
                         <option value="1" <?php if ($rack_units_descending) { echo "selected"; } ?>>U1 at the top</option>
                     </select>

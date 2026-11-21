@@ -86,7 +86,7 @@ ob_start();
                 <label class="form-label" for="paymentProviderName">Provider <strong class="text-danger">*</strong></label>
                 <div class="input-group has-validation">
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                    <select class="form-select" name="provider" id="paymentProviderName">
+                    <select class="form-select select2" name="provider" id="paymentProviderName">
                         <?php foreach ($kinds as $kind_name => $kind_info) { ?>
                             <option value="<?= escapeHtml($kind_name) ?>" <?= $kind_name === $name ? 'selected' : '' ?> <?= isset($taken[$kind_name]) ? 'disabled' : '' ?>><?= escapeHtml($kind_name) ?><?= isset($taken[$kind_name]) ? ' - set up already' : '' ?></option>
                         <?php } ?>

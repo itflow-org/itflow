@@ -111,7 +111,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <label class="form-label">How often <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-            <select class="form-select" name="frequency" required data-recurring-frequency>
+            <select class="form-select select2" name="frequency" required data-recurring-frequency>
                 <?php foreach (recurringInvoiceFrequencies() as $key => $label) { ?>
                     <option value="<?= $key ?>" <?= $form_frequency === $key ? 'selected' : '' ?>><?= $label ?></option>
                 <?php } ?>
@@ -170,7 +170,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 <label class="form-label small mb-1">For them</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
-                    <select class="form-select" name="billing" data-recurring-billing-mode>
+                    <select class="form-select select2" name="billing" data-recurring-billing-mode>
                         <option value="" <?= $form_billing === '' ? 'selected' : '' ?>>Our cost - not billed on</option>
                         <option value="bill" <?= $form_billing === 'bill' ? 'selected' : '' ?>>Billed on to them each time</option>
                         <option value="covered" <?= $form_billing === 'covered' ? 'selected' : '' ?>>Covered by their recurring invoice</option>
@@ -188,7 +188,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 <label class="form-label small mb-1">Recurring invoice</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                    <select class="form-select" name="recurring_invoice_id" data-recurring-cover data-selected="<?= $form_covered_by ?>"></select>
+                    <select class="form-select select2" name="recurring_invoice_id" data-recurring-cover data-selected="<?= $form_covered_by ?>"></select>
                 </div>
             </div>
             <div class="col-12 small text-body-secondary" data-recurring-billing-note></div>

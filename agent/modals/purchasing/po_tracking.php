@@ -34,7 +34,7 @@ ob_start();
                 <label class="form-label">Carrier</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-truck"></i></span>
-                    <select class="form-select" name="carrier">
+                    <select class="form-select select2" name="carrier">
                         <?php foreach (PO_CARRIERS as $key => [$label]) { ?>
                             <option value="<?= $key ?>"><?= escapeHtml($label) ?></option>
                         <?php } ?>

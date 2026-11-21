@@ -296,6 +296,15 @@
         this.queued = false;
 
         var wrap = this.wrap = make('div', 'itflow-select' + (this.multiple ? ' is-multiple' : ''));
+        // How wide the <select> was set to be, so it sits as it did - beside a time in an input group, say
+        ['w-auto', 'flex-grow-0', 'flex-shrink-0'].forEach(function (name) {
+            if (select.classList.contains(name)) {
+                wrap.classList.add(name);
+            }
+        });
+        if (select.style.maxWidth) {
+            wrap.style.maxWidth = select.style.maxWidth;
+        }
         var control = this.control = make('div', 'itflow-select-control form-select');
         control.setAttribute('role', 'combobox');
         control.setAttribute('aria-haspopup', 'listbox');

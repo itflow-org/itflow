@@ -37,7 +37,7 @@ ob_start();
                 <label class="form-label">How was it sent? <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
-                    <select class="form-select" name="sent_method" required>
+                    <select class="form-select select2" name="sent_method" required>
                         <?php foreach (getSentMethods() as $sent_method) { ?>
                             <option value="<?= escapeHtml($sent_method) ?>"><?= escapeHtml($sent_method) ?></option>
                         <?php } ?>

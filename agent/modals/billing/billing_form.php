@@ -150,7 +150,7 @@ $form_scope_placeholder = [
             <label class="form-label">Billed <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                <select class="form-select" name="frequency" required>
+                <select class="form-select select2" name="frequency" required>
                     <?php foreach (recurringInvoiceFrequencies() as $frequency => $label) { ?>
                         <option value="<?= $frequency ?>" <?= $form_value('frequency', 'month') === $frequency ? 'selected' : '' ?>><?= $label ?></option>
                     <?php } ?>
@@ -185,7 +185,7 @@ $form_scope_placeholder = [
             <label class="form-label">When it is made</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
-                <select class="form-select" name="auto_send">
+                <select class="form-select select2" name="auto_send">
                     <option value="1" <?= $form_value('auto_send', '1') === '1' ? 'selected' : '' ?>>Send it automatically</option>
                     <option value="0" <?= $form_value('auto_send', '1') === '0' ? 'selected' : '' ?>>Leave a draft to check</option>
                 </select>
@@ -212,7 +212,7 @@ $form_scope_placeholder = [
                 <label class="form-label">Due, when made ahead</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                    <select class="form-select" name="due_mode">
+                    <select class="form-select select2" name="due_mode">
                         <option value="terms" <?= $form_value('due_mode', 'terms') !== 'next' ? 'selected' : '' ?>>Its date, plus <?= escapeHtml($form_ahead_terms_label) ?></option>
                         <option value="next" <?= $form_value('due_mode', 'terms') === 'next' ? 'selected' : '' ?>>On its date</option>
                     </select>

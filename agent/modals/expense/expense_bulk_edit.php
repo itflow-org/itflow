@@ -75,7 +75,7 @@ ob_start();
                     <?php } ?>
                 </select>
             <?php } elseif ($field === 'billable') { ?>
-                <select class="form-select" name="value" data-bulk-billable>
+                <select class="form-select select2" name="value" data-bulk-billable>
                     <option value="yes">Bill them on to their clients</option>
                     <option value="no">Our cost - not billed on</option>
                 </select>

@@ -83,7 +83,7 @@ ob_start();
                 <label class="form-label">Status</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-circle fa-fw" data-assets-status-icon style="color: <?= escapeHtml($statuses[$status_default] ?? 'var(--bs-secondary-color)') ?>"></i></span>
-                    <select class="form-select" name="status" data-assets-status>
+                    <select class="form-select select2" name="status" data-assets-status>
                         <option value="" data-color="var(--bs-secondary-color)">- No status -</option>
                         <?php foreach ($statuses as $status_name => $status_color) { ?>
                             <option value="<?= escapeHtml($status_name) ?>" data-color="<?= escapeHtml($status_color) ?>" <?= $status_name === $status_default ? 'selected' : '' ?>><?= escapeHtml($status_name) ?></option>
@@ -95,7 +95,7 @@ ob_start();
                 <label class="form-label">Location</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
-                    <select class="form-select" name="location">
+                    <select class="form-select select2" name="location">
                         <option value="0">- No location -</option>
                         <?php foreach ($locations as $location_id => $location_name) { ?>
                             <option value="<?= $location_id ?>" <?= $location_id === $location_default ? 'selected' : '' ?>><?= escapeHtml($location_name) ?></option>
@@ -158,7 +158,7 @@ ob_start();
                                 <div class="col-md-3">
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text" title="New, or one already on file"><i class="fas fa-fw fa-link"></i></span>
-                                        <select class="form-select" name="<?= $field ?>[existing]" aria-label="New asset, or one they have" data-hw-existing>
+                                        <select class="form-select select2" name="<?= $field ?>[existing]" aria-label="New asset, or one they have" data-hw-existing>
                                             <option value="0">New asset</option>
                                             <?php foreach ([$asset_type => $same_type, 'Their other assets' => $other_type] as $group_label => $group) {
                                                 if (!$group) {
@@ -189,7 +189,7 @@ ob_start();
                             <div class="col-md col-sm-6">
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text" title="Assigned to"><i class="fas fa-fw fa-user"></i></span>
-                                    <select class="form-select" name="<?= $field ?>[contact]" aria-label="Assigned to" data-hw-new>
+                                    <select class="form-select select2" name="<?= $field ?>[contact]" aria-label="Assigned to" data-hw-new>
                                         <option value="0">- Nobody -</option>
                                         <?php foreach ($contacts as $contact_id => $contact_name) { ?>
                                             <option value="<?= $contact_id ?>"><?= escapeHtml($contact_name) ?></option>

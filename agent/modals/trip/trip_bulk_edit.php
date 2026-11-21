@@ -62,12 +62,12 @@ ob_start();
                     <?php } ?>
                 </select>
             <?php } elseif ($field === 'vehicle') { ?>
-                <select class="form-select" name="value">
+                <select class="form-select select2" name="value">
                     <option value="1">Their own vehicle - paid back for the distance</option>
                     <option value="0">A company vehicle</option>
                 </select>
             <?php } elseif ($field === 'billable') { ?>
-                <select class="form-select" name="value">
+                <select class="form-select select2" name="value">
                     <option value="1">Bill the client for them</option>
                     <option value="0">Not billed - our cost</option>
                 </select>

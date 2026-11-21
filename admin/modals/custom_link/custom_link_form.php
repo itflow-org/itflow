@@ -62,7 +62,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
         <label class="form-label">Shows in <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-bars"></i></span>
-            <select class="form-select" name="location" required data-custom-link-location>
+            <select class="form-select select2" name="location" required data-custom-link-location>
                 <?php foreach ($l_locations as $location => $location_config) { ?>
                     <option value="<?= $location ?>"<?= $location === $l_location ? ' selected' : '' ?> data-about="<?= escapeHtml($location_config['about']) ?>"><?= escapeHtml($location_config['label']) ?></option>
                 <?php } ?>

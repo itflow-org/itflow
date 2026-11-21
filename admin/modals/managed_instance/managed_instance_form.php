@@ -149,7 +149,7 @@ if (!managerEnabled()) { ?>
                         <label class="form-label">Updates</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-download"></i></span>
-                            <select class="form-select" name="update_policy">
+                            <select class="form-select select2" name="update_policy">
                                 <option value="manual" <?= $form['managed_instance_update_policy'] !== 'auto' ? 'selected' : '' ?>>By hand, from here</option>
                                 <option value="auto" <?= $form['managed_instance_update_policy'] === 'auto' ? 'selected' : '' ?>>Automatically</option>
                             </select>

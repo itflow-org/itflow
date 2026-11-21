@@ -195,7 +195,7 @@ ob_start();
                 <label class="form-label" for="<?= $uid ?>Expires">Works for</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
-                    <select class="form-select" id="<?= $uid ?>Expires" name="expires">
+                    <select class="form-select select2" id="<?= $uid ?>Expires" name="expires">
                         <?php foreach (shareExpiryOptions() as $hours => $label) { ?>
                             <option value="<?= $hours ?>" <?= $hours === $defaults['expires'] ? 'selected' : '' ?>><?= $label ?></option>
                         <?php } ?>
@@ -207,7 +207,7 @@ ob_start();
                     <label class="form-label" for="<?= $uid ?>Views">Can be opened</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
-                        <select class="form-select" id="<?= $uid ?>Views" name="views">
+                        <select class="form-select select2" id="<?= $uid ?>Views" name="views">
                             <?php foreach (shareViewOptions() as $views => $label) { ?>
                                 <option value="<?= $views ?>" <?= $views === $defaults['views'] ? 'selected' : '' ?>><?= $label ?></option>
                             <?php } ?>

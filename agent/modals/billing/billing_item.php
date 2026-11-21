@@ -90,7 +90,7 @@ ob_start();
                     <label class="form-label">Billed</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                        <select class="form-select" name="frequency">
+                        <select class="form-select select2" name="frequency">
                             <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
                                 <option value="<?= $frequency_value ?>" <?= $line_frequency === $frequency_value ? 'selected' : '' ?>><?= $frequency_label ?></option>
                             <?php } ?>
@@ -121,7 +121,7 @@ ob_start();
                     <label class="form-label">Quantity from</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                        <select class="form-select" name="seat_source" data-seat-source>
+                        <select class="form-select select2" name="seat_source" data-seat-source>
                             <option value="">Typed in - the same every time</option>
                             <option value="contacts" <?= $seat_source === 'contacts' ? 'selected' : '' ?>>Users - the client's contacts (<?= intval($seat_options['contacts']) ?> now)</option>
                             <option value="assets" <?= $seat_source === 'assets' ? 'selected' : '' ?>>Devices - the client's devices in use (<?= intval($seat_options['assets']) ?> now)</option>
@@ -137,7 +137,7 @@ ob_start();
                     <label class="form-label">Which contacts</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-select" name="seat_tag" data-seat-input>
+                        <select class="form-select select2" name="seat_tag" data-seat-input>
                             <option value="0">All of them</option>
                             <?php foreach ($seat_options['contact_tags'] as $tag_id => $tag) { ?>
                                 <option value="<?= $tag_id ?>" <?= $seat_source === 'contacts' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
@@ -161,7 +161,7 @@ ob_start();
                     </div>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-select" name="seat_tag" data-seat-input>
+                        <select class="form-select select2" name="seat_tag" data-seat-input>
                             <option value="0">Any tag</option>
                             <?php foreach ($seat_options['asset_tags'] as $tag_id => $tag) { ?>
                                 <option value="<?= $tag_id ?>" <?= $seat_source === 'assets' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
@@ -188,7 +188,7 @@ ob_start();
                             <div class="<?= $seat_rmm_pick ? 'col-sm-6' : 'col-12' ?>">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                                    <select class="form-select" name="seat_tag" data-seat-input>
+                                    <select class="form-select select2" name="seat_tag" data-seat-input>
                                         <option value="0">Any tag</option>
                                         <?php foreach ($seat_options['managed_tags'] as $tag_id => $tag) { ?>
                                             <option value="<?= $tag_id ?>" <?= $seat_source === 'managed' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
@@ -200,7 +200,7 @@ ob_start();
                                 <div class="col-sm-6">
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa fa-fw fa-laptop-medical"></i></span>
-                                        <select class="form-select" name="seat_rmm" data-seat-input>
+                                        <select class="form-select select2" name="seat_rmm" data-seat-input>
                                             <?php if ($seat_rmm_gone) { ?>
                                                 <option value="<?= $seat_rmm ?>" selected>The RMM provider it counted is gone - pick another</option>
                                             <?php } ?>
@@ -222,7 +222,7 @@ ob_start();
                             <label class="form-label">License</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                                <select class="form-select" name="seat_software_id" data-seat-input>
+                                <select class="form-select select2" name="seat_software_id" data-seat-input>
                                     <?php if ($seat_source === 'license' && !isset($seat_options['licenses'][intval($seat_filter['software_id'] ?? 0)])) { ?>
                                         <option value="0" selected disabled>The license it counted is gone - pick another</option>
                                     <?php } ?>
@@ -236,7 +236,7 @@ ob_start();
                             <label class="form-label">Count</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calculator"></i></span>
-                                <select class="form-select" name="seat_count" data-seat-input>
+                                <select class="form-select select2" name="seat_count" data-seat-input>
                                     <option value="used">Seats in use</option>
                                     <option value="total" <?= ($seat_filter['count'] ?? '') === 'total' ? 'selected' : '' ?>>Seats bought</option>
                                 </select>
@@ -281,7 +281,7 @@ ob_start();
                 <label class="form-label">Tax</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                    <select class="form-select" name="tax_id" data-line-tax>
+                    <select class="form-select select2" name="tax_id" data-line-tax>
                         <?= taxOptionsHtml($taxes, $item['item_tax_id']) ?>
                     </select>
                 </div>

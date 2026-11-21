@@ -302,12 +302,12 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" value="<?= escapeHtml($prefill_schedule) ?>" aria-label="Date and time of the work">
-                        <select class="form-select flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
+                        <select class="form-select select2 flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
                             <?php foreach (ticketScheduleLengths($prefill_schedule_minutes) as $minutes => $label) { ?>
                                 <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $prefill_schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
                             <?php } ?>
                         </select>
-                        <select class="form-select flex-grow-0 w-auto" name="onsite" aria-label="Visit">
+                        <select class="form-select select2 flex-grow-0 w-auto" name="onsite" aria-label="Visit">
                             <option value="0">Remote</option>
                             <option value="1">Onsite</option>
                         </select>

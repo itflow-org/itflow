@@ -100,7 +100,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <label class="form-label">Renews every</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-            <select class="form-select" name="term">
+            <select class="form-select select2" name="term">
                 <option value="">- Doesn't renew -</option>
                 <?php foreach (SOFTWARE_RENEWAL_TERMS as $value => $label) { ?>
                     <option value="<?= escapeHtml($value) ?>" <?= $value === $term ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>

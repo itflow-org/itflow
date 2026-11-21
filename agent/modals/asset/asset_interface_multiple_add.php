@@ -63,7 +63,7 @@ ob_start();
                 <label class="form-label">Numbers</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
-                    <select class="form-select" name="pad" data-series="pad">
+                    <select class="form-select select2" name="pad" data-series="pad">
                         <option value="0">1, 2 ... 10</option>
                         <option value="2" <?= $pad === 2 ? 'selected' : '' ?>>01, 02 ... 10</option>
                         <option value="3" <?= $pad === 3 ? 'selected' : '' ?>>001, 002 ... 010</option>

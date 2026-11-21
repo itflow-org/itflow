@@ -73,7 +73,7 @@ if ($refuse !== '') { ?>
                         <label class="form-label">How often</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                            <select class="form-select" name="frequency">
+                            <select class="form-select select2" name="frequency">
                                 <?php foreach (recurringInvoiceFrequencies() as $key => $label) { ?>
                                     <option value="<?= $key ?>"<?= $key === 'month' ? ' selected' : '' ?>><?= escapeHtml($label) ?></option>
                                 <?php } ?>
@@ -120,7 +120,7 @@ if ($refuse !== '') { ?>
                         <label class="form-label">Tax</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                            <select class="form-select" name="tax_id">
+                            <select class="form-select select2" name="tax_id">
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'goods')) ?>
                             </select>
                         </div>

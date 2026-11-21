@@ -42,7 +42,7 @@ $m_usage = $m ? paymentMethodUsageFor($m_name) : ['total' => 0];
     <label class="form-label">Offered for</label>
     <div class="input-group">
         <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-        <select class="form-select" name="use">
+        <select class="form-select select2" name="use">
             <?php foreach (PAYMENT_METHOD_USES as $value => $use) { ?>
                 <option value="<?= $value ?>"<?= $value === $m_use ? ' selected' : '' ?>><?= escapeHtml($use['label']) ?></option>
             <?php } ?>

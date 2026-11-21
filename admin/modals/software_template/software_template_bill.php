@@ -66,7 +66,7 @@ if (!$template) { ?>
                 <label class="form-label">Count</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                    <select class="form-select" name="count">
+                    <select class="form-select select2" name="count">
                         <option value="total" <?= $count === 'total' ? 'selected' : '' ?>>The seats bought</option>
                         <option value="used" <?= $count === 'used' ? 'selected' : '' ?>>The seats in use - devices and users on it</option>
                     </select>
@@ -103,7 +103,7 @@ if (!$template) { ?>
                                 <?php if ($options) { ?>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                                        <select class="form-select" name="recurring[<?= $software_id ?>]">
+                                        <select class="form-select select2" name="recurring[<?= $software_id ?>]">
                                             <?php foreach ($options as $recurring_id => $option) { ?>
                                                 <option value="<?= $recurring_id ?>" <?= $recurring_id === $default ? 'selected' : '' ?>><?= escapeHtml($option['number'] . ' · ' . (recurringInvoiceFrequencies()[$option['recurring_invoice_frequency']] ?? $option['recurring_invoice_frequency']) . (trim((string) $option['recurring_invoice_scope']) !== '' ? ' · ' . $option['recurring_invoice_scope'] : '') . (intval($option['recurring_invoice_status']) === 1 ? '' : ' (paused)')) ?></option>
                                             <?php } ?>

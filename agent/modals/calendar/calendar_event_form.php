@@ -118,7 +118,7 @@ $form_agents = calendarEventAgentChoices($form_attendees['agents']);
             <label class="form-label small text-body-secondary mb-1" for="eventRepeat">Repeats</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-redo"></i></span>
-                <select class="form-select" name="repeat" id="eventRepeat">
+                <select class="form-select select2" name="repeat" id="eventRepeat">
                     <option value="" <?= $form_repeat === '' ? 'selected' : '' ?>>Does not repeat</option>
                     <?php foreach (['Day' => 'Daily', 'Week' => 'Weekly', 'Month' => 'Monthly', 'Year' => 'Yearly'] as $value => $label) { ?>
                         <option value="<?= $value ?>" data-one="<?= CALENDAR_REPEATS[$value][1] ?>" data-many="<?= CALENDAR_REPEATS[$value][2] ?>" <?= $form_repeat === $value ? 'selected' : '' ?>><?= $label ?></option>
@@ -151,7 +151,7 @@ $form_agents = calendarEventAgentChoices($form_attendees['agents']);
                 <label class="form-label small text-body-secondary mb-1" for="eventReminder">Remind</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
-                    <select class="form-select" name="reminder" id="eventReminder">
+                    <select class="form-select select2" name="reminder" id="eventReminder">
                         <?= calendarReminderOptions(isset($form['event_reminder']) && $form['event_reminder'] !== '' && $form['event_reminder'] !== null ? intval($form['event_reminder']) : null) ?>
                     </select>
                 </div>

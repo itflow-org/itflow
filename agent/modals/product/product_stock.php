@@ -141,7 +141,7 @@ ob_start();
                 <label class="form-label">Why</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-question-circle"></i></span>
-                    <select class="form-select" name="reason">
+                    <select class="form-select select2" name="reason">
                         <?php foreach (productWriteOffReasons() as $reason) { ?>
                             <option><?= escapeHtml($reason) ?></option>
                         <?php } ?>

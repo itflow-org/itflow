@@ -87,7 +87,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
             <?php if ($s_builtin) { ?>
                 <input type="text" class="form-control" value="<?= $s_id === TICKET_STATUS_CLOSED ? 'Stopped - the ticket is finished' : ($s_paused ? 'Paused while a ticket is in it' : 'Keeps running') ?>" readonly>
             <?php } else { ?>
-                <select class="form-select" name="pauses_sla">
+                <select class="form-select select2" name="pauses_sla">
                     <option value="0"<?= $s_paused ? '' : ' selected' ?>>Keeps running - the ticket is being worked</option>
                     <option value="1"<?= $s_paused ? ' selected' : '' ?>>Paused - waiting on someone else</option>
                 </select>
@@ -127,7 +127,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
             <label class="form-label">Counts as the first response</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-comment-dots"></i></span>
-                <select class="form-select" name="first_response">
+                <select class="form-select select2" name="first_response">
                     <?php foreach (TICKET_STATUS_FIRST_RESPONSE as $value => $first_response) { ?>
                         <option value="<?= $value ?>"<?= $value === $s_first_response ? ' selected' : '' ?>><?= escapeHtml($first_response['label']) ?></option>
                     <?php } ?>

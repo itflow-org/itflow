@@ -47,7 +47,7 @@ if (!$tax || $tax['tax_archived_at']) { ?>
                     <label class="form-label">Move them to</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                        <select class="form-select" name="move_to">
+                        <select class="form-select select2" name="move_to">
                             <option value="0">Leave them where they are</option>
                             <?php foreach ($others as $id => $other) { ?>
                                 <option value="<?= intval($id) ?>"><?= escapeHtml(taxLabel($other)) ?></option>

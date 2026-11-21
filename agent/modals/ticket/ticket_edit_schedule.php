@@ -77,7 +77,7 @@ ob_start();
             <label>Visit</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                <select class="form-select" name="onsite" required>
+                <select class="form-select select2" name="onsite" required>
                     <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>Remote</option>
                     <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Onsite</option>
                 </select>

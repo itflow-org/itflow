@@ -50,7 +50,7 @@ ob_start();
                 <label class="form-label">Ship to</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
-                    <select class="form-select" name="ship_to" data-ship-to>
+                    <select class="form-select select2" name="ship_to" data-ship-to>
                         <?php foreach (officesAll() as $office_id => $office) { ?>
                             <option value="<?= intval($office_id) ?>" <?= !$other && intval($po['po_ship_to_office_id']) === intval($office_id) ? 'selected' : '' ?>><?= escapeHtml($office['name'] . (officeAddressLine($office) !== '' ? ' - ' . officeAddressLine($office, ', ') : '')) ?></option>
                         <?php } ?>

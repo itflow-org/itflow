@@ -62,7 +62,7 @@ ob_start();
         <label class="form-label">Card <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-            <select class="form-select" name="saved_payment_id" required>
+            <select class="form-select select2" name="saved_payment_id" required>
                 <?php foreach ($cards as $card) { ?>
                     <option value="<?= intval($card['saved_payment_id']) ?>"><?= escapeHtml($card['saved_payment_description']) ?> (<?= escapeHtml($card['payment_provider_name']) ?>)</option>
                 <?php } ?>

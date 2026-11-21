@@ -87,7 +87,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <label class="form-label">Tax</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
-            <select class="form-select" name="tax">
+            <select class="form-select select2" name="tax">
                 <?= taxOptionsHtml($form_taxes, $form_tax_id) ?>
             </select>
         </div>
@@ -118,7 +118,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <label class="form-label">Billed</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
-            <select class="form-select" name="frequency" data-product-frequency>
+            <select class="form-select select2" name="frequency" data-product-frequency>
                 <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
                     <option value="<?= $frequency_value ?>" <?= $form_frequency === $frequency_value ? 'selected' : '' ?>><?= $frequency_label ?></option>
                 <?php } ?>
@@ -129,7 +129,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <label class="form-label">Counted</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
-            <select class="form-select" name="seat_source">
+            <select class="form-select select2" name="seat_source">
                 <?php foreach (productSeatSources() as $seat_value => $seat_label) { ?>
                     <option value="<?= $seat_value ?>" <?= $form_seat === $seat_value ? 'selected' : '' ?>><?= $seat_label ?></option>
                 <?php } ?>

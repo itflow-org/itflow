@@ -23,7 +23,7 @@ $tax_choices = billingTaxes();
         <label class="form-label">Tax included</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-            <select class="form-select" name="tax_id" data-expense-tax-rate>
+            <select class="form-select select2" name="tax_id" data-expense-tax-rate>
                 <?= taxOptionsHtml($tax_choices, intval($tax_selected)) ?>
             </select>
         </div>

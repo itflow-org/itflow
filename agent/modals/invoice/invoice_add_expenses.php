@@ -74,7 +74,7 @@ ob_start();
                         <label class="form-label">Tax</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                            <select class="form-select" name="tax_id" data-add-expense-tax>
+                            <select class="form-select select2" name="tax_id" data-add-expense-tax>
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'expense')) ?>
                             </select>
                         </div>

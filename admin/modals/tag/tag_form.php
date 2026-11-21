@@ -48,7 +48,7 @@ if (!in_array($t_icon, $t_icons, true)) {
             <label class="form-label">For <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                <select class="form-select" name="type"<?= $t_kind_locked ? ' disabled' : '' ?> required>
+                <select class="form-select select2" name="type"<?= $t_kind_locked ? ' disabled' : '' ?> required>
                     <?php foreach (tagKinds() as $kind_type => $kind_entity) {
                         $kind_config = tagEntity($kind_entity); ?>
                         <option value="<?= $kind_type ?>"<?= $kind_type === intval($type) ? ' selected' : '' ?>><?= $kind_config['title'] ?>s</option>

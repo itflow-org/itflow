@@ -142,7 +142,7 @@ $unit = tripUnit();
         <label class="form-label">For the ticket</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
-            <select class="form-select" name="ticket_id" data-trip-ticket data-selected="<?= $form_ticket ?>">
+            <select class="form-select select2" name="ticket_id" data-trip-ticket data-selected="<?= $form_ticket ?>">
                 <option value="0">- No ticket -</option>
             </select>
         </div>
@@ -165,7 +165,7 @@ $unit = tripUnit();
         <label class="form-label">Their site</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-            <select class="form-select" name="location_id" data-trip-site data-selected="<?= $form_location ?>">
+            <select class="form-select select2" name="location_id" data-trip-site data-selected="<?= $form_location ?>">
                 <option value="0">- Somewhere else -</option>
             </select>
         </div>

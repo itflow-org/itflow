@@ -141,7 +141,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                 <input type="number" class="form-control" name="due_amount" min="0" max="8784" placeholder="No due date" value="<?= $due_amount ?>">
-                <select class="form-select" name="due_unit" style="max-width: 9rem;" aria-label="Hours or days">
+                <select class="form-select select2" name="due_unit" style="max-width: 9rem;" aria-label="Hours or days">
                     <option value="days" <?= $due_in_days ? 'selected' : '' ?>>days after</option>
                     <option value="hours" <?= $due_in_days ? '' : 'selected' ?>>hours after</option>
                 </select>
@@ -153,7 +153,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
                 <label class="form-label">Billable</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    <select class="form-select" name="billable">
+                    <select class="form-select select2" name="billable">
                         <option value="" <?= $billable === '' ? 'selected' : '' ?>>- Leave as it is -</option>
                         <option value="1" <?= $billable === '1' ? 'selected' : '' ?>>Billable</option>
                         <option value="0" <?= $billable === '0' ? 'selected' : '' ?>>Not billable</option>

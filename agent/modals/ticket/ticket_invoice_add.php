@@ -115,7 +115,7 @@ ob_start();
                 <label class="form-label">Invoice</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
-                    <select class="form-select" name="invoice_id" data-ticket-invoice-target>
+                    <select class="form-select select2" name="invoice_id" data-ticket-invoice-target>
                         <option value="0">A new draft invoice</option>
                         <?php foreach ($drafts as $draft_id => $draft) { ?>
                             <option value="<?= $draft_id ?>">Add to <?= escapeHtml(billingNumber('invoice', $draft)) ?><?= trim((string) $draft['invoice_scope']) !== '' ? ' - ' . escapeHtml($draft['invoice_scope']) : '' ?> (<?= escapeHtml(billingMoney($draft['invoice_amount'], $currency)) ?>)</option>
@@ -134,7 +134,7 @@ ob_start();
                 <label class="form-label">Category <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                    <select class="form-select" name="category" required>
+                    <select class="form-select select2" name="category" required>
                         <option value="">- Category -</option>
                         <?= categoryOptionsHtml('Income') ?>
                     </select>
@@ -193,7 +193,7 @@ ob_start();
                 <label class="form-label">Tax</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                    <select class="form-select" name="tax_id" data-ticket-invoice-tax>
+                    <select class="form-select select2" name="tax_id" data-ticket-invoice-tax>
                         <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'time')) ?>
                     </select>
                 </div>
