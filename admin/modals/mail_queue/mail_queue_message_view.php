@@ -70,7 +70,7 @@ if (!$row) { ?>
     <div class="modal-body" data-email-view="<?= intval($row['email_id']) ?>">
 
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <span class="badge <?= $state['badge'] ?> fs-6" data-email-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
+            <span class="badge rounded-pill <?= $state['badge'] ?> fs-6" data-email-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
             <span class="text-body-secondary" title="<?= escapeHtml($state['title']) ?>"><?= escapeHtml($state['detail']) ?></span>
         </div>
 
@@ -105,7 +105,7 @@ if (!$row) { ?>
                 <dt class="col-sm-2 text-body-secondary fw-normal">Attachments</dt>
                 <dd class="col-sm-10" data-email-attachments>
                     <?php foreach ($attachments as $name) { ?>
-                        <span class="badge text-bg-light border fw-normal me-1"><i class="fas fa-fw fa-paperclip me-1"></i><?= escapeHtml($name) ?></span>
+                        <span class="badge rounded-pill text-bg-light border fw-normal me-1"><i class="fas fa-fw fa-paperclip me-1"></i><?= escapeHtml($name) ?></span>
                     <?php } ?>
                 </dd>
             <?php } ?>

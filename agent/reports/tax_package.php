@@ -225,7 +225,7 @@ $account_money = function ($key) {
 };
 $account_columns = [
     'account_name' => ['label' => 'Account', 'html' => function ($row) {
-        return '<span class="fw-semibold">' . escapeHtml($row['account_name']) . '</span>' . ($row['account_archived_at'] ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '');
+        return '<span class="fw-semibold">' . escapeHtml($row['account_name']) . '</span>' . ($row['account_archived_at'] ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '');
     }],
     'opening' => ['label' => 'On ' . date('M j, Y', strtotime($from)), 'type' => 'money', 'csv_label' => 'Balance at the start', 'title' => 'The balance at the start of the day', 'html' => $account_money('opening')],
     'money_in' => ['label' => 'Money in', 'type' => 'money', 'html' => $account_money('money_in')],

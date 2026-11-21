@@ -223,6 +223,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Dropdowns: the empty first choice reads the same way everywhere - - Select a client -, - Select an account - and so on where you pick one, - Any client -, - Any status - where a list is filtered, and - None -, - No contact -, - Nobody - where it can be left blank. They had said - Select Client -, - Pick a role -, - Which account -, - How it was paid -, - All Clients -, Not Assigned and the like.
 - Capitals: page and window titles, menu items and buttons are in Title Case - New Ticket, Mark Reviewed, Back Up Now, Turn Off Portal Access - and field labels, section headings, tabs and help are in sentence case - Postal code, Tax rate, Physical location - in the agent pages, Admin and the client portal alike. The settings pages in the menu are now Company Details, Invoices and Billing, Purchase Orders, Client Portal and Single Sign-on.
 - Lists: the first click on a column you aren't sorting by sorts names A-Z and dates, money and counts newest or largest first, and a second click flips it. It used to go the opposite way to the column you were on, so the first click could go either way.
+- Badges and blanks: every badge is a rounded pill, the menu counts included, and an empty value shows as a grey dash everywhere. A request that can't be done - credit over the balance, say - shows in red like every other error, and the client portal's search boxes read Search ... like the agent pages'.
 
 ### Bug Fixes
 
@@ -282,6 +283,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Contacts: the button in the archive window read Arhive.
 - Tickets: cancelling Reset the timer still marked the timer as stopped in that browser, so it showed as stopped after a reload while it was still counting.
 - Browser tabs: many pages were named after their file - Kb, Ai Providers, Rmm Providers, Sla, Settings Ticket, Profit Loss - and one with & in its name showed &amp;. Each tab now has the name the menu gives the page, and a rack, an instance and a ticket, document or project template show their own name.
+- Client menu: a client's Domains count never turned amber or red for domains about to expire or expired, and the Certificates and Licenses counts carried two text colours at once.
 
 ### Developer Updates
 
@@ -450,6 +452,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Lists: `sortLink($column, $label, $first, $title, $class)` in `functions/format.php` draws a sortable column header from what `includes/filter_header.php` sets, and `sortFirstOrder()` picks the first direction from the column's name. It replaces the 48 copied `$sort_link` closures and the 115 header links written out by hand; a page with its own first directions passes `$first`.
 - Tab titles: `includes/page_title.php` takes a report's title from `reportCatalog()`, a settings page's from `settingsPages()` and a few others from a short list, and makes the rest from the file name with its acronyms in capitals. `$page_title` is no longer HTML-escaped there - the footer writes it with `json_encode()` and `emptyStateHtml()` escapes it.
 - Bootstrap 5 classes: `fw-bold` in place of the `text-bold` shim, `text-body-secondary` in place of `text-muted`, and `fas` as the icon prefix in place of Font Awesome 5's `fa` alias, everywhere. The user menu's buttons are `btn-light border`. `css/itflow_custom.css` loses the shims for `text-bold`, `text-xs`, `btn-default`, `btn-flat`, `bg-olive`, `bg-pink` and `bg-purple` and the unused `.small-box` styles. The `data-bs-toggle="tooltip"` on the menu counts did nothing - their `title` still shows - and is gone.
+- Messages: `flashAlert()` and `itflowToast()` are called with 'success', 'info', 'warning' and 'error' only - the 'danger' and 'alert' callers now say 'error' (both are still understood), and the unused 'errpr' alias is gone. Column headings are sentence case like field labels.
 
 ## [26.11.8]
 

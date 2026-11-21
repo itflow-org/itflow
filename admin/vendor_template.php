@@ -404,7 +404,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                         <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="software_template.php?software_template_id=<?= $software_template_id ?>">
                             <i class="fas fa-fw fa-cube text-secondary"></i>
                             <span class="min-w-0 text-truncate <?= $license_template['archived'] ? 'text-body-secondary' : '' ?>"><?= escapeHtml($license_template['name']) ?></span>
-                            <?php if ($license_template['archived']) { ?><span class="badge text-bg-light border fw-normal ms-auto">Archived</span><?php } ?>
+                            <?php if ($license_template['archived']) { ?><span class="badge rounded-pill text-bg-light border fw-normal ms-auto">Archived</span><?php } ?>
                         </a>
                     <?php } ?>
                 </div>

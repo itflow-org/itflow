@@ -140,7 +140,7 @@ $csrf = $_SESSION['csrf_token'];
                 $preview = mb_strimwidth(trim(preg_replace('/\s+/', ' ', (string) $row['announcement_body'])), 0, 140, '...');
                 $for_html = intval($row['announcement_client_id'])
                     ? ($row['client_name'] !== null ? '<a href="/agent/client_overview.php?client_id=' . intval($row['announcement_client_id']) . '">' . escapeHtml($row['client_name']) . '</a>' : '<span class="text-body-secondary">A client no longer here</span>')
-                    : '<span class="badge text-bg-dark">Every client</span>';
+                    : '<span class="badge rounded-pill text-bg-dark">Every client</span>';
                 $from = $row['announcement_starts_at'] ? date('M j, Y g:i A', strtotime($row['announcement_starts_at'])) : date('M j, Y', strtotime($row['announcement_created_at']));
                 $until = $row['announcement_ends_at'] ? date('M j, Y g:i A', strtotime($row['announcement_ends_at'])) : 'Until archived';
                 ?>

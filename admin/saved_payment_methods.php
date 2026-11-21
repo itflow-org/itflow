@@ -164,7 +164,7 @@ $page_title = 'Saved Cards';
                     <td class="ps-3">
                         <?php if ($row['client_name'] !== null) { ?>
                             <a class="fw-semibold text-body" href="/agent/client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
-                            <?php if ($row['client_archived_at']) { ?><span class="badge text-bg-secondary ms-1">Archived</span><?php } ?>
+                            <?php if ($row['client_archived_at']) { ?><span class="badge rounded-pill text-bg-secondary ms-1">Archived</span><?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Client #<?= $client_id ?></span>
                         <?php } ?>
@@ -175,7 +175,7 @@ $page_title = 'Saved Cards';
                     <td>
                         <div class="text-nowrap"><i class="<?= escapeHtml($card['icon']) ?> fa-fw fa-lg text-secondary me-1"></i><span class="fw-semibold"><?= escapeHtml($card['label']) ?></span></div>
                         <div class="small text-body-secondary">
-                            <?= escapeHtml($row['payment_provider_name'] ?? '') ?><?= intval($row['payment_provider_active'] ?? 0) ? '' : ' <span class="badge text-bg-secondary">Off</span>' ?>
+                            <?= escapeHtml($row['payment_provider_name'] ?? '') ?><?= intval($row['payment_provider_active'] ?? 0) ? '' : ' <span class="badge rounded-pill text-bg-secondary">Off</span>' ?>
                             <span class="font-monospace ms-1" title="Its payment method at the provider"><?= escapeHtml($row['saved_payment_provider_method']) ?></span>
                         </div>
                         <!-- On smaller screens when it runs out comes along under it -->
@@ -190,9 +190,9 @@ $page_title = 'Saved Cards';
                         <?php } else { ?>
                             <?= escapeHtml($card['exp']) ?>
                             <?php if ($expired) { ?>
-                                <span class="badge text-bg-danger ms-1">Expired</span>
+                                <span class="badge rounded-pill text-bg-danger ms-1">Expired</span>
                             <?php } elseif ($expiring) { ?>
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1">Soon</span>
+                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1">Soon</span>
                             <?php } ?>
                         <?php } ?>
                     </td>
@@ -205,7 +205,7 @@ $page_title = 'Saved Cards';
                                 <a class="text-reset" href="/agent/recurring_invoice.php?recurring_invoice_id=<?= $use['id'] ?>"><i class="fas fa-fw fa-redo-alt text-secondary me-1"></i><?= escapeHtml($use['reference']) ?></a>
                                 <span class="text-body-secondary">· <?= escapeHtml(billingMoney($use['amount'], $use['currency'])) ?> <?= escapeHtml($use['frequency']) ?></span>
                                 <?php if (!$use['active']) { ?>
-                                    <span class="badge text-bg-secondary ms-1">Not running</span>
+                                    <span class="badge rounded-pill text-bg-secondary ms-1">Not running</span>
                                 <?php } elseif ($expired) { ?>
                                     <div class="text-danger-emphasis"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Next on <?= escapeHtml(date('M j', strtotime($use['next']))) ?> - it will be declined</div>
                                 <?php } else { ?>

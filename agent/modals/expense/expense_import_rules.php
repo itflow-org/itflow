@@ -49,7 +49,7 @@ ob_start();
                         <td class="ps-3 font-monospace"><?= escapeHtml($rule['import_rule_match']) ?></td>
                         <td><?= escapeHtml($rule['vendor_name'] ?: 'A vendor since deleted') ?></td>
                         <td><?= escapeHtml($rule['category_name'] ?: '-') ?></td>
-                        <td><?= escapeHtml($rule['client_name'] ?: '-') ?><?= intval($rule['import_rule_billable']) ? ' <span class="badge bg-warning-subtle text-warning-emphasis fw-normal">bill on</span>' : '' ?></td>
+                        <td><?= escapeHtml($rule['client_name'] ?: '-') ?><?= intval($rule['import_rule_billable']) ? ' <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal">bill on</span>' : '' ?></td>
                         <td class="text-end"><?= intval($rule['import_rule_used_count']) ?></td>
                         <td class="text-end pe-3">
                             <a class="btn btn-sm btn-link text-danger p-0 confirm-link" title="Forget" href="post.php?expense_import_rule_delete=<?= intval($rule['import_rule_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"

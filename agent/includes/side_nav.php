@@ -59,7 +59,7 @@
                             <p>
                                 Clients
                                 <?php if ($num_active_clients) { ?>
-                                    <span class="right badge text-light" title="Active Clients"><?= $num_active_clients ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Active Clients"><?= $num_active_clients ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -88,7 +88,7 @@
                             <p>
                                 Knowledge Base
                                 <?php if (!empty($num_kb_attention)) { ?>
-                                    <span class="right badge text-bg-warning" title="Due for review, or readers said they didn't help"><?= intval($num_kb_attention) ?></span>
+                                    <span class="right badge rounded-pill text-bg-warning" title="Due for review, or readers said they didn't help"><?= intval($num_kb_attention) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -104,7 +104,7 @@
                                 <p>
                                     Tickets
                                     <?php if ($num_active_tickets) { ?>
-                                        <span class="right badge text-light" title="Open Tickets"><?= $num_active_tickets ?></span>
+                                        <span class="right badge rounded-pill text-light" title="Open Tickets"><?= $num_active_tickets ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -125,7 +125,7 @@
                                         Texts
                                         <?php $nav_texts_waiting = smsInboxWaiting(); ?>
                                         <?php if ($nav_texts_waiting) { ?>
-                                            <span class="right badge text-bg-warning" title="Texts waiting for someone - unmatched, and codes just in" data-nav-texts-waiting><?= $nav_texts_waiting ?></span>
+                                            <span class="right badge rounded-pill text-bg-warning" title="Texts waiting for someone - unmatched, and codes just in" data-nav-texts-waiting><?= $nav_texts_waiting ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>
@@ -137,7 +137,7 @@
                                 <p>
                                     Recurring Tickets
                                     <?php if ($num_recurring_tickets) { ?>
-                                        <span class="right badge text-light" title="Active Recurring Tickets"><?= $num_recurring_tickets ?></span>
+                                        <span class="right badge rounded-pill text-light" title="Active Recurring Tickets"><?= $num_recurring_tickets ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -148,7 +148,7 @@
                                 <p>
                                     Projects
                                     <?php if ($num_active_projects) { ?>
-                                        <span class="right badge text-light" title="Open Projects"><?= $num_active_projects ?></span>
+                                        <span class="right badge rounded-pill text-light" title="Open Projects"><?= $num_active_projects ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -166,7 +166,7 @@
                             <p>
                                 Quotes
                                 <?php if ($num_open_quotes) { ?>
-                                    <span class="right badge text-light" title="Active Quotes"><?= $num_open_quotes ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Active Quotes"><?= $num_open_quotes ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -177,7 +177,7 @@
                             <p>
                                 Invoices
                                 <?php if ($num_open_invoices) { ?>
-                                    <span class="right badge text-light" title="Open Invoices"><?= $num_open_invoices ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Open Invoices"><?= $num_open_invoices ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -197,7 +197,7 @@
                                         ]));
                                         $unbilled_last = count($unbilled_parts) > 1 ? array_pop($unbilled_parts) : '';
                                         $unbilled_title = $unbilled_last === '' ? 'Billable tickets done, not invoiced' : implode(', ', $unbilled_parts) . " and $unbilled_last to bill, not invoiced"; ?>
-                                        <span class="right badge text-light" title="<?= escapeHtml($unbilled_title) ?>"><?= $num_unbilled_tickets + $num_unbilled_expenses + $num_unbilled_trips ?></span>
+                                        <span class="right badge rounded-pill text-light" title="<?= escapeHtml($unbilled_title) ?>"><?= $num_unbilled_tickets + $num_unbilled_expenses + $num_unbilled_trips ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -209,7 +209,7 @@
                             <p>
                                 Recurring Invoices
                                 <?php if ($num_recurring_invoices) { ?>
-                                    <span class="right badge text-light" title="Active Recurring Invoices"><?= $num_recurring_invoices ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Active Recurring Invoices"><?= $num_recurring_invoices ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -220,7 +220,7 @@
                             <p>
                                 Contracts
                                 <?php if (!empty($num_contracts_soon)) { ?>
-                                    <span class="right badge text-bg-warning" title="Ending or renewing soon"><?= intval($num_contracts_soon) ?></span>
+                                    <span class="right badge rounded-pill text-bg-warning" title="Ending or renewing soon"><?= intval($num_contracts_soon) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -231,7 +231,7 @@
                             <p>
                                 Products
                                 <?php if (!empty($num_products_reorder)) { ?>
-                                    <span class="right badge text-bg-warning" title="To reorder"><?= intval($num_products_reorder) ?></span>
+                                    <span class="right badge rounded-pill text-bg-warning" title="To reorder"><?= intval($num_products_reorder) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -246,9 +246,9 @@
                             <p>
                                 Purchasing
                                 <?php if ($num_purchasing['pending']) { ?>
-                                    <span class="right badge text-bg-warning" title="Purchase orders waiting for your approval"><?= intval($num_purchasing['pending']) ?></span>
+                                    <span class="right badge rounded-pill text-bg-warning" title="Purchase orders waiting for your approval"><?= intval($num_purchasing['pending']) ?></span>
                                 <?php } elseif ($num_purchasing['to_order']) { ?>
-                                    <span class="right badge text-light" title="Waiting to go on a purchase order"><?= intval($num_purchasing['to_order']) ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Waiting to go on a purchase order"><?= intval($num_purchasing['to_order']) ?></span>
                                 <?php } ?>
                             </p>
                         </a>

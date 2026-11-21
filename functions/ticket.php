@@ -1650,7 +1650,7 @@ function ticketReplyEmailHtml($reply_id, array $state, $queue_url = '') {
         $item_state = $recipient['state'];
         $address = $recipient['name'] !== '' ? escapeHtml($recipient['name']) . ' <span class="text-body-secondary">&lt;' . escapeHtml($recipient['email']) . '&gt;</span>' : escapeHtml($recipient['email']);
         $items .= '<li class="d-flex flex-wrap align-items-center gap-2" data-reply-recipient="' . escapeHtml($recipient['email']) . '">'
-            . ($item_state ? '<span class="badge ' . $item_state['badge'] . '" title="' . escapeHtml($item_state['title']) . '"><i class="fas fa-fw ' . $item_state['icon'] . ' me-1"></i>' . escapeHtml($item_state['label']) . '</span>' : '')
+            . ($item_state ? '<span class="badge rounded-pill ' . $item_state['badge'] . '" title="' . escapeHtml($item_state['title']) . '"><i class="fas fa-fw ' . $item_state['icon'] . ' me-1"></i>' . escapeHtml($item_state['label']) . '</span>' : '')
             . '<span class="text-break">' . $address . '</span>'
             . ($item_state && $item_state['detail'] !== '' ? '<span class="text-body-secondary">' . escapeHtml($item_state['detail']) . '</span>' : '')
             . ($item_state && $item_state['error'] !== '' ? '<span class="w-100 text-danger">' . escapeHtml($item_state['error']) . '</span>' : '')

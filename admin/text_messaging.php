@@ -62,7 +62,7 @@ $csrf = $_SESSION['csrf_token'];
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-sms me-2"></i>Text Messaging</h3>
         <div class="card-tools">
             <a class="btn btn-outline-light me-1 ajax-modal" href="#" data-modal-url="modals/sms_provider/sms_numbers.php" title="Numbers that replied STOP, and numbers blocked as spam">
-                <i class="fas fa-fw fa-ban"></i><span class="d-none d-lg-inline ms-2">Opted Out and Blocked</span><?php if ($opted_out + $blocked) { ?> <span class="badge text-bg-light ms-1"><?= $opted_out + $blocked ?></span><?php } ?>
+                <i class="fas fa-fw fa-ban"></i><span class="d-none d-lg-inline ms-2">Opted Out and Blocked</span><?php if ($opted_out + $blocked) { ?> <span class="badge rounded-pill text-bg-light ms-1"><?= $opted_out + $blocked ?></span><?php } ?>
             </a>
             <a class="btn btn-outline-light me-1" href="text_messages.php"><i class="fas fa-fw fa-list"></i><span class="d-none d-lg-inline ms-2">Text Messages</span></a>
             <?php if ($can_add) { ?>
@@ -112,7 +112,7 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="min-w-0">
                                 <a class="fw-semibold text-body ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><?= escapeHtml($name) ?></a>
                                 <?php if (!$on) { ?>
-                                    <span class="badge text-bg-secondary ms-1" data-sms-provider-state="off" title="No texts go out, and texts sent to the number aren't taken in">Off</span>
+                                    <span class="badge rounded-pill text-bg-secondary ms-1" data-sms-provider-state="off" title="No texts go out, and texts sent to the number aren't taken in">Off</span>
                                 <?php } ?>
                                 <?php if (trim((string) $row['sms_provider_description']) !== '') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($row['sms_provider_description']) ?></div>

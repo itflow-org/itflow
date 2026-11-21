@@ -210,7 +210,7 @@ function officesSection() {
                                         <?php if ($office_id) { ?>
                                             <a href="#" class="text-body ajax-modal" data-modal-size="lg" data-modal-url="modals/office/office.php?office_id=<?= $office_id ?>"><?= escapeHtml($office['name']) ?></a>
                                         <?php } else { ?>
-                                            <?= escapeHtml($office['name']) ?> <span class="badge text-bg-secondary ms-1" title="Its address and phone are the ones above">Above</span>
+                                            <?= escapeHtml($office['name']) ?> <span class="badge rounded-pill text-bg-secondary ms-1" title="Its address and phone are the ones above">Above</span>
                                         <?php } ?>
                                     </div>
                                     <div class="small text-body-secondary"><?= $contact ? implode(' &middot; ', array_map('escapeHtml', $contact)) : 'No address yet' ?></div>

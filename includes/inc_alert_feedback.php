@@ -26,9 +26,8 @@ if (!empty($_SESSION['alert_message'])) {
     $alert_type = $_SESSION['alert_type'] ?? 'success';
 
     // One mapping for both renderers - see alertStyleClass() in
-    // functions/sanitize.php. flashAlert() is called with more type names than
-    // Bootstrap has classes ('danger', 'alert' and a typo'd 'errpr' among
-    // them), and an unmapped value used to resolve to nothing at all.
+    // functions/sanitize.php - 'error' is Bootstrap's 'danger', and an unmapped
+    // value used to resolve to nothing at all.
     $alert_style_class = alertStyleClass($alert_type);
     $alert_style = 'text-bg-' . $alert_style_class;
     // text-bg-info and text-bg-warning are the two Bootstrap pairs with dark text
@@ -36,7 +35,7 @@ if (!empty($_SESSION['alert_message'])) {
 
     // Font Awesome 5 names - the vendored build is 5.15.4, so no fa-circle-*
     // aliases. Keyed on alertStyleClass()' output rather than the raw type, so
-    // 'error', 'errpr' and 'danger' all land on the same icon the same way they
+    // 'error' and 'danger' land on the same icon the same way they
     // already land on the same colour.
     $alert_icons = [
         'success'   => 'fa-check-circle',

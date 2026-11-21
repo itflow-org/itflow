@@ -406,7 +406,7 @@ $hero = [
                                     <h4 class="h5 mb-2">
                                         <?= escapeHtml($section_version) ?>
                                         <?php if ($section_version === APP_VERSION) { ?>
-                                            <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal align-middle ms-1">The version you're on, with changes since</span>
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal align-middle ms-1">The version you're on, with changes since</span>
                                         <?php } ?>
                                     </h4>
                                     <?= updateChangelogHtml($section_markdown) ?>
@@ -474,7 +474,7 @@ $hero = [
                 </li>
                 <li class="list-group-item d-flex justify-content-between gap-3">
                     <span class="text-body-secondary">Commit</span>
-                    <span><?= $current_version === '' ? '<span class="text-body-secondary">&mdash;</span>' : '<code>' . escapeHtml(substr($current_version, 0, 7)) . '</code>' ?></span>
+                    <span><?= $current_version === '' ? '<span class="text-body-secondary">-</span>' : '<code>' . escapeHtml(substr($current_version, 0, 7)) . '</code>' ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between gap-3">
                     <span class="text-body-secondary">Last checked</span>
@@ -491,7 +491,7 @@ $hero = [
                     <span class="text-end">
                         <?php if (!empty($update_job['cron_job_last_finished_at']) && in_array($update_status, ['Completed', 'Failed'], true)) { ?>
                             <span title="<?= formatDateTime($update_job['cron_job_last_finished_at']) ?>"><?= escapeHtml(timeAgo($update_job['cron_job_last_finished_at'])) ?></span>
-                            <?php if ($update_status === 'Failed') { ?><span class="badge bg-danger-subtle text-danger-emphasis ms-1">Failed</span><?php } ?>
+                            <?php if ($update_status === 'Failed') { ?><span class="badge rounded-pill bg-danger-subtle text-danger-emphasis ms-1">Failed</span><?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Not from this page yet</span>
                         <?php } ?>

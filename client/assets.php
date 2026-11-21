@@ -68,7 +68,7 @@ function assetsUrl(array $changes) {
             <?php if ($mine) { ?><input type="hidden" name="scope" value="mine"><?php } ?>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Name, model, serial or person" aria-label="Search devices" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search devices..." title="Name, model, serial or person" aria-label="Search devices" maxlength="200">
             </div>
         </form>
     </div>

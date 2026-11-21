@@ -135,9 +135,9 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="min-w-0">
                                 <a class="fw-semibold text-body" href="<?= $clients_url ?>"><?= escapeHtml($name) ?></a>
                                 <?php if (!$kind) { ?>
-                                    <span class="badge text-bg-warning ms-1" title="This ITFlow doesn't know its kind (<?= escapeHtml($row['rmm_provider_kind']) ?>) - nothing is brought in">Unknown kind</span>
+                                    <span class="badge rounded-pill text-bg-warning ms-1" title="This ITFlow doesn't know its kind (<?= escapeHtml($row['rmm_provider_kind']) ?>) - nothing is brought in">Unknown kind</span>
                                 <?php } elseif (!$on) { ?>
-                                    <span class="badge text-bg-secondary ms-1" data-rmm-provider-state="off" title="Nothing is brought in, and assets keep what it last said">Off</span>
+                                    <span class="badge rounded-pill text-bg-secondary ms-1" data-rmm-provider-state="off" title="Nothing is brought in, and assets keep what it last said">Off</span>
                                 <?php } ?>
                                 <div class="small text-body-secondary text-truncate"><span class="d-lg-none"><?= escapeHtml($kind['name'] ?? $row['rmm_provider_kind']) ?><?= $host !== '' ? ' &middot; ' : '' ?></span><?= escapeHtml($host) ?></div>
                                 <!-- On smaller screens its clients and devices come along under the name -->

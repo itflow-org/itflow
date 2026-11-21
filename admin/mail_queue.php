@@ -193,7 +193,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                             <?php } ?>
                         </td>
                         <td class="text-nowrap d-none d-sm-table-cell">
-                            <span class="badge <?= $state['badge'] ?>" data-email-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
+                            <span class="badge rounded-pill <?= $state['badge'] ?>" data-email-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
                             <?php if ($state['detail'] !== '') { ?>
                                 <div class="small text-body-secondary mt-1" title="<?= escapeHtml($state['title']) ?>" data-email-detail><?= escapeHtml($state['detail']) ?></div>
                             <?php } ?>
@@ -205,7 +205,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                             <div><?= $person($row['email_recipient_name'], $row['email_recipient']) ?></div>
                             <!-- On smaller screens the subject comes along under who it is to, and on a phone where it stands -->
                             <div class="d-md-none small"><a class="ajax-modal" href="#" <?= $view ?>><?= $subject ?></a></div>
-                            <div class="d-sm-none small mt-1"><span class="badge <?= $state['badge'] ?>"><?= $state['label'] ?></span> <span class="text-body-secondary"><?= escapeHtml($state['detail']) ?></span></div>
+                            <div class="d-sm-none small mt-1"><span class="badge rounded-pill <?= $state['badge'] ?>"><?= $state['label'] ?></span> <span class="text-body-secondary"><?= escapeHtml($state['detail']) ?></span></div>
                             <?php if ($state['error'] !== '') { ?><div class="d-sm-none small text-danger-emphasis"><?= escapeHtml(mb_strimwidth($state['error'], 0, 160, '...')) ?></div><?php } ?>
                         </td>
                         <td class="d-none d-md-table-cell min-w-0">

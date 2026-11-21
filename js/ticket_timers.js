@@ -446,7 +446,7 @@
             } else if (info) {
                 sub.textContent = info.client || 'No client';
                 if (!info.open) {
-                    sub.appendChild(el('span', 'badge text-bg-secondary ms-1', info.state || 'Closed'));
+                    sub.appendChild(el('span', 'badge rounded-pill text-bg-secondary ms-1', info.state || 'Closed'));
                 }
             }
             text.appendChild(sub);

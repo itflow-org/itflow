@@ -48,7 +48,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
             <h3 class="card-title me-auto my-1">
                 <i class="fas fa-fw fa-people-arrows me-2"></i>Dispatch
                 <?php if (!$can_edit) { ?>
-                    <span class="badge text-bg-secondary ms-2 align-middle" title="Booking and moving tickets takes Support at Modify in your role">View only</span>
+                    <span class="badge rounded-pill text-bg-secondary ms-2 align-middle" title="Booking and moving tickets takes Support at Modify in your role">View only</span>
                 <?php } ?>
                 <span class="fw-normal text-body-secondary ms-2 small" data-dispatch-title></span>
             </h3>
@@ -93,9 +93,9 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
             <div class="card mb-0 itflow-dispatch-pane">
                 <div class="card-header p-2">
                     <ul class="nav nav-pills nav-fill small flex-nowrap" role="tablist">
-                        <li class="nav-item"><a class="nav-link py-1 px-1" href="#" data-dispatch-tab="unassigned">No agent <span class="badge text-bg-danger" data-dispatch-count="unassigned"></span></a></li>
-                        <li class="nav-item"><a class="nav-link py-1 px-1" href="#" data-dispatch-tab="unbooked">Not booked <span class="badge text-bg-warning" data-dispatch-count="unbooked"></span></a></li>
-                        <li class="nav-item"><a class="nav-link py-1 px-1" href="#" data-dispatch-tab="left_behind" title="Open tickets booked on a day that has gone">Left behind <span class="badge text-bg-danger" data-dispatch-count="left_behind"></span></a></li>
+                        <li class="nav-item"><a class="nav-link py-1 px-1" href="#" data-dispatch-tab="unassigned">No agent <span class="badge rounded-pill text-bg-danger" data-dispatch-count="unassigned"></span></a></li>
+                        <li class="nav-item"><a class="nav-link py-1 px-1" href="#" data-dispatch-tab="unbooked">Not booked <span class="badge rounded-pill text-bg-warning" data-dispatch-count="unbooked"></span></a></li>
+                        <li class="nav-item"><a class="nav-link py-1 px-1" href="#" data-dispatch-tab="left_behind" title="Open tickets booked on a day that has gone">Left behind <span class="badge rounded-pill text-bg-danger" data-dispatch-count="left_behind"></span></a></li>
                     </ul>
                     <div class="mt-2 d-flex flex-column gap-1">
                         <div class="input-group input-group-sm">

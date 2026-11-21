@@ -147,12 +147,12 @@ $csrf = $_SESSION['csrf_token'];
                             <?php } ?>
                             <div class="text-body-secondary"><?= $row['managed_instance_update_policy'] === 'auto' ? 'Updates itself' : 'Updated by hand' ?></div>
                         <?php } else { ?>
-                            <span class="text-body-secondary">&mdash;</span>
+                            <span class="text-body-secondary">-</span>
                         <?php } ?>
                     </td>
                     <td class="d-none d-lg-table-cell small text-nowrap">
                         <?php if ($health['state'] === 'pending') { ?>
-                            <span class="text-body-secondary">&mdash;</span>
+                            <span class="text-body-secondary">-</span>
                         <?php } elseif (!$health['issues']) { ?>
                             <span class="text-success-emphasis"><i class="fas fa-fw fa-check-circle me-1"></i>All good</span>
                         <?php } else { ?>
@@ -167,7 +167,7 @@ $csrf = $_SESSION['csrf_token'];
                             <?= intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) ?><?= $seat_limit > 0 ? ' of ' . $seat_limit : '' ?>
                             <div class="text-body-secondary"><?= $seat_limit > 0 ? 'seats' : 'agents, no limit' ?></div>
                         <?php } else { ?>
-                            <span class="text-body-secondary">&mdash;</span>
+                            <span class="text-body-secondary">-</span>
                         <?php } ?>
                     </td>
                     <td class="d-none d-sm-table-cell small text-nowrap"><?= $last_html ?></td>

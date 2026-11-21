@@ -1206,7 +1206,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured in the system.", 'danger');
+        flashAlert("Stripe provider is not configured in the system.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1214,7 +1214,7 @@ if (isset($_POST['create_stripe_customer'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing. Please contact support.", 'danger');
+        flashAlert("Stripe credentials missing. Please contact support.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1267,7 +1267,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
             logApp("Stripe", "error", "Failed to create Stripe customer for $session_client_name: $error");
 
-            flashAlert("An error occurred while creating your Stripe customer. Please try again.", 'danger');
+            flashAlert("An error occurred while creating your Stripe customer. Please try again.", 'error');
 
         }
 
@@ -1390,7 +1390,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider not configured.", 'danger');
+        flashAlert("Stripe provider not configured.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1398,7 +1398,7 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing.", 'danger');
+        flashAlert("Stripe credentials missing.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1414,7 +1414,7 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_customer_id = escapeSql($client_provider['payment_provider_client'] ?? '');
 
     if (empty($stripe_customer_id)) {
-        flashAlert("Stripe customer ID not found for client.", 'danger');
+        flashAlert("Stripe customer ID not found for client.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1423,7 +1423,7 @@ if (isset($_GET['stripe_save_card'])) {
     $expected_session_id = (string) ($_SESSION['stripe_checkout_session_id'] ?? '');
     unset($_SESSION['stripe_checkout_session_id']);
     if ($checkout_session_id === '' || $expected_session_id === '' || !hash_equals($expected_session_id, $checkout_session_id)) {
-        flashAlert("This card setup has expired - please try again.", 'danger');
+        flashAlert("This card setup has expired - please try again.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1435,7 +1435,7 @@ if (isset($_GET['stripe_save_card'])) {
         $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id, []);
         // ... and set up for this client's own Stripe customer
         if (!empty($checkout_session->customer) && $checkout_session->customer !== stripslashes($stripe_customer_id)) {
-            flashAlert("This card setup does not belong to your account.", 'danger');
+            flashAlert("This card setup does not belong to your account.", 'error');
             redirect("saved_payment_methods.php");
         }
         $setup_intent_id = $checkout_session->setup_intent;
@@ -1476,7 +1476,7 @@ if (isset($_GET['stripe_save_card'])) {
         error_log("Stripe error while saving payment method: $error");
         logApp("Stripe", "error", "Exception saving payment method: $error");
 
-        flashAlert("An error occurred while saving your payment method.", 'danger');
+        flashAlert("An error occurred while saving your payment method.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1510,7 +1510,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
 
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured.", 'danger');
+        flashAlert("Stripe provider is not configured.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1518,7 +1518,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials are missing.", 'danger');
+        flashAlert("Stripe credentials are missing.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1534,7 +1534,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $saved_payment = mysqli_fetch_assoc($saved_payment_result);
 
     if (!$saved_payment) {
-        flashAlert("Payment method not found or does not belong to you.", 'danger');
+        flashAlert("Payment method not found or does not belong to you.", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1558,7 +1558,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
         logApp("Stripe", "error", "Exception removing payment method $payment_method_id: $error");
 
-        flashAlert("An error occurred while removing your payment method.", 'danger');
+        flashAlert("An error occurred while removing your payment method.", 'error');
 
         redirect("saved_payment_methods.php");
 
@@ -1609,7 +1609,7 @@ if (isset($_POST['set_recurring_payment'])) {
     $row = mysqli_fetch_assoc($sql);
 
     if (!$row) {
-        flashAlert("Recurring invoice not found.", 'danger');
+        flashAlert("Recurring invoice not found.", 'error');
         redirect("recurring_invoices.php");
     }
 
@@ -1633,7 +1633,7 @@ if (isset($_POST['set_recurring_payment'])) {
         $row = mysqli_fetch_assoc($sql);
 
         if (!$row) {
-            flashAlert("Payment method not found or does not belong to you.", 'danger');
+            flashAlert("Payment method not found or does not belong to you.", 'error');
             redirect("recurring_invoices.php");
         }
 

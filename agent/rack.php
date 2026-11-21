@@ -216,7 +216,7 @@ if (mysqli_num_rows($sql) == 0) {
                                 <tr>
                                     <th class="ps-3">Position</th>
                                     <th style="min-width: 15rem">Item</th>
-                                    <th>Make / Model</th>
+                                    <th>Make / model</th>
                                     <th>Serial</th>
                                     <th>IP</th>
                                     <th>Mounted</th>

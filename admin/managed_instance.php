@@ -371,7 +371,7 @@ $size = function ($mb) {
                     <?= $fact('Database', escapeHtml((string) ($app['db_version'] ?? '')) . (!empty($app['db_latest']) && version_compare((string) $app['db_latest'], (string) ($app['db_version'] ?? ''), '>') ? ' <span class="text-warning-emphasis">&rarr; ' . escapeHtml($app['db_latest']) . '</span>' : '')) ?>
                     <?= $fact('Updates checked', $when($update['checked_at'] ?? null)) ?>
                     <?= $fact('Agents', $agents ? '<span class="fw-semibold">' . (intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0)) . '</span>' . (intval($agents['limit'] ?? 0) > 0 ? ' of ' . intval($agents['limit']) : '')
-                        . (intval($agents['invites'] ?? 0) > 0 ? '<div class="text-body-secondary">' . intval($agents['invites']) . ' invited</div>' : '') : '&mdash;') ?>
+                        . (intval($agents['invites'] ?? 0) > 0 ? '<div class="text-body-secondary">' . intval($agents['invites']) . ' invited</div>' : '') : '<span class="text-body-secondary">-</span>') ?>
                     <?= $fact('Clients', intval($report['clients'] ?? 0)) ?>
                     <?= $fact('Last backup', $when($backup['last_ok_at'] ?? null, 'None')) ?>
                     <?= $fact('Cron', empty($cron['enabled']) ? '<span class="text-danger-emphasis">Switched off</span>' : 'Last ran ' . $when($cron['last_dispatch_at'] ?? null)) ?>

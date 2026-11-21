@@ -378,9 +378,9 @@ $status_looks = [
                                 <div><?= $made_at ?></div>
                                 <div class="small text-body-secondary"><?= escapeHtml(timeAgo($backup['backup_created_at'])) ?></div>
                             </td>
-                            <td class="d-none d-sm-table-cell text-nowrap"><?= $backup['backup_size'] > 0 ? escapeHtml(backupFormatBytes($backup['backup_size'])) : '<span class="text-body-secondary">&mdash;</span>' ?></td>
+                            <td class="d-none d-sm-table-cell text-nowrap"><?= $backup['backup_size'] > 0 ? escapeHtml(backupFormatBytes($backup['backup_size'])) : '<span class="text-body-secondary">-</span>' ?></td>
                             <td>
-                                <span class="badge bg-<?= $status_look['tone'] ?>-subtle text-<?= $status_look['tone'] ?>-emphasis"><?php if ($status === 'Running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($status_look['label']) ?></span>
+                                <span class="badge rounded-pill bg-<?= $status_look['tone'] ?>-subtle text-<?= $status_look['tone'] ?>-emphasis"><?php if ($status === 'Running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($status_look['label']) ?></span>
                                 <?php if ($status === 'Failed' && (string) $backup['backup_error'] !== '') { ?>
                                     <div class="small text-danger-emphasis mt-1"><?= escapeHtml($backup['backup_error']) ?></div>
                                 <?php } elseif ($status === 'Missing') { ?>
@@ -593,7 +593,7 @@ $status_looks = [
         <div class="card mb-3<?= $dev_on ? ' border-danger' : '' ?>" id="dev-mode" data-dev-mode-card="<?= $dev_on ? 'on' : 'off' ?>">
             <div class="card-header py-3">
                 <h3 class="card-title"><i class="fas fa-fw fa-flask me-2"></i>Development mode
-                    <span class="badge <?= $dev_on ? 'text-bg-danger' : 'text-bg-secondary' ?> ms-1"><?= $dev_on ? 'On' : 'Off' ?></span>
+                    <span class="badge rounded-pill <?= $dev_on ? 'text-bg-danger' : 'text-bg-secondary' ?> ms-1"><?= $dev_on ? 'On' : 'Off' ?></span>
                 </h3>
             </div>
             <div class="card-body small">

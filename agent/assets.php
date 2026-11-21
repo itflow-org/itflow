@@ -492,7 +492,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     </th>
                     <?php if ($show_model) { ?>
                         <th>
-                            <?= sortLink('asset_make', 'Model / Serial') ?>
+                            <?= sortLink('asset_make', 'Model / serial') ?>
                         </th>
                     <?php } ?>
                     <th>
@@ -523,7 +523,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     <?php } ?>
                     <?php if ($show_contact) { ?>
                         <th>
-                            <?= sortLink('contact_name', 'Assigned To') ?>
+                            <?= sortLink('contact_name', 'Assigned to') ?>
                         </th>
                     <?php } ?>
                     <th>

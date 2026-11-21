@@ -171,7 +171,7 @@ $hours = function ($seconds) {
                                 <td class="itflow-report-sub">
                                     <div class="small text-body-secondary">
                                         <i class="far fa-clock me-1"></i><?= escapeHtml(date('D, M j, Y g:i A', strtotime($reply['ticket_reply_created_at']))) ?>
-                                        <?php if ($reply['ticket_reply_type'] === 'Internal') { ?><span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal ms-1">Internal note</span><?php } ?>
+                                        <?php if ($reply['ticket_reply_type'] === 'Internal') { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1">Internal note</span><?php } ?>
                                     </div>
                                     <?php if ($reply['text'] !== '') { ?>
                                         <div class="mt-1" style="white-space: pre-line"><?= escapeHtml($reply['text']) ?></div>

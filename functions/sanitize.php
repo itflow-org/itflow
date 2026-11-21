@@ -172,9 +172,9 @@ function escapeCsvFormula($value) {
 /**
  * Map a flashAlert type onto a real Bootstrap contextual class.
  *
- * flashAlert() is called with more type names than Bootstrap has classes -
- * 'error', 'alert' and a typo'd 'errpr' among them - so interpolating the raw
- * value produced alert-error / alert-alert, which style nothing at all.
+ * flashAlert() takes 'success', 'info', 'warning' and 'error'; 'danger' and
+ * 'alert' are still understood. Bootstrap has no alert-error, so the raw type
+ * can't be used as the class.
  */
 function alertStyleClass($type) {
 
@@ -184,7 +184,6 @@ function alertStyleClass($type) {
         'warning' => 'warning',
         'alert'   => 'warning',
         'error'   => 'danger',
-        'errpr'   => 'danger',
         'danger'  => 'danger',
     ];
 

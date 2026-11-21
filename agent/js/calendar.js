@@ -692,7 +692,7 @@
                 item.appendChild(text);
 
                 const days = document.createElement('span');
-                days.className = 'badge text-bg-danger flex-shrink-0';
+                days.className = 'badge rounded-pill text-bg-danger flex-shrink-0';
                 days.textContent = ticket.days + 'd';
                 days.title = ticket.days + ' day' + (ticket.days === 1 ? '' : 's') + ' since it was booked for';
                 item.appendChild(days);

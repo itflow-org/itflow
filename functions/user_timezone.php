@@ -146,7 +146,7 @@ function timezoneNote() {
     if (!timezoneShifted($zone)) {
         return '';
     }
-    return '<span class="badge bg-body-secondary text-body-secondary border fw-normal" title="Your time zone is in Account &gt; Preferences. Bookings are kept in the company\'s time.">'
+    return '<span class="badge rounded-pill bg-body-secondary text-body-secondary border fw-normal" title="Your time zone is in Account &gt; Preferences. Bookings are kept in the company\'s time.">'
         . '<i class="fas fa-globe me-1"></i>Times in ' . escapeHtml(timezoneName($zone)) . ' &middot; company: ' . escapeHtml(timezoneName(timezoneCompany())) . '</span>';
 }
 

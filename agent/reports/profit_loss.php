@@ -121,7 +121,7 @@ $render = function ($line, $class = '') use ($columns, $year) {
     $cat = $line['cat'] ?? 0;
     $list = $kind === 'income' ? 'income.php' : ($kind === 'expense' ? 'expenses.php' : '');
     $html = '<tr' . ($class !== '' ? ' class="' . $class . '"' : '') . '><td' . ($list ? ' class="itflow-report-sub"' : '') . '>'
-        . escapeHtml($line['name']) . (!empty($line['archived']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
+        . escapeHtml($line['name']) . (!empty($line['archived']) ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
     foreach ($columns as $i => [$label, $first, $last]) {
         $url = '';
         if ($list && ($cat || $kind === 'income')) {

@@ -119,12 +119,12 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="min-w-0">
                                 <a class="fw-semibold text-body ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><?= escapeHtml($name) ?></a>
                                 <?php if (!$on) { ?>
-                                    <span class="badge text-bg-secondary ms-1" data-provider-state="off" title="Clients can't pay by card through it, and autopay with its cards is skipped">Off</span>
+                                    <span class="badge rounded-pill text-bg-secondary ms-1" data-provider-state="off" title="Clients can't pay by card through it, and autopay with its cards is skipped">Off</span>
                                 <?php } ?>
                                 <?php if ($mode === 'test') { ?>
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" data-provider-mode="test" title="Its keys are test keys - no real money moves">Test</span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" data-provider-mode="test" title="Its keys are test keys - no real money moves">Test</span>
                                 <?php } elseif ($mode === 'live') { ?>
-                                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" data-provider-mode="live">Live</span>
+                                    <span class="badge rounded-pill bg-success-subtle text-success-emphasis border border-success-subtle ms-1" data-provider-mode="live">Live</span>
                                 <?php } ?>
                                 <?php if (trim((string) $row['payment_provider_description']) !== '') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($row['payment_provider_description']) ?></div>
@@ -151,7 +151,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div><a class="text-body-secondary" href="/agent/expenses.php?q=<?= urlencode($name . ' fee') ?>" data-provider-fees-total><?= escapeHtml(paymentProviderMoneyText($activity['fees'])) ?> in 30 days</a></div>
                             <?php } ?>
                             <?php if ($activity['waiting']) { ?>
-                                <span class="badge <?= $activity['stale'] ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'text-bg-light border' ?> fw-normal mt-1" data-provider-fees-waiting="<?= $activity['waiting'] ?>"
+                                <span class="badge rounded-pill <?= $activity['stale'] ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'text-bg-light border' ?> fw-normal mt-1" data-provider-fees-waiting="<?= $activity['waiting'] ?>"
                                     title="<?= $activity['stale'] ? 'Some are more than two days old - the Payment Provider Fees job in Maintenance > Cron should have had them' : 'Recorded a few minutes after Stripe settles them' ?>"><?= $activity['waiting'] ?> to record</span>
                             <?php } ?>
                         <?php } else { ?>

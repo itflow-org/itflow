@@ -183,7 +183,7 @@ $used_meter = function ($spent, $plan) {
                                 continue;
                             } ?>
                             <tr data-budget-row>
-                                <td><?= escapeHtml($line['name']) ?><?php if ($line['archived']) { ?> <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span><?php } ?></td>
+                                <td><?= escapeHtml($line['name']) ?><?php if ($line['archived']) { ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span><?php } ?></td>
                                 <td>
                                     <div class="input-group input-group-sm flex-nowrap">
                                         <input type="text" inputmode="decimal" class="form-control" data-budget-fill-value aria-label="Amount for every month of <?= escapeHtml($line['name']) ?>" placeholder="0.00">
@@ -325,7 +325,7 @@ $used_meter = function ($spent, $plan) {
             <?php
             $columns = [
                 'name' => ['label' => 'Category', 'html' => function ($row) {
-                    return escapeHtml($row['name']) . ($row['archived'] ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '');
+                    return escapeHtml($row['name']) . ($row['archived'] ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '');
                 }],
                 'plan_total' => ['label' => "Budget $year", 'type' => 'money', 'html' => function ($row) {
                     return $row['plan_total'] > 0 ? reportMoney($row['plan_total']) : '<span class="itflow-report-zero">–</span>';

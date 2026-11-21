@@ -64,7 +64,7 @@ echo settingsPageStart('notification');
                     <?= settingsSwitch('config_recurring_auto_send_invoice', $config_recurring_auto_send_invoice, ['help' => 'Each recurring invoice set to send itself goes to the client\'s primary and billing contacts. Off, they are made as drafts to check and send.']) ?>
                     <div class="itflow-settings-field" data-setting="config_send_invoice_reminders" data-notification-reminders>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge <?= $config_send_invoice_reminders ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $config_send_invoice_reminders ? 'On' : 'Off' ?></span>
+                            <span class="badge rounded-pill <?= $config_send_invoice_reminders ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $config_send_invoice_reminders ? 'On' : 'Off' ?></span>
                             <span>Payment reminders and statements</span>
                         </div>
                         <div class="form-text">On their own schedule, in <a href="settings_invoice.php#reminders">Invoices and billing</a>.</div>

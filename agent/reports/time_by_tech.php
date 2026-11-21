@@ -98,7 +98,7 @@ usort($agents, function ($a, $b) { return $b['seconds'] <=> $a['seconds'] ?: str
 
 $columns = [
     'agent' => ['label' => 'Agent', 'html' => function ($row) {
-        return reportAgentCell($row['user_id'], $row['agent'], $row['avatar']) . ($row['active'] ? '' : ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Inactive</span>');
+        return reportAgentCell($row['user_id'], $row['agent'], $row['avatar']) . ($row['active'] ? '' : ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Inactive</span>');
     }],
     'seconds' => ['label' => 'Hours logged', 'type' => 'hours', 'class' => 'fw-semibold'],
     'billable' => ['label' => 'Billable', 'type' => 'hours', 'title' => 'Time on billable tickets'],

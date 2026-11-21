@@ -1624,7 +1624,7 @@ function reportCategoryYearTable(array $categories, array $grid, $year, $list, $
     foreach ($categories as $cat => $category) {
         $row = reportGridRow($grid, $cat);
         $html .= '<tr><td data-value="' . escapeHtml(mb_strtolower($category['category_name'])) . '">' . escapeHtml($category['category_name'])
-            . (!empty($category['category_archived_at']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
+            . (!empty($category['category_archived_at']) ? ' <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
         foreach ($columns as $i => [$label, $first, $last]) {
             [$dtf, $dtt] = reportColumnDates($year, $first, $last);
             $url = $cat || $uncategorised !== '' ? "/agent/$list?" . ($cat ? "category=$cat" : $uncategorised) . "&canned_date=custom&dtf=$dtf&dtt=$dtt" : '';

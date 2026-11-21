@@ -86,7 +86,7 @@ $empty_titles = [
             <?php if ($sees_all && $scope === 'mine') { ?><input type="hidden" name="scope" value="mine"><?php } ?>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search subject or number" aria-label="Search tickets" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search tickets..." title="Subject or number" aria-label="Search tickets" maxlength="200">
             </div>
         </form>
     </div>

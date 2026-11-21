@@ -95,7 +95,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2"></i><?= escapeHtml($name) ?> <span class="fw-normal opacity-75">&middot; Clients</span>
-            <?php if (!$on) { ?><span class="badge text-bg-secondary ms-2 fw-normal" data-rmm-provider-state="off" title="Nothing is brought in, and assets keep what it last said">Off</span><?php } ?>
+            <?php if (!$on) { ?><span class="badge rounded-pill text-bg-secondary ms-2 fw-normal" data-rmm-provider-state="off" title="Nothing is brought in, and assets keep what it last said">Off</span><?php } ?>
         </h3>
         <div class="card-tools">
             <a class="btn btn-outline-light me-1" href="rmm_providers.php" title="Back to RMM Providers"><i class="fas fa-fw fa-arrow-left"></i><span class="d-none d-lg-inline ms-2">RMM Providers</span></a>
@@ -194,7 +194,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                 <tr data-rmm-client-id="<?= $rmm_client_id ?>" class="<?= $removed ? 'text-body-secondary' : '' ?>">
                     <td class="ps-3">
                         <div class="fw-semibold"><?= escapeHtml($row['rmm_client_name']) ?>
-                            <?php if ($removed) { ?><span class="badge text-bg-secondary fw-normal ms-1" title="<?= escapeHtml($name) ?> stopped listing it <?= escapeHtml(timeAgo($row['rmm_client_removed_at'])) ?>">Gone from <?= escapeHtml($short) ?></span><?php } ?>
+                            <?php if ($removed) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1" title="<?= escapeHtml($name) ?> stopped listing it <?= escapeHtml(timeAgo($row['rmm_client_removed_at'])) ?>">Gone from <?= escapeHtml($short) ?></span><?php } ?>
                         </div>
                         <div class="small text-body-secondary"><?= $sites ?> site<?= $sites === 1 ? '' : 's' ?><span class="d-md-none"> &middot; <?= intval($row['rmm_client_devices']) ?> devices</span></div>
                     </td>
@@ -212,7 +212,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                             <div class="d-flex align-items-center gap-2">
                                 <span class="itflow-client-avatar d-none d-sm-inline-flex bg-<?= clientInitialsTone($client_id) ?>-subtle text-<?= clientInitialsTone($client_id) ?>-emphasis" aria-hidden="true"><?= escapeHtml(clientInitials($row['client_abbreviation'] ?? '', $row['client_name'])) ?></span>
                                 <a class="text-body" href="../agent/client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
-                                <?php if ($row['client_archived_at'] !== null) { ?><span class="badge text-bg-secondary fw-normal" title="Nothing is brought in for an archived client">Archived</span><?php } ?>
+                                <?php if ($row['client_archived_at'] !== null) { ?><span class="badge rounded-pill text-bg-secondary fw-normal" title="Nothing is brought in for an archived client">Archived</span><?php } ?>
                             </div>
                         <?php } elseif ($client_id) { ?>
                             <span class="text-warning-emphasis" title="Its client was deleted in ITFlow - link it again"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Its client was deleted</span>

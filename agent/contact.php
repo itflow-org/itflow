@@ -514,7 +514,7 @@ if (!$can_support) {
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="text-nowrap table-light">
-                                <tr><th>Asset</th><th>Model / Serial</th><th>IP</th><th>Status</th><th></th></tr>
+                                <tr><th>Asset</th><th>Model / serial</th><th>IP</th><th>Status</th><th></th></tr>
                                 </thead>
                                 <tbody>
                                 <?php while ($row = mysqli_fetch_assoc($sql_related_assets)) {

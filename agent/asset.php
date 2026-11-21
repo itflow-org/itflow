@@ -952,7 +952,7 @@ if (mysqli_num_rows($sql) == 0) {
                                         <th>Subject</th>
                                         <th>Priority</th>
                                         <th>Frequency</th>
-                                        <th>Next Run</th>
+                                        <th>Next run</th>
                                         <th></th>
                                     </tr>
                                     </thead>

@@ -269,7 +269,7 @@ ob_start();
     }
 
     function badge(count, label, tone) {
-        var span = el('span', 'badge text-bg-' + tone + ' fw-normal');
+        var span = el('span', 'badge rounded-pill text-bg-' + tone + ' fw-normal');
         span.style.fontSize = '.875rem';
         span.appendChild(el('strong', '', count.toLocaleString()));
         span.appendChild(document.createTextNode(' ' + label));
@@ -304,7 +304,7 @@ ob_start();
             tr.appendChild(el('td', 'text-body-secondary', row[0]));
             tr.appendChild(el('td', 'text-break', row[1] !== '' ? row[1] : '-'));
             var why = el('td', 'text-break');
-            why.appendChild(el('span', 'badge text-bg-' + what[row[2]][1] + ' me-1', what[row[2]][0]));
+            why.appendChild(el('span', 'badge rounded-pill text-bg-' + what[row[2]][1] + ' me-1', what[row[2]][0]));
             why.appendChild(document.createTextNode(row[3]));
             tr.appendChild(why);
             list.appendChild(tr);

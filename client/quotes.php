@@ -63,7 +63,7 @@ function quotesUrl(array $changes) {
         <input type="hidden" name="tab" value="<?= escapeHtml($tab) ?>">
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search number or scope" aria-label="Search quotes" maxlength="200">
+            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search quotes..." title="Number or scope" aria-label="Search quotes" maxlength="200">
         </div>
     </form>
 </div>

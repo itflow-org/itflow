@@ -51,7 +51,7 @@ if ($can_invite && portalSignupOn() && intval(mysqli_fetch_row(mysqli_query($mys
         <form method="get" class="d-flex" role="search">
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Name, email, title or phone" aria-label="Search contacts" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search contacts..." title="Name, email, title or phone" aria-label="Search contacts" maxlength="200">
             </div>
         </form>
         <?php if ($can_invite) { ?>

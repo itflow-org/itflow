@@ -123,10 +123,10 @@ $csrf = $_SESSION['csrf_token'];
                             <div class="min-w-0">
                                 <a class="fw-semibold text-body ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><?= escapeHtml($name) ?></a>
                                 <?php if ($kind['local']) { ?>
-                                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" title="It runs on your own network - what is sent to it doesn't leave it">Your network</span>
+                                    <span class="badge rounded-pill bg-success-subtle text-success-emphasis border border-success-subtle ms-1" title="It runs on your own network - what is sent to it doesn't leave it">Your network</span>
                                 <?php } ?>
                                 <?php if (!intval($row['ai_provider_redact'])) { ?>
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" data-provider-redact="off" title="Passwords and keys in what is sent go to it as they are">Secrets sent</span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" data-provider-redact="off" title="Passwords and keys in what is sent go to it as they are">Secrets sent</span>
                                 <?php } ?>
                                 <div class="small text-body-secondary text-truncate" style="max-width: 22rem;" title="<?= escapeHtml($row['ai_provider_api_url']) ?>"><?= escapeHtml($host . ($port ? ":$port" : '')) ?></div>
                                 <!-- On smaller screens its kind and models come along under the name -->
@@ -152,7 +152,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <a class="text-reset ajax-modal" href="#" data-modal-url="modals/ai/ai_model_edit.php?id=<?= $model_id ?>"><?= escapeHtml($model['ai_model_name']) ?></a>
                                 <span class="text-body-secondary">· <?= escapeHtml($model['ai_model_use_case']) ?></span>
                                 <?php if (array_key_exists($model_id, $unused)) { ?>
-                                    <span class="badge text-bg-light border fw-normal ms-1" title="<?= escapeHtml($unused[$model_id] ? $unused[$model_id]['ai_model_name'] . ' is for ' . $model['ai_model_use_case'] . ' already, and is the one used' : 'Not one of the use cases') ?>">Not used</span>
+                                    <span class="badge rounded-pill text-bg-light border fw-normal ms-1" title="<?= escapeHtml($unused[$model_id] ? $unused[$model_id]['ai_model_name'] . ' is for ' . $model['ai_model_use_case'] . ' already, and is the one used' : 'Not one of the use cases') ?>">Not used</span>
                                 <?php } ?>
                             </div>
                         <?php } ?>

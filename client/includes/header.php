@@ -155,7 +155,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
             <form class="itflow-portal-search d-none d-xxl-flex" action="/client/search.php" method="get" role="search">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                    <input type="search" class="form-control" name="q" value="<?= $portal_page === 'search.php' ? escapeHtml(trim((string) ($_GET['q'] ?? ''))) : '' ?>" placeholder="Search" aria-label="Search tickets, documents and help" maxlength="200">
+                    <input type="search" class="form-control" name="q" value="<?= $portal_page === 'search.php' ? escapeHtml(trim((string) ($_GET['q'] ?? ''))) : '' ?>" placeholder="Search..." aria-label="Search tickets, documents and help" maxlength="200">
                 </div>
             </form>
             <a class="btn btn-outline-secondary d-none d-xl-inline-flex d-xxl-none" href="/client/search.php" title="Search" aria-label="Search"><i class="fas fa-search"></i></a>
@@ -216,7 +216,7 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
         <form class="mb-3" action="/client/search.php" method="get" role="search">
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" placeholder="Search tickets, documents and help" aria-label="Search tickets, documents and help" maxlength="200">
+                <input type="search" class="form-control" name="q" placeholder="Search..." title="Tickets, documents and help" aria-label="Search tickets, documents and help" maxlength="200">
             </div>
         </form>
         <?php foreach ($portal_nav as $item) { ?>

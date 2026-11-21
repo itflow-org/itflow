@@ -416,7 +416,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                     <td class="ps-0" style="width: 7rem;"><?= ticketPriorityHtml($priority, 'detail') ?></td>
                                     <td>
                                         <?php if ($sla) { ?>
-                                            <span class="fw-semibold"><?= escapeHtml($sla['sla_name']) ?></span><?= $sla['sla_archived_at'] ? ' <span class="badge text-bg-secondary">Archived</span>' : '' ?>
+                                            <span class="fw-semibold"><?= escapeHtml($sla['sla_name']) ?></span><?= $sla['sla_archived_at'] ? ' <span class="badge rounded-pill text-bg-secondary">Archived</span>' : '' ?>
                                             <div class="small text-body-secondary"><?= escapeHtml(contractSlaTargets($sla)) ?></div>
                                         <?php } elseif ($sla_default) { ?>
                                             <span class="fw-semibold"><?= escapeHtml($sla_default['sla_name']) ?></span><?= $usual_from($sla_rows[$priority]['from']) ?>

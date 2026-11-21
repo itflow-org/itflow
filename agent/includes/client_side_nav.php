@@ -105,7 +105,7 @@
                             Contacts
                             <?php
                             if ($num_contacts > 0) { ?>
-                                <span class="right badge text-light"><?= $num_contacts ?></span>
+                                <span class="right badge rounded-pill text-light"><?= $num_contacts ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -118,7 +118,7 @@
                             Locations
                             <?php
                             if ($num_locations > 0) { ?>
-                                <span class="right badge text-light"><?= $num_locations ?></span>
+                                <span class="right badge rounded-pill text-light"><?= $num_locations ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -131,7 +131,7 @@
                             Vendors
                             <?php
                             if ($num_vendors > 0) { ?>
-                                <span class="right badge text-light"><?= $num_vendors ?></span>
+                                <span class="right badge rounded-pill text-light"><?= $num_vendors ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -145,7 +145,7 @@
                                 Calendar
                                 <?php
                                 if ($num_calendar_events > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_calendar_events ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= $num_calendar_events ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -169,7 +169,7 @@
                                 Tickets
                                 <?php
                                 if ($num_active_tickets > 0) { ?>
-                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> bg-danger <?php } ?> text-light"><?= $num_active_tickets ?></span>
+                                    <span class="right badge rounded-pill <?= $num_active_tickets > 0 ? 'text-bg-danger' : 'text-light' ?>"><?= $num_active_tickets ?></span>
                                 <?php } ?>
 
                             </p>
@@ -183,7 +183,7 @@
                                 Recurring Tickets
                                 <?php
                                 if ($num_recurring_tickets) { ?>
-                                    <span class="right badge"><?= $num_recurring_tickets ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= $num_recurring_tickets ?></span>
                                 <?php } ?>
 
                             </p>
@@ -196,7 +196,7 @@
                             <p>
                                 Projects
                                 <?php if ($num_active_projects) { ?>
-                                    <span class="right badge text-light" title="Open Projects"><?= $num_active_projects ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Open Projects"><?= $num_active_projects ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -216,7 +216,7 @@
                                     Assets
                                     <?php
                                     if ($num_assets > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_assets ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_assets ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -229,7 +229,7 @@
                                     Networks
                                     <?php
                                     if ($num_networks > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_networks ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_networks ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -242,7 +242,7 @@
                                     Racks
                                     <?php
                                     if ($num_racks > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_racks ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_racks ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -258,7 +258,7 @@
                                         Credentials
                                         <?php
                                         if ($num_credentials > 0) { ?>
-                                            <span class="right badge text-light"><?= $num_credentials ?></span>
+                                            <span class="right badge rounded-pill text-light"><?= $num_credentials ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>
@@ -272,7 +272,7 @@
                                     Certificates
                                     <?php
                                     if ($num_certificates > 0) { ?>
-                                        <span class="right badge <?php if ($num_certificates_expiring > 0) { ?> bg-warning text-dark <?php } ?> <?php if ($num_certificates_expired > 0) { ?> bg-danger <?php } ?> text-white"><?= $num_certificates ?></span>
+                                        <span class="right badge rounded-pill <?= $num_certificates_expired > 0 ? 'text-bg-danger' : ($num_certificates_expiring > 0 ? 'text-bg-warning' : 'text-light') ?>"><?= $num_certificates ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -285,7 +285,7 @@
                                     Domains
                                     <?php
                                     if ($num_domains > 0) { ?>
-                                        <span class="right badge <?php if (isset($num_domains_expiring)) { ?> bg-warning text-dark<?php } ?> <?php if (isset($num_domains_expired)) { ?> bg-danger <?php } ?> text-white"><?= $num_domains ?></span>
+                                        <span class="right badge rounded-pill <?= $num_domains_urgent > 0 ? 'text-bg-danger' : ($num_domains_expiring_warning > 0 ? 'text-bg-warning' : 'text-light') ?>"><?= $num_domains ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -297,7 +297,7 @@
                                 <p>
                                     Shared Links
                                     <?php if (!empty($num_shares)) { ?>
-                                        <span class="right badge <?= !empty($num_shares_received) ? 'bg-warning text-dark' : 'text-light' ?>" <?= !empty($num_shares_received) ? 'title="A login was sent back - save it"' : '' ?>><?= $num_shares ?></span>
+                                        <span class="right badge rounded-pill <?= !empty($num_shares_received) ? 'text-bg-warning' : 'text-light' ?>" <?= !empty($num_shares_received) ? 'title="A login was sent back - save it"' : '' ?>><?= $num_shares ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -312,7 +312,7 @@
                                     Licenses
                                     <?php
                                     if ($num_software > 0) { ?>
-                                        <span class="right badge <?php if ($num_software_expiring > 0) { ?> bg-warning text-dark <?php } ?> <?php if ($num_software_expired > 0) { ?> bg-danger <?php } ?> text-white"><?= $num_software ?></span>
+                                        <span class="right badge rounded-pill <?= $num_software_expired > 0 ? 'text-bg-danger' : ($num_software_expiring > 0 ? 'text-bg-warning' : 'text-light') ?>"><?= $num_software ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -325,7 +325,7 @@
                                     Services
                                     <?php
                                     if ($num_services > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_services ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_services ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -341,7 +341,7 @@
                                 Files
                                 <?php
                                 if ($num_files > 0) { ?>
-                                    <span class="right badge text-light"><?= $num_files ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= $num_files ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -362,7 +362,7 @@
                                     Quotes
                                     <?php
                                     if ($num_quotes > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_quotes ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_quotes ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -375,7 +375,7 @@
                                     Invoices
                                     <?php
                                     if ($num_invoices > 0) { ?>
-                                        <span class="right badge <?php if ($num_invoices_open > 0) { ?> bg-danger <?php } ?> text-light"><?= $num_invoices ?></span>
+                                        <span class="right badge rounded-pill <?= $num_invoices_open > 0 ? 'text-bg-danger' : 'text-light' ?>"><?= $num_invoices ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -388,7 +388,7 @@
                                     <p>
                                         Unbilled Time
                                         <?php if ($num_unbilled_tickets || !empty($num_unbilled_expenses) || !empty($num_unbilled_trips)) { ?>
-                                            <span class="right badge text-light"><?= $num_unbilled_tickets + intval($num_unbilled_expenses ?? 0) + intval($num_unbilled_trips ?? 0) ?></span>
+                                            <span class="right badge rounded-pill text-light"><?= $num_unbilled_tickets + intval($num_unbilled_expenses ?? 0) + intval($num_unbilled_trips ?? 0) ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>
@@ -402,7 +402,7 @@
                                     Recurring Invoices
                                     <?php
                                     if ($num_recurring_invoices) { ?>
-                                        <span class="right badge"><?= $num_recurring_invoices ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_recurring_invoices ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -414,7 +414,7 @@
                                 <p>
                                     Contracts
                                     <?php if (!empty($num_contracts)) { ?>
-                                        <span class="right badge" title="In force"><?= intval($num_contracts) ?></span>
+                                        <span class="right badge rounded-pill text-light" title="In force"><?= intval($num_contracts) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -430,7 +430,7 @@
                                     Income
                                     <?php
                                     if ($num_income > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_income ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_income ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -445,7 +445,7 @@
                                     Trips
                                     <?php
                                     if ($num_trips > 0) { ?>
-                                        <span class="right badge text-light"><?= $num_trips ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= $num_trips ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -458,7 +458,7 @@
                     <li class="nav-item mt-2">
                         <a href="#" class="nav-link" data-nav-more title="None for this client yet: <?= escapeHtml(implode(', ', $client_nav_quiet)) ?>">
                             <i class="nav-icon fas fa-ellipsis-v"></i>
-                            <p>More <span class="right badge text-light"><?= count($client_nav_quiet) ?></span></p>
+                            <p>More <span class="right badge rounded-pill text-light"><?= count($client_nav_quiet) ?></span></p>
                         </a>
                     </li>
                 <?php } ?>

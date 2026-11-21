@@ -1103,24 +1103,24 @@ if (isset($_GET['ticket_id'])) {
                     // something the client saw, so they get a label, not just a colour
                     if ($ticket_reply_type == 'Internal') {
                         $reply_border = 'dark';
-                        $reply_badge = "<span class='badge text-bg-dark ticket-badge-internal' title='Only your team can see this'><i class='fas fa-fw fa-lock me-1'></i>Internal</span>";
+                        $reply_badge = "<span class='badge rounded-pill text-bg-dark ticket-badge-internal' title='Only your team can see this'><i class='fas fa-fw fa-lock me-1'></i>Internal</span>";
                         $reply_group = 'internal';
                     } elseif ($ticket_reply_type == 'Client') {
                         $reply_border = 'warning';
-                        $reply_badge = "<span class='badge text-bg-warning'><i class='fas fa-fw fa-reply me-1'></i>From client</span>";
+                        $reply_badge = "<span class='badge rounded-pill text-bg-warning'><i class='fas fa-fw fa-reply me-1'></i>From client</span>";
                         $reply_group = 'public';
                     } elseif ($reply_row['ticket_reply_emailed'] === null) {
                         // From before ITFlow kept whether a reply was emailed
                         $reply_border = 'info';
-                        $reply_badge = "<span class='badge text-bg-info' title='The client can see this'><i class='fas fa-fw fa-eye me-1'></i>Public</span>";
+                        $reply_badge = "<span class='badge rounded-pill text-bg-info' title='The client can see this'><i class='fas fa-fw fa-eye me-1'></i>Public</span>";
                         $reply_group = 'public';
                     } elseif (intval($reply_row['ticket_reply_emailed']) === 1) {
                         $reply_border = 'info';
-                        $reply_badge = "<span class='badge text-bg-info' title='The client can see this, and it was emailed'><i class='fas fa-fw fa-paper-plane me-1'></i>Email reply</span>";
+                        $reply_badge = "<span class='badge rounded-pill text-bg-info' title='The client can see this, and it was emailed'><i class='fas fa-fw fa-paper-plane me-1'></i>Email reply</span>";
                         $reply_group = 'public';
                     } else {
                         $reply_border = 'info';
-                        $reply_badge = "<span class='badge ticket-badge-note' title='The client can see this in the portal - it was not emailed'><i class='fas fa-fw fa-eye me-1'></i>Public note</span>";
+                        $reply_badge = "<span class='badge rounded-pill ticket-badge-note' title='The client can see this in the portal - it was not emailed'><i class='fas fa-fw fa-eye me-1'></i>Public note</span>";
                         $reply_group = 'public';
                     }
 
@@ -1134,10 +1134,10 @@ if (isset($_GET['ticket_id'])) {
                         [$sms_icon, $sms_words, $sms_tone] = smsReplyStateText($reply_sms);
                         $reply_sms_line = "<span class='$sms_tone' data-reply-sms='" . escapeHtml($reply_sms['status']) . "'><i class='fas fa-fw $sms_icon me-1'></i>" . escapeHtml($sms_words) . '</span>';
                         if ($ticket_reply_type == 'Public') {
-                            $reply_badge = "<span class='badge text-bg-info' title='The client can see this, and it was texted'><i class='fas fa-fw fa-sms me-1'></i>Text reply</span>";
+                            $reply_badge = "<span class='badge rounded-pill text-bg-info' title='The client can see this, and it was texted'><i class='fas fa-fw fa-sms me-1'></i>Text reply</span>";
                         }
                     } elseif ($reply_sms && $ticket_reply_type == 'Client') {
-                        $reply_badge .= " <span class='badge text-bg-light border' title='Texted from " . escapeHtml(smsNumberText($reply_sms['number'])) . "' data-reply-sms='in'><i class='fas fa-fw fa-sms me-1'></i>By text</span>";
+                        $reply_badge .= " <span class='badge rounded-pill text-bg-light border' title='Texted from " . escapeHtml(smsNumberText($reply_sms['number'])) . "' data-reply-sms='in'><i class='fas fa-fw fa-sms me-1'></i>By text</span>";
                         if (trim((string) $reply_row['contact_name']) === '' || !intval($reply_row['ticket_reply_by'])) {
                             $ticket_reply_by_display = escapeHtml(smsNumberText($reply_sms['number']));
                             $reply_contact_avatar = '<span class="fa-stack" title="Not one of your contacts"><i class="fas fa-circle fa-stack-2x text-secondary"></i><i class="fas fa-mobile-alt fa-stack-1x text-white"></i></span>';
@@ -1167,7 +1167,7 @@ if (isset($_GET['ticket_id'])) {
                                         <strong><?= $ticket_reply_by_display ?></strong>
                                         <?= $reply_badge ?>
                                         <?php if ($reply_mentions_me) { ?>
-                                            <span class="badge text-bg-warning" title="This note mentions you"><i class="fas fa-fw fa-at me-1"></i>Mentions you</span>
+                                            <span class="badge rounded-pill text-bg-warning" title="This note mentions you"><i class="fas fa-fw fa-at me-1"></i>Mentions you</span>
                                         <?php } ?>
                                         <div class="small text-body-secondary" title="Created: <?= formatDateTime($ticket_reply_created_at) ?><?php if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">
                                             <?= $ticket_reply_created_at_ago ?><?php if ($ticket_reply_updated_at) { echo ' <em>(edited)</em>'; } ?>
@@ -1656,7 +1656,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($show_trips && ($ticket_trip_count || $ticket_onsite)) { ?>
                     <div class="card mb-3 itflow-ticket-trips">
                         <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-route me-2"></i>Trips<?php if ($ticket_trip_count) { ?> <span class="badge text-bg-secondary ms-1"><?= $ticket_trip_count ?></span><?php } ?></h5>
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-route me-2"></i>Trips<?php if ($ticket_trip_count) { ?> <span class="badge rounded-pill text-bg-secondary ms-1"><?= $ticket_trip_count ?></span><?php } ?></h5>
                             <div class="card-tools">
                                 <a class="btn btn-tool ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>" title="Log a trip"><i class="fas fa-plus"></i></a>
                             </div>

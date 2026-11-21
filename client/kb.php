@@ -77,7 +77,7 @@ function kbPortalUrl(array $changes) {
             <?php if ($category !== null) { ?><input type="hidden" name="category" value="<?= $category ?>"><?php } ?>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search help" aria-label="Search help" maxlength="200">
+                <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search help..." aria-label="Search help" maxlength="200">
             </div>
         </form>
         <a class="btn btn-outline-primary" href="ticket_add.php"><i class="fas fa-plus me-2"></i>Ask Us</a>

@@ -137,7 +137,7 @@ $csrf = $_SESSION['csrf_token'];
                     <td class="ps-3">
                         <a class="fw-semibold text-body font-monospace ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><?= escapeHtml($name) ?></a>
                         <?php if ($is_unused) { ?>
-                            <span class="badge text-bg-light border fw-normal ms-1" data-model-unused title="<?= escapeHtml($unused[$model_id] ? $unused[$model_id]['ai_model_name'] . " is for $use_case already, and is the one used" : "$use_case isn't a use case") ?>">Not used</span>
+                            <span class="badge rounded-pill text-bg-light border fw-normal ms-1" data-model-unused title="<?= escapeHtml($unused[$model_id] ? $unused[$model_id]['ai_model_name'] . " is for $use_case already, and is the one used" : "$use_case isn't a use case") ?>">Not used</span>
                         <?php } ?>
                         <div class="d-md-none small text-body-secondary"><?= escapeHtml($row['ai_provider_name']) ?></div>
                         <?php if ($row['ai_model_temperature'] !== null) { ?>

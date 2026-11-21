@@ -411,7 +411,7 @@
             postMark([row.dataset.id], makeRead ? 'read' : 'unread').catch(function () {
                 setRowRead(row, !makeRead);
                 if (typeof itflowToast === 'function') {
-                    itflowToast('Couldn’t update the notification', 'danger');
+                    itflowToast('Couldn’t update the notification', 'error');
                 }
             });
             return;
@@ -491,7 +491,7 @@
             .catch(function () {
                 button.disabled = false;
                 if (typeof itflowToast === 'function') {
-                    itflowToast('Couldn’t mark notifications as read', 'danger');
+                    itflowToast('Couldn’t mark notifications as read', 'error');
                 }
             });
     });

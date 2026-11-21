@@ -90,7 +90,7 @@ $found = array_sum(array_column($sections, 'total'));
     <form method="get" class="d-flex" role="search">
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
-            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search everything" aria-label="Search tickets, documents and help" maxlength="200" <?= $q === '' ? 'autofocus' : '' ?>>
+            <input type="search" class="form-control" name="q" value="<?= escapeHtml($q) ?>" placeholder="Search everything..." aria-label="Search tickets, documents and help" maxlength="200" <?= $q === '' ? 'autofocus' : '' ?>>
         </div>
     </form>
 </div>

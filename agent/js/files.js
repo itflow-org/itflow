@@ -558,12 +558,12 @@
                             row.dataset.name = answer.name;
                         }
                     } else if (typeof itflowToast === 'function') {
-                        itflowToast(answer.error || 'Couldn’t rename it', 'danger');
+                        itflowToast(answer.error || 'Couldn’t rename it', 'error');
                     }
                 })
                 .catch(function () {
                     if (typeof itflowToast === 'function') {
-                        itflowToast('Couldn’t rename it', 'danger');
+                        itflowToast('Couldn’t rename it', 'error');
                     }
                 })
                 .finally(function () {

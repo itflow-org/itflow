@@ -163,7 +163,7 @@ $provider = smsProvider();
                                 <button type="button" class="btn btn-sm btn-outline-secondary clipboardjs d-none" data-sms-copy title="Copy the code"><i class="far fa-fw fa-copy"></i></button>
                             <?php } else { ?>
                                 <span class="font-monospace fs-5 me-2 text-body-secondary"><?= escapeHtml(smsCodeMasked((string) $row['sms_message_code'])) ?></span>
-                                <span class="badge text-bg-light border" title="Codes can be revealed for <?= SMS_CODE_MASK_MINUTES ?> minutes after they come">Expired</span>
+                                <span class="badge rounded-pill text-bg-light border" title="Codes can be revealed for <?= SMS_CODE_MASK_MINUTES ?> minutes after they come">Expired</span>
                             <?php } ?>
                         </td>
                     <?php } ?>

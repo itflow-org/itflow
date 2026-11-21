@@ -71,7 +71,7 @@
                 var verdict = verdicts[answer.verdict] || verdicts['needs work'];
                 var head = el('div', 'd-flex align-items-center gap-2 mb-3');
                 head.setAttribute('data-ai-review-verdict', answer.verdict);
-                var badge = el('span', 'badge text-bg-' + verdict[0] + ' fs-6 fw-normal');
+                var badge = el('span', 'badge rounded-pill text-bg-' + verdict[0] + ' fs-6 fw-normal');
                 badge.appendChild(el('i', 'fas fa-fw ' + verdict[1] + ' me-1'));
                 badge.appendChild(document.createTextNode(verdict[2]));
                 head.appendChild(badge);
@@ -89,7 +89,7 @@
                     answer.findings.forEach(function (finding) {
                         var item = el('li', 'd-flex gap-2 mb-2');
                         item.setAttribute('data-ai-review-finding', finding[0]);
-                        item.appendChild(el('span', 'badge text-bg-' + (severities[finding[0]] || 'secondary') + ' align-self-start mt-1 text-uppercase', finding[0]));
+                        item.appendChild(el('span', 'badge rounded-pill text-bg-' + (severities[finding[0]] || 'secondary') + ' align-self-start mt-1 text-uppercase', finding[0]));
                         item.appendChild(el('span', '', finding[1]));
                         list.appendChild(item);
                     });

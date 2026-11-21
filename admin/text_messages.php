@@ -186,7 +186,7 @@ $ready = smsReady();
                             <?php } ?>
                         </td>
                         <td class="text-nowrap d-none d-sm-table-cell">
-                            <span class="badge <?= $state['badge'] ?>" data-sms-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
+                            <span class="badge rounded-pill <?= $state['badge'] ?>" data-sms-status><i class="fas fa-fw <?= $state['icon'] ?> me-1"></i><?= $state['label'] ?></span>
                             <?php if ($state['error'] !== '') { ?>
                                 <div class="small text-wrap <?= in_array($state['key'], ['failed', 'blocked'], true) ? 'text-danger-emphasis' : 'text-body-secondary' ?>" style="max-width: 18rem;" title="<?= escapeHtml($state['error']) ?>" data-sms-error><?= escapeHtml(mb_strimwidth($state['error'], 0, 160, '...')) ?></div>
                             <?php } ?>
@@ -203,7 +203,7 @@ $ready = smsReady();
                             <?php } ?>
                             <!-- On smaller screens the text comes along under who it is with -->
                             <div class="d-md-none small text-break mt-1"><?= nl2br(escapeHtml(mb_strimwidth($body, 0, 200, '...'))) ?></div>
-                            <div class="d-sm-none small mt-1"><span class="badge <?= $state['badge'] ?>"><?= $state['label'] ?></span></div>
+                            <div class="d-sm-none small mt-1"><span class="badge rounded-pill <?= $state['badge'] ?>"><?= $state['label'] ?></span></div>
                         </td>
                         <td class="d-none d-md-table-cell min-w-0" style="max-width: 32rem;">
                             <div class="text-break small"><?= nl2br(escapeHtml(mb_strimwidth($body, 0, 400, '...'))) ?></div>

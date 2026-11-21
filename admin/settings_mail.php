@@ -277,7 +277,7 @@ if (!$config_module_enable_ticketing) {
 
                     <?= settingsSectionStart('oauth-connect', 'Connecting the mailbox', 'Signing in to the mailbox once gives ITFlow a refresh token - lasting permission to use it. ITFlow renews what it signs in with from it, on its own.') ?>
                         <div class="itflow-settings-field" data-oauth-state="<?= $oauth_connected ? 'connected' : 'not-connected' ?>">
-                            <span class="badge <?= $oauth_connected ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $oauth_connected ? 'Connected' : 'Not connected' ?></span>
+                            <span class="badge rounded-pill <?= $oauth_connected ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $oauth_connected ? 'Connected' : 'Not connected' ?></span>
                             <span class="small text-body-secondary ms-1">
                                 <?php if ($oauth_connected) { ?>
                                     A refresh token is saved.<?= !empty($config_mail_oauth_access_token_expires_at) && strtotime($config_mail_oauth_access_token_expires_at) > time()
@@ -358,9 +358,9 @@ if (!$config_module_enable_ticketing) {
                     <span class="me-auto">
                         <strong>Mail Queue</strong>
                         <span class="text-body-secondary">- <?= $mail_queue['last_sent'] ? 'last sent ' . escapeHtml(timeAgo($mail_queue['last_sent'])) : 'nothing sent yet' ?></span>
-                        <?php if ($mail_queue['waiting']) { ?><span class="badge text-bg-primary ms-1"><?= $mail_queue['waiting'] ?> waiting</span><?php } ?>
-                        <?php if ($mail_queue['retrying']) { ?><span class="badge text-bg-warning ms-1"><?= $mail_queue['retrying'] ?> retrying</span><?php } ?>
-                        <?php if ($mail_queue['failed_day']) { ?><span class="badge text-bg-danger ms-1"><?= $mail_queue['failed_day'] ?> failed in the last day</span><?php } ?>
+                        <?php if ($mail_queue['waiting']) { ?><span class="badge rounded-pill text-bg-primary ms-1"><?= $mail_queue['waiting'] ?> waiting</span><?php } ?>
+                        <?php if ($mail_queue['retrying']) { ?><span class="badge rounded-pill text-bg-warning ms-1"><?= $mail_queue['retrying'] ?> retrying</span><?php } ?>
+                        <?php if ($mail_queue['failed_day']) { ?><span class="badge rounded-pill text-bg-danger ms-1"><?= $mail_queue['failed_day'] ?> failed in the last day</span><?php } ?>
                     </span>
                     <a class="btn btn-sm btn-outline-secondary" href="mail_queue.php<?= $mail_queue['failed_day'] ? '?show=failed' : '' ?>">Open the Mail Queue</a>
                 </div>

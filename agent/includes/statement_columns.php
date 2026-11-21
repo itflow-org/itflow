@@ -180,7 +180,7 @@ $sign_options = $columns_side === 'income'
                 var tag = cell.querySelector('.badge');
                 if (!tag) {
                     tag = document.createElement('span');
-                    tag.className = 'badge text-bg-primary fw-normal ms-1';
+                    tag.className = 'badge rounded-pill text-bg-primary fw-normal ms-1';
                     cell.appendChild(tag);
                 }
                 tag.textContent = name || '';

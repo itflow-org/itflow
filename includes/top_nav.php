@@ -71,9 +71,9 @@
             <!-- Development mode - a test copy, where nothing reaches clients or other systems (functions/dev_mode.php) -->
             <li class="nav-item d-flex align-items-center me-2">
                 <?php if (!empty($session_is_admin)) { ?>
-                    <a href="/admin/backup.php#dev-mode" class="badge text-bg-danger text-decoration-none" title="<?= escapeHtml(devModeSummary()) ?>" data-dev-mode><i class="fas fa-flask me-1" aria-hidden="true"></i>DEVELOPMENT</a>
+                    <a href="/admin/backup.php#dev-mode" class="badge rounded-pill text-bg-danger text-decoration-none" title="<?= escapeHtml(devModeSummary()) ?>" data-dev-mode><i class="fas fa-flask me-1" aria-hidden="true"></i>DEVELOPMENT</a>
                 <?php } else { ?>
-                    <span class="badge text-bg-danger" title="<?= escapeHtml(devModeSummary()) ?>" data-dev-mode><i class="fas fa-flask me-1" aria-hidden="true"></i>DEVELOPMENT</span>
+                    <span class="badge rounded-pill text-bg-danger" title="<?= escapeHtml(devModeSummary()) ?>" data-dev-mode><i class="fas fa-flask me-1" aria-hidden="true"></i>DEVELOPMENT</span>
                 <?php } ?>
             </li>
         <?php } ?>
@@ -130,7 +130,7 @@
                 aria-expanded="false" title="Notifications"
                 aria-label="Notifications<?= $num_notifications ? ", $num_notifications unread" : '' ?>">
                 <i class="fas fa-bell" aria-hidden="true"></i>
-                <span class="badge bg-light text-dark rounded-pill navbar-badge" data-notify-badge <?= $num_notifications ? '' : 'hidden' ?>><?= $num_notifications > 99 ? '99+' : $num_notifications ?></span>
+                <span class="badge rounded-pill text-bg-light navbar-badge" data-notify-badge <?= $num_notifications ? '' : 'hidden' ?>><?= $num_notifications > 99 ? '99+' : $num_notifications ?></span>
             </a>
             <div class="dropdown-menu dropdown-menu-end p-0 itflow-notify-panel" data-bs-theme="<?= $user_config_theme_dark ? 'dark' : 'light' ?>"></div>
         </li>

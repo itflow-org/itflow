@@ -364,7 +364,7 @@ $status_looks = [
                             <td class="border-bottom-0 pt-3 pb-1 text-nowrap">
                                 <span class="fw-semibold<?= $job['enabled'] ? '' : ' text-body-secondary' ?>"><?= escapeHtml($job['label']) ?></span>
                                 <?php if (!$job['enabled']) { ?>
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1" title="It doesn't run on its schedule. Run now still works.">Off</span>
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1" title="It doesn't run on its schedule. Run now still works.">Off</span>
                                 <?php } ?>
                             </td>
                             <td class="border-bottom-0 pt-3 pb-1 text-nowrap d-none d-md-table-cell<?= $job['enabled'] ? '' : ' text-body-secondary' ?>">
@@ -380,11 +380,11 @@ $status_looks = [
                                         <div class="small text-body-secondary">Took <?= escapeHtml($took($job['last_duration'])) ?></div>
                                     <?php } ?>
                                 <?php } else { ?>
-                                    <span class="text-body-secondary">&mdash;</span>
+                                    <span class="text-body-secondary">-</span>
                                 <?php } ?>
                             </td>
                             <td class="border-bottom-0 pt-3 pb-1">
-                                <span class="badge bg-<?= $look['tone'] ?>-subtle text-<?= $look['tone'] ?>-emphasis"><?php if ($job['state'] === 'running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($look['label']) ?></span>
+                                <span class="badge rounded-pill bg-<?= $look['tone'] ?>-subtle text-<?= $look['tone'] ?>-emphasis"><?php if ($job['state'] === 'running') { ?><i class="fas fa-circle-notch fa-spin me-1"></i><?php } ?><?= escapeHtml($look['label']) ?></span>
                             </td>
                             <td class="border-bottom-0 pt-3 pb-1 text-end pe-3">
                                 <?php if ($job['id']) { ?>

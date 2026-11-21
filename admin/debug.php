@@ -139,7 +139,7 @@ $action_link = function (array $item, $class) {
                             <span class="itflow-debug-section-icon"><i class="fas fa-fw <?= $section['icon'] ?>"></i></span>
                             <h2 class="h6 mb-0 me-auto"><?= escapeHtml($section['title']) ?></h2>
                             <?php if ($bad) { ?>
-                                <span class="badge text-bg-<?= $worst ?>"><?= $bad ?> to look at</span>
+                                <span class="badge rounded-pill text-bg-<?= $worst ?>"><?= $bad ?> to look at</span>
                             <?php } elseif ($section['key'] !== 'server') { ?>
                                 <i class="fas fa-check-circle text-success" title="All OK"></i>
                             <?php } ?>
