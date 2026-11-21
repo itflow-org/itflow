@@ -270,6 +270,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Card payments: once a client's Stripe customer was deleted in Stripe - or the Stripe keys were changed to another Stripe account, or between test and live - every card payment for that client failed, and only an edit to the database put it right. The portal's card form never loaded, the invoice pay page showed Stripe's error, Charge Saved Card failed, and autopay failed every night. Now when Stripe says the customer isn't there, ITFlow forgets it along with the cards saved on it, which Stripe dropped too. A payment with a new card, from an invoice's pay link or the portal, still goes through. The client is asked to add their card again to save one, agents get a notification, and each recurring invoice whose autopay stopped says why. Reported on the forum.
 - Windows: opening one put a focus ring round its X in the corner. Focus now goes to the window itself.
 - Tickets: the tickets list and board showed how long ago a ticket's SLA was due, in grey, until cron next marked it breached, and showed the time left on one that had already missed its first response. A ticket past its deadline or that missed a target now says Breached, as the SLA breached view counts it.
+- Dashboard: in Open and assigned to you, the SLA, status and last activity didn't line up from one ticket to the next - each row moved them by the width of its own status or time, and by whether it had an SLA. They now sit in columns down the card.
 
 ### Developer Updates
 

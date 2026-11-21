@@ -3151,6 +3151,34 @@ a.itflow-dash-rail-item:focus-visible {
 [data-bs-theme=dark] .itflow-dash-dot.bg-dark {
     background-color: var(--bs-emphasis-color) !important;
 }
+/* Open and assigned to you: each row takes its columns from the list (subgrid), so the SLA
+   pills, the statuses and the last activity line up down the card whatever their widths.
+   The status shows from sm and the last activity from md, so the columns do too. */
+.itflow-dash-mine {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+}
+@media (min-width: 576px) {
+    .itflow-dash-mine {
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+    }
+}
+@media (min-width: 768px) {
+    .itflow-dash-mine {
+        grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+    }
+}
+.itflow-dash-mine > .list-group-item {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    column-gap: 1rem;
+    align-items: center;
+}
+.itflow-dash-mine-cell {
+    display: flex;
+    align-items: center;
+}
 .itflow-dash-chart {
     position: relative;
     height: 240px;

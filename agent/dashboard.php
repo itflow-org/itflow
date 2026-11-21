@@ -181,7 +181,8 @@ if ($getting_started) {
                 </div>
 
                 <?php if ($my_tickets['tickets']) { ?>
-                    <div class="list-group list-group-flush">
+                    <?php // SLA, status and last activity are columns, lined up down the card (.itflow-dash-mine) ?>
+                    <div class="list-group list-group-flush itflow-dash-mine">
                         <?php foreach ($my_tickets['tickets'] as $ticket) {
                             $ticket_priority = $ticket['ticket_priority'];
                             $ticket_url = '/agent/ticket.php?' . http_build_query(array_filter([
@@ -190,19 +191,17 @@ if ($getting_started) {
                             ]));
                             $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
                             ?>
-                            <a href="<?= escapeHtml($ticket_url) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                            <a href="<?= escapeHtml($ticket_url) ?>" class="list-group-item list-group-item-action py-2">
                                 <span class="itflow-dash-dot bg-<?= $priority_colors[$ticket_priority] ?? 'secondary' ?>" title="<?= escapeHtml($ticket_priority) ?> priority"></span>
-                                <span class="flex-grow-1 overflow-hidden">
+                                <span class="overflow-hidden">
                                     <span class="d-block text-truncate">
                                         <span class="small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?>
                                     </span>
                                     <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($ticket['client_name'] ?: 'No client') ?></span>
                                 </span>
-                                <?php if ($ticket['sla_breached']) { ?>
-                                    <span class="badge rounded-pill text-bg-danger" title="SLA breached"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
-                                <?php } ?>
-                                <span class="d-none d-sm-inline"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
-                                <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
+                                <span class="itflow-dash-mine-cell"><?php if ($ticket['sla_breached']) { ?><span class="badge rounded-pill text-bg-danger" title="SLA breached"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span><?php } ?></span>
+                                <span class="itflow-dash-mine-cell d-none d-sm-flex"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
+                                <span class="itflow-dash-mine-cell justify-content-end small text-body-secondary text-nowrap d-none d-md-flex" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
                             </a>
                         <?php } ?>
                     </div>
