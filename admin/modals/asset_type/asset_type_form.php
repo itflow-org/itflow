@@ -59,7 +59,7 @@ $t_detail_row = function ($key, array $d) {
                     <span class="input-group-text">Unit</span>
                     <input type="text" class="form-control" name="detail_unit[<?= $key ?>]" maxlength="20" placeholder="kg, m, ft" value="<?= escapeHtml($d['unit'] ?? '') ?>" aria-label="Its unit">
                 </div>
-                <div class="form-check form-switch small mb-0" data-asset-type-detail-for="date" title="On its page as the date nears, like a warranty - and a notification 45, 7 and 1 days before">
+                <div class="form-check form-switch small mb-0" data-asset-type-detail-for="date" title="On its page and the assets list as the date nears, like a warranty - and a notification 45, 7 and 1 days before">
                     <input class="form-check-input" type="checkbox" role="switch" name="detail_flag[<?= $key ?>]" value="1" id="assetTypeDetailFlag<?= $key ?>"<?= !empty($d['flag']) ? ' checked' : '' ?>>
                     <label class="form-check-label" for="assetTypeDetailFlag<?= $key ?>">Flag as it nears</label>
                 </div>

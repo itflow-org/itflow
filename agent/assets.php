@@ -200,7 +200,7 @@ $assets = [];
 while ($row = mysqli_fetch_assoc($sql)) {
     $assets[intval($row['asset_id'])] = $row;
 }
-// Each one's details - its type's (functions/asset_type.php): a UPS battery due is flagged like a warranty, and Details lists them
+// Each one's details - its type's (functions/asset_type.php): a UPS battery or another flagged date due is flagged like a warranty, and Details lists them
 $asset_list_specs = assetSpecsFor(array_keys($assets));
 
 // Tags, rack positions and what its RMM says of each for the whole page in three queries, not three per row
@@ -569,7 +569,10 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     $asset_tone = assetTypeTone($row['asset_type']);
                     $device_icon = getAssetIcon($row['asset_type']);
                     $asset_spec_rows = assetSpecRows($row['asset_type'], $asset_list_specs[$asset_id] ?? [], $client_id);
-                    $asset_battery = $asset_spec_rows['battery_replace']['flag'] ?? null;
+                    // Dates its type flags as they near - a UPS battery, or one of your own types' - each a badge once due soon or past
+                    $asset_flags = array_filter($asset_spec_rows, function ($spec_row) {
+                        return $spec_row['flag'] && $spec_row['flag']['tone'] !== 'success';
+                    });
 
                     $contact_name = escapeHtml($row['contact_name']);
                     $contact_archived = !empty($row['contact_archived_at']);
@@ -627,9 +630,11 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         <i class="fas fa-shield-alt me-1"></i>Warranty <?= strtolower($asset_warranty['short']) ?>
                                     </span>
                                 <?php } ?>
-                                <?php if ($asset_battery && $asset_battery['tone'] !== 'success') { ?>
-                                    <span class="badge rounded-pill bg-<?= $asset_battery['tone'] ?>-subtle text-<?= $asset_battery['tone'] ?>-emphasis border border-<?= $asset_battery['tone'] ?>-subtle fw-normal mt-1" title="Replace battery by <?= escapeHtml($asset_battery['date']) ?>" data-asset-battery>
-                                        <i class="fas fa-battery-quarter me-1"></i>Battery <?= strtolower(escapeHtml($asset_battery['short'])) ?>
+                                <?php foreach ($asset_flags as $flag_key => $flag_row) {
+                                    $flag = $flag_row['flag'];
+                                    $battery = $flag_key === 'battery_replace'; ?>
+                                    <span class="badge rounded-pill bg-<?= $flag['tone'] ?>-subtle text-<?= $flag['tone'] ?>-emphasis border border-<?= $flag['tone'] ?>-subtle fw-normal mt-1" title="<?= escapeHtml($flag_row['label']) ?> <?= escapeHtml($flag['date']) ?>"<?= $battery ? ' data-asset-battery' : '' ?>>
+                                        <i class="fas <?= escapeHtml($flag_row['icon']) ?> me-1"></i><?= $battery ? 'Battery' : escapeHtml($flag_row['label']) ?> <?= strtolower(escapeHtml($flag['short'])) ?>
                                     </span>
                                 <?php } ?>
                             </td>

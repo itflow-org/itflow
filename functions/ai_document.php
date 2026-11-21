@@ -76,7 +76,7 @@ function aiClientProfile($client_id) {
     }
     $list('Servers and network gear', "SELECT asset_name, asset_type, asset_make, asset_model, asset_os FROM assets
         WHERE asset_client_id = $client_id AND asset_archived_at IS NULL AND (" . assetTypeGroupSql('server') . " OR " . assetTypeGroupSql('virtual') . " OR " . assetTypeGroupSql('network') . " OR " . assetTypeGroupSql('power') . ")
-        ORDER BY FIELD(asset_type, 'Firewall/Router', 'Server', 'NAS', 'Virtual Machine', 'Switch', 'Access Point'), asset_name LIMIT 25",
+        ORDER BY FIELD(asset_type, 'Firewall/Router', 'Server', 'NAS', 'Virtual Machine', 'Switch', 'Access Point') = 0, FIELD(asset_type, 'Firewall/Router', 'Server', 'NAS', 'Virtual Machine', 'Switch', 'Access Point'), asset_type, asset_name LIMIT 25",
         function ($r) { return $r['asset_name'] . ' - ' . $r['asset_type'] . (trim($r['asset_make'] . ' ' . $r['asset_model']) !== '' ? ', ' . trim($r['asset_make'] . ' ' . $r['asset_model']) : '') . ($r['asset_os'] ? ", {$r['asset_os']}" : ''); });
     $list('Networks', "SELECT network_name, network_type, network_vlan, network, network_gateway FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name LIMIT 15",
         function ($r) { return $r['network_name'] . ($r['network_type'] ? " ({$r['network_type']})" : '') . ($r['network'] ? " - {$r['network']}" : '') . ($r['network_vlan'] ? ", VLAN {$r['network_vlan']}" : '') . ($r['network_gateway'] ? ", gateway {$r['network_gateway']}" : ''); });
