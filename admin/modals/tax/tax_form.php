@@ -71,7 +71,7 @@ $tax_part_row = function ($key, array $part = []) {
                 <span class="input-group-text"><i class="fas fa-fw fa-id-card"></i></span>
                 <input type="text" class="form-control" name="registration" maxlength="100" placeholder="Permit, GST/HST or VAT number" value="<?= escapeHtml($t['tax_registration_number'] ?? '') ?>">
             </div>
-            <small class="text-secondary">Printed with this tax on invoices</small>
+            <div class="form-text">Printed with this tax on invoices</div>
         </div>
     </div>
 

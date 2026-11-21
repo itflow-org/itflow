@@ -56,7 +56,7 @@ if (!in_array($t_icon, $t_icons, true)) {
                 </select>
             </div>
             <?php if ($t_kind_locked) { ?>
-                <small class="text-secondary">In use, so it stays <?= tagKindPhrase($type) ?></small>
+                <div class="form-text">In use, so it stays <?= tagKindPhrase($type) ?></div>
             <?php } ?>
         </div>
     </div>
@@ -67,7 +67,7 @@ if (!in_array($t_icon, $t_icons, true)) {
             <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="255" placeholder="What it means, and when to use it" value="<?= escapeHtml($t['tag_description'] ?? '') ?>">
         </div>
-        <small class="text-secondary">Shown on the tag and in the tag picker</small>
+        <div class="form-text">Shown on the tag and in the tag picker</div>
     </div>
 
     <div class="mb-3">

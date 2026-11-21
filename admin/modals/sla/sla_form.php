@@ -52,7 +52,7 @@ $f_day_minutes = slaBusinessDayMinutes();
         <input type="number" class="form-control" name="response_minutes" min="0" max="59" step="1" placeholder="0" value="<?= $f_minutes($f_response) ?>" aria-label="Response target, minutes">
         <span class="input-group-text">minutes</span>
     </div>
-    <small class="text-secondary">How long there is to first reply to a new ticket.</small>
+    <div class="form-text">How long there is to first reply to a new ticket.</div>
 </div>
 
 <div class="mb-3">
@@ -64,7 +64,7 @@ $f_day_minutes = slaBusinessDayMinutes();
         <input type="number" class="form-control" name="resolution_minutes" min="0" max="59" step="1" placeholder="0" value="<?= $f_minutes($f_resolution) ?>" aria-label="Resolution target, minutes">
         <span class="input-group-text">minutes</span>
     </div>
-    <small class="text-secondary">How long there is to resolve it. Leave both empty for an SLA that only times the first reply.</small>
+    <div class="form-text">How long there is to resolve it. Leave both empty for an SLA that only times the first reply.</div>
 </div>
 
 <div class="small text-secondary mb-1">

@@ -50,7 +50,7 @@ if (!$payment_method) { ?>
                         <?php } ?>
                     </select>
                 </div>
-                <small class="text-secondary">Merges <?= $name ?> into the method you pick<?= $is_default ? ', which also takes its place as a default' : '' ?>. To leave its records as they are, archive it instead - it stops being offered, and they keep saying <?= $name ?>.</small>
+                <div class="form-text">Merges <?= $name ?> into the method you pick<?= $is_default ? ', which also takes its place as a default' : '' ?>. To leave its records as they are, archive it instead - it stops being offered, and they keep saying <?= $name ?>.</div>
             </div>
         <?php } else { ?>
             <p class="mb-2">Nothing has been paid this way, so nothing else changes.</p>

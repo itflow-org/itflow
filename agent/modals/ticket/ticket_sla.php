@@ -40,7 +40,7 @@ ob_start();
                     <?php } ?>
                 </select>
             </div>
-            <small class="text-body-secondary">The response and resolution deadlines are worked out again from when the ticket was opened.</small>
+            <div class="form-text">The response and resolution deadlines are worked out again from when the ticket was opened.</div>
         </div>
 
     </div>

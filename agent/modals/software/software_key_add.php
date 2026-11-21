@@ -30,7 +30,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="software_id" value="<?= $software_id ?>">
     <div class="modal-body">
-        <label class="form-label">Keys</label>
+        <label class="form-label">Keys <strong class="text-danger">*</strong></label>
         <textarea class="form-control font-monospace" name="keys" rows="8" placeholder="One key per line" required autofocus></textarea>
         <div class="form-text">Paste straight from the vendor's portal or the order email - one per line. Keys it already has are skipped.</div>
     </div>

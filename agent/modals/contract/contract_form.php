@@ -115,7 +115,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                             <?php } ?>
                         </select>
                     </div>
-                    <small class="text-secondary">Fills in the type, term, cover and terms from it - change any of them after.</small>
+                    <div class="form-text">Fills in the type, term, cover and terms from it - change any of them after.</div>
                 </div>
             <?php } else { ?>
                 <input type="hidden" name="template_id" value="<?= intval($c_value('template_id', 0)) ?>">
@@ -189,7 +189,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                             <?php } ?>
                         </select>
                     </div>
-                    <small class="text-secondary">Reminded before it renews or ends.</small>
+                    <div class="form-text">Reminded before it renews or ends.</div>
                 </div>
             </div>
 
@@ -322,7 +322,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     </select>
                 </div>
             <?php } ?>
-            <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</small>
+            <div class="form-text">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</div>
         </div>
 
         <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">
@@ -335,7 +335,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                 <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-sticky-note"></i></span>
                 <textarea class="form-control" name="notes" rows="8" maxlength="10000" placeholder="For your team - what was agreed, who to talk to about renewing"><?= escapeHtml($c_value('notes')) ?></textarea>
             </div>
-            <small class="text-secondary">Only agents see these.</small>
+            <div class="form-text">Only agents see these.</div>
         </div>
     </div>
 </div>

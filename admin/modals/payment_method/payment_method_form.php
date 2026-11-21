@@ -24,9 +24,9 @@ $m_usage = $m ? paymentMethodUsageFor($m_name) : ['total' => 0];
         <input type="text" class="form-control" name="name" maxlength="200" placeholder="Check, ACH, Cash, Company Amex" value="<?= escapeHtml($m_name) ?>" required<?= $m_online ? ' readonly' : ($m ? '' : ' autofocus') ?>>
     </div>
     <?php if ($m_online) { ?>
-        <small class="text-secondary"><i class="fas fa-fw fa-lock me-1"></i>Card payments clients make online are recorded as <?= escapeHtml(PAYMENT_METHOD_ONLINE) ?>, so its name stays.</small>
+        <div class="form-text"><i class="fas fa-fw fa-lock me-1"></i>Card payments clients make online are recorded as <?= escapeHtml(PAYMENT_METHOD_ONLINE) ?>, so its name stays.</div>
     <?php } elseif ($m && $m_usage['total']) { ?>
-        <small class="text-secondary">Renaming it renames it on the <?= escapeHtml(paymentMethodUsageText($m_usage)) ?> that used it.</small>
+        <div class="form-text">Renaming it renames it on the <?= escapeHtml(paymentMethodUsageText($m_usage)) ?> that used it.</div>
     <?php } ?>
 </div>
 
@@ -48,5 +48,5 @@ $m_usage = $m ? paymentMethodUsageFor($m_name) : ['total' => 0];
             <?php } ?>
         </select>
     </div>
-    <small class="text-secondary">Which pickers offer it - money in is payments from clients and other income; money out is expenses, recurring expenses, reimbursements and mileage claims. Transfers between accounts offer every method.</small>
+    <div class="form-text">Which pickers offer it - money in is payments from clients and other income; money out is expenses, recurring expenses, reimbursements and mileage claims. Transfers between accounts offer every method.</div>
 </div>

@@ -22,7 +22,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label class="form-label">Industry</label>
+            <label class="form-label">Industry <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-briefcase"></i></span>
                 <input type="text" class="form-control" name="bulk_industry" placeholder="Healthcare, Legal, Construction" maxlength="200" required>

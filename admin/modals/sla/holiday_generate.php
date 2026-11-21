@@ -46,11 +46,11 @@ ob_start();
                 <span class="input-group-text"><i class="fas fa-fw fa-calendar-alt"></i></span>
                 <input type="number" class="form-control" name="holiday_year" min="2000" max="2100" step="1" value="<?= $offer_year ?>" required autofocus>
             </div>
-            <small class="text-secondary">
+            <div class="form-text">
                 <?php foreach ($years as $year => [$in, $total]) { ?>
                     <span class="d-block"><?= $year ?> - <?= $in === $total ? "all $total are in" : ($in ? "$in of $total are in" : 'none are in yet') ?></span>
                 <?php } ?>
-            </small>
+            </div>
         </div>
 
         <div class="small text-secondary"><i class="fas fa-fw fa-stopwatch me-1"></i>A day already on the list is left as it is, name and all. Adding them works the targets out again on every ticket with an SLA that isn't closed yet.</div>

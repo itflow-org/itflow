@@ -44,7 +44,7 @@ ob_start();
             </div>
 
             <div class="mb-3">
-                <label class="form-label">From</label>
+                <label class="form-label">From <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                     <input type="date" class="form-control" name="contract_start" value="<?= date('Y-m-d') ?>" required>

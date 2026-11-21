@@ -20,11 +20,11 @@ if (billingStripeProvider()) {
             <input type="checkbox" class="form-check-input" name="card_fee_exempt" value="1" id="clientCardFeeExempt<?= escapeHtml($ccf_key) ?>"<?= !empty($client_card_fee_exempt) ? ' checked' : '' ?>>
             <label class="form-check-label" for="clientCardFeeExempt<?= escapeHtml($ccf_key) ?>">No card fee</label>
         </div>
-        <small class="text-secondary">
+        <div class="form-text">
             <?= $ccf_rates
                 ? 'Clients pay a ' . escapeHtml(billingCardFeeText($ccf_rates)) . ' card fee when they pay by card - this one doesn\'t.'
                 : 'Clients don\'t pay a card fee now - if they are set to in Admin > Payment Providers, this one won\'t.' ?>
-        </small>
+        </div>
     </div>
     <?php
 }

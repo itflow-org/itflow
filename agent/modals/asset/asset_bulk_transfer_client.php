@@ -31,7 +31,7 @@ ob_start();
             <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
-                <select class="form-select select2" name="bulk_client_id">
+                <select class="form-select select2" name="bulk_client_id" required>
                     <option value="">- Select a client -</option>
                     <?php
                         $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL $client_select_query" . clientNotLeadSql() . clientScopeSql('client_id') . " ORDER BY client_name ASC");

@@ -65,7 +65,7 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
                         <?php } ?>
                     </select>
                 </div>
-                <small class="text-secondary">Each says so in its history, and its SLA clock follows the status it goes to.</small>
+                <div class="form-text">Each says so in its history, and its SLA clock follows the status it goes to.</div>
             </div>
         <?php } else { ?>
             <p class="small text-secondary"><i class="fas fa-fw fa-check me-1"></i>No tickets are in it.</p>

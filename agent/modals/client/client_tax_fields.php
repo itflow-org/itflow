@@ -35,7 +35,7 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
             <?php } ?>
         </select>
     </div>
-    <small class="text-secondary">For new lines on its invoices and quotes - where it is, for sales tax</small>
+    <div class="form-text">For new lines on its invoices and quotes - where it is, for sales tax</div>
 </div>
 
 <div class="mb-2">
@@ -43,7 +43,7 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
         <input type="checkbox" class="form-check-input" name="tax_exempt" value="1" id="clientTaxExempt<?= $ct_key ?>"<?= !empty($ct['client_tax_exempt']) ? ' checked' : '' ?>>
         <label class="form-check-label" for="clientTaxExempt<?= $ct_key ?>">Tax exempt</label>
     </div>
-    <small class="text-secondary">Its new lines get no tax, and its invoices and quotes say it is exempt</small>
+    <div class="form-text">Its new lines get no tax, and its invoices and quotes say it is exempt</div>
 </div>
 
 <div class="row">

@@ -61,7 +61,7 @@ ob_start();
                 <input class="btn-check" id="ticket_reply_type_opt1" type="radio" name="ticket_reply_type" value="Public" <?php if ($ticket_reply_type == 'Public') { echo "checked"; } ?>>
                 <label class="btn btn-outline-secondary" for="ticket_reply_type_opt1"><i class="fas fa-fw fa-eye me-1"></i>Public</label>
             </div>
-            <small class="text-body-secondary">Public replies show in the client portal. Saving here never sends an email.</small>
+            <div class="form-text">Public replies show in the client portal. Saving here never sends an email.</div>
         </div>
 
         <?php if ($emailed_to !== '') { ?>

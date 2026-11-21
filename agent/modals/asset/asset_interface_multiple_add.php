@@ -46,14 +46,14 @@ ob_start();
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <label class="form-label">First number</label>
+                <label class="form-label">First number <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                     <input type="number" class="form-control" name="interface_start" min="0" value="<?= $start ?>" required data-series="start">
                 </div>
             </div>
             <div class="col-md-4 col-6">
-                <label class="form-label">How many</label>
+                <label class="form-label">How many <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-ethernet"></i></span>
                     <input type="number" class="form-control" name="interfaces" min="1" max="128" value="<?= $count ?>" required data-series="count">

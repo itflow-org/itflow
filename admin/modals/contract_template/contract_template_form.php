@@ -158,7 +158,7 @@ $tab = 'templateTab' . bin2hex(random_bytes(3));
                 </select>
             </div>
         <?php } ?>
-        <small class="text-secondary">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</small>
+        <div class="form-text">From Admin > SLAs. While the contract is in force, the client's new tickets get them, and the default for a priority left on the default.</div>
     </div>
 
     <div class="tab-pane fade" id="<?= $tab ?>Terms" role="tabpanel">

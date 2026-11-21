@@ -67,7 +67,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
                 <input type="text" class="form-control" name="description" placeholder="<?= escapeHtml($template['document_template_description'] ?: 'One line on what it covers') ?>" maxlength="500">
             </div>
         </div>
-        <small class="text-secondary">It goes in the client's Files at the top level, and opens to fill in.</small>
+        <div class="form-text">It goes in the client's Files at the top level, and opens to fill in.</div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_document_from_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>

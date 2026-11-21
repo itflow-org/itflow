@@ -27,7 +27,7 @@ ob_start();
             <label class="form-label">Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
-                <select class="form-select select2" name="bulk_category_id">
+                <select class="form-select select2" name="bulk_category_id" required>
                     <?= categoryOptionsHtml('Income') ?>
                 </select>
                 <?= categoryAddButtonHtml('Income') ?>

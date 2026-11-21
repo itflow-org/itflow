@@ -50,7 +50,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="Waiting on Vendor, Scheduled, Parts Ordered" value="<?= escapeHtml($s_name) ?>" required<?= $s_builtin ? ' readonly' : ($s ? '' : ' autofocus') ?> data-ticket-status-name>
         </div>
         <?php if ($s_builtin) { ?>
-            <small class="text-secondary"><i class="fas fa-fw fa-lock me-1"></i>ITFlow's own statuses keep their names. <?= escapeHtml($s_builtin['set_by']) ?></small>
+            <div class="form-text"><i class="fas fa-fw fa-lock me-1"></i>ITFlow's own statuses keep their names. <?= escapeHtml($s_builtin['set_by']) ?></div>
         <?php } ?>
     </div>
 
@@ -60,7 +60,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
             <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="255" placeholder="<?= escapeHtml($s_builtin ? $s_builtin['about'] : 'What it means, and when to use it') ?>" value="<?= escapeHtml($s_description) ?>">
         </div>
-        <small class="text-secondary">Shown when the status is hovered - in the pickers, on the board and on tickets.</small>
+        <div class="form-text">Shown when the status is hovered - in the pickers, on the board and on tickets.</div>
     </div>
 
     <div class="mb-3">
@@ -93,10 +93,10 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
                 </select>
             <?php } ?>
         </div>
-        <small class="text-secondary">
+        <div class="form-text">
             <?php if ($s_builtin) { ?><i class="fas fa-fw fa-lock me-1"></i>Fixed for ITFlow's own statuses. <?php } ?>
             A ticket in a paused status never warns or breaches on resolution - the time already spent is kept, and the deadline moves out when it comes back. The response clock always runs.
-        </small>
+        </div>
     </div>
 
     <div class="<?= $s_id && !ticketStatusCanBeFirstResponse($s_id) ? 'mb-1' : 'mb-3' ?>">
@@ -113,13 +113,13 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
                 </select>
             <?php } ?>
         </div>
-        <small class="text-secondary">
+        <div class="form-text">
             <?php if ($s_id === TICKET_STATUS_CLOSED) { ?>
                 <i class="fas fa-fw fa-lock me-1"></i>A closed ticket takes no replies.
             <?php } else { ?>
                 By email, in the portal or by text. Move it to a status such as "Client responded" to see at a glance which tickets have a new answer; back to Open suits a status that waits on the client<?= $s_builtin ? '' : '; leave it for one like Scheduled, where a "thanks, see you then" shouldn\'t put it back in the queue' ?>. Whoever it is assigned to is told either way.
             <?php } ?>
-        </small>
+        </div>
     </div>
 
     <?php if (ticketStatusReplyReady() && (!$s_id || ticketStatusCanBeFirstResponse($s_id))) { ?>
@@ -133,9 +133,9 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
                     <?php } ?>
                 </select>
             </div>
-            <small class="text-secondary">
+            <div class="form-text">
                 An agent moving a ticket into this status before anyone has answered the client meets - or misses - the SLA's response target then: setting it by hand or in a reply, or assigning a new ticket, which moves it to Open. Once per ticket. With the email, the contact and watchers get the "ticket assigned" message from <a href="settings_ticket.php#messages">Settings &gt; Tickets</a>, kept on the ticket as a public note; if nobody could be emailed, it doesn't count.
-            </small>
+            </div>
         </div>
     <?php } ?>
 </div>

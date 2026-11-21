@@ -40,7 +40,7 @@ if (!$contract || $contract['contract_status'] !== 'Active') { ?>
             </p>
         <?php } ?>
         <div class="mb-3">
-            <label class="form-label">Last day in force</label>
+            <label class="form-label">Last day in force <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
                 <input type="date" class="form-control" name="last_day" value="<?= escapeHtml($last_day) ?>" required>

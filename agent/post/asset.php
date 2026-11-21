@@ -527,7 +527,11 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $new_client_id = intval($_POST['bulk_client_id']);
+    $new_client_id = intval($_POST['bulk_client_id'] ?? 0);
+    if (!$new_client_id || !getFieldById('clients', $new_client_id, 'client_name')) {
+        flashAlert('Pick the client to move them to.', 'error');
+        redirect();
+    }
 
     enforceClientAccess($new_client_id);
 

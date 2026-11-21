@@ -129,7 +129,7 @@ ob_start();
                         <label class="form-label">Quote date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
-                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
+                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                         </div>
                     </div>
                 </div>

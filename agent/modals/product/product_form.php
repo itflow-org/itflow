@@ -91,7 +91,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
                 <?= taxOptionsHtml($form_taxes, $form_tax_id) ?>
             </select>
         </div>
-        <small class="text-secondary">Taxed, its lines take the client's own rate when it has one</small>
+        <div class="form-text">Taxed, its lines take the client's own rate when it has one</div>
     </div>
 
     <!-- What it sells for, what it costs us -->

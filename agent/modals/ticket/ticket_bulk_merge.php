@@ -83,7 +83,7 @@ ob_start();
             <label class="form-label">Reason for merge <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
-                <input type="text" class="form-control" name="merge_comment" placeholder="Comments">
+                <input type="text" class="form-control" name="merge_comment" placeholder="Noted on each ticket" required>
             </div>
         </div>
 

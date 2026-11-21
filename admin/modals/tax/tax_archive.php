@@ -54,7 +54,7 @@ if (!$tax || $tax['tax_archived_at']) { ?>
                             <?php } ?>
                         </select>
                     </div>
-                    <small class="text-secondary">Left where they are, recurring invoices and drafts keep charging it, products and clients fall back to the next rate along for new lines<?= $usage['default'] ? ', and there is no default until you pick one' : '' ?>.</small>
+                    <div class="form-text">Left where they are, recurring invoices and drafts keep charging it, products and clients fall back to the next rate along for new lines<?= $usage['default'] ? ', and there is no default until you pick one' : '' ?>.</div>
                 </div>
             <?php } ?>
         </div>

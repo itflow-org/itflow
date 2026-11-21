@@ -27,7 +27,7 @@ if (isset($_POST['add_credit'])) {
 
     logAudit("Credit", "Create", "$session_name added " . billingMoney($amount, $session_company_currency) . "", $client_id, $credit_id);
 
-    flashAlert(billingMoney($amount, $session_company_currency) . " Credit Added");
+    flashAlert("Credit of <strong>" . billingMoney($amount, $session_company_currency) . "</strong> added");
 
     redirect();
 

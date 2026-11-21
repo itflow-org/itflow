@@ -112,7 +112,7 @@ $c_max = $c_config['max'] ?? 200;
             <div class="small text-secondary p-2" data-category-icon-none hidden>No icon by that name here - type its whole name to use it</div>
         </div>
         <?php if ($kind === 'asset_status') { ?>
-            <small class="text-secondary">Asset statuses show as a badge in their color - the icon shows in the status picker.</small>
+            <div class="form-text">Asset statuses show as a badge in their color - the icon shows in the status picker.</div>
         <?php } ?>
     </div>
 </div>

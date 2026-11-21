@@ -166,7 +166,7 @@ ob_start();
                             <input type="checkbox" class="form-check-input" name="reminders" value="1" id="clientReminders<?= $client_id ?>" <?= $client_reminders ? 'checked' : '' ?>>
                             <label class="form-check-label" for="clientReminders<?= $client_id ?>">Payment reminders and statements</label>
                         </div>
-                        <small class="text-secondary">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</small>
+                        <div class="form-text">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</div>
                     </div>
 
                     <?php

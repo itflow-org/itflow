@@ -30,15 +30,15 @@ if (!$contract || $contract['contract_status'] !== 'Draft') { ?>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="contract_id" value="<?= intval($contract['contract_id']) ?>">
     <div class="modal-body">
-        <label class="form-label">In force from</label>
+        <label class="form-label">In force from <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
             <input type="date" class="form-control" name="start_date" value="<?= escapeHtml($start) ?>" required>
         </div>
-        <small class="text-secondary">
+        <div class="form-text">
             <?= $contract['contract_end_date'] ? 'It ends on ' . escapeHtml(date('M j, Y', strtotime($contract['contract_end_date']))) . '.' : 'It runs for ' . escapeHtml(contractTermLabel($contract['contract_term_months'])) . ' from then.' ?>
             <?= intval($contract['contract_auto_renew']) ? 'Then it renews itself.' : '' ?>
-        </small>
+        </div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="activate_contract" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Make Active</button>

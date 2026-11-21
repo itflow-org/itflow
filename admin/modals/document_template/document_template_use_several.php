@@ -84,7 +84,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
             </div>
         <?php } ?>
 
-        <small class="text-secondary">Each goes in its client's Files at the top level, named and summed up as the template is.</small>
+        <div class="form-text">Each goes in its client's Files at the top level, named and summed up as the template is.</div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="make_documents_from_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>

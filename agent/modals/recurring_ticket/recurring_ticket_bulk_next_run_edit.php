@@ -27,7 +27,7 @@ ob_start();
             <label class="form-label">Next run date <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
-                <input class="form-control" type="date" name="next_run_date" min="<?= date("Y-m-d"); ?>" max="2999-12-31">
+                <input class="form-control" type="date" name="next_run_date" min="<?= date("Y-m-d"); ?>" max="2999-12-31" required>
             </div>
         </div>
 

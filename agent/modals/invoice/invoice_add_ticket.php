@@ -76,7 +76,7 @@ ob_start();
                 </div>
                 <div class="row g-3" data-add-ticket-lines>
                     <div class="col-12">
-                        <label class="form-label">Line</label>
+                        <label class="form-label">Line <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                             <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($rules['item_name']) ?>" required>

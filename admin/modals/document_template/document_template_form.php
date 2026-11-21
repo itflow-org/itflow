@@ -45,7 +45,7 @@ $ai_model = aiReady('Documentation') ? getAiModel('Documentation') : null;
             <input type="text" class="form-control" id="documentTemplatePrompt" placeholder="What it is for - a network troubleshooting guide for junior technicians" data-document-template-prompt>
             <button class="btn btn-info" type="button" data-document-template-generate><i class="fas fa-fw fa-magic me-1"></i>Draft</button>
         </div>
-        <small class="text-secondary">Replaces what is in the editor below.</small>
+        <div class="form-text">Replaces what is in the editor below.</div>
     </div>
 <?php } ?>
 
