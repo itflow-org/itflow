@@ -65,10 +65,6 @@ $rows = array_slice($rows, $record_from, $record_to);
 
 $missing = $show === '' && $search === '' ? paymentMethodsNotSetUp() : [];
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -128,10 +124,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('payment_method_name', 'Method') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('payment_method_use', 'For') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('used', 'Used on') ?></th>
-                <th class="d-none d-sm-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="ps-3"><?= sortLink('payment_method_name', 'Method') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('payment_method_use', 'For') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('used', 'Used on') ?></th>
+                <th class="d-none d-sm-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>

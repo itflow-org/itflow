@@ -81,10 +81,6 @@ foreach ($tabs as $key => $tab) {
 $counts = array_combine(array_keys($tabs), array_map('intval', mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " FROM sms_messages $joins WHERE $scope"))));
 $latest_code = $can_codes ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(sms_message_id), 0) FROM sms_messages WHERE sms_message_direction = 'in' AND sms_message_status = 'code'"))[0]) : 0;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $csrf = $_SESSION['csrf_token'];
 $provider = smsProvider();
 
@@ -129,10 +125,10 @@ $provider = smsProvider();
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('sms_message_number', 'From') ?></th>
+                <th class="ps-3"><?= sortLink('sms_message_number', 'From') ?></th>
                 <?php if ($codes) { ?><th>Code</th><?php } ?>
                 <th class="d-none d-md-table-cell">Text</th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('sms_message_created_at', 'When') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('sms_message_created_at', 'When') ?></th>
                 <th></th>
             </tr>
             </thead>

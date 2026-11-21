@@ -78,10 +78,6 @@ usort($rows, function ($a, $b) use ($key, $order) {
 $num_rows = [count($rows)];
 $rows = array_slice($rows, $record_from, $record_to);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -128,9 +124,9 @@ $money = function ($amount) use ($currency_format, $session_company_currency) {
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('user_name', 'Agent') ?></th>
-                <th><?= $sort_link('now', 'Cost per hour now') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('since', 'Since') ?></th>
+                <th class="ps-3"><?= sortLink('user_name', 'Agent') ?></th>
+                <th><?= sortLink('now', 'Cost per hour now') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('since', 'Since') ?></th>
                 <th class="d-none d-sm-table-cell">Rates</th>
                 <th></th>
             </tr>

@@ -346,15 +346,15 @@ $stat_money = function ($amount) use ($session_company_currency) {
                             </div>
                         </th>
                     <?php } ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invoice_number&order=<?= $disp ?>">Invoice <?php if ($sort == 'invoice_number') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('invoice_number', 'Invoice') ?></th>
                     <?php if (!$client_url) { ?>
-                        <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                        <th><?= sortLink('client_name', 'Client') ?></th>
                     <?php } ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invoice_date&order=<?= $disp ?>">Date <?php if ($sort == 'invoice_date') { echo $order_icon; } ?></a></th>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invoice_due&order=<?= $disp ?>">Due <?php if ($sort == 'invoice_due') { echo $order_icon; } ?></a></th>
-                    <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invoice_amount&order=<?= $disp ?>">Total <?php if ($sort == 'invoice_amount') { echo $order_icon; } ?></a></th>
-                    <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=balance&order=<?= $disp ?>">Balance <?php if ($sort == 'balance') { echo $order_icon; } ?></a></th>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invoice_status&order=<?= $disp ?>">Status <?php if ($sort == 'invoice_status') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('invoice_date', 'Date') ?></th>
+                    <th><?= sortLink('invoice_due', 'Due') ?></th>
+                    <th class="text-end"><?= sortLink('invoice_amount', 'Total') ?></th>
+                    <th class="text-end"><?= sortLink('balance', 'Balance') ?></th>
+                    <th><?= sortLink('invoice_status', 'Status') ?></th>
                     <th></th>
                 </tr>
                 </thead>

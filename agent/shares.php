@@ -231,36 +231,24 @@ $filter_url = function ($changes) {
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_name&order=<?= $disp ?>">
-                            Shared <?php if ($sort == 'item_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_name', 'Shared') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_recipient&order=<?= $disp ?>">
-                            With <?php if ($sort == 'item_recipient') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_recipient', 'With') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_created_at&order=<?= $disp ?>">
-                            Made <?php if ($sort == 'item_created_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_created_at', 'Made') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_expire_at&order=<?= $disp ?>">
-                            Works until <?php if ($sort == 'item_expire_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_expire_at', 'Works until') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=item_last_viewed_at&order=<?= $disp ?>">
-                            Opened <?php if ($sort == 'item_last_viewed_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('item_last_viewed_at', 'Opened') ?>
                     </th>
                     <th>Status</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

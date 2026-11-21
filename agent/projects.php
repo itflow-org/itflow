@@ -136,10 +136,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $hidden_filter_count = $date_filter_active ? 1 : 0;
 
@@ -300,13 +296,13 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('project_name', 'Project') ?></th>
-                    <th><?= $client_url ? 'Contact' : $sort_link('client_name', 'Client') ?></th>
+                    <th><?= sortLink('project_name', 'Project') ?></th>
+                    <th><?= $client_url ? 'Contact' : sortLink('client_name', 'Client') ?></th>
                     <th>Progress</th>
                     <th><?= $budgets_in_use ? 'Time / budget' : 'Time' ?></th>
-                    <th><?= in_array($show, ['completed', 'archived'], true) ? $sort_link('project_completed_at', 'Done') : $sort_link('project_due', 'Due') ?></th>
-                    <th><?= $sort_link('user_name', 'Manager') ?></th>
-                    <th class="d-none d-xxl-table-cell"><?= $sort_link('activity', 'Activity') ?></th>
+                    <th><?= in_array($show, ['completed', 'archived'], true) ? sortLink('project_completed_at', 'Done') : sortLink('project_due', 'Due') ?></th>
+                    <th><?= sortLink('user_name', 'Manager') ?></th>
+                    <th class="d-none d-xxl-table-cell"><?= sortLink('activity', 'Activity') ?></th>
                     <th></th>
                 </tr>
                 </thead>

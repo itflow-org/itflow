@@ -56,10 +56,6 @@ $unused = aiUseCaseMap()['unused'];
 $providers = mysqli_query($mysqli, "SELECT ai_provider_id, ai_provider_name, ai_provider_kind FROM ai_providers ORDER BY ai_provider_name");
 $any_provider = mysqli_num_rows($providers) > 0;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/ai/ai_model_edit.php' . ($provider_filter ? "?provider=$provider_filter" : '');
 $csrf = $_SESSION['csrf_token'];
@@ -109,11 +105,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('ai_model_name', 'Model') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('ai_provider_name', 'Provider') ?></th>
-                <th><?= $sort_link('ai_model_use_case', 'For') ?></th>
+                <th class="ps-3"><?= sortLink('ai_model_name', 'Model') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('ai_provider_name', 'Provider') ?></th>
+                <th><?= sortLink('ai_model_use_case', 'For') ?></th>
                 <th class="d-none d-lg-table-cell">Instructions</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('requests', 'Last 30 days') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('requests', 'Last 30 days') ?></th>
                 <th></th>
             </tr>
             </thead>

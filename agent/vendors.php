@@ -293,26 +293,18 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
-                            Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_name', 'Vendor') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_phone&order=<?= $disp ?>">
-                            Support <?php if ($sort == 'vendor_phone') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_phone', 'Support') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_account_number&order=<?= $disp ?>">
-                            Account <?php if ($sort == 'vendor_account_number') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_account_number', 'Account') ?>
                     </th>
                     <th><?= $view === 'ours' ? 'Spend' : 'With them' ?></th>
                     <?php if ($view === 'clients') { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

@@ -81,10 +81,6 @@ $entity_filter = is_scalar($_GET['entity'] ?? null) ? intval($_GET['entity']) : 
 $more_filters = $action_filter !== '' || $entity_filter;
 $any_filter = $q !== '' || $user_filter !== '' || $type_filter !== '' || $action_filter !== '' || $entity_filter || $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $view_url = function ($key) {
     $query = $_GET;
     unset($query['page']);
@@ -200,11 +196,11 @@ $view_empty = [
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('log_created_at', 'When') ?></th>
-                <th><?= $sort_link('user_name', 'Who') ?></th>
-                <th><?= $sort_link('log_type', 'What') ?></th>
+                <th class="ps-3"><?= sortLink('log_created_at', 'When') ?></th>
+                <th><?= sortLink('user_name', 'Who') ?></th>
+                <th><?= sortLink('log_type', 'What') ?></th>
                 <th>Description</th>
-                <th class="d-none d-xl-table-cell"><?= $sort_link('log_ip', 'From') ?></th>
+                <th class="d-none d-xl-table-cell"><?= sortLink('log_ip', 'From') ?></th>
                 <?php if ($session_is_admin) { ?><th></th><?php } ?>
             </tr>
             </thead>

@@ -240,31 +240,21 @@ $locations_counts = locationCounts(array_keys($locations));
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
-                            Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_name', 'Location') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_city&order=<?= $disp ?>">
-                            Address <?php if ($sort == 'location_city') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_city', 'Address') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_phone&order=<?= $disp ?>">
-                            Phone &amp; hours <?php if ($sort == 'location_phone') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_phone', 'Phone &amp; hours') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
-                            Ask for <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('contact_name', 'Ask for') ?>
                     </th>
                     <th>On site</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

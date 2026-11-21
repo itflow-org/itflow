@@ -128,10 +128,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 ?>
 
@@ -277,12 +273,12 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('recurring_ticket_subject', 'Recurring ticket') ?></th>
-                    <th><?= $client_url ? 'For' : $sort_link('client_name', 'Client') ?></th>
-                    <th><?= $sort_link('recurring_ticket_frequency', 'How often') ?></th>
-                    <th><?= $sort_link('recurring_ticket_next_run', 'Next run') ?></th>
+                    <th><?= sortLink('recurring_ticket_subject', 'Recurring ticket') ?></th>
+                    <th><?= $client_url ? 'For' : sortLink('client_name', 'Client') ?></th>
+                    <th><?= sortLink('recurring_ticket_frequency', 'How often') ?></th>
+                    <th><?= sortLink('recurring_ticket_next_run', 'Next run') ?></th>
                     <th>Last ticket</th>
-                    <th><?= $sort_link('user_name', 'Agent') ?></th>
+                    <th><?= sortLink('user_name', 'Agent') ?></th>
                     <th></th>
                 </tr>
                 </thead>

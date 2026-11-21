@@ -59,10 +59,6 @@ $categories = appLogCategories();
 $any_filter = $q !== '' || $category_filter !== '' || $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 $retention = appLogRetention();
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 // A view keeps the filters, and starts from its first page
 $view_url = function ($key) {
     $query = $_GET;
@@ -153,9 +149,9 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('app_log_created_at', 'When') ?></th>
-                <th><?= $sort_link('app_log_type', 'Level') ?></th>
-                <th><?= $sort_link('app_log_category', 'Category') ?></th>
+                <th class="ps-3"><?= sortLink('app_log_created_at', 'When') ?></th>
+                <th><?= sortLink('app_log_type', 'Level') ?></th>
+                <th><?= sortLink('app_log_category', 'Category') ?></th>
                 <th>Details</th>
                 <th></th>
             </tr>

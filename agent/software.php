@@ -385,52 +385,36 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_name&order=<?= $disp ?>">
-                            License <?php if ($sort == 'software_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('software_name', 'License') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_license_type&order=<?= $disp ?>">
-                            Type <?php if ($sort == 'software_license_type') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('software_license_type', 'Type') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=seats_used&order=<?= $disp ?>">
-                            Seats <?php if ($sort == 'seats_used') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('seats_used', 'Seats') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_expire&order=<?= $disp ?>">
-                            Renews <?php if ($sort == 'software_expire') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('software_expire', 'Renews') ?>
                     </th>
                     <?php if ($show_key) { ?>
                         <th>Key</th>
                     <?php } ?>
                     <?php if ($show_purchased) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_purchase&order=<?= $disp ?>">
-                                Purchased <?php if ($sort == 'software_purchase') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('software_purchase', 'Purchased') ?>
                         </th>
                     <?php } ?>
                     <?php if ($show_order_ref) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=software_purchase_reference&order=<?= $disp ?>">
-                                Order ref <?php if ($sort == 'software_purchase_reference') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('software_purchase_reference', 'Order ref') ?>
                         </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
-                            Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('vendor_name', 'Vendor') ?>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

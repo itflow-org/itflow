@@ -62,10 +62,6 @@ foreach ($tabs as $key => [, , $where]) {
 }
 $counts = array_combine(array_keys($tabs), array_map('intval', mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " FROM sms_messages $joins WHERE $search"))));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $show, 'canned_date' => $_GET['canned_date'] ?? '', 'dtf' => $_GET['dtf'] ?? '', 'dtt' => $_GET['dtt'] ?? '']));
 };
@@ -163,10 +159,10 @@ $ready = smsReady();
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                         </div>
                     </th>
-                    <th class="d-none d-sm-table-cell"><?= $sort_link('sms_message_status', 'Status') ?></th>
-                    <th><?= $sort_link('sms_message_number', 'With') ?></th>
+                    <th class="d-none d-sm-table-cell"><?= sortLink('sms_message_status', 'Status') ?></th>
+                    <th><?= sortLink('sms_message_number', 'With') ?></th>
                     <th class="d-none d-md-table-cell">Text</th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('sms_message_created_at', 'When') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('sms_message_created_at', 'When') ?></th>
                     <th></th>
                 </tr>
                 </thead>

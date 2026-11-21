@@ -322,12 +322,12 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                             </div>
                         </th>
                     <?php } ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=product_name&order=<?= $disp ?>">Item <?php if ($sort == 'product_name') { echo $order_icon; } ?></a></th>
-                    <th class="d-none d-md-table-cell"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=product_frequency&order=<?= $disp ?>">Billed <?php if ($sort == 'product_frequency') { echo $order_icon; } ?></a></th>
-                    <th class="d-none d-lg-table-cell text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=product_stock&order=<?= $disp ?>">Stock <?php if ($sort == 'product_stock') { echo $order_icon; } ?></a></th>
-                    <th class="d-none d-xl-table-cell"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?></a></th>
-                    <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=product_price&order=<?= $disp ?>">Price <?php if ($sort == 'product_price') { echo $order_icon; } ?></a></th>
-                    <th class="d-none d-sm-table-cell text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=margin&order=<?= $disp ?>" title="Price less cost, as a share of the price">Margin <?php if ($sort == 'margin') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('product_name', 'Item') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('product_frequency', 'Billed') ?></th>
+                    <th class="d-none d-lg-table-cell text-end"><?= sortLink('product_stock', 'Stock') ?></th>
+                    <th class="d-none d-xl-table-cell"><?= sortLink('vendor_name', 'Vendor') ?></th>
+                    <th class="text-end"><?= sortLink('product_price', 'Price') ?></th>
+                    <th class="d-none d-sm-table-cell text-end"><?= sortLink('margin', 'Margin', null, 'Price less cost, as a share of the price') ?></th>
                     <th></th>
                 </tr>
                 </thead>

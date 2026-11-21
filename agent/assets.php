@@ -485,39 +485,27 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_name&order=<?= $disp ?>">
-                            Name <?php if ($sort == 'asset_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('asset_name', 'Name') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_type&order=<?= $disp ?>">
-                            Type / OS <?php if ($sort == 'asset_type') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('asset_type', 'Type / OS') ?>
                     </th>
                     <?php if ($show_model) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_make&order=<?= $disp ?>">
-                                Model / Serial <?php if ($sort == 'asset_make') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('asset_make', 'Model / Serial') ?>
                         </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=interface_ip&order=<?= $disp ?>">
-                            IP <?php if ($sort == 'interface_ip') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('interface_ip', 'IP') ?>
                     </th>
                     <?php if ($show_mac) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=interface_mac&order=<?= $disp ?>">
-                                MAC <?php if ($sort == 'interface_mac') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('interface_mac', 'MAC') ?>
                         </th>
                     <?php } ?>
                     <?php if ($show_purchase) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_purchase_date&order=<?= $disp ?>">
-                                Purchased <?php if ($sort == 'asset_purchase_date') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('asset_purchase_date', 'Purchased') ?>
                         </th>
                     <?php } ?>
                     <?php if ($show_details) { ?>
@@ -525,40 +513,28 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     <?php } ?>
                     <?php if ($show_install) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_install_date&order=<?= $disp ?>">
-                                Installed <?php if ($sort == 'asset_install_date') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('asset_install_date', 'Installed') ?>
                         </th>
                     <?php } ?>
                     <?php if ($show_warranty) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_warranty_expire&order=<?= $disp ?>">
-                                Warranty <?php if ($sort == 'asset_warranty_expire') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('asset_warranty_expire', 'Warranty') ?>
                         </th>
                     <?php } ?>
                     <?php if ($show_contact) { ?>
                         <th>
-                            <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
-                                Assigned To <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
-                            </a>
+                            <?= sortLink('contact_name', 'Assigned To') ?>
                         </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
-                            Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_name', 'Location') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=asset_status&order=<?= $disp ?>">
-                            Status <?php if ($sort == 'asset_status') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('asset_status', 'Status') ?>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

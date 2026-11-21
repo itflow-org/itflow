@@ -337,12 +337,12 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         </div>
                     </th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=expense_date&order=<?= $disp ?>">Date <?php if ($sort == 'expense_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Paid from <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=expense_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'expense_amount') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('expense_date', 'Date') ?></th>
+                <th><?= sortLink('vendor_name', 'Vendor') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
+                <th><?= sortLink('client_name', 'Client') ?></th>
+                <th><?= sortLink('account_name', 'Paid from') ?></th>
+                <th class="text-end"><?= sortLink('expense_amount', 'Amount') ?></th>
                 <th></th>
             </tr>
             </thead>

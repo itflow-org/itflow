@@ -208,9 +208,8 @@ $day_distance = function ($date) use ($today) {
 // A heading sorts its own way round first - names A to Z, the shortest target and the most used at the top - then the other
 $sort_first = ['sla_name' => 'ASC', 'sla_response_minutes' => 'ASC', 'sla_resolution_minutes' => 'ASC', 'tickets' => 'DESC',
     'holiday_name' => 'ASC', 'holiday_date' => $show === 'past' ? 'DESC' : 'ASC'];
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon, $sort_first) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . ($sort === $column ? $disp : $sort_first[$column]) . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+$sort_link = function ($column, $label) use ($sort_first) {
+    return sortLink($column, $label, $sort_first[$column] ?? null);
 };
 // A view keeps the search only on its own side - a name typed for an SLA is no use against closure days
 $pill_url = function ($view) use ($on_days) {

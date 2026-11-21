@@ -288,14 +288,14 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                         </div>
                     </th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_date&order=<?= $disp ?>">Date <?php if ($sort == 'income_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_type&order=<?= $disp ?>">From <?php if ($sort == 'income_type') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('income_date', 'Date') ?></th>
+                <th><?= sortLink('income_type', 'From') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
                 <?php if (!$client_page) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } ?>
-                <?php if (moduleOn('bookkeeping')) { ?><th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Paid into <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th><?php } ?>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=income_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'income_amount') { echo $order_icon; } ?></a></th>
+                <?php if (moduleOn('bookkeeping')) { ?><th><?= sortLink('account_name', 'Paid into') ?></th><?php } ?>
+                <th class="text-end"><?= sortLink('income_amount', 'Amount') ?></th>
                 <th></th>
             </tr>
             </thead>

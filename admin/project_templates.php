@@ -43,10 +43,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(project_template_archived_at IS NULL), 0), COALESCE(SUM(project_template_archived_at IS NOT NULL), 0) FROM project_templates WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 ?>
 
@@ -80,10 +76,10 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('project_template_name', 'Template') ?></th>
-                <th class="text-center"><?= $sort_link('ticket_count', 'Tickets') ?></th>
-                <th class="text-center"><?= $sort_link('task_count', 'Tasks') ?></th>
-                <th><?= $sort_link('project_template_updated_at', 'Updated') ?></th>
+                <th class="ps-3"><?= sortLink('project_template_name', 'Template') ?></th>
+                <th class="text-center"><?= sortLink('ticket_count', 'Tickets') ?></th>
+                <th class="text-center"><?= sortLink('task_count', 'Tasks') ?></th>
+                <th><?= sortLink('project_template_updated_at', 'Updated') ?></th>
                 <th></th>
             </tr>
             </thead>

@@ -44,9 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
             <tr>
                 <th class="ps-3">
-                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=module_name&order=<?= $disp ?>">
-                        Module <?php if ($sort == 'module_name') { echo $order_icon; } ?>
-                    </a>
+                    <?= sortLink('module_name', 'Module') ?>
                 </th>
                 <th class="text-center">Action</th>
             </tr>

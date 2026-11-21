@@ -86,10 +86,6 @@ if ($suggestions) {
     }
 }
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $dashboard = rmmDashboardUrl($provider);
 $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_removed_at IS NULL AND rmm_device_asset_id > 0"))[0]);
@@ -176,10 +172,10 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('rmm_client_name', escapeHtml("$short client")) ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('rmm_client_devices', 'Devices') ?></th>
-                <th><?= $sort_link('client_name', 'ITFlow client') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('rmm_client_synced_at', 'Brought in') ?></th>
+                <th class="ps-3"><?= sortLink('rmm_client_name', escapeHtml("$short client")) ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('rmm_client_devices', 'Devices') ?></th>
+                <th><?= sortLink('client_name', 'ITFlow client') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('rmm_client_synced_at', 'Brought in') ?></th>
                 <th></th>
             </tr>
             </thead>

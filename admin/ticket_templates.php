@@ -71,10 +71,6 @@ if ($templates) {
 
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(ticket_template_archived_at IS NULL), 0), COALESCE(SUM(ticket_template_archived_at IS NOT NULL), 0) FROM ticket_templates WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -130,11 +126,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('ticket_template_name', 'Template') ?></th>
+                <th class="ps-3"><?= sortLink('ticket_template_name', 'Template') ?></th>
                 <th class="d-none d-lg-table-cell">Sets up</th>
-                <th class="d-none d-sm-table-cell text-center"><?= $sort_link('task_count', 'Tasks') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('used_count', 'Used') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="d-none d-sm-table-cell text-center"><?= sortLink('task_count', 'Tasks') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('used_count', 'Used') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>

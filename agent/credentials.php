@@ -325,22 +325,16 @@ $filter_url = function ($changes) use ($client_url) {
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=credential_name&order=<?= $disp ?>">
-                            Credential <?php if ($sort == 'credential_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('credential_name', 'Credential') ?>
                     </th>
                     <th>Login</th>
                     <th>For</th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=credential_password_changed_at&order=<?= $disp ?>">
-                            Changed <?php if ($sort == 'credential_password_changed_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('credential_password_changed_at', 'Changed') ?>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

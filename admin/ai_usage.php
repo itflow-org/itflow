@@ -91,10 +91,6 @@ $people = mysqli_query($mysqli, "SELECT DISTINCT user_id, user_name FROM ai_usag
 $model_row = $model_filter ? aiModelRow($model_filter) : null;
 $retention = appLogRetention();
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 // A view keeps the filters, and starts from its first page
 $view_url = function ($key) {
     $query = $_GET;
@@ -204,13 +200,13 @@ $ms_text = function ($ms) {
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('ai_usage_id', 'When') ?></th>
-                <th><?= $sort_link('ai_usage_feature', 'Feature') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('user_name', 'Who') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('client_name', 'Client') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('ai_usage_model', 'Model') ?></th>
-                <th class="d-none d-sm-table-cell text-end"><?= $sort_link('tokens', 'Tokens') ?></th>
-                <th class="d-none d-lg-table-cell text-end"><?= $sort_link('ai_usage_ms', 'Time') ?></th>
+                <th class="ps-3"><?= sortLink('ai_usage_id', 'When') ?></th>
+                <th><?= sortLink('ai_usage_feature', 'Feature') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('user_name', 'Who') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('client_name', 'Client') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('ai_usage_model', 'Model') ?></th>
+                <th class="d-none d-sm-table-cell text-end"><?= sortLink('tokens', 'Tokens') ?></th>
+                <th class="d-none d-lg-table-cell text-end"><?= sortLink('ai_usage_ms', 'Time') ?></th>
             </tr>
             </thead>
             <tbody>

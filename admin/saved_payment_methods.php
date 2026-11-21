@@ -81,10 +81,6 @@ $clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
     WHERE client_id IN (SELECT saved_payment_client_id FROM client_saved_payment_methods) OR client_id = $client_filter ORDER BY client_name ASC");
 $provider_count = mysqli_num_rows($providers);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'provider' => $_GET['provider'] ?? '', 'client' => $_GET['client'] ?? '', 'show' => $show]));
 };
@@ -142,11 +138,11 @@ $page_title = 'Saved Cards';
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('client_name', 'Client') ?></th>
-                <th><?= $sort_link('saved_payment_description', 'Card') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('expires', 'Expires') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('autopay', 'Autopay') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('saved_payment_created_at', 'Saved') ?></th>
+                <th class="ps-3"><?= sortLink('client_name', 'Client') ?></th>
+                <th><?= sortLink('saved_payment_description', 'Card') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('expires', 'Expires') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('autopay', 'Autopay') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('saved_payment_created_at', 'Saved') ?></th>
                 <th></th>
             </tr>
             </thead>

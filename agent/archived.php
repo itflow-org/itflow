@@ -139,24 +139,16 @@ while ($row = mysqli_fetch_assoc($sql_clients)) {
                         </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=archived_name&order=<?= $disp ?>">
-                            Name <?php if ($sort == 'archived_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('archived_name', 'Name') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=archived_kind&order=<?= $disp ?>">
-                            Kind <?php if ($sort == 'archived_kind') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('archived_kind', 'Kind') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=archived_at&order=<?= $disp ?>">
-                            Archived <?php if ($sort == 'archived_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('archived_at', 'Archived') ?>
                     </th>
                     <th></th>
                 </tr>

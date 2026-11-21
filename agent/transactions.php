@@ -378,14 +378,14 @@ $is_card = $account && $account['type'] === 3;
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_date&order=<?= $disp ?>">Date <?php if ($sort == 'txn_date') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('txn_date', 'Date') ?></th>
                 <?php if ($all) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Account <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('account_name', 'Account') ?></th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_what&order=<?= $disp ?>">Who or what <?php if ($sort == 'txn_what') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_amount&order=<?= $disp ?>">In <?php if ($sort == 'txn_amount') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('txn_what', 'Who or what') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
+                <th><?= sortLink('client_name', 'Client') ?></th>
+                <th class="text-end"><?= sortLink('txn_amount', 'In') ?></th>
                 <th class="text-end">Out</th>
                 <?php if ($balance_visible) { ?>
                     <th class="text-end" title="What it held after the line">Balance</th>

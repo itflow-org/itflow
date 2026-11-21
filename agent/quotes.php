@@ -231,14 +231,14 @@ $stat_monthly = function ($amount) use ($stat_money) {
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_number&order=<?= $disp ?>">Quote <?php if ($sort == 'quote_number') { echo $order_icon; } ?></a></th>
+                <th class="ps-3"><?= sortLink('quote_number', 'Quote') ?></th>
                 <?php if (!$client_url) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_date&order=<?= $disp ?>">Date <?php if ($sort == 'quote_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_expire&order=<?= $disp ?>">Valid until <?php if ($sort == 'quote_expire') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_amount&order=<?= $disp ?>">Total <?php if ($sort == 'quote_amount') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=quote_status&order=<?= $disp ?>">Status <?php if ($sort == 'quote_status') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('quote_date', 'Date') ?></th>
+                <th><?= sortLink('quote_expire', 'Valid until') ?></th>
+                <th class="text-end"><?= sortLink('quote_amount', 'Total') ?></th>
+                <th><?= sortLink('quote_status', 'Status') ?></th>
                 <th></th>
             </tr>
             </thead>

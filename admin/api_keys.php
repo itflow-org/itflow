@@ -62,10 +62,6 @@ $address_taken = apiKeyInAddressAccepted();
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(api_key_expire > '$today'), 0), COALESCE(SUM(api_key_expire <= '$today'), 0)
     FROM api_keys LEFT JOIN users ON user_id = api_key_user_id WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -138,10 +134,10 @@ $csrf = $_SESSION['csrf_token'];
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                         </div>
                     </th>
-                    <th><?= $sort_link('api_key_name', 'Key') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('api_key_expire', 'by expiry') ?></span></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('user_name', 'Acts as') ?></th>
+                    <th><?= sortLink('api_key_name', 'Key') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('api_key_expire', 'by expiry') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('user_name', 'Acts as') ?></th>
                     <th class="d-none d-lg-table-cell">Can open</th>
-                    <th class="d-none d-sm-table-cell"><?= $sort_link('api_key_last_used_at', 'Last used') ?></th>
+                    <th class="d-none d-sm-table-cell"><?= sortLink('api_key_last_used_at', 'Last used') ?></th>
                     <th class="d-none d-xl-table-cell text-end">Calls <span class="fw-normal text-body-secondary small">(30 days)</span></th>
                     <th></th>
                 </tr>

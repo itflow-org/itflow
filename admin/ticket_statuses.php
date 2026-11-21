@@ -56,10 +56,6 @@ $view_counts = array_combine(array_keys($views), $counts);
 // Dragging into order: the ones in use, in their order, with nothing searched
 $can_reorder = $show === '' && $sort === 'ticket_status_order' && $order === 'ASC' && $q === '' && $num_rows[0] > 1;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $view]));
 };
@@ -100,9 +96,9 @@ $csrf = $_SESSION['csrf_token'];
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
                 <?php if ($can_reorder) { ?><th style="width: 1%"><span class="visually-hidden">Order</span></th><?php } ?>
-                <th class="<?= $can_reorder ? 'ps-0' : 'ps-3' ?>"><?= $sort_link('ticket_status_name', 'Status') ?></th>
-                <th class="text-end"><?= $sort_link('tickets', 'Tickets') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('ticket_status_pauses_sla', 'SLA clock') ?></th>
+                <th class="<?= $can_reorder ? 'ps-0' : 'ps-3' ?>"><?= sortLink('ticket_status_name', 'Status') ?></th>
+                <th class="text-end"><?= sortLink('tickets', 'Tickets') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('ticket_status_pauses_sla', 'SLA clock') ?></th>
                 <th class="d-none d-lg-table-cell">When the client replies</th>
                 <th></th>
             </tr>

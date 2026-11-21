@@ -144,10 +144,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -309,9 +305,9 @@ $csrf = $_SESSION['csrf_token'];
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('network_name', 'Network') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('network_type', 'by type') ?></span></th>
-                    <?php if (!$client_url) { ?><th><?= $sort_link('client_name', 'Client') ?></th><?php } ?>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('network', 'Subnet') ?></th>
+                    <th><?= sortLink('network_name', 'Network') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('network_type', 'by type') ?></span></th>
+                    <?php if (!$client_url) { ?><th><?= sortLink('client_name', 'Client') ?></th><?php } ?>
+                    <th class="d-none d-md-table-cell"><?= sortLink('network', 'Subnet') ?></th>
                     <th class="d-none <?= $client_url ? 'd-lg-table-cell' : 'd-xxl-table-cell' ?>">Gateway, DNS &amp; DHCP</th>
                     <th>In use</th>
                     <th></th>

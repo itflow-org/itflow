@@ -219,10 +219,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -424,10 +420,10 @@ $csrf = $_SESSION['csrf_token'];
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
                         </div>
                     </th>
-                    <th><?= $sort_link('user_name', 'Contact') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('client_name', 'Client') ?></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Sign in') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_login', 'Last signed in') ?></th>
+                    <th><?= sortLink('user_name', 'Contact') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('user_email', 'by email') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('client_name', 'Client') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('user_status', 'Sign in') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('last_login', 'Last signed in') ?></th>
                     <th></th>
                 </tr>
                 </thead>
@@ -561,11 +557,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0 itflow-asset-table itflow-ticket-list itflow-user-list" data-user-invites>
             <thead class="<?php if (!$invites) { echo "d-none"; } ?> text-nowrap table-light">
             <tr>
-                <th><?= $sort_link('user_name', 'Invited') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('role_name', 'Role') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Invite') ?></th>
+                <th><?= sortLink('user_name', 'Invited') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('user_email', 'by email') ?></span></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('role_name', 'Role') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('user_status', 'Invite') ?></th>
                 <th class="d-none d-xl-table-cell">Clients</th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('user_created_at', 'Invited by') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('user_created_at', 'Invited by') ?></th>
                 <th></th>
             </tr>
             </thead>
@@ -683,11 +679,11 @@ $csrf = $_SESSION['csrf_token'];
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
                         </div>
                     </th>
-                    <th><?= $sort_link('user_name', 'User') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('user_email', 'by email') ?></span></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('role_name', 'Role') ?></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('user_status', 'Sign in') ?></th>
+                    <th><?= sortLink('user_name', 'User') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('user_email', 'by email') ?></span></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('role_name', 'Role') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('user_status', 'Sign in') ?></th>
                     <th class="d-none d-xl-table-cell">Clients</th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_login', 'Last signed in') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('last_login', 'Last signed in') ?></th>
                     <th></th>
                 </tr>
                 </thead>

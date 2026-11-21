@@ -58,10 +58,6 @@ while ($model = mysqli_fetch_assoc($model_sql)) {
 $unused = aiUseCaseMap()['unused'];
 $any_provider = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM ai_providers"))[0]) > 0;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/ai/ai_provider_edit.php';
 $csrf = $_SESSION['csrf_token'];
@@ -96,11 +92,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('ai_provider_name', 'Provider') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('ai_provider_kind', 'Kind') ?></th>
+                <th class="ps-3"><?= sortLink('ai_provider_name', 'Provider') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('ai_provider_kind', 'Kind') ?></th>
                 <th class="d-none d-md-table-cell">Key</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('model_count', 'Models') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('requests', 'Last 30 days') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('model_count', 'Models') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('requests', 'Last 30 days') ?></th>
                 <th></th>
             </tr>
             </thead>

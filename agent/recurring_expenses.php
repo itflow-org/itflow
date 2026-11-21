@@ -210,13 +210,13 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_amount&order=<?= $disp ?>">Amount <?php if ($sort == 'recurring_expense_amount') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=monthly&order=<?= $disp ?>">A month <?php if ($sort == 'monthly') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_next_date&order=<?= $disp ?>">Next <?php if ($sort == 'recurring_expense_next_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_last_sent&order=<?= $disp ?>">Last <?php if ($sort == 'recurring_expense_last_sent') { echo $order_icon; } ?></a></th>
+                <th class="ps-3"><?= sortLink('vendor_name', 'Vendor') ?></th>
+                <th><?= sortLink('category_name', 'Category') ?></th>
+                <th><?= sortLink('client_name', 'Client') ?></th>
+                <th class="text-end"><?= sortLink('recurring_expense_amount', 'Amount') ?></th>
+                <th class="text-end"><?= sortLink('monthly', 'A month') ?></th>
+                <th><?= sortLink('recurring_expense_next_date', 'Next') ?></th>
+                <th><?= sortLink('recurring_expense_last_sent', 'Last') ?></th>
                 <th></th>
             </tr>
             </thead>

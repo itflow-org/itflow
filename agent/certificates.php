@@ -282,35 +282,23 @@ $export_extra = [
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_name&order=<?= $disp ?>">
-                            Certificate <?php if ($sort == 'certificate_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_name', 'Certificate') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_domain&order=<?= $disp ?>">
-                            Host <?php if ($sort == 'certificate_domain') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_domain', 'Host') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_issued_by&order=<?= $disp ?>">
-                            Issuer <?php if ($sort == 'certificate_issued_by') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_issued_by', 'Issuer') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_expire&order=<?= $disp ?>">
-                            Expires <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_expire', 'Expires') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=certificate_checked_at&order=<?= $disp ?>">
-                            Last check <?php if ($sort == 'certificate_checked_at') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('certificate_checked_at', 'Last check') ?>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>

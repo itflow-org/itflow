@@ -117,10 +117,6 @@ $filter_url = function ($changes) {
     unset($params['page']);
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $add_url = 'modals/contract/contract_add.php' . ($client_url ? "?client_id=$client_id" : '');
 $csrf = $_SESSION['csrf_token'];
 
@@ -221,13 +217,13 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><?= $sort_link('contract_name', 'Contract') ?></th>
+                <th class="ps-3"><?= sortLink('contract_name', 'Contract') ?></th>
                 <?php if (!$client_url) { ?>
-                    <th><?= $sort_link('client_name', 'Client') ?></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } ?>
-                <th class="d-none d-md-table-cell"><?= $sort_link('contract_start_date', 'Term') ?></th>
-                <th><?= $sort_link('contract_end_date', 'Renewal') ?></th>
-                <th class="d-none d-xl-table-cell"><?= $sort_link('owner_name', 'Owner') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('contract_start_date', 'Term') ?></th>
+                <th><?= sortLink('contract_end_date', 'Renewal') ?></th>
+                <th class="d-none d-xl-table-cell"><?= sortLink('owner_name', 'Owner') ?></th>
                 <th></th>
             </tr>
             </thead>

@@ -114,10 +114,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null && $v !== []; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/kb/kb_article_add.php' . (intval($category_filter) > 0 ? '?category=' . intval($category_filter) : '');
 $csrf = $_SESSION['csrf_token'];
@@ -252,12 +248,12 @@ $csrf = $_SESSION['csrf_token'];
                             </div>
                         </th>
                     <?php } ?>
-                    <th class="<?= $can_edit ? '' : 'ps-3' ?>"><?= $sort_link('kb_article_title', 'Article') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('category_name', 'Category') ?></th>
+                    <th class="<?= $can_edit ? '' : 'ps-3' ?>"><?= sortLink('kb_article_title', 'Article') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('category_name', 'Category') ?></th>
                     <th class="d-none d-lg-table-cell">Who can read it</th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('kb_article_updated', 'Updated') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('kb_article_updated', 'Updated') ?></th>
                     <th class="d-none d-xl-table-cell">Review</th>
-                    <?php if ($feedback_ready) { ?><th class="d-none d-xl-table-cell"><?= $sort_link('kb_article_views', 'Readers') ?></th><?php } ?>
+                    <?php if ($feedback_ready) { ?><th class="d-none d-xl-table-cell"><?= sortLink('kb_article_views', 'Readers') ?></th><?php } ?>
                     <th></th>
                 </tr>
                 </thead>

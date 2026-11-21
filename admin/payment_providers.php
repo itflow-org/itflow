@@ -57,10 +57,6 @@ $set_up = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT p
     . implode("', '", array_map('escapeSql', array_keys(paymentProviderKinds()))) . "')"))[0]);
 $can_add = $set_up < count(paymentProviderKinds());
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/payment_provider/payment_provider_add.php';
 $csrf = $_SESSION['csrf_token'];
@@ -93,12 +89,12 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('payment_provider_name', 'Provider') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('account_name', 'Payments go into') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('payment_provider_threshold', 'Card limit') ?></th>
+                <th class="ps-3"><?= sortLink('payment_provider_name', 'Provider') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('account_name', 'Payments go into') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('payment_provider_threshold', 'Card limit') ?></th>
                 <th class="d-none d-lg-table-cell">Fees</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('saved_cards', 'Saved cards') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_paid', 'Card payments') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('saved_cards', 'Saved cards') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_paid', 'Card payments') ?></th>
                 <th></th>
             </tr>
             </thead>

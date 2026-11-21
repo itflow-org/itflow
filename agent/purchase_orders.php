@@ -96,10 +96,6 @@ $filter_url = function ($changes) {
     unset($params['page']);
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $csrf = $_SESSION['csrf_token'];
 
 ?>
@@ -187,12 +183,12 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
             <tr>
-                <th class="ps-3"><?= $sort_link('po_number', 'Purchase order') ?></th>
-                <th><?= $sort_link('vendor_name', 'Vendor') ?></th>
+                <th class="ps-3"><?= sortLink('po_number', 'Purchase order') ?></th>
+                <th><?= sortLink('vendor_name', 'Vendor') ?></th>
                 <th class="d-none d-md-table-cell">For</th>
-                <th><?= $sort_link('po_status', 'Status') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('po_order_date', 'Ordered') ?></th>
-                <th class="text-end"><?= $sort_link('po_total', 'Total') ?></th>
+                <th><?= sortLink('po_status', 'Status') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('po_order_date', 'Ordered') ?></th>
+                <th class="text-end"><?= sortLink('po_total', 'Total') ?></th>
                 <th></th>
             </tr>
             </thead>

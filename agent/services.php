@@ -118,10 +118,6 @@ $filter_url = function ($changes) {
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
 };
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['fa-key', 'login', 'logins'], 'domain' => ['fa-globe', 'domain', 'domains'],
     'certificate' => ['fa-lock', 'certificate', 'certificates'], 'contact' => ['fa-user', 'person', 'people'], 'vendor' => ['fa-building', 'vendor', 'vendors'],
@@ -280,12 +276,12 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                             </div>
                         </th>
                     <?php } ?>
-                    <th><?= $sort_link('service_name', 'Service') ?></th>
-                    <?php if (!$client_url) { ?><th><?= $sort_link('client_name', 'Client') ?></th><?php } ?>
-                    <th><?= $sort_link('service_importance', 'Importance') ?></th>
+                    <th><?= sortLink('service_name', 'Service') ?></th>
+                    <?php if (!$client_url) { ?><th><?= sortLink('client_name', 'Client') ?></th><?php } ?>
+                    <th><?= sortLink('service_importance', 'Importance') ?></th>
                     <th class="d-none d-xxl-table-cell">Depends on</th>
                     <th>Attention</th>
-                    <th><?= $sort_link('service_review_due', 'Review') ?></th>
+                    <th><?= sortLink('service_review_due', 'Review') ?></th>
                     <th></th>
                 </tr>
                 </thead>

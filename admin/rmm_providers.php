@@ -66,10 +66,6 @@ $cron_on = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_enable_c
 $job = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_enabled FROM cron_jobs WHERE cron_job_name = 'rmm_sync' LIMIT 1"));
 $job_on = !$job || intval($job['cron_job_enabled']) === 1;
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $add_url = 'modals/rmm/rmm_provider_add.php';
 $csrf = $_SESSION['csrf_token'];
@@ -104,12 +100,12 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('rmm_provider_name', 'Provider') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('rmm_provider_kind', 'Kind') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('clients_linked', 'Clients') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('devices_in', 'Devices') ?></th>
+                <th class="ps-3"><?= sortLink('rmm_provider_name', 'Provider') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('rmm_provider_kind', 'Kind') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('clients_linked', 'Clients') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('devices_in', 'Devices') ?></th>
                 <?php if ($alerts_ready) { ?><th class="d-none d-lg-table-cell">Alerts</th><?php } ?>
-                <th class="d-none d-sm-table-cell"><?= $sort_link('rmm_provider_sync_at', 'Last sync') ?></th>
+                <th class="d-none d-sm-table-cell"><?= sortLink('rmm_provider_sync_at', 'Last sync') ?></th>
                 <th></th>
             </tr>
             </thead>

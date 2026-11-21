@@ -73,10 +73,6 @@ $link_counts = ticketLinkCounts(array_keys($tickets));
 // A Due column only when there is something to put in it
 $show_due = $sla_in_use || mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_due_at IS NOT NULL AND ticket_closed_at IS NULL LIMIT 1"));
 
-$sort_link = function ($column, $label, $class = '') use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none ' . $class . '" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 ?>
 
@@ -101,22 +97,22 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                         </div>
                     </th>
                 <?php } ?>
-                <th><?= $sort_link('ticket_number', 'Ticket') ?></th>
+                <th><?= sortLink('ticket_number', 'Ticket') ?></th>
                 <th>
                     <?php if (!$client_url) { ?>
-                        <?= $sort_link('client_name', 'Client') ?> <span class="text-body-secondary">/</span>
+                        <?= sortLink('client_name', 'Client') ?> <span class="text-body-secondary">/</span>
                     <?php } ?>
-                    <?= $sort_link('contact_name', 'Contact', $client_url ? '' : 'text-body-secondary') ?>
+                    <?= sortLink('contact_name', 'Contact', null, '', $client_url ? '' : 'text-body-secondary') ?>
                 </th>
-                <th><?= $sort_link('ticket_status', 'Status') ?></th>
-                <th><?= $sort_link('ticket_priority', 'Priority') ?></th>
-                <th><?= $sort_link('user_name', 'Assigned') ?></th>
+                <th><?= sortLink('ticket_status', 'Status') ?></th>
+                <th><?= sortLink('ticket_priority', 'Priority') ?></th>
+                <th><?= sortLink('user_name', 'Assigned') ?></th>
                 <?php if ($show_due) { ?>
-                    <th><?= $sort_link('ticket_sla', 'Due') ?></th>
+                    <th><?= sortLink('ticket_sla', 'Due') ?></th>
                 <?php } ?>
-                <th><?= $sort_link('ticket_updated_at', 'Activity') ?></th>
+                <th><?= sortLink('ticket_updated_at', 'Activity') ?></th>
                 <?php if ($show_billing) { ?>
-                    <th class="text-center"><?= $sort_link('ticket_billable', 'Billing') ?></th>
+                    <th class="text-center"><?= sortLink('ticket_billable', 'Billing') ?></th>
                 <?php } ?>
                 <th></th>
             </tr>

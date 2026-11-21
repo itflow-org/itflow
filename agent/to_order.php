@@ -67,10 +67,6 @@ $filter_url = function ($changes) {
     unset($params['page']);
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null && $v !== 0; }));
 };
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $csrf = $_SESSION['csrf_token'];
 $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM purchase_orders WHERE po_status = 'draft'" . poScopeSql('po_id')))[0]) : 0;
 
@@ -176,13 +172,13 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
                             </div>
                         </th>
                     <?php } ?>
-                    <th class="<?= $can_edit ? '' : 'ps-3' ?>"><?= $sort_link('order_item_name', 'Item') ?></th>
-                    <th><?= $sort_link('client_name', 'For') ?></th>
-                    <th><?= $sort_link('vendor_name', 'Vendor') ?></th>
-                    <th class="text-end"><?= $sort_link('order_item_quantity', 'Qty') ?></th>
-                    <th class="text-end d-none d-md-table-cell"><?= $sort_link('order_item_cost', 'Unit cost') ?></th>
+                    <th class="<?= $can_edit ? '' : 'ps-3' ?>"><?= sortLink('order_item_name', 'Item') ?></th>
+                    <th><?= sortLink('client_name', 'For') ?></th>
+                    <th><?= sortLink('vendor_name', 'Vendor') ?></th>
+                    <th class="text-end"><?= sortLink('order_item_quantity', 'Qty') ?></th>
+                    <th class="text-end d-none d-md-table-cell"><?= sortLink('order_item_cost', 'Unit cost') ?></th>
                     <th class="text-end d-none d-md-table-cell">Amount</th>
-                    <th class="d-none d-xl-table-cell"><?= $sort_link('order_item_created_at', 'Added') ?></th>
+                    <th class="d-none d-xl-table-cell"><?= sortLink('order_item_created_at', 'Added') ?></th>
                     <th></th>
                 </tr>
                 </thead>

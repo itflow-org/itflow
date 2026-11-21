@@ -315,15 +315,15 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                         </div>
                     </th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=trip_date&order=<?= $disp ?>">Date <?php if ($sort == 'trip_date') { echo $order_icon; } ?></a></th>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=trip_destination&order=<?= $disp ?>">Trip <?php if ($sort == 'trip_destination') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('trip_date', 'Date') ?></th>
+                <th><?= sortLink('trip_destination', 'Trip') ?></th>
                 <?php if (!$client_page) { ?>
-                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                    <th><?= sortLink('client_name', 'Client') ?></th>
                 <?php } else { ?>
                     <th>Site</th>
                 <?php } ?>
-                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">Driver <?php if ($sort == 'user_name') { echo $order_icon; } ?></a></th>
-                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=trip_miles&order=<?= $disp ?>"><?= ucfirst(tripUnit()) ?> <?php if ($sort == 'trip_miles') { echo $order_icon; } ?></a></th>
+                <th><?= sortLink('user_name', 'Driver') ?></th>
+                <th class="text-end"><?= sortLink('trip_miles', ucfirst(tripUnit())) ?></th>
                 <th></th>
             </tr>
             </thead>

@@ -79,10 +79,6 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', array
 }, $views)) . " FROM canned_responses WHERE $filters"));
 $view_counts = array_combine(array_keys($views), $counts);
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($view) use ($category_filter) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'category' => $category_filter, 'show' => $view]));
 };
@@ -130,10 +126,10 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('canned_response_name', 'Response') ?></th>
+                <th class="ps-3"><?= sortLink('canned_response_name', 'Response') ?></th>
                 <th class="d-none d-lg-table-cell">Offered on</th>
-                <th class="d-none d-md-table-cell" title="In your replies"><?= $sort_link('use_count', 'You used it') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
+                <th class="d-none d-md-table-cell" title="In your replies"><?= sortLink('use_count', 'You used it') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
                 <th></th>
             </tr>
             </thead>

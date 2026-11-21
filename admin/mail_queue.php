@@ -56,10 +56,6 @@ $counts = array_combine(array_keys($tabs), array_map('intval', mysqli_fetch_row(
 
 $health = mailQueueHealth();
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $show, 'canned_date' => $_GET['canned_date'] ?? '', 'dtf' => $_GET['dtf'] ?? '', 'dtt' => $_GET['dtt'] ?? '']));
 };
@@ -171,10 +167,10 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                         </div>
                     </th>
-                    <th class="d-none d-sm-table-cell"><?= $sort_link('email_status', 'Status') ?></th>
-                    <th><?= $sort_link('email_recipient', 'To') ?></th>
-                    <th class="d-none d-md-table-cell"><?= $sort_link('email_subject', 'Subject') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('email_queued_at', 'Queued') ?></th>
+                    <th class="d-none d-sm-table-cell"><?= sortLink('email_status', 'Status') ?></th>
+                    <th><?= sortLink('email_recipient', 'To') ?></th>
+                    <th class="d-none d-md-table-cell"><?= sortLink('email_subject', 'Subject') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('email_queued_at', 'Queued') ?></th>
                     <th></th>
                 </tr>
                 </thead>

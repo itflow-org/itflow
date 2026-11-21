@@ -58,10 +58,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(managed_instance_archived_at IS NULL), 0), COALESCE(SUM(managed_instance_archived_at IS NOT NULL), 0)
     FROM managed_instances LEFT JOIN clients ON client_id = managed_instance_client_id WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $csrf = $_SESSION['csrf_token'];
 
@@ -96,11 +92,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('managed_instance_name', 'Instance') ?> <span class="fw-normal text-body-secondary small ms-2"><?= $sort_link('client_name', 'by client') ?></span></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('managed_instance_version', 'Version') ?></th>
+                <th class="ps-3"><?= sortLink('managed_instance_name', 'Instance') ?> <span class="fw-normal text-body-secondary small ms-2"><?= sortLink('client_name', 'by client') ?></span></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('managed_instance_version', 'Version') ?></th>
                 <th class="d-none d-lg-table-cell">Health</th>
                 <th class="d-none d-xl-table-cell">Agents</th>
-                <th class="d-none d-sm-table-cell"><?= $sort_link('managed_instance_last_checkin_at', 'Last check-in') ?></th>
+                <th class="d-none d-sm-table-cell"><?= sortLink('managed_instance_last_checkin_at', 'Last check-in') ?></th>
                 <th></th>
             </tr>
             </thead>

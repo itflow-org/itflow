@@ -69,10 +69,6 @@ while ($row = mysqli_fetch_row($sql)) {
     $kind_counts[intval($row[0])] = intval($row[1]);
 }
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($archived) use ($type) {
     return '?' . http_build_query(array_filter(['type' => $type, 'q' => $_GET['q'] ?? '', 'show' => $archived ? 'archived' : '']));
 };
@@ -169,8 +165,8 @@ $csrf = $_SESSION['csrf_token'];
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                                 </div>
                             </th>
-                            <th><?= $sort_link('tag_name', 'Tag') ?></th>
-                            <th class="d-none d-sm-table-cell"><?= $sort_link('used', 'On') ?></th>
+                            <th><?= sortLink('tag_name', 'Tag') ?></th>
+                            <th class="d-none d-sm-table-cell"><?= sortLink('used', 'On') ?></th>
                             <th></th>
                         </tr>
                         </thead>

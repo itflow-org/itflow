@@ -144,10 +144,6 @@ if ($view === 'ips') {
     }
 }
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 // A view keeps the search and dates, and starts from the top
 $view_url = function ($key) {
     $query = array_diff_key($_GET, ['page' => 1, 'sort' => 1, 'order' => 1]);
@@ -207,22 +203,22 @@ $audit_url = function (array $query) use ($dates_query) {
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <?php if ($view === 'ips') { ?>
                 <tr>
-                    <th class="ps-3"><?= $sort_link('log_ip', 'IP address') ?></th>
-                    <th><?= $sort_link('accounts', 'Accounts tried') ?></th>
-                    <th class="text-end"><?= $sort_link('sign_ins', 'Sign-ins') ?></th>
-                    <th class="text-end"><?= $sort_link('failures', 'Failed') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('first_seen', 'First seen') ?></th>
-                    <th><?= $sort_link('last_seen', 'Last seen') ?></th>
+                    <th class="ps-3"><?= sortLink('log_ip', 'IP address') ?></th>
+                    <th><?= sortLink('accounts', 'Accounts tried') ?></th>
+                    <th class="text-end"><?= sortLink('sign_ins', 'Sign-ins') ?></th>
+                    <th class="text-end"><?= sortLink('failures', 'Failed') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('first_seen', 'First seen') ?></th>
+                    <th><?= sortLink('last_seen', 'Last seen') ?></th>
                     <th></th>
                 </tr>
             <?php } else { ?>
                 <tr>
-                    <th class="ps-3"><?= $sort_link('user_name', 'Who') ?></th>
+                    <th class="ps-3"><?= sortLink('user_name', 'Who') ?></th>
                     <th class="d-none d-md-table-cell">Last sign in</th>
-                    <th class="text-end"><?= $sort_link('sign_ins', 'Sign-ins') ?></th>
-                    <th class="text-end"><?= $sort_link('failures', 'Failed') ?></th>
-                    <th class="text-end d-none d-sm-table-cell"><?= $sort_link('ips', 'IP addresses') ?></th>
-                    <th class="d-none d-lg-table-cell"><?= $sort_link('last_seen', 'Last seen') ?></th>
+                    <th class="text-end"><?= sortLink('sign_ins', 'Sign-ins') ?></th>
+                    <th class="text-end"><?= sortLink('failures', 'Failed') ?></th>
+                    <th class="text-end d-none d-sm-table-cell"><?= sortLink('ips', 'IP addresses') ?></th>
+                    <th class="d-none d-lg-table-cell"><?= sortLink('last_seen', 'Last seen') ?></th>
                     <th></th>
                 </tr>
             <?php } ?>

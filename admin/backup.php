@@ -173,10 +173,6 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS backup_id, backup_type,
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 
 $type_looks = [
     BACKUP_TYPE_FULL => ['icon' => 'fa-box-open', 'tone' => 'itflow-asset-tone-server'],
@@ -342,10 +338,10 @@ $status_looks = [
                 <table class="table table-hover align-middle mb-0" data-backup-list>
                     <thead class="table-light text-nowrap">
                     <tr>
-                        <th class="ps-3"><?= $sort_link('backup_type', 'Backup') ?></th>
-                        <th class="d-none d-sm-table-cell"><?= $sort_link('backup_created_at', 'Made') ?></th>
-                        <th class="d-none d-sm-table-cell"><?= $sort_link('backup_size', 'Size') ?></th>
-                        <th><?= $sort_link('backup_status', 'Status') ?></th>
+                        <th class="ps-3"><?= sortLink('backup_type', 'Backup') ?></th>
+                        <th class="d-none d-sm-table-cell"><?= sortLink('backup_created_at', 'Made') ?></th>
+                        <th class="d-none d-sm-table-cell"><?= sortLink('backup_size', 'Size') ?></th>
+                        <th><?= sortLink('backup_status', 'Status') ?></th>
                         <th></th>
                     </tr>
                     </thead>

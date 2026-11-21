@@ -82,9 +82,8 @@ while ($row = mysqli_fetch_row($sql)) {
 }
 
 // A column first sorts the way it reads best - A to Z, most used, first to last - then flips
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon, $sort_first) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . ($sort === $column ? $disp : $sort_first[$column]) . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+$sort_link = function ($column, $label) use ($sort_first) {
+    return sortLink($column, $label, $sort_first[$column] ?? null);
 };
 $pill_url = function ($archived) use ($kind) {
     return '?' . http_build_query(array_filter(['category' => $kind, 'q' => $_GET['q'] ?? '', 'show' => $archived ? 'archived' : '']));

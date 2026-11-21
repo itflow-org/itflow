@@ -474,22 +474,16 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
             <thead class="<?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap table-light">
             <tr>
                 <th class="ps-3">
-                    <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invite_email&order=<?= $disp ?>">
-                        Invited <?php if ($sort == 'invite_email') { echo $order_icon; } ?>
-                    </a>
+                    <?= sortLink('invite_email', 'Invited') ?>
                 </th>
                 <th class="d-none d-md-table-cell">Sees</th>
                 <th class="d-none d-sm-table-cell">
-                    <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=invite_created_at&order=<?= $disp ?>">
-                        Sent <?php if ($sort == 'invite_created_at') { echo $order_icon; } ?>
-                    </a>
+                    <?= sortLink('invite_created_at', 'Sent') ?>
                 </th>
                 <th>Link</th>
                 <?php if (!$client_url) { ?>
                 <th>
-                    <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                        Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                    </a>
+                    <?= sortLink('client_name', 'Client') ?>
                 </th>
                 <?php } ?>
                 <th class="position-relative"><span class="visually-hidden">Actions</span></th>
@@ -562,26 +556,18 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                         </div>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
-                            Name <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('contact_name', 'Name') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=contact_email&order=<?= $disp ?>">
-                            Reach <?php if ($sort == 'contact_email') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('contact_email', 'Reach') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
-                            Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('location_name', 'Location') ?>
                     </th>
                     <th class="d-none d-lg-table-cell">Linked</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th class="position-relative"><span class="visually-hidden">Actions</span></th>

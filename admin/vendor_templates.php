@@ -104,10 +104,6 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(vendor_tem
     COALESCE(SUM(vendor_template_archived_at IS NULL AND vendor_template_required > 0), 0), COALESCE(SUM(vendor_template_archived_at IS NULL AND vendor_template_id IN ($out_ids)), 0)
     FROM vendor_templates WHERE $search"));
 
-$sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $disp, $order_icon) {
-    return '<a class="text-reset text-decoration-none" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
-        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
-};
 $pill_url = function ($show) {
     return '?' . http_build_query(array_filter(['q' => $_GET['q'] ?? '', 'show' => $show]));
 };
@@ -174,11 +170,11 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= $sort_link('vendor_template_name', 'Template') ?></th>
+                <th class="ps-3"><?= sortLink('vendor_template_name', 'Template') ?></th>
                 <th class="d-none d-lg-table-cell">Support</th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('used_count', 'Used') ?></th>
-                <th class="d-none d-md-table-cell"><?= $sort_link('last_used', 'Last used') ?></th>
-                <th class="d-none d-lg-table-cell"><?= $sort_link('changed_at', 'Changed') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('used_count', 'Used') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('last_used', 'Last used') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('changed_at', 'Changed') ?></th>
                 <th></th>
             </tr>
             </thead>

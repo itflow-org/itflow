@@ -659,6 +659,34 @@ function emptyStatePill(array $pills, $key, $default = '', array $good = []) {
     return $view + ['icon' => $pill['icon'] ?? 'fa-filter'];
 }
 
+/*
+ * A sortable column header. includes/filter_header.php sets $sort, $disp, $order_icon and
+ * $url_query_strings_sort. A click on the column being sorted flips it; the first click on
+ * another sorts names A-Z and dates, money and counts newest or largest first, or $first
+ * ('ASC' or 'DESC') where the page knows better.
+ */
+function sortLink($column, $label, $first = null, $title = '', $class = '') {
+    global $sort, $disp, $order_icon, $url_query_strings_sort;
+    $active = isset($sort) && (string) $sort === (string) $column;
+    $order = $active ? $disp : (in_array($first, ['ASC', 'DESC'], true) ? $first : sortFirstOrder($column));
+    return '<a class="text-reset text-decoration-none' . ($class !== '' ? ' ' . $class : '') . '" href="?' . escapeHtml($url_query_strings_sort ?? '')
+        . '&amp;sort=' . escapeHtml($column) . '&amp;order=' . $order . '"' . ($title !== '' ? ' title="' . escapeHtml($title) . '"' : '') . '>'
+        . $label . ($active ? " $order_icon" : '') . '</a>';
+}
+
+/** The first way a column sorts: DESC for dates, money, counts and record numbers, ASC for the rest. */
+function sortFirstOrder($column) {
+    $column = strtolower((string) $column);
+    $name = preg_replace('/^.*\./', '', $column);
+    if (preg_match('/(^|_)(at|date|due|expire|expires|expiry|updated|created|run|seen|login|paid|used|checkin|synced|inbound|since|starts|ends|now)$/', $name)
+        || preg_match('/(^|_)(amount|total|balance|price|cost|margin|profit|value|stock|seats|threshold|percent|rate|count|views|size|ms|minutes|hours|miles|quantity|qty|devices|months|tokens|use|uses|failures|requests|activity|sign_ins|ips|linked|in)$/', $name)
+        || preg_match('/^(tickets|contracts|accounts|agents|used|clients|documents|invoices|assets)$/', $name)
+        || preg_match('/^(ticket|invoice|quote|po|project|recurring_invoice|contract)_number$/', $name)) {
+        return 'DESC';
+    }
+    return 'ASC';
+}
+
 /**
  * A list's empty state. $o:
  *   thing   - what the list holds, plural ('vendors')

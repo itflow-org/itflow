@@ -314,26 +314,18 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=domain_name&order=<?= $disp ?>">
-                            Domain <?php if ($sort == 'domain_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('domain_name', 'Domain') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=domain_expire&order=<?= $disp ?>">
-                            Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('domain_expire', 'Expires') ?>
                     </th>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=registrar_name&order=<?= $disp ?>">
-                            Registrar and hosts <?php if ($sort == 'registrar_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('registrar_name', 'Registrar and hosts') ?>
                     </th>
                     <th>Email</th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
+                        <?= sortLink('client_name', 'Client') ?>
                     </th>
                     <?php } ?>
                     <th></th>
