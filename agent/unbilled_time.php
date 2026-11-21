@@ -217,7 +217,7 @@ $hours_text = function ($hours) {
                                         <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['vendor_name'], $expense['category_name']]))) ?></div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
-                                        <div class="small"><?= escapeHtml($expense['expense_date']) ?></div>
+                                        <div class="small"><?= formatDate($expense['expense_date']) ?></div>
                                         <?= $waiting_pill($expense['waiting']) ?>
                                     </td>
                                     <td class="text-end text-nowrap">
@@ -285,7 +285,7 @@ $hours_text = function ($hours) {
                                         </div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
-                                        <div class="small"><?= escapeHtml($trip['trip_date']) ?></div>
+                                        <div class="small"><?= formatDate($trip['trip_date']) ?></div>
                                         <?= $waiting_pill($trip['waiting']) ?>
                                     </td>
                                     <td class="text-end text-nowrap">
@@ -398,7 +398,7 @@ $hours_text = function ($hours) {
                                         </div>
                                     </td>
                                     <td class="text-nowrap d-none d-md-table-cell">
-                                        <div class="small"><?= escapeHtml(date('Y-m-d', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?></div>
+                                        <div class="small"><?= escapeHtml(date('M j, Y', strtotime((string) ($ticket['ticket_resolved_at'] ?: $ticket['ticket_closed_at'])))) ?></div>
                                         <?= $waiting_pill($ticket['waiting']) ?>
                                     </td>
                                     <td class="text-end text-nowrap <?= $ticket['seconds'] ? '' : 'text-warning-emphasis' ?>" <?= $ticket['seconds'] ? '' : 'title="No time logged - type the hours to bill, or leave it at 0 to put it on the invoice with no charge"' ?>>

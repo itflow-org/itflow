@@ -411,7 +411,7 @@ if (isset($_POST['bulk_edit_project_due'])) {
             continue;
         }
         mysqli_query($mysqli, "UPDATE projects SET project_due = $due WHERE project_id = " . intval($row['project_id']));
-        logAudit("Project", "Edit", "$session_name set the due date of project " . escapeSql(projectReference($row) . ' - ' . $row['project_name']) . " to " . ($due === 'NULL' ? 'none' : trim($due, "'")), intval($row['project_client_id']), intval($row['project_id']));
+        logAudit("Project", "Edit", "$session_name set the due date of project " . escapeSql(projectReference($row) . ' - ' . $row['project_name']) . " to " . ($due === 'NULL' ? 'none' : formatDate(trim($due, "'"))), intval($row['project_client_id']), intval($row['project_id']));
         $done++;
     }
 

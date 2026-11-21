@@ -437,7 +437,7 @@ function userLoginLineHtml($log) {
     }
     return '<div class="d-flex gap-2 align-items-start">'
         . '<i class="fas fa-fw ' . ($ok ? 'fa-check-circle text-success' : 'fa-times-circle text-danger') . ' mt-1" title="' . escapeHtml($log['log_action']) . '"></i>'
-        . '<div class="min-w-0"><span title="' . escapeHtml($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
+        . '<div class="min-w-0"><span title="' . formatDateTime($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
         . ($ok ? '' : ' <span class="text-danger-emphasis">' . escapeHtml($why) . '</span>')
         . '<div class="small text-body-secondary">' . userDeviceHtml($log['log_user_agent']) . ' · <span class="font-monospace">' . escapeHtml($log['log_ip']) . '</span></div></div>'
         . '</div>';
@@ -502,7 +502,7 @@ function userLoginHtml($log, $with_ip = true) {
     if (!$log) {
         return '<span class="text-body-secondary">Never signed in</span>';
     }
-    return '<span title="' . escapeHtml($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
+    return '<span title="' . formatDateTime($log['log_created_at']) . '">' . escapeHtml(timeAgo($log['log_created_at'])) . '</span>'
         . '<div class="small text-body-secondary text-nowrap">' . userDeviceHtml($log['log_user_agent'])
         . ($with_ip ? ' · <span class="font-monospace">' . escapeHtml($log['log_ip']) . '</span>' : '') . '</div>';
 }
@@ -628,7 +628,7 @@ function userMailSignInAlert($name, $email, $kind, $ip, $user_agent) {
             'intro' => [$mfa
                 ? "Someone signed in to your $app account with your password, but the multi-factor code was wrong, so they were stopped."
                 : "Someone signed in to your $app account from a device and address it hasn't seen before. If that was you, there is nothing to do."],
-            'summary' => ['When' => date('D j M Y, g:i A'), 'Device' => $device !== '' ? $device : 'Unknown device', 'IP address' => (string) $ip],
+            'summary' => ['When' => date('D, M j, Y g:i A'), 'Device' => $device !== '' ? $device : 'Unknown device', 'IP address' => (string) $ip],
             'callout' => $mfa ? 'If that was not you, your password is known to someone else - change it now.' : 'If that was not you, change your password now and tell your administrator.',
             'button' => ['label' => 'Review your sign in security', 'url' => "https://$config_base_url/agent/user/user_security.php"],
         ]);

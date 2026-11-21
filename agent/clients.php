@@ -430,7 +430,7 @@ $total_leads = intval($row['leads']);
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                 <?php } else { ?>
-                                    <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_clients">
+                                    <button class="dropdown-item text-danger" type="submit" form="bulkActions" name="bulk_archive_clients">
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
@@ -727,11 +727,11 @@ $total_leads = intval($row['leads']);
                                         <?php } ?>
                                         <div class="dropdown-divider"></div>
                                         <?php if ($client_archived_at) { ?>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-info" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-redo me-2"></i>Restore
                                             </a>
                                         <?php } else { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } ?>

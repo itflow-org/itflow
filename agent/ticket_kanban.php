@@ -155,7 +155,7 @@ $tickets_tags = tagsForRecords('ticket', $board_ids);
                         <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
                             <?php $assignee = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $is_open); ?>
                             <span class="min-w-0 text-truncate"><?= $can_edit ? quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $assignee) : $assignee ?><?= ticketHelpersBadge($ticket_id) ?></span>
-                            <span class="small text-body-secondary text-nowrap" title="<?= $reply ? escapeHtml(['Client' => 'The client replied', 'Public' => 'We replied', 'Internal' => 'Internal note'][$reply['ticket_reply_type']] ?? 'Last reply') . ' ' . escapeHtml($reply['ticket_reply_created_at']) : 'Opened ' . escapeHtml($row['ticket_created_at']) ?>">
+                            <span class="small text-body-secondary text-nowrap" title="<?= $reply ? escapeHtml(['Client' => 'The client replied', 'Public' => 'We replied', 'Internal' => 'Internal note'][$reply['ticket_reply_type']] ?? 'Last reply') . ' ' . formatDateTime($reply['ticket_reply_created_at']) : 'Opened ' . formatDateTime($row['ticket_created_at']) ?>">
                                 <?php if ($reply && $reply['ticket_reply_type'] === 'Client') { ?>
                                     <i class="fas fa-reply text-warning me-1"></i>
                                 <?php } elseif ($reply) { ?>

@@ -158,7 +158,7 @@ echo agentBannersHtml($client_id);
                 <?php if ($from_quote) { ?>
                     <span><i class="fas fa-fw fa-comment-dollar me-1"></i>From <a class="text-reset" href="quote.php?quote_id=<?= intval($from_quote['quote_id']) ?>"><?= escapeHtml($from_quote['quote_prefix'] . $from_quote['quote_number']) ?></a></span>
                 <?php } ?>
-                <span title="<?= escapeHtml($invoice['invoice_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($invoice['invoice_created_at'])) ?></span>
+                <span title="<?= formatDateTime($invoice['invoice_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($invoice['invoice_created_at'])) ?></span>
             </div>
         </div>
 
@@ -312,7 +312,7 @@ echo agentBannersHtml($client_id);
                     <dt>Paid</dt><dd><?= $money($state['paid']) ?><?= $payments ? ' <span class="text-body-secondary">in ' . count($payments) . ' payment' . (count($payments) === 1 ? '' : 's') . '</span>' : '' ?></dd>
                     <dt>Due</dt>
                     <dd>
-                        <?= escapeHtml($invoice['invoice_due']) ?>
+                        <?= formatDate($invoice['invoice_due']) ?>
                         <?php if (in_array($state['state'], ['open', 'overdue'], true)) { ?>
                             <div class="small <?= $state['days'] < 0 ? 'text-danger-emphasis' : 'text-body-secondary' ?>">
                                 <?= $state['days'] < 0 ? (-$state['days']) . ' day' . (-$state['days'] === 1 ? '' : 's') . ' late' : ($state['days'] === 0 ? 'Today' : 'In ' . $state['days'] . ' day' . ($state['days'] === 1 ? '' : 's')) ?>
@@ -373,7 +373,7 @@ echo agentBannersHtml($client_id);
                             <div class="flex-grow-1 min-w-0">
                                 <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                                 <div class="small text-body-secondary text-truncate">
-                                    <?= escapeHtml(implode(' · ', array_filter([$payment['payment_date'], $payment['payment_method'], $payment['payment_reference'], moduleOn('bookkeeping') ? $payment['account_name'] : '']))) ?>
+                                    <?= escapeHtml(implode(' · ', array_filter([formatDate($payment['payment_date']), $payment['payment_method'], $payment['payment_reference'], moduleOn('bookkeeping') ? $payment['account_name'] : '']))) ?>
                                 </div>
                             </div>
                             <?php if ($can_edit_payments || $can_delete_payments) { ?>

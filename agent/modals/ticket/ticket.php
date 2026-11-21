@@ -238,7 +238,7 @@ ob_start();
                 <div class="small d-flex flex-wrap align-items-center gap-2 mb-1">
                     <span class="badge rounded-pill <?= ['Client' => 'text-bg-warning', 'Public' => 'text-bg-primary', 'Internal' => 'text-bg-secondary'][$type] ?? 'text-bg-secondary' ?>"><?= ['Client' => 'Client', 'Public' => 'Public', 'Internal' => 'Internal note'][$type] ?? escapeHtml($type) ?></span>
                     <span class="fw-semibold"><?= escapeHtml($who ?? '') ?></span>
-                    <span class="text-body-secondary ms-auto" title="<?= escapeHtml($reply['ticket_reply_created_at']) ?>"><?= timeAgo($reply['ticket_reply_created_at']) ?></span>
+                    <span class="text-body-secondary ms-auto" title="<?= formatDateTime($reply['ticket_reply_created_at']) ?>"><?= timeAgo($reply['ticket_reply_created_at']) ?></span>
                 </div>
                 <div class="itflow-ticket-glance-text small"><?= $purifier->purify($reply['ticket_reply']) ?></div>
             </div>

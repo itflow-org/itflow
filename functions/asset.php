@@ -141,7 +141,7 @@ function assetWarranty($warranty_expire, $soon_days = 90) {
         $left = $days === 0 ? 'today' : ($days === 1 ? '1 day left' : "$days days left");
         return ['tone' => 'warning', 'short' => $left, 'text' => $days === 0 ? 'Expires today' : "Expires in $days day" . ($days === 1 ? '' : 's'), 'days' => $days, 'date' => $date];
     }
-    return ['tone' => 'success', 'short' => 'Covered', 'text' => "Until $date", 'days' => $days, 'date' => $date];
+    return ['tone' => 'success', 'short' => 'Covered', 'text' => 'Until ' . formatDate($date), 'days' => $days, 'date' => $date];
 }
 
 /** "3 yrs 2 mos" since a date, or '' without one. For purchase / install dates. */

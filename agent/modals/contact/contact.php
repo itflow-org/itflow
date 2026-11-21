@@ -333,7 +333,7 @@ ob_start();
                                     <i class="fas fa-fw <?= $note_icon ?> text-secondary mt-1" title="<?= escapeHtml($row['contact_note_type']) ?>"></i>
                                     <div class="min-w-0">
                                         <div><?= nl2br(escapeHtml($row['contact_note'])) ?></div>
-                                        <div class="small text-body-secondary"><?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= escapeHtml($row['contact_note_created_at']) ?>"><?= timeAgo($row['contact_note_created_at']) ?></span></div>
+                                        <div class="small text-body-secondary"><?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= formatDateTime($row['contact_note_created_at']) ?>"><?= timeAgo($row['contact_note_created_at']) ?></span></div>
                                     </div>
                                 </li>
                             <?php } ?>

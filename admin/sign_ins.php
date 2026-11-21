@@ -290,7 +290,7 @@ $audit_url = function (array $query) use ($dates_query) {
                         </td>
                         <td class="d-none d-md-table-cell small">
                             <?php if ($success) { ?>
-                                <div title="<?= escapeHtml($success['log_created_at']) ?>"><?= escapeHtml(timeAgo($success['log_created_at'])) ?></div>
+                                <div title="<?= formatDateTime($success['log_created_at']) ?>"><?= escapeHtml(timeAgo($success['log_created_at'])) ?></div>
                                 <div class="text-body-secondary"><span class="font-monospace"><?= escapeHtml($success['log_ip']) ?></span><?= auditLogDevice($success['log_user_agent']) !== '' ? ' · ' . escapeHtml(auditLogDevice($success['log_user_agent'])) : '' ?></div>
                             <?php } else { ?>
                                 <span class="text-body-secondary">None<?= $dated ? ' in these dates' : '' ?></span>

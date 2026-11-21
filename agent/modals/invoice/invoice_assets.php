@@ -74,7 +74,7 @@ ob_start();
 
     <div class="modal-body">
         <p class="small text-body-secondary mb-3">
-            Each one goes on <?= escapeHtml($invoice['client_name']) ?>'s assets, bought <?= escapeHtml($invoice_date) ?> on <?= escapeHtml($number) ?>.
+            Each one goes on <?= escapeHtml($invoice['client_name']) ?>'s assets, bought <?= formatDate($invoice_date) ?> on <?= escapeHtml($number) ?>.
             Take a row out to leave it for later.
         </p>
 

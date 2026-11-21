@@ -213,7 +213,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
 
         logAudit("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
 
-        flashAlert("Assigned category <strong>" . escapeHtml(stripslashes($category_name)) . "</strong> to <strong>$count</strong> product(s)");
+        flashAlert("Assigned category <strong>" . escapeHtml(stripslashes($category_name)) . "</strong> to <strong>$count</strong> product" . ($count === 1 ? '' : 's'));
         undoOfferChanges($undo, "Category put back on <strong>{n}</strong> product{s}", 'module_sales');
     }
 
@@ -246,7 +246,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
         logAudit("Product", "Bulk Archive", "$session_name archived $count product(s)");
 
-        flashAlert("Archived <strong>$count</strong> product(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> product" . ($count === 1 ? '' : 's'), 'error');
         undoOfferArchive($undo);
 
     }
@@ -280,7 +280,7 @@ if (isset($_POST['bulk_restore_products'])) {
 
         logAudit("Product", "Bulk Restore", "$session_name restored $count product(s)");
 
-        flashAlert("Restored <strong>$count</strong> product(s)");
+        flashAlert("Restored <strong>$count</strong> product" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -312,7 +312,7 @@ if (isset($_POST['bulk_delete_products'])) {
 
         logAudit("Product", "Bulk Delete", "$session_name deleted $count product(s)");
 
-        flashAlert("Deleted <strong>$count</strong> product(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> product" . ($count === 1 ? '' : 's'), 'error');
 
     }
 

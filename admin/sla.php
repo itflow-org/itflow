@@ -362,18 +362,7 @@ $pill_url = function ($view) use ($on_days) {
                             $resolution = intval($sla['sla_resolution_minutes']);
                             $used = $used_text($sla);
                             $default_priorities = $default_for[$sla_id] ?? [];
-                            $edit_url = "modals/sla/sla_edit.php?id=$sla_id";
-                            // What archiving it changes, for the confirmation - the part that differs from one SLA to the next first.
-                            // As getTicketSlaId() has it: a default that is archived gives nothing, and a contract's falls back to the default.
-                            $contracts_giving = intval($sla_used[$sla_id]['contracts'] ?? 0);
-                            $default_priorities_text = implode(' and ', array_filter([implode(', ', array_slice($default_priorities, 0, -1)), end($default_priorities) ?: '']));
-                            $gives = array_filter([
-                                $default_priorities ? "It is the default for $default_priorities_text tickets, which get no SLA from then on." : '',
-                                $contracts_giving ? number_format($contracts_giving) . ' contract' . ($contracts_giving === 1 ? ' gives' : 's give') . ' it - new tickets under ' . ($contracts_giving === 1 ? 'it' : 'them') . ' get the default for their priority instead.' : '',
-                            ]);
-                            $open_tickets = intval($sla['n_tickets']);
-                            $archive_text = ($gives ? implode(' ', $gives) : 'New tickets no longer get it.') . ' '
-                                . ($open_tickets ? 'The ' . number_format($open_tickets) . ' open ticket' . ($open_tickets === 1 ? ' on it keeps its' : 's on it keep their') . ' targets.' : 'Tickets that have it keep their targets.'); ?>
+                            $edit_url = "modals/sla/sla_edit.php?id=$sla_id"; ?>
                             <tr data-sla-id="<?= $sla_id ?>">
                                 <td class="ps-3">
                                     <div class="d-flex align-items-start gap-3">
@@ -410,8 +399,7 @@ $pill_url = function ($view) use ($on_days) {
                                                 <a class="dropdown-item" href="post.php?unarchive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-restore><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
                                             <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-archive
-                                                    data-confirm-title="Archive <?= $name ?>?" data-confirm-text="<?= escapeHtml($archive_text) ?>" data-confirm-button="Archive">
+                                                <a class="dropdown-item text-danger" href="post.php?archive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>">
                                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                             <?php } ?>

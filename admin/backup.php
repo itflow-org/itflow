@@ -357,7 +357,7 @@ $status_looks = [
                         $type_as_noun = $type_noun($backup['backup_type']);
                         $type_look = $type_looks[$backup['backup_type']] ?? ['icon' => 'fa-file-archive', 'tone' => 'itflow-asset-tone-other'];
                         $status_look = $status_looks[$status] ?? ['label' => $status, 'tone' => 'secondary'];
-                        $made_at = substr((string) $backup['backup_created_at'], 0, 16);
+                        $made_at = formatDateTime($backup['backup_created_at']);
                         $backup_path = $status === 'Complete' ? backupResolvePath((string) $backup['backup_file_name']) : false;
                         // A finished one is deleted, file and all; one still waiting is taken off the queue; the rest are only rows
                         $remove = [
@@ -374,12 +374,12 @@ $status_looks = [
                                         <div class="fw-semibold text-nowrap"><?= escapeHtml($type_label) ?></div>
                                         <div class="small text-body-secondary text-truncate"><?= escapeHtml($made_by($backup)) ?></div>
                                         <?php // On a phone the Made column goes, and its date sits here ?>
-                                        <div class="small text-body-secondary text-nowrap d-sm-none"><?= escapeHtml($made_at) ?></div>
+                                        <div class="small text-body-secondary text-nowrap d-sm-none"><?= $made_at ?></div>
                                     </div>
                                 </div>
                             </td>
                             <td class="text-nowrap d-none d-sm-table-cell">
-                                <div><?= escapeHtml($made_at) ?></div>
+                                <div><?= $made_at ?></div>
                                 <div class="small text-body-secondary"><?= escapeHtml(timeAgo($backup['backup_created_at'])) ?></div>
                             </td>
                             <td class="d-none d-sm-table-cell text-nowrap"><?= $backup['backup_size'] > 0 ? escapeHtml(backupFormatBytes($backup['backup_size'])) : '<span class="text-body-secondary">&mdash;</span>' ?></td>
@@ -390,7 +390,7 @@ $status_looks = [
                                 <?php } elseif ($status === 'Missing') { ?>
                                     <div class="small text-body-secondary mt-1">Its file is no longer on this server</div>
                                 <?php } elseif ($status === 'Complete' && !empty($backup['backup_downloaded_at'])) { ?>
-                                    <div class="small text-body-secondary mt-1" title="<?= escapeHtml($backup['backup_downloaded_at']) ?>"><i class="fas fa-fw fa-download me-1"></i>Downloaded <?= escapeHtml(timeAgo($backup['backup_downloaded_at'])) ?></div>
+                                    <div class="small text-body-secondary mt-1" title="<?= formatDateTime($backup['backup_downloaded_at']) ?>"><i class="fas fa-fw fa-download me-1"></i>Downloaded <?= escapeHtml(timeAgo($backup['backup_downloaded_at'])) ?></div>
                                 <?php } ?>
                             </td>
                             <td class="text-end text-nowrap pe-3">

@@ -32,7 +32,7 @@ if ($re_row) {
     $return_arr['next_date'] = $next;
 
     $label = escapeSql(recurringExpenseLabel($re_row));
-    logAudit("Recurring Expense", "Move On", "Moved the recurring expense $label on from $from to $next without recording the missed runs via API ($api_key_name)", intval($re_row['recurring_expense_client_id']), $recurring_expense_id);
+    logAudit("Recurring Expense", "Move On", "Moved the recurring expense $label on from " . formatDate($from) . " to " . formatDate($next) . " without recording the missed runs via API ($api_key_name)", intval($re_row['recurring_expense_client_id']), $recurring_expense_id);
     logAudit("API", "Success", "Moved the recurring expense $label on via API ($api_key_name)", intval($re_row['recurring_expense_client_id']));
 }
 

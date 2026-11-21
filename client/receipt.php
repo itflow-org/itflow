@@ -61,7 +61,7 @@ $currency = $receipt['currency'];
     <div class="itflow-portal-panel-body">
         <dl class="itflow-portal-facts mb-4">
             <div><dt>Received from</dt><dd><?= escapeHtml($session_client_name) ?></dd></div>
-            <div><dt>Date</dt><dd><?= escapeHtml(date('F j, Y', strtotime($receipt['date']))) ?></dd></div>
+            <div><dt>Date</dt><dd><?= escapeHtml(date('M j, Y', strtotime($receipt['date']))) ?></dd></div>
             <div><dt>Paid by</dt><dd><?= escapeHtml($method) ?></dd></div>
             <?php if ($reference !== '') { ?>
                 <div><dt>Reference</dt><dd class="font-monospace small"><?= escapeHtml($reference) ?></dd></div>

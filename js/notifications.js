@@ -83,9 +83,9 @@
             return 'Yesterday';
         }
         if (minutes < 6 * 24 * 60) {
-            return date.toLocaleDateString(undefined, { weekday: 'short' });
+            return date.toLocaleDateString('en-US', { weekday: 'short' });
         }
-        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
     }
 
     function dayGroup(date) {

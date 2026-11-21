@@ -545,7 +545,7 @@ if (isset($_POST['restore_document_version'])) {
         document_updated_by = $session_user_id
         WHERE document_id = $document_id");
 
-    $version_date = date('M j, Y g:ia', strtotime($version['document_version_created_at']));
+    $version_date = date('M j, Y g:i A', strtotime($version['document_version_created_at']));
     logAudit("Document", "Edit", "$session_name restored document $name to its version of " . escapeSql($version_date) . ", the current one kept", $client_id, $document_id);
 
     flashAlert("Document <strong>{$version['document_version_name']}</strong> restored to the version of $version_date - what it said before is kept as a version");

@@ -356,7 +356,7 @@ function softwareHeldTable($rows, $kind, $holder_id, $can_edit) {
             $key_html = softwareKeyHtml($row['software_key']) . '<div class="small text-body-secondary">License key</div>';
         }
         $renew_html = $renewal
-            ? escapeHtml($renewal['date']) . '<div class="small text-' . ($renewal['tone'] === 'success' ? 'body-secondary' : $renewal['tone'] . '-emphasis') . '">' . escapeHtml($renewal['text']) . '</div>'
+            ? formatDate($renewal['date']) . '<div class="small text-' . ($renewal['tone'] === 'success' ? 'body-secondary' : $renewal['tone'] . '-emphasis') . '">' . escapeHtml($renewal['text']) . '</div>'
             : '<span class="text-body-secondary">-</span>';
         $unlink = $can_edit
             ? '<a href="post.php?unlink_item&amp;from=' . $kind . '&amp;id=' . $holder_id . '&amp;to=software&amp;other=' . $software_id . '&amp;csrf_token=' . escapeHtml($_SESSION['csrf_token'] ?? '') . '" class="btn btn-sm btn-light confirm-link" title="Take off this license" data-confirm-text="Frees the seat, and any key it had."><i class="fas fa-fw fa-unlink"></i></a>'

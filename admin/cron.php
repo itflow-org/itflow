@@ -503,7 +503,7 @@ $status_looks = [
                     <span class="text-body-secondary">Times are in</span>
                     <span class="text-end">
                         <a href="settings_localization.php" class="fw-semibold"><?= escapeHtml($session_timezone) ?></a>
-                        <span class="d-block text-body-secondary"><?= date('H:i') ?> now</span>
+                        <span class="d-block text-body-secondary"><?= date('g:i A') ?> now</span>
                     </span>
                 </li>
             </ul>

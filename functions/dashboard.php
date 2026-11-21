@@ -978,7 +978,7 @@ function dashboardTrips($period) {
 
     return [
         'labels' => array_map(function ($m) {
-            return date('M y', strtotime("$m-01"));
+            return date('M Y', strtotime("$m-01"));
         }, $months),
         'miles' => dashboardMonthly("SELECT DATE_FORMAT(trip_date, '%Y-%m') AS m, SUM(trip_miles) AS v FROM trips
             WHERE trip_archived_at IS NULL AND trip_date BETWEEN '$from' AND '$to' GROUP BY m", $months),

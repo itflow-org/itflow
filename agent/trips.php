@@ -340,7 +340,7 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                             </div>
                         </td>
                     <?php } ?>
-                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['trip_date']) ?></a></td>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= formatDate($row['trip_date']) ?></a></td>
                     <td class="itflow-trip-route">
                         <div class="text-truncate" title="<?= escapeHtml($row['trip_source'] . ' → ' . $row['trip_destination']) ?>">
                             <span class="text-body-secondary"><?= escapeHtml($row['trip_source']) ?></span>

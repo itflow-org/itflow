@@ -434,7 +434,7 @@ function ticketEmailSla($ticket_id) {
         $callout = "This ticket is marked High priority. If it is holding up your business, calling us on $phone gets you the fastest answer.";
     }
     return [
-        'summary' => ['We will respond' => 'within ' . formatSlaMinutes(intval($row['sla_response_minutes'])) . ', by ' . date('D j M, g:i A', strtotime($row['ticket_response_due_at']))],
+        'summary' => ['We will respond' => 'within ' . formatSlaMinutes(intval($row['sla_response_minutes'])) . ', by ' . date('D, M j, g:i A', strtotime($row['ticket_response_due_at']))],
         'callout' => $callout,
     ];
 }
@@ -490,7 +490,7 @@ function ticketEmailHistory(array $row, array $opts = []) {
             $items[] = [
                 'by' => $client ? ((string) $reply['contact_name'] ?: 'Client') : ((string) $reply['user_name'] ?: $company_name),
                 'org' => $client ? '' : $company_name,
-                'when' => date('D j M, g:i A', strtotime($reply['ticket_reply_created_at'])),
+                'when' => date('D, M j, g:i A', strtotime($reply['ticket_reply_created_at'])),
                 'text' => $text,
                 'client' => $client,
             ];
@@ -508,7 +508,7 @@ function ticketEmailHistory(array $row, array $opts = []) {
             $items[] = [
                 'by' => $asked_by !== '' ? $asked_by : 'The request',
                 'action' => $asked_by !== '' ? 'the request' : '',
-                'when' => date('D j M, g:i A', strtotime($row['ticket_created_at'])),
+                'when' => date('D, M j, g:i A', strtotime($row['ticket_created_at'])),
                 'text' => $text,
                 'client' => true,
             ];
@@ -1039,7 +1039,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         }
     } elseif ($kind === 'sla') {
         $track = ($opts['track'] ?? 'response') === 'resolution' ? 'resolution' : 'response';
-        $due = !empty($opts['due']) ? date('D j M, g:i A', strtotime($opts['due'])) : '';
+        $due = !empty($opts['due']) ? date('D, M j, g:i A', strtotime($opts['due'])) : '';
         $breached = !empty($opts['breached']);
         $email['kind'] = ucfirst($track) . ($breached ? ' SLA missed' : ' SLA at risk');
         $email['tone'] = $breached ? 'danger' : 'warning';
@@ -2255,7 +2255,7 @@ function recurringTicketAheadText($row) {
     $bits = [];
     if (!empty($row['recurring_ticket_schedule_time'])) {
         $minutes = intval($row['recurring_ticket_schedule_minutes'] ?? 0);
-        $bits[] = date('g:i a', strtotime('2000-01-01 ' . $row['recurring_ticket_schedule_time'])) . ($minutes && $minutes !== CALENDAR_TICKET_MINUTES ? ' for ' . ticketScheduleLengthText($minutes) : '')
+        $bits[] = date('g:i A', strtotime('2000-01-01 ' . $row['recurring_ticket_schedule_time'])) . ($minutes && $minutes !== CALENDAR_TICKET_MINUTES ? ' for ' . ticketScheduleLengthText($minutes) : '')
             . (intval($row['recurring_ticket_schedule_onsite']) ? ' onsite' : ' remote');
     }
     $days = intval($row['recurring_ticket_lead_days'] ?? 0);
@@ -2490,7 +2490,7 @@ function ticketScheduleWhenText($start, $end = null) {
     $end = ticketScheduleEnd($start, $end);
     $from = strtotime($start);
     $to = strtotime($end);
-    return date('l, F j, Y, g:ia', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:ia', $to) : date('l, F j, Y, g:ia', $to));
+    return date('l, F j, Y, g:i A', $from) . ' - ' . (date('Y-m-d', $from) === date('Y-m-d', $to) ? date('g:i A', $to) : date('l, F j, Y, g:i A', $to));
 }
 
 /** "Oct 20, 2026 · 1:00 PM - 3:00 PM", for the ticket page - on the viewer's own clock, with its zone, when they work away from the company's. */
@@ -2541,12 +2541,12 @@ function ticketScheduleConflicts($user_id, $start, $end, $ticket_id = 0) {
         // Only when someone is signed in - the nightly job books recurring tickets with nobody's client access to check
         $hidden = !empty($GLOBALS['session_user_id']) && intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']);
         $what = $hidden ? 'Another booking (a client you can\'t see)' : ticketReference($row) . ' - ' . $row['ticket_subject'];
-        $conflicts[] = $what . ' @ ' . date('g:ia', strtotime($row['ticket_schedule'])) . '-' . date('g:ia', strtotime(ticketScheduleEnd($row['ticket_schedule'], $row['ticket_schedule_end'])));
+        $conflicts[] = $what . ' @ ' . date('g:i A', strtotime($row['ticket_schedule'])) . '-' . date('g:i A', strtotime(ticketScheduleEnd($row['ticket_schedule'], $row['ticket_schedule_end'])));
     }
     if (function_exists('calendarEventItems') && function_exists('calendarList')) {
         foreach (calendarEventItems(array_keys(calendarList()), $start, $end, ['client_id' => 0, 'user_id' => $user_id]) as $item) {
             if (empty($item['allDay']) && !empty($item['end']) && $item['end'] > $start && $item['start'] < $end) {
-                $conflicts[] = $item['title'] . ' @ ' . date('g:ia', strtotime($item['start'])) . '-' . date('g:ia', strtotime($item['end']));
+                $conflicts[] = $item['title'] . ' @ ' . date('g:i A', strtotime($item['start'])) . '-' . date('g:i A', strtotime($item['end']));
             }
         }
     }

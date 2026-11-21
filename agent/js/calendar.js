@@ -135,7 +135,7 @@
             options.hour = 'numeric';
             options.minute = '2-digit';
         }
-        return date.toLocaleString(undefined, options);
+        return date.toLocaleString('en-US', options);
     }
 
     function openModal(url, size) {
@@ -398,7 +398,7 @@
             // Its end dragged (resized), or the whole booking moved
             confirmDialog({
                 title: resized && end
-                    ? 'Book ' + event.title.split(' ')[0] + ' until ' + end.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '?'
+                    ? 'Book ' + event.title.split(' ')[0] + ' until ' + end.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'}) + '?'
                     : 'Move ' + event.title.split(' ')[0] + ' to ' + words(start, false) + '?',
                 text: 'The agent and the contact are emailed the new time, as when it is rescheduled on the ticket.',
                 confirmButtonText: resized ? 'Change it' : 'Move it'
@@ -422,7 +422,7 @@
         if (props.kind === 'helper') {
             confirmDialog({
                 title: resized && end
-                    ? 'Book ' + event.title.split(' ')[0] + ' for this agent until ' + end.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '?'
+                    ? 'Book ' + event.title.split(' ')[0] + ' for this agent until ' + end.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'}) + '?'
                     : 'Move ' + event.title.split(' ')[0] + ' for this agent to ' + words(start, false) + '?',
                 text: props.follows_lead ? 'It becomes a time of their own - no longer moving with the lead. They are emailed the new time.' : 'They are emailed the new time.',
                 confirmButtonText: resized ? 'Change it' : 'Move it'

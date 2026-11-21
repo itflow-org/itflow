@@ -85,7 +85,7 @@ $paper = [
                         <span class="itflow-asset-icon bg-success-subtle text-success-emphasis" aria-hidden="true"><i class="fas fa-check"></i></span>
                         <div>
                             <div class="fw-semibold">Paid in full</div>
-                            <div class="small text-body-secondary"><?= $payments ? 'On ' . escapeHtml($payments[0]['payment_date']) . ' - thank you.' : 'Thank you.' ?></div>
+                            <div class="small text-body-secondary"><?= $payments ? 'On ' . formatDate($payments[0]['payment_date']) . ' - thank you.' : 'Thank you.' ?></div>
                         </div>
                     </div>
                 <?php } elseif (in_array($state['state'], ['cancelled', 'nonbillable'], true)) { ?>
@@ -99,7 +99,7 @@ $paper = [
                 <?php } else { ?>
                     <div class="itflow-billing-stat-label">Amount due</div>
                     <div class="itflow-billing-stat-value mb-1 <?= $state['state'] === 'overdue' ? 'text-danger-emphasis' : '' ?>"><?= $money($state['balance']) ?></div>
-                    <div class="mb-3"><?= invoiceDuePill($state) ?: '<span class="small text-body-secondary">Due ' . escapeHtml($invoice['invoice_due']) . '</span>' ?></div>
+                    <div class="mb-3"><?= invoiceDuePill($state) ?: '<span class="small text-body-secondary">Due ' . formatDate($invoice['invoice_due']) . '</span>' ?></div>
                     <?php if ($autopay) { ?>
                         <div class="alert alert-success py-2 small d-flex align-items-start gap-2 mb-3">
                             <i class="<?= escapeHtml($autopay['icon']) ?> fa-fw mt-1"></i>
@@ -129,7 +129,7 @@ $paper = [
                                 <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$payment['payment_method'], $payment['payment_reference']]))) ?></div>
                             </div>
-                            <span class="small text-body-secondary"><?= escapeHtml($payment['payment_date']) ?></span>
+                            <span class="small text-body-secondary"><?= formatDate($payment['payment_date']) ?></span>
                         </div>
                     <?php } ?>
                 </div>
@@ -151,7 +151,7 @@ $paper = [
                             href="guest_view_invoice.php?invoice_id=<?= $open_id ?>&url_key=<?= rawurlencode((string) $open['invoice_url_key']) ?>">
                             <div class="flex-grow-1 min-w-0">
                                 <div class="fw-semibold"><?= escapeHtml($open['invoice_prefix'] . $open['invoice_number']) ?></div>
-                                <div class="small text-truncate <?= $open_id === $invoice_id ? '' : 'text-body-secondary' ?>"><?= escapeHtml($open['invoice_scope']) ?: 'Dated ' . escapeHtml($open['invoice_date']) ?></div>
+                                <div class="small text-truncate <?= $open_id === $invoice_id ? '' : 'text-body-secondary' ?>"><?= escapeHtml($open['invoice_scope']) ?: 'Dated ' . formatDate($open['invoice_date']) ?></div>
                             </div>
                             <div class="text-end">
                                 <div class="itflow-money small fw-semibold"><?= escapeHtml(billingMoney($open_state['balance'], $open['invoice_currency_code'])) ?></div>

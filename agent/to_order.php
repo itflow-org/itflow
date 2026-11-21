@@ -230,7 +230,7 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
                         <td class="text-end"><?= escapeHtml(billingQuantity($row['order_item_quantity'])) ?></td>
                         <td class="text-end d-none d-md-table-cell"><?= $has_cost ? escapeHtml(poMoney($row['order_item_cost'])) : '<span class="text-body-tertiary">No cost</span>' ?></td>
                         <td class="text-end d-none d-md-table-cell"><?= $has_cost ? escapeHtml(poMoney(round(floatval($row['order_item_quantity']) * floatval($row['order_item_cost']), 2))) : '' ?></td>
-                        <td class="d-none d-xl-table-cell small text-body-secondary"><span title="<?= escapeHtml($row['order_item_created_at']) ?>"><?= escapeHtml(timeAgo($row['order_item_created_at'])) ?></span><?= $row['created_by_name'] ? ' by ' . escapeHtml($row['created_by_name']) : '' ?></td>
+                        <td class="d-none d-xl-table-cell small text-body-secondary"><span title="<?= formatDateTime($row['order_item_created_at']) ?>"><?= escapeHtml(timeAgo($row['order_item_created_at'])) ?></span><?= $row['created_by_name'] ? ' by ' . escapeHtml($row['created_by_name']) : '' ?></td>
                         <td class="text-end">
                             <?php if ($can_edit) { ?>
                                 <div class="dropdown dropstart">

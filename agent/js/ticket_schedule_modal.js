@@ -34,7 +34,7 @@
         }
         shown = date + '/' + panel.dataset.user;
         const day = new Date(date + 'T12:00:00');
-        title.textContent = panel.dataset.name + "'s day - " + day.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'});
+        title.textContent = panel.dataset.name + "'s day - " + day.toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'});
         open.href = 'calendar.php?date=' + date;
         itflowGet('ajax.php', {calendar_day: 1, date: date, user_id: panel.dataset.user, ticket_id: panel.dataset.ticket}, function (text) {
             let items = [];

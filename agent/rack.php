@@ -145,7 +145,7 @@ if (mysqli_num_rows($sql) == 0) {
                         </button>
                         <div class="dropdown-menu">
                             <?php if ($rack_archived_at) { ?>
-                                <a class="dropdown-item confirm-link" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-redo me-2"></i>Restore
                                 </a>
                             <?php } else { ?>
@@ -411,7 +411,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <dt>In the building</dt><dd><?= $rack_physical_location ?></dd>
                         <?php } ?>
                         <dt>Front / rear</dt><dd><?= $occupancy['front'] ?>U / <?= $occupancy['rear'] ?>U in use</dd>
-                        <dt>Updated</dt><dd title="<?= $rack_updated_at ?>"><?= timeAgo($rack_updated_at) ?></dd>
+                        <dt>Updated</dt><dd title="<?= formatDateTime($rack_updated_at) ?>"><?= timeAgo($rack_updated_at) ?></dd>
                     </dl>
                 </div>
             </div>

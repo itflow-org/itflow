@@ -125,7 +125,7 @@ echo agentBannersHtml($client_id);
         <div class="flex-grow-1 min-w-0">
             <h1 class="h4 fw-semibold mb-1 d-flex flex-wrap align-items-center gap-2">
                 <span>Recurring Invoice <?= escapeHtml($number) ?></span>
-                <span class="fs-6"><span class="badge rounded-pill text-bg-<?= $active ? 'success' : 'secondary' ?>"><?= $active ? 'Active' : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . escapeHtml($recurring['recurring_invoice_paused_until']) : 'Paused') ?></span></span>
+                <span class="fs-6"><span class="badge rounded-pill text-bg-<?= $active ? 'success' : 'secondary' ?>"><?= $active ? 'Active' : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . formatDate($recurring['recurring_invoice_paused_until']) : 'Paused') ?></span></span>
                 <?php if ($active) { ?><span class="fs-6"><?= recurringInvoiceNextPill($recurring) ?></span><?php } ?>
             </h1>
             <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
@@ -203,9 +203,9 @@ echo agentBannersHtml($client_id);
     <div class="alert alert-danger d-flex flex-wrap align-items-center gap-2 d-print-none">
         <i class="fas fa-exclamation-triangle"></i>
         <?php if ($late_days <= RECURRING_INVOICE_GRACE_DAYS) { ?>
-            <span class="me-auto">Its run on <?= escapeHtml($recurring['recurring_invoice_next_date']) ?> was missed - the next nightly run bills it. Invoice Now bills it straight away.</span>
+            <span class="me-auto">Its run on <?= formatDate($recurring['recurring_invoice_next_date']) ?> was missed - the next nightly run bills it. Invoice Now bills it straight away.</span>
         <?php } else { ?>
-            <span class="me-auto">Its next date, <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>, is <?= $late_days ?> days gone - too far behind to bill by itself. Use Invoice Now for each run it missed, or move it on without billing them.</span>
+            <span class="me-auto">Its next date, <?= formatDate($recurring['recurring_invoice_next_date']) ?>, is <?= $late_days ?> days gone - too far behind to bill by itself. Use Invoice Now for each run it missed, or move it on without billing them.</span>
         <?php } ?>
         <?php if ($can_edit) { ?>
             <a class="btn btn-sm btn-danger confirm-link" href="post.php?recurring_invoice_catch_up=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
@@ -245,18 +245,18 @@ echo agentBannersHtml($client_id);
                     <dt>Next</dt>
                     <dd>
                         <?php if ($active) { ?>
-                            <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>
+                            <?= formatDate($recurring['recurring_invoice_next_date']) ?>
                             <div class="small text-body-secondary">For <?= escapeHtml($next_period['{period}']) ?></div>
                             <?php if (count($upcoming) > 1 && !$late) { ?>
-                                <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_slice($upcoming, 1))) ?></div>
+                                <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_map('formatDate', array_slice($upcoming, 1)))) ?></div>
                             <?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary"><?= $for_contract && $for_contract['contract_status'] === 'Draft' ? 'Paused - it starts when ' . escapeHtml($for_contract['contract_name']) . ' is active'
-                                : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . escapeHtml($recurring['recurring_invoice_paused_until']) . ' - then it runs again by itself, from its next date after that'
+                                : (!empty($recurring['recurring_invoice_paused_until']) ? 'Paused until ' . formatDate($recurring['recurring_invoice_paused_until']) . ' - then it runs again by itself, from its next date after that'
                                 : 'Paused - nothing until it is resumed') ?></span>
                         <?php } ?>
                     </dd>
-                    <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? escapeHtml($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>
+                    <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? formatDate($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>
                     <?php $margin_html = billingMarginHtml('recurring', $items, $currency, $period_word); if ($margin_html) { ?>
                         <dt>Margin</dt><dd><?= $margin_html ?></dd>
                     <?php } ?>
@@ -278,7 +278,7 @@ echo agentBannersHtml($client_id);
                             Made as a draft<div class="small text-body-secondary">Emailing is off for this one</div>
                         <?php } ?>
                     </dd>
-                    <dt>Since</dt><dd title="<?= escapeHtml($recurring['recurring_invoice_created_at']) ?>"><?= escapeHtml(date('Y-m-d', strtotime($recurring['recurring_invoice_created_at']))) ?></dd>
+                    <dt>Since</dt><dd title="<?= formatDateTime($recurring['recurring_invoice_created_at']) ?>"><?= formatDate($recurring['recurring_invoice_created_at']) ?></dd>
                 </dl>
             </div>
         </div>
@@ -399,7 +399,7 @@ echo agentBannersHtml($client_id);
                         $made_state = invoiceState($made, $made['paid']); ?>
                         <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="invoice.php?invoice_id=<?= intval($made['invoice_id']) ?>">
                             <div class="flex-grow-1 min-w-0">
-                                <div class="fw-semibold"><?= escapeHtml($made['invoice_prefix'] . $made['invoice_number']) ?> <span class="fw-normal text-body-secondary small ms-1"><?= escapeHtml($made['invoice_date']) ?></span></div>
+                                <div class="fw-semibold"><?= escapeHtml($made['invoice_prefix'] . $made['invoice_number']) ?> <span class="fw-normal text-body-secondary small ms-1"><?= formatDate($made['invoice_date']) ?></span></div>
                                 <div class="small"><?= invoiceStatusBadge($made['invoice_status'], $made_state['state'] === 'overdue') ?></div>
                             </div>
                             <span class="itflow-money small"><?= escapeHtml(billingMoney($made['invoice_amount'], $made['invoice_currency_code'])) ?></span>
@@ -407,7 +407,7 @@ echo agentBannersHtml($client_id);
                     <?php } ?>
                 </div>
             <?php } else { ?>
-                <div class="card-body small text-body-secondary">None yet<?= $active ? ' - the first is made on ' . escapeHtml($recurring['recurring_invoice_next_date']) : '' ?>.</div>
+                <div class="card-body small text-body-secondary">None yet<?= $active ? ' - the first is made on ' . formatDate($recurring['recurring_invoice_next_date']) : '' ?>.</div>
             <?php } ?>
         </div>
 

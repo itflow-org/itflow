@@ -38,7 +38,7 @@ ob_start();
         <div class="min-w-0">
             <h5 class="modal-title fw-semibold text-break"><?= escapeHtml($row['kb_article_version_title']) ?></h5>
             <div class="small text-body-secondary mt-1">
-                Version of <?= date('M j, Y g:ia', strtotime($row['kb_article_version_created_at'])) ?><?= $row['user_name'] ? ' by ' . escapeHtml($row['user_name']) : '' ?>
+                Version of <?= date('M j, Y g:i A', strtotime($row['kb_article_version_created_at'])) ?><?= $row['user_name'] ? ' by ' . escapeHtml($row['user_name']) : '' ?>
                 <?php if ($row['kb_article_version_summary']) { ?> &middot; <?= escapeHtml($row['kb_article_version_summary']) ?><?php } ?>
             </div>
         </div>

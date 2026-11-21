@@ -75,11 +75,11 @@ ob_start();
             </dd>
         <?php } ?>
         <?php if ($project['project_start']) { ?>
-            <dt>Start</dt><dd><?= escapeHtml(date('D M j, Y', strtotime($project['project_start']))) ?></dd>
+            <dt>Start</dt><dd><?= escapeHtml(date('D, M j, Y', strtotime($project['project_start']))) ?></dd>
         <?php } ?>
-        <dt>Due</dt><dd><?= $project['project_due'] ? escapeHtml(date('D M j, Y', strtotime($project['project_due']))) : '<span class="text-body-secondary">-</span>' ?></dd>
+        <dt>Due</dt><dd><?= $project['project_due'] ? escapeHtml(date('D, M j, Y', strtotime($project['project_due']))) : '<span class="text-body-secondary">-</span>' ?></dd>
         <?php if ($project['project_completed_at']) { ?>
-            <dt>Completed</dt><dd><?= escapeHtml(date('D M j, Y', strtotime($project['project_completed_at']))) ?></dd>
+            <dt>Completed</dt><dd><?= escapeHtml(date('D, M j, Y', strtotime($project['project_completed_at']))) ?></dd>
         <?php } ?>
     </dl>
 

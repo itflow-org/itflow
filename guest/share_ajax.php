@@ -58,7 +58,7 @@ function shareGuestGone($reason) {
 /** Why a link in this state no longer works, in words for the person holding it. */
 function shareGuestReason($row, $state) {
     $reasons = [
-        'expired' => 'It expired ' . date('M j \a\t g:i A', strtotime((string) $row['item_expire_at'])) . '.',
+        'expired' => 'It expired ' . date('M j, Y g:i A', strtotime((string) $row['item_expire_at'])) . '.',
         'used' => intval($row['item_view_limit']) === 1 ? 'It could be opened once, and it has been.' : 'It has been opened as many times as it allowed.',
         'revoked' => 'It was turned off.',
         'locked' => 'It was locked after too many wrong tries.',
@@ -80,7 +80,7 @@ function shareGuestMaskEmail($email) {
 function shareGuestLimits($row) {
     $limit = intval($row['item_view_limit']);
     $left = $limit - intval($row['item_views']);
-    $text = 'Works until ' . date('M j \a\t g:i A', strtotime((string) $row['item_expire_at'])) . '. ';
+    $text = 'Works until ' . date('M j, Y g:i A', strtotime((string) $row['item_expire_at'])) . '. ';
     if ($row['item_type'] === 'Request') {
         return $text . 'It can be used once.';
     }
@@ -103,9 +103,9 @@ function shareGuestAfter($row, $again) {
         return "That was the last time this link opens - copy what you need now. On this device you can come back to it for $grace minutes.";
     }
     if ($limit) {
-        return "It can be opened $left more " . ($left === 1 ? 'time' : 'times') . ' before ' . date('M j \a\t g:i A', strtotime((string) $row['item_expire_at'])) . '.';
+        return "It can be opened $left more " . ($left === 1 ? 'time' : 'times') . ' before ' . date('M j, Y g:i A', strtotime((string) $row['item_expire_at'])) . '.';
     }
-    return 'It keeps working until ' . date('M j \a\t g:i A', strtotime((string) $row['item_expire_at'])) . '.';
+    return 'It keeps working until ' . date('M j, Y g:i A', strtotime((string) $row['item_expire_at'])) . '.';
 }
 
 /** Log it against the link, with this request's address - and tell whoever made it, when there is something to tell. */

@@ -89,7 +89,7 @@ ob_start();
     <div class="d-flex flex-wrap align-items-center gap-2 mt-3 small text-body-secondary">
         <?= credentialAgePill($age) ?>
         <?php if ($last_viewed) { ?>
-            <span title="<?= escapeHtml($last_viewed['log_created_at']) ?>"><i class="far fa-eye me-1"></i>Last looked at by <?= escapeHtml($last_viewed['user_name'] ?: 'someone') ?>, <?= timeAgo($last_viewed['log_created_at']) ?></span>
+            <span title="<?= formatDateTime($last_viewed['log_created_at']) ?>"><i class="far fa-eye me-1"></i>Last looked at by <?= escapeHtml($last_viewed['user_name'] ?: 'someone') ?>, <?= timeAgo($last_viewed['log_created_at']) ?></span>
         <?php } ?>
         <?php if ($tags) { ?><span><?= tagPills('credential', $credential_id, $tags, "credentials.php?client_id=$client_id&", false) ?></span><?php } ?>
     </div>
@@ -189,7 +189,7 @@ ob_start();
                     $old_to = date('Y-m-d', strtotime($old['password_history_replaced_at'])); ?>
                     <li class="d-flex flex-wrap align-items-center gap-2 py-1 border-bottom">
                         <?= credentialPasswordHtml($credential_id, $old_id) ?>
-                        <span class="text-body-secondary flex-grow-1" title="Replaced <?= escapeHtml($old['password_history_replaced_at']) ?>">
+                        <span class="text-body-secondary flex-grow-1" title="Replaced <?= formatDateTime($old['password_history_replaced_at']) ?>">
                             <?= $old_from ? escapeHtml($old_from) . ' to ' : 'Until ' ?><?= escapeHtml($old_to) ?><?= $old['user_name'] ? ', changed by ' . escapeHtml($old['user_name']) : '' ?>
                         </span>
                         <?php if ($can_edit) { ?>
@@ -214,7 +214,7 @@ ob_start();
                 <?php foreach ($history as $entry) { ?>
                     <li class="d-flex gap-2 py-1 border-bottom">
                         <span class="flex-grow-1 min-w-0"><?= escapeHtml($entry['log_description']) ?></span>
-                        <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
+                        <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
                     </li>
                 <?php } ?>
             </ul>

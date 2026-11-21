@@ -168,7 +168,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                 $short = mb_strlen($details) > 240 ? rtrim(mb_substr($details, 0, 240)) . '…' : $details;
                 ?>
                 <tr data-app-log-id="<?= $app_log_id ?>">
-                    <td class="ps-3 text-nowrap small" title="<?= escapeHtml($row['app_log_created_at']) ?>">
+                    <td class="ps-3 text-nowrap small" title="<?= formatDateTime($row['app_log_created_at']) ?>">
                         <div><?= escapeHtml(date('M j, Y g:i A', strtotime($row['app_log_created_at']))) ?></div>
                         <div class="text-body-secondary"><?= escapeHtml(timeAgo($row['app_log_created_at'])) ?></div>
                     </td>

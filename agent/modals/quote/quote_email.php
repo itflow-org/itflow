@@ -82,7 +82,7 @@ ob_start();
                 </div>
                 <div class="text-end">
                     <div class="fw-semibold itflow-money"><?= escapeHtml(quoteAmountText(quoteGroups($doc), $doc['quote_currency_code'])) ?></div>
-                    <div class="small text-body-secondary">valid until <?= escapeHtml($doc['quote_expire']) ?></div>
+                    <div class="small text-body-secondary">valid until <?= formatDate($doc['quote_expire']) ?></div>
                 </div>
             </div>
 

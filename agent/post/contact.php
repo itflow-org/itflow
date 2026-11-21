@@ -248,7 +248,7 @@ if (isset($_POST['add_contact_note'])) {
     //Logging
     logAudit("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$contact_name</strong>";
+    flashAlert("Note <strong>" . escapeHtml(stripslashes($type)) . "</strong> created for <strong>" . escapeHtml($row['contact_name']) . "</strong>");
 
     redirect();
 
@@ -603,7 +603,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
         logAudit("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
-        flashAlert("Archived $count contact(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> contact" . ($count === 1 ? '' : 's'), 'error');
         undoOfferArchive($undo);
 
     }
@@ -649,7 +649,7 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
         logAudit("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
-        flashAlert("Restored <strong>$count</strong> contact(s)");
+        flashAlert("Restored <strong>$count</strong> contact" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -695,7 +695,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
         logAudit("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        flashAlert("Deleted <strong>$count</strong> contact(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> contact" . ($count === 1 ? '' : 's'), 'error');
 
     }
 

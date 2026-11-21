@@ -120,7 +120,7 @@ ob_start();
             <?php } ?>
             <div class="itflow-glance-item" title="Logged">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['trip_created_at']) ?>"><?= timeAgo($row['trip_created_at']) ?></span><?php if ($row['created_by_name'] && intval($row['trip_created_by']) !== intval($row['trip_user_id'])) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['trip_created_at']) ?>"><?= timeAgo($row['trip_created_at']) ?></span><?php if ($row['created_by_name'] && intval($row['trip_created_by']) !== intval($row['trip_user_id'])) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
             <?php if ($client_id || intval($row['trip_location_id'])) {
                 [$site_trips, $site_miles] = intval($row['trip_location_id']) ? tripTotalsFor('trip_location_id', $row['trip_location_id']) : tripTotalsFor('trip_client_id', $client_id); ?>

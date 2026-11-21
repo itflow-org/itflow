@@ -1211,7 +1211,7 @@ function smsLogState(array $row): array
     $error = trim((string) $row['sms_message_error']);
     // Waiting for the morning - says when
     if ($status === 'queued' && !empty($row['sms_message_send_after']) && strtotime($row['sms_message_send_after']) > time() && $error === '') {
-        $error = 'Waiting until ' . date('g:ia', strtotime($row['sms_message_send_after'])) . ' - it would land at night';
+        $error = 'Waiting until ' . date('g:i A', strtotime($row['sms_message_send_after'])) . ' - it would land at night';
     }
     return ['key' => $status, 'label' => $label, 'badge' => $badge, 'icon' => $icon, 'error' => $error];
 }
@@ -1478,7 +1478,7 @@ function smsTicketSubject(array $row): string
 function smsWhenText(string $datetime): string
 {
     $at = strtotime($datetime);
-    $time = date('g:ia', $at);
+    $time = date('g:i A', $at);
     if (date('Y-m-d', $at) === date('Y-m-d')) {
         return "today at $time";
     }

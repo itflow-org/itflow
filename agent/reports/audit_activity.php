@@ -377,7 +377,7 @@ if ($admin) {
             </div>
         </div>
 
-        <?= reportSectionOpen('When', reportCount($out_of_hours) . ' of ' . reportCount($by_people) . ' entries by people out of hours - before ' . escapeHtml(date('g:ia', strtotime($work_start))) . ', after ' . escapeHtml(date('g:ia', strtotime($work_end))) . ' or on a day off') ?>
+        <?= reportSectionOpen('When', reportCount($out_of_hours) . ' of ' . reportCount($by_people) . ' entries by people out of hours - before ' . escapeHtml(date('g:i A', strtotime($work_start))) . ', after ' . escapeHtml(date('g:i A', strtotime($work_end))) . ' or on a day off') ?>
             <div class="card-body">
                 <?= reportHeatmap($heat, 'entry') ?>
             </div>

@@ -86,7 +86,7 @@ if (!$po || !poAccessible($po['po_id'])) {
                 </h1>
                 <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
                     <span><i class="fas fa-fw fa-building me-1"></i><a class="text-reset" href="vendor.php?vendor_id=<?= intval($po['po_vendor_id']) ?>"><?= escapeHtml((string) $po['vendor_name']) ?></a></span>
-                    <span title="<?= escapeHtml($po['po_created_at']) ?>"><i class="fas fa-fw fa-pencil-alt me-1"></i>Made <?= escapeHtml(date('M j, Y', strtotime($po['po_created_at']))) ?><?= $po['created_by_name'] ? ' by ' . escapeHtml($po['created_by_name']) : '' ?></span>
+                    <span title="<?= formatDateTime($po['po_created_at']) ?>"><i class="fas fa-fw fa-pencil-alt me-1"></i>Made <?= escapeHtml(date('M j, Y', strtotime($po['po_created_at']))) ?><?= $po['created_by_name'] ? ' by ' . escapeHtml($po['created_by_name']) : '' ?></span>
                     <?php if ($po['po_approved_at'] && $po['approved_by_name'] && in_array($status, ['approved', 'ordered', 'partial', 'received'], true)) { ?>
                         <span title="<?= escapeHtml((string) $po['po_approval_note']) ?>"><i class="fas fa-fw fa-thumbs-up me-1"></i>Approved by <?= escapeHtml($po['approved_by_name']) ?></span>
                     <?php } ?>
@@ -257,7 +257,7 @@ if (!$po || !poAccessible($po['po_id'])) {
                                 <div class="flex-grow-1 min-w-0">
                                     <div><strong><?= escapeHtml(billingQuantity($receipt['po_receipt_quantity'])) ?></strong> x <?= escapeHtml($receipt['po_item_name']) ?></div>
                                     <div class="small text-body-secondary">
-                                        <span title="<?= escapeHtml($receipt['po_receipt_at']) ?>"><?= escapeHtml(timeAgo($receipt['po_receipt_at'])) ?></span><?= $receipt['user_name'] ? ' by ' . escapeHtml($receipt['user_name']) : '' ?>
+                                        <span title="<?= formatDateTime($receipt['po_receipt_at']) ?>"><?= escapeHtml(timeAgo($receipt['po_receipt_at'])) ?></span><?= $receipt['user_name'] ? ' by ' . escapeHtml($receipt['user_name']) : '' ?>
                                         <?= intval($receipt['po_receipt_stock_id']) ? ' &middot; on the shelf' : '' ?>
                                         <?= $asset_count ? " &middot; $asset_count asset" . ($asset_count === 1 ? '' : 's') . ' made' : '' ?>
                                         <?php if ($receipt['po_receipt_serials']) { ?> &middot; <span class="font-monospace"><?= escapeHtml(str_replace("\n", ', ', $receipt['po_receipt_serials'])) ?></span><?php } ?>

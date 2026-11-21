@@ -320,7 +320,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                         <?php } ?>
                         <dt>Hours</dt>
                         <dd><?= $location_hours ?: '<span class="text-body-secondary">Not recorded</span>' ?></dd>
-                        <dt>Added</dt><dd title="<?= $location_created_at ?>"><?= timeAgo($location_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($location_created_at) ?>"><?= timeAgo($location_created_at) ?></dd>
                     </dl>
                 </div>
             </div>

@@ -295,7 +295,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                                         <span class="text-body-secondary">-</span>
                                     <?php } ?>
                                 </td>
-                                <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= escapeHtml($vendor['created_at']) ?>"><?= date('M j, Y', strtotime($vendor['created_at'])) ?></td>
+                                <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= formatDateTime($vendor['created_at']) ?>"><?= date('M j, Y', strtotime($vendor['created_at'])) ?></td>
                                 <td class="text-end pe-3">
                                     <div class="dropdown dropstart">
                                         <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
@@ -461,10 +461,10 @@ foreach (vendorTemplateFieldLabels() as $field) {
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-5 fw-normal text-secondary">Made</dt>
-                    <dd class="col-7 mb-2" title="<?= escapeHtml($template['vendor_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['vendor_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
+                    <dd class="col-7 mb-2" title="<?= formatDateTime($template['vendor_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['vendor_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
                     <?php if ($template['vendor_template_updated_at']) { ?>
                         <dt class="col-5 fw-normal text-secondary">Last changed</dt>
-                        <dd class="col-7 mb-0" title="<?= escapeHtml($template['vendor_template_updated_at']) ?>"><?= timeAgo($template['vendor_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
+                        <dd class="col-7 mb-0" title="<?= formatDateTime($template['vendor_template_updated_at']) ?>"><?= timeAgo($template['vendor_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
                     <?php } ?>
                 </dl>
             </div>

@@ -233,7 +233,7 @@ ob_start();
                                 <li class="itflow-link-row">
                                     <?= linkRowHtml('asset', $asset, $client_id) ?>
                                     <?php if ($warranty) { ?>
-                                        <span class="small text-nowrap <?= $warranty < time() ? 'text-danger' : 'text-body-secondary' ?>" title="Warranty"><?= $warranty < time() ? 'Out of warranty' : 'Warranty to ' . escapeHtml($asset['asset_warranty_expire']) ?></span>
+                                        <span class="small text-nowrap <?= $warranty < time() ? 'text-danger' : 'text-body-secondary' ?>" title="Warranty"><?= $warranty < time() ? 'Out of warranty' : 'Warranty to ' . formatDate($asset['asset_warranty_expire']) ?></span>
                                     <?php } ?>
                                 </li>
                             <?php } ?>

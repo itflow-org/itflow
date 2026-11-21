@@ -54,7 +54,7 @@ ob_start();
                         <label class="flex-grow-1 min-w-0 mb-0" for="addTrip<?= $trip_id ?>">
                             <span class="d-block text-truncate"><?= escapeHtml($trip['trip_purpose']) ?></span>
                             <span class="small text-body-secondary d-block text-truncate">
-                                <?= escapeHtml($trip['trip_date']) ?> &middot; <?= escapeHtml($trip['location_name'] ?? $trip['trip_destination']) ?> &middot; <?= escapeHtml(tripMilesText($trip['trip_miles'])) ?><?= intval($trip['round_trip']) ? ' round trip' : '' ?>
+                                <?= formatDate($trip['trip_date']) ?> &middot; <?= escapeHtml($trip['location_name'] ?? $trip['trip_destination']) ?> &middot; <?= escapeHtml(tripMilesText($trip['trip_miles'])) ?><?= intval($trip['round_trip']) ? ' round trip' : '' ?>
                             </span>
                         </label>
                         <div class="flex-shrink-0" style="width: 8rem;">

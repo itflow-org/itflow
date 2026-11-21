@@ -27,7 +27,7 @@ if ($contract) {
     contractHoursSync($contract_id);
     $return_arr['recurring'] = contractRecurringFollow($contract_id, 'The API');
     $update_count = 1;
-    logAudit("Contract", "Edit", "Renewed contract $contract_label to " . escapeSql($end) . " via API ($api_key_name)", $client_id, $contract_id);
+    logAudit("Contract", "Edit", "Renewed contract $contract_label to " . formatDate($end) . " via API ($api_key_name)", $client_id, $contract_id);
     logAudit("API", "Success", "Renewed contract $contract_label via API ($api_key_name)", $client_id);
 }
 

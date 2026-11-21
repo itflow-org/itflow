@@ -496,7 +496,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                         <td class="itflow-seats-cell"><?= softwareSeatBar($seats) ?></td>
                         <td class="text-nowrap">
                             <?php if ($renewal) { ?>
-                                <div><?= escapeHtml($renewal['date']) ?></div>
+                                <div><?= formatDate($renewal['date']) ?></div>
                                 <?php if ($renewal['state'] === 'active') { ?>
                                     <div class="small text-body-secondary"><?= escapeHtml($renewal['text']) ?></div>
                                 <?php } else { ?>

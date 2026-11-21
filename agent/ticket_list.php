@@ -175,7 +175,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                 <a class="<?= $unread ? 'fw-bold text-body' : ($is_open ? 'text-body' : 'text-body-secondary') ?> itflow-ticket-subject" href="<?= $url ?>"<?= $unread ? ' title="The client has written since you last opened it"' : '' ?>><?php if ($unread) { ?><span class="visually-hidden">New from the client: </span><?php } ?><?= $subject ?></a>
                                 <div class="itflow-ticket-meta small text-body-secondary">
                                     <a class="font-monospace text-body-secondary" href="<?= $url ?>"><?= $reference ?></a>
-                                    <span title="Opened <?= escapeHtml($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
+                                    <span title="Opened <?= formatDateTime($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
                                     <?= ticketSourceIcon($row['ticket_source']) ?>
                                     <?php if ($row['category_name'] !== null && $row['category_name'] !== '') { ?>
                                         <span class="text-nowrap"><?= categoryMarkHtml($row['category_color'], $row['category_icon'] ?? '', '<i class="fas fa-circle itflow-ticket-dot"%s aria-hidden="true"></i>') ?><?= escapeHtml($row['category_name']) ?></span>

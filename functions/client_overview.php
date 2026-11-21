@@ -694,7 +694,7 @@ function clientOverviewMonthly($client_id) {
 
     return [
         'labels' => array_map(function ($m) {
-            return date('M y', strtotime("$m-01"));
+            return date('M Y', strtotime("$m-01"));
         }, $months),
         'invoiced' => array_map(function ($v) {
             return round($v, 2);

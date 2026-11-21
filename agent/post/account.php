@@ -79,6 +79,7 @@ if (isset($_GET['archive_account'])) {
 
     enforceUserPermission('module_financial', 2);
 
+    $undo = undoArchivedBefore('accounts', 'account_id', [intval($_GET['archive_account'])]); // for Undo on the message
     $row = accountArchive(intval($_GET['archive_account']), $error);
     if (!$row) {
         flashAlert(escapeHtml($error), 'error');
@@ -88,6 +89,7 @@ if (isset($_GET['archive_account'])) {
     logAudit("Account", "Archive", "$session_name archived account " . escapeSql($row['account_name']), 0, intval($row['account_id']));
 
     flashAlert("Account <strong>" . escapeHtml($row['account_name']) . "</strong> archived", 'error');
+    undoOfferArchived($undo, 'Account', $row['account_name'], [], 's', 'module_financial', 2);
 
     redirect();
 

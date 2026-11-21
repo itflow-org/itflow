@@ -218,9 +218,9 @@ function calendarWhenText($row, $start = null, $end = null) {
         return date('D, M j', $s) . ' - ' . date('D, M j, Y', $e) . ' (all day)';
     }
     if (date('Y-m-d', $s) === date('Y-m-d', $e)) {
-        return date('D, M j, Y, g:i A', $s) . ($e > $s ? ' - ' . date('g:i A', $e) : '');
+        return date('D, M j, Y g:i A', $s) . ($e > $s ? ' - ' . date('g:i A', $e) : '');
     }
-    return date('D, M j, g:i A', $s) . ' - ' . date('D, M j, Y, g:i A', $e);
+    return date('D, M j, g:i A', $s) . ' - ' . date('D, M j, Y g:i A', $e);
 }
 
 /** Where an event is as one line - the site's name and address - or the location typed in. */
@@ -1842,7 +1842,7 @@ function calendarLeftBehindTickets($user_id = 0, $client_id = 0, $limit = 50) {
             'priority' => $row['ticket_priority'],
             'onsite' => intval($row['ticket_onsite']),
             'agent' => $row['user_name'] ?: 'Unassigned',
-            'booked' => date('D M j', strtotime($row['ticket_schedule'])),
+            'booked' => date('D, M j', strtotime($row['ticket_schedule'])),
             'days' => intval((strtotime(date('Y-m-d')) - strtotime(substr($row['ticket_schedule'], 0, 10))) / 86400),
         ];
     }

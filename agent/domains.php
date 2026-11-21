@@ -380,7 +380,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         <td class="text-nowrap">
                             <?= domainExpiryPill($expiry) ?>
                             <?php if ($expiry) { ?>
-                                <div class="small text-body-secondary mt-1"><?= escapeHtml($expiry['date']) ?></div>
+                                <div class="small text-body-secondary mt-1"><?= formatDate($expiry['date']) ?></div>
                             <?php } ?>
                         </td>
                         <td class="small itflow-domain-who">

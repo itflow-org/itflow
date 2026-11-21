@@ -191,7 +191,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                                                 <span class="d-block text-truncate"><?= escapeHtml($due_row['client_name']) ?></span>
                                                 <span class="d-block text-truncate text-secondary"><?= escapeHtml($due_row['document_name']) ?></span>
                                             </span>
-                                            <span class="text-secondary text-nowrap" title="Last edited or reviewed <?= escapeHtml($due_row['reviewed_at']) ?>"><?= timeAgo($due_row['reviewed_at']) ?></span>
+                                            <span class="text-secondary text-nowrap" title="Last edited or reviewed <?= formatDateTime($due_row['reviewed_at']) ?>"><?= timeAgo($due_row['reviewed_at']) ?></span>
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -315,10 +315,10 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-5 fw-normal text-secondary">Made</dt>
-                    <dd class="col-7 mb-2" title="<?= escapeHtml($template['document_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['document_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
+                    <dd class="col-7 mb-2" title="<?= formatDateTime($template['document_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['document_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
                     <?php if ($template['document_template_updated_at']) { ?>
                         <dt class="col-5 fw-normal text-secondary">Last changed</dt>
-                        <dd class="col-7 mb-2" title="<?= escapeHtml($template['document_template_updated_at']) ?>"><?= timeAgo($template['document_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
+                        <dd class="col-7 mb-2" title="<?= formatDateTime($template['document_template_updated_at']) ?>"><?= timeAgo($template['document_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
                     <?php } ?>
                     <dt class="col-5 fw-normal text-secondary">Images</dt>
                     <dd class="col-7 mb-0"><?= $images ? $images . ' - copied into each document' : 'None' ?></dd>

@@ -385,13 +385,13 @@ $export_extra = [
                         <td class="text-nowrap">
                             <?= certificateExpiryPill($expiry) ?>
                             <?php if ($expiry) { ?>
-                                <div class="small text-body-secondary mt-1"><?= escapeHtml($expiry['date']) ?></div>
+                                <div class="small text-body-secondary mt-1"><?= formatDate($expiry['date']) ?></div>
                             <?php } ?>
                         </td>
                         <td class="text-nowrap">
                             <?= certificateStatusPill($row) ?>
                             <?php if (!empty($row['certificate_checked_at'])) { ?>
-                                <div class="small text-body-secondary mt-1" title="<?= escapeHtml($row['certificate_checked_at']) ?>"><?= timeAgo($row['certificate_checked_at']) ?></div>
+                                <div class="small text-body-secondary mt-1" title="<?= formatDateTime($row['certificate_checked_at']) ?>"><?= timeAgo($row['certificate_checked_at']) ?></div>
                             <?php } ?>
                         </td>
                         <?php if (!$client_url) { ?>

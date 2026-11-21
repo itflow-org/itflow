@@ -56,7 +56,7 @@ ob_start();
                         <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
                         <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$payment['payment_method'], $payment['payment_reference'], $payment['account_name']]))) ?></div>
                     </div>
-                    <div class="small text-body-secondary text-nowrap"><?= escapeHtml($payment['payment_date']) ?></div>
+                    <div class="small text-body-secondary text-nowrap"><?= formatDate($payment['payment_date']) ?></div>
                     <?php if ($can_manage) { ?>
                         <a class="btn btn-sm btn-link text-body-secondary ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= intval($payment['payment_id']) ?>" title="Edit payment"><i class="fas fa-fw fa-edit"></i></a>
                     <?php } ?>

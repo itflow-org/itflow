@@ -930,9 +930,9 @@ function recurringExpenseRecord($recurring_expense_id, $by_user_id = 0, $run = n
     $expense_id = mysqli_insert_id($mysqli);
 
     $label = recurringExpenseLabel($row);
-    logAudit("Expense", "Create", escapeSql("$by recorded $label for $due from the recurring expense"), intval($row['recurring_expense_client_id']), $expense_id);
+    logAudit("Expense", "Create", escapeSql("$by recorded $label for " . formatDate($due) . " from the recurring expense"), intval($row['recurring_expense_client_id']), $expense_id);
     if ($ends) {
-        logAudit("Recurring Expense", "End", escapeSql("$label ended after its last run on $due"), intval($row['recurring_expense_client_id']), $id);
+        logAudit("Recurring Expense", "End", escapeSql("$label ended after its last run on " . formatDate($due)), intval($row['recurring_expense_client_id']), $id);
     }
     return $expense_id;
 }
@@ -1088,7 +1088,7 @@ function expenseBillLine(array $expense) {
     }
     $description = implode(' - ', array_filter([
         $expense['vendor_name'] ?? '',
-        date('m/d/Y', strtotime((string) $expense['expense_date'])),
+        date('M j, Y', strtotime((string) $expense['expense_date'])),
         trim((string) $expense['expense_reference']) !== '' ? '#' . trim((string) $expense['expense_reference']) : '',
     ]));
     $rest = trim(implode("\n", $lines));

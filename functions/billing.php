@@ -1225,7 +1225,7 @@ function billingUnbilledCount() {
 
 /** A ticket's invoice line description - "Ticket TCK-123 - Subject - 10/14/2026". */
 function billingTimeDescription(array $ticket) {
-    return 'Ticket ' . $ticket['ticket_prefix'] . $ticket['ticket_number'] . ' - ' . $ticket['ticket_subject'] . ' - ' . date('m/d/Y', strtotime((string) $ticket['ticket_created_at']));
+    return 'Ticket ' . $ticket['ticket_prefix'] . $ticket['ticket_number'] . ' - ' . $ticket['ticket_subject'] . ' - ' . date('M j, Y', strtotime((string) $ticket['ticket_created_at']));
 }
 
 /**
@@ -2110,9 +2110,11 @@ function recurringInvoiceResumePaused() {
             continue;
         }
         $number = billingNumber('recurring', $row);
-        $moved = $next !== $row['recurring_invoice_next_date'] ? ", next runs on $next (the runs while it was paused skipped)" : ", next runs on $next";
-        billingLog('recurring', $id, 'Active', "Resumed by itself, its pause until {$row['recurring_invoice_paused_until']} over$moved");
-        logAudit('Recurring Invoice', 'Edit', escapeSql("Cron resumed recurring invoice $number, paused until {$row['recurring_invoice_paused_until']}$moved"), intval($row['recurring_invoice_client_id']), $id);
+        $next_day = formatDate($next);
+        $paused_until = formatDate($row['recurring_invoice_paused_until']);
+        $moved = $next !== $row['recurring_invoice_next_date'] ? ", next runs on $next_day (the runs while it was paused skipped)" : ", next runs on $next_day";
+        billingLog('recurring', $id, 'Active', "Resumed by itself, its pause until $paused_until over$moved");
+        logAudit('Recurring Invoice', 'Edit', escapeSql("Cron resumed recurring invoice $number, paused until $paused_until$moved"), intval($row['recurring_invoice_client_id']), $id);
         $resumed++;
     }
     return $resumed;
@@ -2531,7 +2533,7 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
     $invoice_number = billingNumber('invoice', $invoice);
     $recurring_number = billingNumber('recurring', $row);
     billingLog('invoice', $invoice_id, 'Draft', "Made from $recurring_number by $by, for {$period['{period}']}" . ($seat_changes ? ' - seats updated' : ''));
-    billingLog('recurring', $recurring_invoice_id, 'Invoiced', "$invoice_number made by $by, for {$period['{period}']} - next on $next");
+    billingLog('recurring', $recurring_invoice_id, 'Invoiced', "$invoice_number made by $by, for {$period['{period}']} - next on " . formatDate($next));
 
     // Send it, when it sends itself - to the primary and billing contacts, on the billing email (functions/billing_email.php)
     $sent_to = [];
@@ -2613,7 +2615,7 @@ function billingHistoryHtml(array $rows) {
         $description = trim(preg_replace('/[ \t]+/', ' ', strip_tags((string) $row['history_description'])));
         $html .= '<li><div>' . nl2br(escapeHtml($description)) . '</div>'
             . '<div class="small text-body-secondary">' . escapeHtml($row['history_status'])
-            . ' &middot; <span title="' . escapeHtml($row['history_created_at']) . '">' . escapeHtml(timeAgo($row['history_created_at'])) . '</span></div></li>';
+            . ' &middot; <span title="' . formatDateTime($row['history_created_at']) . '">' . escapeHtml(timeAgo($row['history_created_at'])) . '</span></div></li>';
     }
     return $html . '</ul>';
 }

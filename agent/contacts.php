@@ -517,7 +517,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                         <?= $invite_sees ? escapeHtml(implode(', ', $invite_sees)) : '<span class="text-body-secondary">Their own tickets</span>' ?>
                     </td>
                     <td class="small d-none d-sm-table-cell">
-                        <div title="<?= escapeHtml($row['invite_created_at']) ?>"><?= escapeHtml(timeAgo($row['invite_created_at'])) ?></div>
+                        <div title="<?= formatDateTime($row['invite_created_at']) ?>"><?= escapeHtml(timeAgo($row['invite_created_at'])) ?></div>
                         <div class="text-body-secondary">
                             <?= $invite_by !== '' ? 'by ' . escapeHtml($invite_by) . (intval($row['invite_created_by_contact_id']) ? ' in the portal' : '') : '' ?><?= intval($row['invite_sent_count']) > 1 ? ' &middot; sent ' . intval($row['invite_sent_count']) . ' times' : '' ?>
                         </div>
@@ -705,7 +705,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
                                         <?php if (!$contact_primary) { ?>
                                             <div class="dropdown-divider"></div>
                                             <?php if ($contact_archived_at) { ?>
-                                                <a class="dropdown-item confirm-link" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                 </a>
                                             <?php } else { ?>

@@ -243,7 +243,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         <dt>Renews</dt>
                         <dd>
                             <?php if ($renewal) { ?>
-                                <?= escapeHtml($renewal['date']) ?>
+                                <?= formatDate($renewal['date']) ?>
                                 <div class="small text-<?= $renewal['tone'] === 'success' ? 'body-secondary' : $renewal['tone'] . '-emphasis' ?>"><?= escapeHtml($renewal['text']) ?></div>
                             <?php } else { ?>
                                 <span class="text-body-secondary">No date</span>
@@ -251,13 +251,13 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         </dd>
                         <?php if ($software_purchase) { ?>
                             <dt>Purchased</dt>
-                            <dd><?= $software_purchase ?><?php if ($software_purchase_age) { ?><div class="small text-body-secondary"><?= $software_purchase_age ?> ago</div><?php } ?></dd>
+                            <dd><?= formatDate($software_purchase) ?><?php if ($software_purchase_age) { ?><div class="small text-body-secondary"><?= $software_purchase_age ?> ago</div><?php } ?></dd>
                         <?php } ?>
                         <?php if ($software_purchase_reference) { ?>
                             <dt>Order ref</dt>
                             <dd><?= $software_purchase_reference ?><button type="button" class="itflow-copy clipboardjs" title="Copy reference" data-clipboard-text="<?= $software_purchase_reference ?>"><i class="far fa-copy"></i></button></dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= $software_created_at ?>"><?= timeAgo($software_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($software_created_at) ?>"><?= timeAgo($software_created_at) ?></dd>
                     </dl>
                 </div>
             </div>

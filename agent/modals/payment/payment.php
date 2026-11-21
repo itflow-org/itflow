@@ -78,7 +78,7 @@ ob_start();
                     <?php if (trim((string) $row['invoice_scope']) !== '') { ?>
                         <div class="small text-body-secondary text-truncate mt-1"><?= escapeHtml($row['invoice_scope']) ?></div>
                     <?php } ?>
-                    <div class="small text-body-secondary mt-1">Dated <?= escapeHtml($row['invoice_date']) ?>, due <?= escapeHtml($row['invoice_due']) ?></div>
+                    <div class="small text-body-secondary mt-1">Dated <?= formatDate($row['invoice_date']) ?>, due <?= formatDate($row['invoice_due']) ?></div>
                 </div>
                 <div class="text-end small">
                     <div><span class="text-body-secondary">Invoice</span> <span class="itflow-money fw-semibold ms-2"><?= $money($row['invoice_amount'], $row['invoice_currency_code']) ?></span></div>
@@ -94,7 +94,7 @@ ob_start();
                     <div class="small fw-semibold text-uppercase text-body-secondary mb-1">The other payment<?= count($row['others']) === 1 ? '' : 's' ?> on it</div>
                     <?php foreach ($row['others'] as $other) { ?>
                         <div class="d-flex justify-content-between small">
-                            <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/payment/payment.php?id=<?= intval($other['payment_id']) ?>"><?= escapeHtml($other['payment_date']) ?><?= $other['payment_method'] ? ' - ' . escapeHtml($other['payment_method']) : '' ?></a>
+                            <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/payment/payment.php?id=<?= intval($other['payment_id']) ?>"><?= formatDate($other['payment_date']) ?><?= $other['payment_method'] ? ' - ' . escapeHtml($other['payment_method']) : '' ?></a>
                             <span class="itflow-money"><?= $money($other['payment_amount'], $other['payment_currency_code'] ?: $row['invoice_currency_code']) ?></span>
                         </div>
                     <?php } ?>
@@ -126,7 +126,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
             <?= transferDepositedGlanceHtml($deposited) ?>
             <?= reconcileGlanceHtml($cleared) ?>

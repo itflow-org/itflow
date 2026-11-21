@@ -60,12 +60,12 @@ if ($paper_type === 'invoice' && $paper_status === 'Paid') {
 
 $paper_dates = [];
 if ($paper_type === 'invoice') {
-    $paper_dates = ['Invoice date' => $paper_row['invoice_date'], 'Due' => $paper_row['invoice_due']];
+    $paper_dates = ['Invoice date' => formatDate($paper_row['invoice_date']), 'Due' => formatDate($paper_row['invoice_due'])];
 } elseif ($paper_type === 'quote') {
-    $paper_dates = ['Quote date' => $paper_row['quote_date'], 'Valid until' => $paper_row['quote_expire']];
+    $paper_dates = ['Quote date' => formatDate($paper_row['quote_date']), 'Valid until' => formatDate($paper_row['quote_expire'])];
 } else {
     $paper_dates = ['Billed' => recurringInvoiceFrequencies()[$paper_row['recurring_invoice_frequency']] ?? ucfirst((string) $paper_row['recurring_invoice_frequency']),
-        'Next invoice' => $paper_row['recurring_invoice_next_date']];
+        'Next invoice' => formatDate($paper_row['recurring_invoice_next_date'])];
 }
 
 // A recurring invoice's seat lines - what each counts now, and whether the line is off
@@ -150,7 +150,7 @@ $paper_bill_lines = array_filter([
                 <div class="itflow-paper-label"><?= in_array($paper_status, ['Paid', 'Cancelled', 'Non-Billable'], true) ? 'Balance' : 'Amount due' ?></div>
                 <div class="itflow-paper-amount"><?= $paper_money($paper['balance'] ?? $paper_totals['total']) ?></div>
                 <?php if (!in_array($paper_status, ['Paid', 'Cancelled', 'Non-Billable', 'Draft'], true) && ($paper['balance'] ?? 0) > 0) { ?>
-                    <div class="small text-body-secondary">by <?= escapeHtml($paper_row['invoice_due']) ?></div>
+                    <div class="small text-body-secondary">by <?= formatDate($paper_row['invoice_due']) ?></div>
                 <?php } ?>
             <?php } elseif ($paper_type === 'quote' && $paper_groups) {
                 $paper_first = true;

@@ -108,7 +108,7 @@ ob_start();
                 <dd class="text-break"><?= $certificate['certificate_issued_by'] !== '' ? escapeHtml($certificate['certificate_issued_by']) : '<span class="text-body-secondary">Unknown</span>' ?><?= $parsed && $parsed['self_signed'] ? ' <span class="small text-body-secondary">(self-signed)</span>' : '' ?></dd>
                 <?php if (!empty($certificate['certificate_issued_at'])) { ?>
                     <dt>Issued</dt>
-                    <dd><?= escapeHtml($certificate['certificate_issued_at']) ?> <span class="small text-body-secondary">(<?= timeAgo($certificate['certificate_issued_at']) ?>)</span></dd>
+                    <dd><?= formatDate($certificate['certificate_issued_at']) ?> <span class="small text-body-secondary">(<?= timeAgo($certificate['certificate_issued_at']) ?>)</span></dd>
                 <?php } ?>
                 <dt>Expires</dt>
                 <dd><?= $expiry ? escapeHtml($expiry['date']) . ' <span class="small text-body-secondary">(' . timeAgo($expiry['date']) . ')</span>' : '<span class="text-body-secondary">Unknown</span>' ?></dd>
@@ -221,7 +221,7 @@ ob_start();
                                 changed
                             <?php } ?>
                         </span>
-                        <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['certificate_history_modified_at']) ?>"><?= timeAgo($entry['certificate_history_modified_at']) ?></span>
+                        <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['certificate_history_modified_at']) ?>"><?= timeAgo($entry['certificate_history_modified_at']) ?></span>
                     </li>
                 <?php } ?>
             </ul>

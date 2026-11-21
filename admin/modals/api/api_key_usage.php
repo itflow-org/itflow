@@ -72,7 +72,7 @@ if (!$row) { ?>
                         <tr>
                             <td class="font-monospace small text-break"><?= escapeHtml($endpoint['endpoint'] !== '' ? $endpoint['endpoint'] : '-') ?></td>
                             <td class="text-end small text-nowrap"><?= number_format(intval($endpoint['calls'])) ?></td>
-                            <td class="text-end small text-body-secondary text-nowrap" title="<?= escapeHtml($endpoint['last_at']) ?>"><?= escapeHtml(timeAgo($endpoint['last_at'])) ?></td>
+                            <td class="text-end small text-body-secondary text-nowrap" title="<?= formatDateTime($endpoint['last_at']) ?>"><?= escapeHtml(timeAgo($endpoint['last_at'])) ?></td>
                         </tr>
                     <?php } ?>
                     </tbody>
@@ -88,7 +88,7 @@ if (!$row) { ?>
                     <?php foreach ($ips as $ip) { ?>
                         <li class="d-flex justify-content-between gap-2 py-1 border-bottom">
                             <a class="font-monospace" href="/admin/audit_logs.php?q=<?= urlencode($ip['ip']) ?>" title="Everything from it in the audit log"><?= escapeHtml($ip['ip']) ?></a>
-                            <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($ip['last_at']) ?>"><?= escapeHtml(timeAgo($ip['last_at'])) ?></span>
+                            <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($ip['last_at']) ?>"><?= escapeHtml(timeAgo($ip['last_at'])) ?></span>
                         </li>
                     <?php } ?>
                 </ul>

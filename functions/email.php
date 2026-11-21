@@ -519,7 +519,7 @@ function emailTestSend($to, $mailbox) {
         'kind' => 'Test', 'tone' => 'success', 'preview' => "A test from $which",
         'title' => 'Mail is working',
         'intro' => ["This is a test email from ITFlow, sent from $which. If you are reading this, it worked."],
-        'summary' => ['From' => trim($box['name'] . ' <' . $box['email'] . '>'), 'To' => trim((string) $to), 'Sent' => date('D j M Y, g:i A')],
+        'summary' => ['From' => trim($box['name'] . ' <' . $box['email'] . '>'), 'To' => trim((string) $to), 'Sent' => date('D, M j, Y g:i A')],
     ], ['from' => ['email' => $box['email'], 'name' => $box['name']]]);
 }
 
@@ -554,7 +554,7 @@ function emailBulkPost(array $recipients, $picked) {
         flashAlert('None of them has an email address, so nothing was sent', 'error');
         redirect();
     }
-    $later = $queued_at !== '' && strtotime($queued_at) > time() ? ' to go ' . date('M j \a\t g:i A', strtotime($queued_at)) : '';
+    $later = $queued_at !== '' && strtotime($queued_at) > time() ? ' to go ' . date('M j, Y g:i A', strtotime($queued_at)) : '';
     logAudit("Bulk Mail", "Send", "$session_name sent " . escapeSql($subject) . " to $count " . ($count === 1 ? 'contact' : 'contacts') . " via bulk mail" . ($later !== '' ? escapeSql($later) : ''));
     $left_out = max(0, intval($picked) - $count);
     flashAlert("<strong>$count</strong> email" . ($count === 1 ? '' : 's') . " queued$later" . ($left_out ? " - $left_out left out with no email address, or the same one" : ''));

@@ -480,7 +480,7 @@ $hero = [
                     <span class="text-body-secondary">Last checked</span>
                     <span class="text-end">
                         <?php if (!empty($update_checked_at)) { ?>
-                            <span title="<?= escapeHtml($update_checked_at) ?>"><?= escapeHtml(timeAgo($update_checked_at)) ?></span>
+                            <span title="<?= formatDateTime($update_checked_at) ?>"><?= escapeHtml(timeAgo($update_checked_at)) ?></span>
                         <?php } else { ?>
                             <span class="text-body-secondary">Never</span>
                         <?php } ?>
@@ -490,7 +490,7 @@ $hero = [
                     <span class="text-body-secondary">Last updated</span>
                     <span class="text-end">
                         <?php if (!empty($update_job['cron_job_last_finished_at']) && in_array($update_status, ['Completed', 'Failed'], true)) { ?>
-                            <span title="<?= escapeHtml($update_job['cron_job_last_finished_at']) ?>"><?= escapeHtml(timeAgo($update_job['cron_job_last_finished_at'])) ?></span>
+                            <span title="<?= formatDateTime($update_job['cron_job_last_finished_at']) ?>"><?= escapeHtml(timeAgo($update_job['cron_job_last_finished_at'])) ?></span>
                             <?php if ($update_status === 'Failed') { ?><span class="badge bg-danger-subtle text-danger-emphasis ms-1">Failed</span><?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">Not from this page yet</span>

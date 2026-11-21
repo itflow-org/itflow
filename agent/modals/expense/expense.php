@@ -181,7 +181,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['expense_created_at']) ?>"><?= timeAgo($row['expense_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['expense_created_at']) ?>"><?= timeAgo($row['expense_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
             <?= reconcileGlanceHtml($cleared) ?>
             <?php if ($row['expense_recurring_expense_id']) { ?>
@@ -235,7 +235,7 @@ ob_start();
                     <span>
                         <span class="text-success-emphasis"><?= escapeHtml(billingMoney($row['refunded_amount'], $currency)) ?> back</span>
                         <span class="text-body-secondary">&middot;
-                            <?php foreach ($refunds as $i => $refund) { ?><?= $i ? ', ' : '' ?><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($refund['expense_id']) ?>"><?= escapeHtml($refund['expense_date']) ?></a><?php } ?>
+                            <?php foreach ($refunds as $i => $refund) { ?><?= $i ? ', ' : '' ?><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($refund['expense_id']) ?>"><?= formatDate($refund['expense_date']) ?></a><?php } ?>
                         </span>
                     </span>
                 </div>

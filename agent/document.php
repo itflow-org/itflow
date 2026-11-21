@@ -100,7 +100,7 @@ $page_title = $row['document_name'];
                 <div class="mt-1"><?= $document_tags_display ?></div>
             <?php } ?>
             <div class="small text-body-secondary mt-1">
-                <span title="<?= escapeHtml($document_updated_at) ?>">Updated <?= timeAgo($document_updated_at) ?></span><?= $document_updated_by ? " by $document_updated_by" : '' ?>
+                <span title="<?= formatDateTime($document_updated_at) ?>">Updated <?= timeAgo($document_updated_at) ?></span><?= $document_updated_by ? " by $document_updated_by" : '' ?>
                 &middot; Created <?= date('M j, Y', strtotime($row['document_created_at'])) ?><?= $row['created_by_name'] ? ' by ' . escapeHtml($row['created_by_name']) : '' ?>
                 <?php if ($row['document_template_name'] !== null) { ?>
                     &middot; From template <?= $session_is_admin ? '<a class="text-reset" href="/admin/document_template.php?document_template_id=' . intval($row['document_template_id']) . '">' . escapeHtml($row['document_template_name']) . '</a>' : escapeHtml($row['document_template_name']) ?>
@@ -309,8 +309,8 @@ $page_title = $row['document_name'];
                     $version_id = intval($version['document_version_id']); ?>
                     <li class="list-group-item d-flex align-items-center gap-2">
                         <div class="min-w-0 flex-grow-1">
-                            <a class="small fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_version_view.php?id=<?= $version_id ?>" title="<?= escapeHtml($version['document_version_created_at']) ?>">
-                                <?= date('M j, Y g:ia', strtotime($version['document_version_created_at'])) ?>
+                            <a class="small fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_version_view.php?id=<?= $version_id ?>" title="<?= formatDateTime($version['document_version_created_at']) ?>">
+                                <?= date('M j, Y g:i A', strtotime($version['document_version_created_at'])) ?>
                             </a>
                             <div class="small text-body-secondary text-truncate">
                                 <?= escapeHtml($version['user_name'] ?: 'Unknown') ?>

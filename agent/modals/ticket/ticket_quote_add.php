@@ -46,16 +46,16 @@ $ticket_onsite = intval($row['ticket_onsite']);
 
 $ticket_created_at = escapeHtml($row['ticket_created_at']);
 $ticket_created_by = intval($row['ticket_created_by']);
-$ticket_date = date('Y-m-d g:i A', strtotime($ticket_created_at));
+$ticket_date = date('M j, Y g:i A', strtotime($ticket_created_at));
 $ticket_first_response_at = escapeHtml($row['ticket_first_response_at']);
 if ($ticket_first_response_at) {
-    $ticket_first_response_date_time = date('Y-m-d g:i A', strtotime($ticket_first_response_at));
+    $ticket_first_response_date_time = date('M j, Y g:i A', strtotime($ticket_first_response_at));
 } else {
     $ticket_first_response_date_time = '';
 }
 $ticket_resolved_at = escapeHtml($row['ticket_resolved_at']);
 if ($ticket_resolved_at) {
-    $ticket_resolved_date = date('Y-m-d g:i A', strtotime($ticket_resolved_at));
+    $ticket_resolved_date = date('M j, Y g:i A', strtotime($ticket_resolved_at));
 } else {
     $ticket_resolved_date = '';
 }

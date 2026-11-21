@@ -1152,10 +1152,10 @@ function clientExportPdf($client_id, $options) {
     $pdf->Ln(2);
     $pdf->SetFont('dejavusans', '', 10);
     $pdf->SetTextColor(73, 80, 87);
-    $pdf->MultiCell($width, 5, 'Prepared ' . date('F j, Y') . ' by ' . stripslashes((string) $session_name) . ($company['company_name'] ? ', ' . $company['company_name'] : ''), 0, 'L', false, 1);
+    $pdf->MultiCell($width, 5, 'Prepared ' . date('M j, Y') . ' by ' . stripslashes((string) $session_name) . ($company['company_name'] ? ', ' . $company['company_name'] : ''), 0, 'L', false, 1);
 
     $included = array_map(function ($key) use ($sections) { return lcfirst($sections[$key]['label']); }, $options['sections']);
-    $about = 'This document records ' . $client['name'] . "'s IT environment as documented on " . date('F j, Y') . ': the client details'
+    $about = 'This document records ' . $client['name'] . "'s IT environment as documented on " . date('M j, Y') . ': the client details'
         . ($included ? ', ' . implode(', ', array_slice($included, 0, -1)) . (count($included) > 1 ? ' and ' : '') . end($included) : '') . '.';
     $pdf->SetY(150);
     $pdf->SetFont('dejavusans', '', 9);

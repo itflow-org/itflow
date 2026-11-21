@@ -221,7 +221,7 @@ ob_start();
                                 changed
                             <?php } ?>
                         </span>
-                        <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['domain_history_modified_at']) ?>"><?= timeAgo($entry['domain_history_modified_at']) ?></span>
+                        <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['domain_history_modified_at']) ?>"><?= timeAgo($entry['domain_history_modified_at']) ?></span>
                     </li>
                 <?php } ?>
             </ul>

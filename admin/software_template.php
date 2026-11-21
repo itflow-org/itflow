@@ -353,10 +353,10 @@ $facts = array_filter([
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-5 fw-normal text-secondary">Made</dt>
-                    <dd class="col-7 mb-2" title="<?= escapeHtml($template['software_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['software_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
+                    <dd class="col-7 mb-2" title="<?= formatDateTime($template['software_template_created_at']) ?>"><?= date('M j, Y', strtotime($template['software_template_created_at'])) ?><?= $template['created_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['created_by_name']) . '</div>' : '' ?></dd>
                     <?php if ($template['software_template_updated_at']) { ?>
                         <dt class="col-5 fw-normal text-secondary">Last changed</dt>
-                        <dd class="col-7 mb-0" title="<?= escapeHtml($template['software_template_updated_at']) ?>"><?= timeAgo($template['software_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
+                        <dd class="col-7 mb-0" title="<?= formatDateTime($template['software_template_updated_at']) ?>"><?= timeAgo($template['software_template_updated_at']) ?><?= $template['updated_by_name'] !== null ? '<div class="text-secondary">' . escapeHtml($template['updated_by_name']) . '</div>' : '' ?></dd>
                     <?php } ?>
                 </dl>
             </div>

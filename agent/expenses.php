@@ -362,7 +362,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         </td>
                     <?php } ?>
                     <td class="text-nowrap">
-                        <a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['expense_date']) ?></a>
+                        <a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= formatDate($row['expense_date']) ?></a>
                         <?php if ($row['expense_receipt']) { ?>
                             <a class="text-success ms-1" href="expense_receipt.php?expense_id=<?= $expense_id ?>&amp;action=view" target="_blank" title="Open the receipt"><i class="fas fa-paperclip"></i></a>
                         <?php } ?>

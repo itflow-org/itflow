@@ -220,7 +220,7 @@ $ms_text = function ($ms) {
                 $feature = (string) $row['ai_usage_feature'];
                 ?>
                 <tr data-ai-usage-id="<?= intval($row['ai_usage_id']) ?>">
-                    <td class="ps-3 text-nowrap small" title="<?= escapeHtml($row['ai_usage_created_at']) ?>">
+                    <td class="ps-3 text-nowrap small" title="<?= formatDateTime($row['ai_usage_created_at']) ?>">
                         <div><?= escapeHtml(date('M j, Y g:i A', strtotime($row['ai_usage_created_at']))) ?></div>
                         <div class="text-body-secondary"><?= escapeHtml(timeAgo($row['ai_usage_created_at'])) ?></div>
                     </td>

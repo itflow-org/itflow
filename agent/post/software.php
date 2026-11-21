@@ -216,9 +216,9 @@ if (isset($_POST['renew_software'])) {
 
         mysqli_query($mysqli, "UPDATE software SET software_expire = '$until' $reference_sql WHERE software_id = $software_id");
 
-        $was = $row['software_expire'] ?: 'no date';
-        logAudit("Software", "Renew", "$session_name renewed license " . escapeSql($row['software_name']) . " until $until (was $was)" . ($reference !== '' ? ', reference ' . escapeSql($reference) : ''), $client_id, $software_id);
-        $renewed[] = [$row['software_name'], $until];
+        $was = formatDate($row['software_expire']) ?: 'no date';
+        logAudit("Software", "Renew", "$session_name renewed license " . escapeSql($row['software_name']) . " until " . formatDate($until) . " (was $was)" . ($reference !== '' ? ', reference ' . escapeSql($reference) : ''), $client_id, $software_id);
+        $renewed[] = [$row['software_name'], formatDate($until)];
     }
 
     if (count($renewed) === 1) {

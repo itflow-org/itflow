@@ -136,7 +136,7 @@ $csrf = $_SESSION['csrf_token'];
                     </td>
                     <td class="d-none d-md-table-cell small text-nowrap" data-sms-last-in>
                         <?php if ($row['sms_provider_last_inbound_at']) { ?>
-                            <span title="<?= escapeHtml($row['sms_provider_last_inbound_at']) ?>"><?= escapeHtml(timeAgo($row['sms_provider_last_inbound_at'])) ?></span>
+                            <span title="<?= formatDateTime($row['sms_provider_last_inbound_at']) ?>"><?= escapeHtml(timeAgo($row['sms_provider_last_inbound_at'])) ?></span>
                         <?php } else { ?>
                             <span class="text-body-secondary">None yet - text the number to try it</span>
                         <?php } ?>

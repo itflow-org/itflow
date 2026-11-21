@@ -269,7 +269,7 @@ foreach ($racks as $rack_id => $row) {
                                                     </a>
                                                     <div class="dropdown-divider"></div>
                                                     <?php if ($rack_archived_at) { ?>
-                                                        <a class="dropdown-item confirm-link" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                         </a>
                                                     <?php } else { ?>

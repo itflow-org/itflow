@@ -1049,7 +1049,7 @@ function finishExport(&$export) {
         $html .= '<p class="meta">' . escapeHtml($export['subtitle']) . '</p>';
     }
 
-    $html .= '<p class="meta">' . $export['rows'] . ' record(s) - generated ' . date('Y-m-d H:i') . '</p><br>
+    $html .= '<p class="meta">' . $export['rows'] . ' record' . ($export['rows'] === 1 ? '' : 's') . ' - generated ' . formatDateTime(time()) . '</p><br>
     <table cellspacing="0" cellpadding="2">
         <thead><tr>' . $head . '</tr></thead>
         <tbody>' . $export['body'] . '</tbody>

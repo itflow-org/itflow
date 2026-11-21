@@ -662,7 +662,7 @@ if ($show_1099) {
     <?php if (!$ended) { ?>
         <div class="alert alert-warning d-flex gap-2 align-items-start">
             <i class="fas fa-fw fa-exclamation-triangle mt-1"></i>
-            <div>This tax year runs to <?= escapeHtml(date('F j, Y', strtotime($end))) ?> - the figures are the year so far. Pick the year before for the one to file.</div>
+            <div>This tax year runs to <?= escapeHtml(date('M j, Y', strtotime($end))) ?> - the figures are the year so far. Pick the year before for the one to file.</div>
         </div>
     <?php } ?>
 

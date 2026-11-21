@@ -68,7 +68,7 @@ ob_start();
             <?= billingTile('invoice') ?>
             <div class="flex-grow-1 min-w-0">
                 <div class="fw-semibold"><?= escapeHtml(billingNumber('invoice', $invoice)) ?><?= trim((string) $invoice['invoice_scope']) !== '' ? ' - ' . escapeHtml($invoice['invoice_scope']) : '' ?></div>
-                <div class="small"><?= invoiceDuePill($state) ?: '<span class="text-body-secondary">Due ' . escapeHtml($invoice['invoice_due']) . '</span>' ?></div>
+                <div class="small"><?= invoiceDuePill($state) ?: '<span class="text-body-secondary">Due ' . formatDate($invoice['invoice_due']) . '</span>' ?></div>
             </div>
             <div class="text-end">
                 <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($state['balance'], $invoice['invoice_currency_code'])) ?></div>

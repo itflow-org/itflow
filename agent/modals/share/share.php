@@ -199,7 +199,7 @@ ob_start();
                         <?= escapeHtml($entry['log_description']) ?>
                         <?php if ($where) { ?><span class="d-block text-body-secondary"><?= implode(' &middot; ', $where) ?></span><?php } ?>
                     </span>
-                    <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
+                    <span class="text-body-secondary text-nowrap" title="<?= formatDateTime($entry['log_created_at']) ?>"><?= timeAgo($entry['log_created_at']) ?></span>
                 </li>
             <?php } ?>
         </ul>

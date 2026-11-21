@@ -348,14 +348,14 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                         <td class="text-nowrap">
                             <?= recurringTicketNextRunPill($row) ?>
                             <?php if (!$paused) { ?>
-                                <div class="small text-body-secondary mt-1"><?= escapeHtml(date('D M j, Y', strtotime($row['recurring_ticket_next_run']))) ?></div>
+                                <div class="small text-body-secondary mt-1"><?= escapeHtml(date('D, M j, Y', strtotime($row['recurring_ticket_next_run']))) ?></div>
                             <?php } ?>
                         </td>
                         <td class="small">
                             <?php if ($last) { ?>
                                 <div class="text-nowrap"><a class="font-monospace" href="<?= escapeHtml(ticketUrl($last['ticket_id'], $last['ticket_client_id'])) ?>"><?= escapeHtml(ticketReference($last)) ?></a>
                                     <?= ticketStatusHtml($last['ticket_status_name'], $last['ticket_status_color'], 'detail') ?></div>
-                                <div class="text-body-secondary" title="<?= escapeHtml($last['ticket_created_at']) ?>"><?= timeAgo($last['ticket_created_at']) ?></div>
+                                <div class="text-body-secondary" title="<?= formatDateTime($last['ticket_created_at']) ?>"><?= timeAgo($last['ticket_created_at']) ?></div>
                             <?php } else { ?>
                                 <span class="text-body-secondary">None yet</span>
                             <?php } ?>

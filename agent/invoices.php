@@ -389,9 +389,9 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         <?php if (!$client_url) { ?>
                             <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="invoices.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                         <?php } ?>
-                        <td class="text-nowrap"><?= escapeHtml($row['invoice_date']) ?></td>
+                        <td class="text-nowrap"><?= formatDate($row['invoice_date']) ?></td>
                         <td class="text-nowrap">
-                            <?= escapeHtml($row['invoice_due']) ?>
+                            <?= formatDate($row['invoice_due']) ?>
                             <?php $due_pill = invoiceDuePill($row_state); if ($due_pill) { ?><div><?= $due_pill ?></div><?php } ?>
                             <?php $row_autopay = intval($row['autopay']) ? invoiceAutopayStatus($row, $row_state, invoiceAutopay($row)) : null;
                             if ($row_autopay) {

@@ -302,7 +302,7 @@ $csrf = $_SESSION['csrf_token'];
                         <td class="d-none d-lg-table-cell"><?= $category_html ?></td>
                         <td class="d-none d-lg-table-cell"><?= kbAudienceBadge($row, $audiences[$kb_article_id]) ?></td>
                         <td class="d-none d-md-table-cell small text-nowrap">
-                            <span title="<?= escapeHtml($updated_at) ?>"><?= timeAgo($updated_at) ?></span>
+                            <span title="<?= formatDateTime($updated_at) ?>"><?= timeAgo($updated_at) ?></span>
                             <?php if ($row['updated_by_name'] !== null) { ?><div class="text-body-secondary"><?= escapeHtml($row['updated_by_name']) ?></div><?php } ?>
                         </td>
                         <td class="d-none d-xl-table-cell small text-nowrap">

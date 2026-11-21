@@ -509,8 +509,8 @@
         const r = range();
         titleEl.textContent = state.view === 'workload' ? 'Workload - open tickets and the hours booked this week'
             : (state.view === 'week'
-                ? r[0].toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) + ' - ' + r[1].toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})
-                : state.date.toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'}));
+                ? r[0].toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) + ' - ' + r[1].toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})
+                : state.date.toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'}));
         if (!shownAgents().length) {
             board.innerHTML = '<div class="p-4 text-body-secondary">Pick the agents to show under Agents.</div>';
             return;
@@ -783,7 +783,7 @@
             const now = ymd(today());
             let html = '<div class="table-responsive itflow-dispatch-week-wrap"><table class="table table-bordered table-sm mb-0 itflow-dispatch-week"><thead><tr><th class="itflow-dispatch-week-agent">Agent</th>';
             days.forEach(function (d) {
-                html += '<th class="small text-center' + (ymd(d) === now ? ' text-primary' : '') + '">' + esc(d.toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'})) + '</th>';
+                html += '<th class="small text-center' + (ymd(d) === now ? ' text-primary' : '') + '">' + esc(d.toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'})) + '</th>';
             });
             html += '</tr></thead><tbody>';
             shownAgents().forEach(function (a) {
@@ -975,7 +975,7 @@
             const s = json.sla;
             const from = parseYmd(json.week[0]);
             const to = parseYmd(json.week[1]);
-            root.querySelector('[data-dispatch-week]').textContent = from.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) + ' - ' + to.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+            root.querySelector('[data-dispatch-week]').textContent = from.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) + ' - ' + to.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
             const tile = function (label, value, sub) {
                 return '<div class="itflow-dispatch-tile"><div class="itflow-dispatch-tile-label">' + esc(label) + '</div><div class="itflow-dispatch-tile-value">' + esc(value) + '</div><div class="itflow-dispatch-tile-sub">' + sub + '</div></div>';
             };

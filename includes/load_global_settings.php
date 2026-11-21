@@ -176,7 +176,7 @@ $config_share_require_protection = intval($row['config_share_require_protection'
 // Locale
 $config_currency_format = "US_en";
 $config_timezone = $row['config_timezone'];
-$config_date_format = "M d, Y";
+$config_date_format = "M j, Y";
 $config_time_format = "g:i A";
 
 // Theme

@@ -356,7 +356,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                     <td class="text-center">
                         <input class="form-check-input" type="checkbox" data-reconcile-tick <?= $line['ticked'] ? 'checked' : '' ?> <?= $can_edit ? '' : 'disabled' ?> aria-label="Cleared">
                     </td>
-                    <td class="text-nowrap"><?php if ($line['hidden']) { ?><span title="For a client you cannot open"><?= escapeHtml($line['txn_date']) ?></span><?php } else { ?><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($line)) ?>"><?= escapeHtml($line['txn_date']) ?></a><?php } ?></td>
+                    <td class="text-nowrap"><?php if ($line['hidden']) { ?><span title="For a client you cannot open"><?= formatDate($line['txn_date']) ?></span><?php } else { ?><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($line)) ?>"><?= formatDate($line['txn_date']) ?></a><?php } ?></td>
                     <td class="itflow-ledger-what">
                         <div class="text-truncate"><i class="fas fa-fw <?= $info['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($what) ?><?php if ($description !== '') { ?><span class="text-body-secondary"> - <?= escapeHtml($description) ?></span><?php } ?></div>
                         <div class="small text-body-secondary text-truncate">
@@ -507,7 +507,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                     <td class="text-end text-nowrap itflow-money"><?= $money($t['out']) ?></td>
                     <td class="small text-nowrap">
                         <?= escapeHtml($row['finished_by_name'] ?? 'Someone since removed') ?>
-                        <div class="text-body-secondary" title="<?= escapeHtml($row['reconciliation_finished_at']) ?>"><?= escapeHtml(timeAgo($row['reconciliation_finished_at'])) ?></div>
+                        <div class="text-body-secondary" title="<?= formatDateTime($row['reconciliation_finished_at']) ?>"><?= escapeHtml(timeAgo($row['reconciliation_finished_at'])) ?></div>
                     </td>
                     <td class="text-end">
                         <?php if ($i === 0 && $can_undo) { ?>

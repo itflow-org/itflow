@@ -318,7 +318,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                             </div>
                         </td>
                     <?php } ?>
-                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['income_date']) ?></a></td>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= formatDate($row['income_date']) ?></a></td>
                     <td class="itflow-income-from">
                         <?php if ($is_payment) { ?>
                             <div class="text-truncate">

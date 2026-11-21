@@ -455,7 +455,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                 <span class="text-body-secondary">Not recorded</span>
                             <?php } ?>
                         </dd>
-                        <dt>Added</dt><dd title="<?= $vendor_created_at ?>"><?= timeAgo($vendor_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($vendor_created_at) ?>"><?= timeAgo($vendor_created_at) ?></dd>
                     </dl>
                 </div>
             </div>
@@ -584,7 +584,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                             </td>
                                             <td class="text-nowrap"><?php if ($serial) { ?><span class="font-monospace small"><?= $serial ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy serial" data-clipboard-text="<?= $serial ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
                                             <td class="text-nowrap small"><?= $order_ref ?: '<span class="text-body-secondary">-</span>' ?></td>
-                                            <td class="text-nowrap small"><?= escapeHtml($asset['asset_purchase_date']) ?: '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-nowrap small"><?= formatDate($asset['asset_purchase_date']) ?: '<span class="text-body-secondary">-</span>' ?></td>
                                             <td class="text-nowrap">
                                                 <?php if ($warranty) {
                                                     $tone = $warranty['tone']; ?>
@@ -751,7 +751,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <tbody>
                                     <?php foreach ($expenses as $expense) { ?>
                                         <tr>
-                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= escapeHtml($expense['expense_date']) ?></a><?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success small ms-1" title="Receipt attached"></i><?php } ?></td>
+                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= formatDate($expense['expense_date']) ?></a><?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success small ms-1" title="Receipt attached"></i><?php } ?></td>
                                             <td class="w-100">
                                                 <div><?= escapeHtml(truncate((string) $expense['expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['category_name'], $expense['expense_reference']]))) ?></div>
@@ -787,7 +787,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <?php foreach ($recurring as $recurring_expense) {
                                         $active = recurringExpenseState($recurring_expense) === 'active'; ?>
                                         <tr class="<?= $active ? '' : 'text-body-secondary' ?>">
-                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($recurring_expense['recurring_expense_id']) ?>"><?= escapeHtml($recurring_expense['recurring_expense_next_date']) ?></a><?php if (!$active) { ?> <?= recurringExpenseNextPill($recurring_expense) ?><?php } ?></td>
+                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($recurring_expense['recurring_expense_id']) ?>"><?= formatDate($recurring_expense['recurring_expense_next_date']) ?></a><?php if (!$active) { ?> <?= recurringExpenseNextPill($recurring_expense) ?><?php } ?></td>
                                             <td class="text-nowrap"><?= ['month' => 'Month', 'quarter' => 'Quarter', 'year' => 'Year'][$recurring_expense['recurring_expense_frequency']] ?? 'Month' ?></td>
                                             <td class="w-100">
                                                 <div><?= escapeHtml(truncate((string) $recurring_expense['recurring_expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>

@@ -316,7 +316,7 @@ if (isset($_POST['add_asset_note'])) {
     //Logging
     logAudit("Asset", "Edit", "$session_name created a $type note for asset $asset_name", $client_id, $asset_id);
 
-    $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$asset_name</strong>";
+    flashAlert("Note <strong>" . escapeHtml(stripslashes($type)) . "</strong> created for <strong>" . escapeHtml($row['asset_name']) . "</strong>");
 
     redirect();
 
@@ -750,7 +750,7 @@ if (isset($_POST['bulk_favorite_assets'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name favorited $count assets", $client_id);
 
-        flashAlert("Favorited <strong>$count</strong> asset(s)");
+        flashAlert("Favorited <strong>$count</strong> asset" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -788,7 +788,7 @@ if (isset($_POST['bulk_unfavorite_assets'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name unfavorited $count assets", $client_id);
 
-        flashAlert("Unfavorited <strong>$count</strong> asset(s)");
+        flashAlert("Unfavorited <strong>$count</strong> asset" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -830,7 +830,7 @@ if (isset($_POST['bulk_archive_assets'])) {
 
         logAudit("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
 
-        flashAlert("Archived <strong>$count</strong> asset(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> asset" . ($count === 1 ? '' : 's'), 'error');
         undoOfferArchive($undo);
 
     }
@@ -873,7 +873,7 @@ if (isset($_POST['bulk_restore_assets'])) {
 
         logAudit("Asset", "Bulk Restore", "$session_name restored $count assets");
 
-        flashAlert("Restored <strong>$count</strong> asset(s)");
+        flashAlert("Restored <strong>$count</strong> asset" . ($count === 1 ? '' : 's'));
 
     }
 
@@ -912,7 +912,7 @@ if (isset($_POST['bulk_delete_assets'])) {
 
         logAudit("Asset", "Bulk Delete", "$session_name deleted $count assets");
 
-        flashAlert("Deleted <strong>$count</strong> asset(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> asset" . ($count === 1 ? '' : 's'), 'error');
     }
 
     redirect();

@@ -219,7 +219,7 @@ $lock = '<i class="fas fa-fw fa-lock text-body-secondary ms-1" title="Set by ' .
                     <?= $fact('Updates', '<span class="fw-semibold">' . ($state['update_policy'] === 'auto' ? 'Automatic' : 'From there') . '</span>' . $lock
                         . ($state['update_policy'] === 'auto' ? '<div class="text-body-secondary">' . ($state['update_delay_days'] > 0 ? $state['update_delay_days'] . ' day' . ($state['update_delay_days'] === 1 ? '' : 's') . ' after a release' : 'As soon as a release is out') . ', security fixes straight away</div>' : '')) ?>
                     <?= $fact('Support sign-in', $last_support
-                        ? 'Last <span title="' . escapeHtml($last_support['log_created_at']) . '">' . escapeHtml(timeAgo($last_support['log_created_at'])) . '</span><div class="text-body-secondary"><a href="audit_logs.php">Audit log</a></div>'
+                        ? 'Last <span title="' . formatDateTime($last_support['log_created_at']) . '">' . escapeHtml(timeAgo($last_support['log_created_at'])) . '</span><div class="text-body-secondary"><a href="audit_logs.php">Audit log</a></div>'
                         : '<span class="text-body-secondary">Not yet</span>') ?>
                 </ul>
                 <div class="card-footer bg-body small text-body-secondary">Everything else is yours, as it was.</div>

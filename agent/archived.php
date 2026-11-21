@@ -199,7 +199,7 @@ while ($row = mysqli_fetch_assoc($sql_clients)) {
                             <?php } ?>
                         </td>
                         <td class="text-nowrap">
-                            <span title="<?= escapeHtml($row['archived_at']) ?>"><?= escapeHtml(timeAgo($row['archived_at'])) ?></span>
+                            <span title="<?= formatDateTime($row['archived_at']) ?>"><?= escapeHtml(timeAgo($row['archived_at'])) ?></span>
                             <?php if ($by !== '') { ?><div class="small text-body-secondary">by <?= escapeHtml($by) ?></div><?php } ?>
                         </td>
                         <td class="text-end text-nowrap">

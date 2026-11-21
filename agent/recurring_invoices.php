@@ -303,10 +303,10 @@ $stat_money = function ($amount) use ($session_company_currency) {
                     </td>
                     <td class="text-end itflow-money"><?= escapeHtml(billingMoney($row['monthly'], $row_currency)) ?></td>
                     <td class="text-nowrap">
-                        <?= $row_active ? escapeHtml($row['recurring_invoice_next_date']) : '' ?>
+                        <?= $row_active ? formatDate($row['recurring_invoice_next_date']) : '' ?>
                         <div><?= recurringInvoiceNextPill($row) ?></div>
                     </td>
-                    <td class="text-nowrap small"><?= $row['recurring_invoice_last_sent'] ? escapeHtml($row['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></td>
+                    <td class="text-nowrap small"><?= $row['recurring_invoice_last_sent'] ? formatDate($row['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></td>
                     <td class="text-end">
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
@@ -318,7 +318,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                                     <?php if ($row_active && $row['recurring_invoice_next_date'] < date('Y-m-d')) { ?>
                                         <a class="dropdown-item confirm-link" href="post.php?recurring_invoice_catch_up=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-title="Skip the missed runs?" data-confirm-text="The next date moves on to <?= escapeHtml(recurringInvoiceCatchUp($row)) ?>. Nothing is billed for the runs it missed." data-confirm-button="Move on">
-                                            <i class="fas fa-fw fa-forward text-secondary me-2"></i>Move On to <?= escapeHtml(recurringInvoiceCatchUp($row)) ?>
+                                            <i class="fas fa-fw fa-forward text-secondary me-2"></i>Move On to <?= formatDate(recurringInvoiceCatchUp($row)) ?>
                                         </a>
                                     <?php } ?>
                                     <?php if ($row_active) { ?>

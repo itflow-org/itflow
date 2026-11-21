@@ -258,9 +258,9 @@ $stat_monthly = function ($amount) use ($stat_money) {
                     <?php if (!$client_url) { ?>
                         <td><a data-client-card="<?= $row_client_id ?>" class="text-reset" href="quotes.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a></td>
                     <?php } ?>
-                    <td class="text-nowrap"><?= escapeHtml($row['quote_date']) ?></td>
+                    <td class="text-nowrap"><?= formatDate($row['quote_date']) ?></td>
                     <td class="text-nowrap">
-                        <?= escapeHtml($row['quote_expire']) ?>
+                        <?= formatDate($row['quote_expire']) ?>
                         <?php $expiry_pill = quoteExpiryPill($row); if ($expiry_pill) { ?><div><?= $expiry_pill ?></div><?php } ?>
                     </td>
                     <td class="text-end itflow-money">

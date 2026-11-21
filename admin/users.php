@@ -625,7 +625,7 @@ $csrf = $_SESSION['csrf_token'];
 
                     <!-- Who sent it, and how -->
                     <td class="d-none d-lg-table-cell small">
-                        <div><?= escapeHtml(userInviteBy($invite) !== '' ? userInviteBy($invite) : 'Someone no longer here') ?> <span class="text-body-secondary" title="<?= escapeHtml($invite['invite_created_at']) ?>">· <?= escapeHtml(timeAgo($invite['invite_created_at'])) ?></span></div>
+                        <div><?= escapeHtml(userInviteBy($invite) !== '' ? userInviteBy($invite) : 'Someone no longer here') ?> <span class="text-body-secondary" title="<?= formatDateTime($invite['invite_created_at']) ?>">· <?= escapeHtml(timeAgo($invite['invite_created_at'])) ?></span></div>
                         <div class="text-body-secondary">
                             <?php if ($invite_sent) { ?>
                                 <i class="fas fa-fw fa-envelope me-1"></i><span title="<?= escapeHtml((string) $invite['invite_sent_at']) ?>">Emailed <?= escapeHtml(timeAgo($invite['invite_sent_at'])) ?></span><?= $invite_sent > 1 ? " · $invite_sent times" : '' ?>
@@ -759,7 +759,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="small text-body-secondary mt-1 text-nowrap" title="Browsers that skip the MFA code - remember me, at sign in"><i class="fas fa-fw fa-laptop me-1"></i><?= $remember_count ?> remembered browser<?= $remember_count === 1 ? '' : 's' ?></div>
                             <?php } ?>
                             <?php if ($is_archived) { ?>
-                                <div class="small text-body-secondary mt-1" title="<?= escapeHtml($row['user_archived_at']) ?>"><?= escapeHtml(timeAgo($row['user_archived_at'])) ?></div>
+                                <div class="small text-body-secondary mt-1" title="<?= formatDateTime($row['user_archived_at']) ?>"><?= escapeHtml(timeAgo($row['user_archived_at'])) ?></div>
                             <?php } ?>
                         </td>
 

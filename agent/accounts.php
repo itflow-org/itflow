@@ -195,7 +195,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                     </td>
                     <td class="text-nowrap small">
                         <?php if ($account['last_date']) { ?>
-                            <?= escapeHtml($account['last_date']) ?><div class="text-body-secondary"><?= $account['line_count'] ?> line<?= $account['line_count'] === 1 ? '' : 's' ?></div>
+                            <?= formatDate($account['last_date']) ?><div class="text-body-secondary"><?= $account['line_count'] ?> line<?= $account['line_count'] === 1 ? '' : 's' ?></div>
                         <?php } else { ?>
                             <span class="text-body-secondary">Nothing yet</span>
                         <?php } ?>
@@ -223,8 +223,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                                     <?php } ?>
                                     <div class="dropdown-divider"></div>
                                     <?php if (abs($balance) < 0.005) { ?>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                            data-confirm-text="<?= escapeHtml($account['account_name']) ?> leaves the account pickers. Its history stays, and it can be restored."><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
+                                        <a class="dropdown-item text-danger" href="post.php?archive_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                     <?php } else { ?>
                                         <span class="dropdown-item-text small text-body-secondary"><i class="fas fa-fw fa-archive me-2"></i>Archive once it's empty</span>
                                     <?php } ?>

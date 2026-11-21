@@ -313,10 +313,10 @@ $filter_url = function ($changes) {
                             <?php } ?>
                         </td>
                         <td class="small text-nowrap">
-                            <div title="<?= escapeHtml($row['item_created_at']) ?>"><?= timeAgo($row['item_created_at']) ?></div>
+                            <div title="<?= formatDateTime($row['item_created_at']) ?>"><?= timeAgo($row['item_created_at']) ?></div>
                             <div class="text-body-secondary"><?= $row['creator_name'] !== null ? escapeHtml($row['creator_name']) : '' ?></div>
                         </td>
-                        <td class="small text-nowrap" title="<?= escapeHtml($row['item_expire_at']) ?>">
+                        <td class="small text-nowrap" title="<?= formatDateTime($row['item_expire_at']) ?>">
                             <?php if ($is_open) { ?>
                                 <?= escapeHtml(date('M j, g:i A', strtotime($row['item_expire_at']))) ?>
                                 <div class="text-body-secondary"><?= timeAgo($row['item_expire_at']) ?></div>
@@ -327,7 +327,7 @@ $filter_url = function ($changes) {
                         <td class="small text-nowrap">
                             <?= escapeHtml(shareViewsText($row)) ?>
                             <?php if ($row['item_last_viewed_at']) { ?>
-                                <div class="text-body-secondary" title="<?= escapeHtml($row['item_last_viewed_at']) ?>">Last <?= timeAgo($row['item_last_viewed_at']) ?></div>
+                                <div class="text-body-secondary" title="<?= formatDateTime($row['item_last_viewed_at']) ?>">Last <?= timeAgo($row['item_last_viewed_at']) ?></div>
                             <?php } ?>
                         </td>
                         <td class="text-nowrap"><?= shareStateBadge($row) ?></td>

@@ -252,7 +252,7 @@ if (isset($_GET['delete_kb_article_version'])) {
 
     mysqli_query($mysqli, "DELETE FROM kb_article_versions WHERE kb_article_version_id = $kb_article_version_id");
 
-    logAudit("Knowledge Base", "Edit", "$session_name deleted the version of " . date('M j, Y g:ia', strtotime($version['kb_article_version_created_at'])) . " of article " . escapeSql($version['kb_article_version_title']), 0, intval($version['kb_article_version_kb_article_id']));
+    logAudit("Knowledge Base", "Edit", "$session_name deleted the version of " . date('M j, Y g:i A', strtotime($version['kb_article_version_created_at'])) . " of article " . escapeSql($version['kb_article_version_title']), 0, intval($version['kb_article_version_kb_article_id']));
 
     flashAlert("Version deleted", 'error');
 

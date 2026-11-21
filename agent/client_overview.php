@@ -525,7 +525,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php foreach ($activity as $log) { ?>
                             <div class="list-group-item py-2">
                                 <div class="small"><?= escapeHtml($log['log_description']) ?></div>
-                                <div class="small text-body-secondary" title="<?= escapeHtml($log['log_created_at']) ?>"><?= escapeHtml(timeAgo($log['log_created_at'])) ?></div>
+                                <div class="small text-body-secondary" title="<?= formatDateTime($log['log_created_at']) ?>"><?= escapeHtml(timeAgo($log['log_created_at'])) ?></div>
                             </div>
                         <?php } ?>
                     </div>

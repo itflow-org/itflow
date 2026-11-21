@@ -156,8 +156,7 @@ function billingReminderWhen($days) {
 
 /** A date for an email - "Oct 20, 2026". */
 function billingEmailDate($date) {
-    $time = strtotime((string) $date);
-    return $time ? date('M j, Y', $time) : (string) $date;
+    return formatDate($date) ?: (string) $date;
 }
 
 /**

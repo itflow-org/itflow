@@ -294,9 +294,9 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                 <?php if ($network['vendor_hours']) { ?><div class="small text-body-secondary"><i class="fas fa-fw fa-clock me-1"></i><?= escapeHtml($network['vendor_hours']) ?></div><?php } ?>
                             </dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= escapeHtml($network['network_created_at']) ?>"><?= timeAgo($network['network_created_at']) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($network['network_created_at']) ?>"><?= timeAgo($network['network_created_at']) ?></dd>
                         <?php if ($network['network_updated_at']) { ?>
-                            <dt>Updated</dt><dd title="<?= escapeHtml($network['network_updated_at']) ?>"><?= timeAgo($network['network_updated_at']) ?></dd>
+                            <dt>Updated</dt><dd title="<?= formatDateTime($network['network_updated_at']) ?>"><?= timeAgo($network['network_updated_at']) ?></dd>
                         <?php } ?>
                     </dl>
                 </div>

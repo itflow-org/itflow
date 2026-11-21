@@ -295,9 +295,9 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                 <?php if ($networks) { ?><div class="d-flex flex-wrap column-gap-3"><?= implode('', $networks) ?></div><?php } ?>
                             </dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= escapeHtml($service['service_created_at']) ?>"><?= timeAgo($service['service_created_at']) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($service['service_created_at']) ?>"><?= timeAgo($service['service_created_at']) ?></dd>
                         <?php if ($service['service_updated_at']) { ?>
-                            <dt>Updated</dt><dd title="<?= escapeHtml($service['service_updated_at']) ?>"><?= timeAgo($service['service_updated_at']) ?></dd>
+                            <dt>Updated</dt><dd title="<?= formatDateTime($service['service_updated_at']) ?>"><?= timeAgo($service['service_updated_at']) ?></dd>
                         <?php } ?>
                     </dl>
                 </div>

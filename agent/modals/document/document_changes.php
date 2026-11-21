@@ -57,8 +57,8 @@ ob_start();
         <div class="min-w-0">
             <h5 class="modal-title fw-semibold text-break">What changed in <?= escapeHtml($document['document_name']) ?></h5>
             <div class="small text-body-secondary mt-1">
-                <?= $version_id ? 'The version' : 'Now - the edit' ?> of <?= date('M j, Y g:ia', strtotime($after['at'])) ?><?= $after['user_name'] ? ' by ' . escapeHtml($after['user_name']) : '' ?>,
-                <?= $before ? 'against the one before it, ' . date('M j, Y g:ia', strtotime($before['at'])) : 'the first' ?>
+                <?= $version_id ? 'The version' : 'Now - the edit' ?> of <?= date('M j, Y g:i A', strtotime($after['at'])) ?><?= $after['user_name'] ? ' by ' . escapeHtml($after['user_name']) : '' ?>,
+                <?= $before ? 'against the one before it, ' . date('M j, Y g:i A', strtotime($before['at'])) : 'the first' ?>
             </div>
         </div>
     </div>

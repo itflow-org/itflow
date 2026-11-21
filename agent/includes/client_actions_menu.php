@@ -67,12 +67,12 @@
                 <i class="fas fa-fw fa-sign-out-alt me-2"></i>Offboard
             </a>
         <?php } ?>
-        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+        <a class="dropdown-item text-danger" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
             <i class="fas fa-fw fa-archive me-2"></i>Archive Client
         </a>
     <?php } else { ?>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item text-primary confirm-link" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+        <a class="dropdown-item text-primary" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
             <i class="fas fa-fw fa-archive me-2"></i>Restore Client
         </a>
     <?php } ?>

@@ -855,13 +855,13 @@ function contractRemind(array $row) {
     $what = $renews ? 'renews itself on ' . date('M j, Y', strtotime('+1 day', strtotime($end))) : 'ends on ' . date('M j, Y', strtotime($end));
     appNotify("Contract", escapeSql("Contract {$row['contract_name']} for {$row['client_name']} $what" . ($notice_open ? ' - notice by ' . date('M j, Y', strtotime($notice)) : '')), $url, $client_id, intval($row['contract_id']));
     if (!empty($row['owner_email'])) {
-        $passed = $notice !== '' && !$notice_open ? ' Its notice date, ' . date('F j, Y', strtotime($notice)) . ', has passed.' : '';
+        $passed = $notice !== '' && !$notice_open ? ' Its notice date, ' . date('M j, Y', strtotime($notice)) . ', has passed.' : '';
         emailQueue([['email' => $row['owner_email'], 'name' => $row['owner_name'], 'footnote' => 'You look after this contract in ITFlow.']], "Contract " . ($renews ? 'renewal' : 'ending') . ": {$row['contract_name']} - {$row['client_name']}", [
             'kind' => 'Contract', 'tone' => $renews ? 'primary' : 'warning',
             'title' => $row['contract_name'] . ' ' . $what,
             'intro' => [$renews
-                ? "It renews for another " . contractTermLabel($row['contract_term_months']) . ($notice_open ? " unless notice is given by " . date('F j, Y', strtotime($notice)) . ". Now is the time to review it with the client." : ".$passed")
-                : "It doesn't renew itself. Renew it, or let the client know it is ending" . ($notice_open ? " - notice is due by " . date('F j, Y', strtotime($notice)) . "." : ".$passed")],
+                ? "It renews for another " . contractTermLabel($row['contract_term_months']) . ($notice_open ? " unless notice is given by " . date('M j, Y', strtotime($notice)) . ". Now is the time to review it with the client." : ".$passed")
+                : "It doesn't renew itself. Renew it, or let the client know it is ending" . ($notice_open ? " - notice is due by " . date('M j, Y', strtotime($notice)) . "." : ".$passed")],
             'summary' => array_filter([
                 'Client' => (string) $row['client_name'],
                 'Type' => contractTypeLabel($row['contract_type']),

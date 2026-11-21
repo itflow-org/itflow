@@ -510,7 +510,7 @@ function ticketHelperConflicts($user_id, $start, $end, $ticket_id = 0) {
     while ($row = mysqli_fetch_assoc($sql)) {
         $hidden = !empty($GLOBALS['session_user_id']) && intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']);
         $what = $hidden ? 'Another booking (a client you can\'t see)' : ticketReference($row) . ' - ' . $row['ticket_subject'];
-        $lines[] = "$what (helping) @ " . date('g:ia', strtotime($row['start'])) . '-' . date('g:ia', strtotime(ticketScheduleEnd($row['start'], $row['end'])));
+        $lines[] = "$what (helping) @ " . date('g:i A', strtotime($row['start'])) . '-' . date('g:i A', strtotime(ticketScheduleEnd($row['start'], $row['end'])));
     }
     return $lines;
 }

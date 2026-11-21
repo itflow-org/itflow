@@ -157,7 +157,7 @@ ob_start();
         <?php if ($made) { ?>
             <?php foreach ($made as $expense) { ?>
                 <div class="d-flex justify-content-between gap-2 small py-1 border-bottom">
-                    <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= escapeHtml($expense['expense_date']) ?></a>
+                    <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= formatDate($expense['expense_date']) ?></a>
                     <span class="flex-grow-1 text-end">
                         <?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success me-2" title="Receipt attached"></i><?php } ?>
                         <span class="itflow-money"><?= escapeHtml(billingMoney($expense['expense_amount'], $expense['expense_currency_code'])) ?></span>

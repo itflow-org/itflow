@@ -149,7 +149,7 @@ $span = count($columns) + 4;
         'year' => [$year, $years],
         'controls' => reportSegmentControl('view', $view, ['month' => 'Monthly', 'quarter' => 'Quarterly']),
         'subtitle' => $current_year ? "$year to date" : (string) $year,
-        'print_meta' => $current_year ? "January 1 to " . date('F j, Y') : "Year $year",
+        'print_meta' => $current_year ? "Jan 1 to " . date('M j, Y') : "Year $year",
     ]); ?>
 
     <?= reportStats([

@@ -162,7 +162,7 @@ $paper = [
                     <?php if ($files) { ?>
                         <div class="itflow-portal-files mb-3">
                             <?php foreach ($files as $file) { ?>
-                                <span class="itflow-portal-file-chip" title="Sent <?= escapeHtml($file['file_created_at']) ?>"><i class="fas fa-file-pdf"></i><span class="text-truncate"><?= escapeHtml($file['file_name']) ?></span><span class="text-body-secondary"><?= escapeHtml(date('M j', strtotime($file['file_created_at']))) ?></span></span>
+                                <span class="itflow-portal-file-chip" title="Sent <?= formatDateTime($file['file_created_at']) ?>"><i class="fas fa-file-pdf"></i><span class="text-truncate"><?= escapeHtml($file['file_name']) ?></span><span class="text-body-secondary"><?= escapeHtml(date('M j', strtotime($file['file_created_at']))) ?></span></span>
                             <?php } ?>
                         </div>
                     <?php } ?>

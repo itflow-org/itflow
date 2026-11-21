@@ -227,6 +227,49 @@ function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigne
 }
 
 
+/*
+ * Dates and times the way ITFlow shows them - Nov 13, 2026, 2:30 PM, and
+ * Nov 13, 2026 2:30 PM - on its pages, windows, PDFs, emails and portals.
+ * Give them what is stored (2026-11-13, 2026-11-13 14:30:00) or a timestamp;
+ * nothing, or a zero date, gives ''. The stored form, 2026-11-13, is only for
+ * date fields, exports and file names. Safe to print as they are.
+ */
+function formatDate($date) {
+    $time = formatDateTimestamp($date);
+    return $time === null ? '' : date('M j, Y', $time);
+}
+
+/* With the time - $seconds for a log, where the second matters. */
+function formatDateTime($datetime, $seconds = false) {
+    $time = formatDateTimestamp($datetime);
+    return $time === null ? '' : date($seconds ? 'M j, Y g:i:s A' : 'M j, Y g:i A', $time);
+}
+
+/* The time of day alone - 2:30 PM. */
+function formatTime($datetime) {
+    $time = formatDateTimestamp($datetime);
+    return $time === null ? '' : date('g:i A', $time);
+}
+
+/* With the day of the week - Fri, Nov 13, 2026 - for bookings and schedules. */
+function formatDay($date) {
+    $time = formatDateTimestamp($date);
+    return $time === null ? '' : date('D, M j, Y', $time);
+}
+
+/* The timestamp behind a stored date or time - null for nothing or a zero date. */
+function formatDateTimestamp($value) {
+    if (is_int($value)) {
+        return $value;
+    }
+    $value = trim((string) $value);
+    if ($value === '' || strpos($value, '0000-00-00') === 0) {
+        return null;
+    }
+    $time = strtotime($value);
+    return $time === false ? null : $time;
+}
+
 function timeAgo($datetime) {
     if (is_null($datetime)) {
         return "-";

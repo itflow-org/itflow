@@ -562,7 +562,7 @@ $asset_form_icons = [
                                 <?= assetStatusPill($row['asset_history_status']) ?>
                             <?php } ?>
                         </div>
-                        <div class="small text-body-secondary" title="<?= escapeHtml($row['asset_history_created_at']) ?>"><?= timeAgo($row['asset_history_created_at']) ?> &middot; <?= escapeHtml($row['asset_history_created_at']) ?></div>
+                        <div class="small text-body-secondary" title="<?= formatDateTime($row['asset_history_created_at']) ?>"><?= timeAgo($row['asset_history_created_at']) ?> &middot; <?= formatDateTime($row['asset_history_created_at']) ?></div>
                     </li>
                 <?php } ?>
             </ul>

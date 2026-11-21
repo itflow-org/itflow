@@ -152,7 +152,7 @@ $csrf = $_SESSION['csrf_token'];
                     $role = $roles[intval($row['user_role_id'])] ?? null;
                     $expired = apiKeyExpired($row);
                     $agent_name = trim(str_replace(' (archived)', '', (string) $row['user_name']));
-                    $last_used = $row['api_key_last_used_at'] ? '<span title="' . escapeHtml($row['api_key_last_used_at']) . '">' . escapeHtml(timeAgo($row['api_key_last_used_at'])) . '</span>' : '<span class="text-body-secondary">Never</span>';
+                    $last_used = $row['api_key_last_used_at'] ? '<span title="' . formatDateTime($row['api_key_last_used_at']) . '">' . escapeHtml(timeAgo($row['api_key_last_used_at'])) . '</span>' : '<span class="text-body-secondary">Never</span>';
                     $use = $usage[$api_key_id] ?? null;
                     if ($use && $use['last_ip'] !== '') {
                         $last_used .= '<div class="text-body-secondary font-monospace" title="Where the last call came from">' . escapeHtml($use['last_ip']) . '</div>';

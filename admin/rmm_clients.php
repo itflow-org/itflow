@@ -136,9 +136,9 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
             <?php if (!$provider['rmm_provider_sync_at']) { ?>
                 <span class="text-body-secondary"><i class="fas fa-fw fa-info-circle me-1"></i>Not synced yet - link a client below and its devices come in straight away.</span>
             <?php } elseif (intval($provider['rmm_provider_sync_ok'])) { ?>
-                <span><i class="fas fa-fw fa-check-circle text-success me-1"></i>Synced <span title="<?= escapeHtml($provider['rmm_provider_sync_at']) ?>"><?= escapeHtml(timeAgo($provider['rmm_provider_sync_at'])) ?></span> - <?= escapeHtml((string) $provider['rmm_provider_sync_note']) ?></span>
+                <span><i class="fas fa-fw fa-check-circle text-success me-1"></i>Synced <span title="<?= formatDateTime($provider['rmm_provider_sync_at']) ?>"><?= escapeHtml(timeAgo($provider['rmm_provider_sync_at'])) ?></span> - <?= escapeHtml((string) $provider['rmm_provider_sync_note']) ?></span>
             <?php } else { ?>
-                <span class="text-danger-emphasis"><i class="fas fa-fw fa-exclamation-circle me-1"></i>The sync <span title="<?= escapeHtml($provider['rmm_provider_sync_at']) ?>"><?= escapeHtml(timeAgo($provider['rmm_provider_sync_at'])) ?></span> didn't work: <?= escapeHtml((string) $provider['rmm_provider_sync_note']) ?></span>
+                <span class="text-danger-emphasis"><i class="fas fa-fw fa-exclamation-circle me-1"></i>The sync <span title="<?= formatDateTime($provider['rmm_provider_sync_at']) ?>"><?= escapeHtml(timeAgo($provider['rmm_provider_sync_at'])) ?></span> didn't work: <?= escapeHtml((string) $provider['rmm_provider_sync_note']) ?></span>
             <?php } ?>
             <span class="text-body-secondary"><?= number_format($devices_in) ?> device<?= $devices_in === 1 ? '' : 's' ?> in ITFlow</span>
         </div>
@@ -236,7 +236,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                     </td>
                     <td class="d-none d-lg-table-cell small text-nowrap">
                         <?php if ($row['rmm_client_synced_at']) { ?>
-                            <span title="<?= escapeHtml($row['rmm_client_synced_at']) ?>"><?= escapeHtml(timeAgo($row['rmm_client_synced_at'])) ?></span>
+                            <span title="<?= formatDateTime($row['rmm_client_synced_at']) ?>"><?= escapeHtml(timeAgo($row['rmm_client_synced_at'])) ?></span>
                         <?php } else { ?>
                             <span class="text-body-secondary"><?= $linked ? 'Next sync' : '-' ?></span>
                         <?php } ?>

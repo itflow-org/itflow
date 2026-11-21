@@ -514,7 +514,7 @@ function auditLogHistoryHtml(array $history, array $opts = []) {
             . '<div class="flex-grow-1 min-w-0">'
             . '<div class="text-break">' . escapeHtml(auditLogDescription($row)) . '</div>'
             . '<div class="small text-body-secondary d-flex flex-wrap align-items-center column-gap-2 row-gap-1 mt-1">' . $who['html']
-            . '<span title="' . escapeHtml($row['log_created_at']) . '">' . escapeHtml(timeAgo($row['log_created_at'])) . '</span>'
+            . '<span title="' . formatDateTime($row['log_created_at']) . '">' . escapeHtml(timeAgo($row['log_created_at'])) . '</span>'
             . (!empty($session_is_admin) && empty($opts['compact']) && $ip !== '' ? '<span class="font-monospace" title="' . escapeHtml(auditLogDevice($row['log_user_agent'])) . '">' . escapeHtml($ip) . '</span>' : '')
             . '</div></div></li>';
     }

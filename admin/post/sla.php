@@ -203,7 +203,7 @@ if (isset($_POST['add_holiday'])) {
     getBusinessHolidays(true);
     $restamped = restampOpenSlaTickets();
 
-    logAudit("Settings", "Create", "$session_name added SLA closure day $holiday_date - $holiday_name");
+    logAudit("Settings", "Create", "$session_name added SLA closure day " . formatDate($holiday_date) . " - $holiday_name");
 
     flashAlert("Closure day added" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''));
 
@@ -230,7 +230,7 @@ if (isset($_POST['delete_holiday'])) {
     getBusinessHolidays(true);
     $restamped = restampOpenSlaTickets();
 
-    logAudit("Settings", "Delete", "$session_name removed SLA closure day $holiday_date - $holiday_name");
+    logAudit("Settings", "Delete", "$session_name removed SLA closure day " . formatDate($holiday_date) . " - $holiday_name");
 
     flashAlert("Closure day removed" . ($restamped ? " - targets worked out again on " . $sla_open_tickets_text($restamped) : ''), 'error');
 

@@ -74,7 +74,7 @@ $paper = [
 
                 <?php if ($awaiting) { ?>
                     <p class="small text-body-secondary mb-3">
-                        Good until <?= escapeHtml($quote['quote_expire']) ?><?= $days_left === 0 ? ' - today is the last day' : ' - ' . $days_left . ' day' . ($days_left === 1 ? '' : 's') . ' left' ?>.
+                        Good until <?= formatDate($quote['quote_expire']) ?><?= $days_left === 0 ? ' - today is the last day' : ' - ' . $days_left . ' day' . ($days_left === 1 ? '' : 's') . ' left' ?>.
                         Let us know whether to go ahead.
                     </p>
                     <?php /* Buttons that post, not links - a mail scanner or link preview opening links on the page must not answer the quote */ ?>
@@ -95,7 +95,7 @@ $paper = [
                         <span class="itflow-asset-icon bg-warning-subtle text-warning-emphasis" aria-hidden="true"><i class="fas fa-hourglass-end"></i></span>
                         <div>
                             <div class="fw-semibold">This quote has run out</div>
-                            <div class="small text-body-secondary">It was good until <?= escapeHtml($quote['quote_expire']) ?> - ask us for an updated one.</div>
+                            <div class="small text-body-secondary">It was good until <?= formatDate($quote['quote_expire']) ?> - ask us for an updated one.</div>
                         </div>
                     </div>
                 <?php } elseif (in_array($status, ['Accepted', 'Invoiced'], true)) { ?>

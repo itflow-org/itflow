@@ -568,7 +568,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="ticket-meta">
                                 <?= $ticket_opened_wording ?>
                                 <?php if ($ticket_updated_at) { ?>
-                                    <span class="mx-1">&middot;</span><span title="<?= $ticket_updated_at ?>">Updated <?= $ticket_updated_at_ago ?></span>
+                                    <span class="mx-1">&middot;</span><span title="<?= formatDateTime($ticket_updated_at) ?>">Updated <?= $ticket_updated_at_ago ?></span>
                                 <?php } ?>
                                 <span class="text-info ms-1" id="ticket_collision_viewing"></span>
                             </div>
@@ -1169,7 +1169,7 @@ if (isset($_GET['ticket_id'])) {
                                         <?php if ($reply_mentions_me) { ?>
                                             <span class="badge text-bg-warning" title="This note mentions you"><i class="fas fa-fw fa-at me-1"></i>Mentions you</span>
                                         <?php } ?>
-                                        <div class="small text-muted" title="Created: <?= $ticket_reply_created_at ?><?php if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">
+                                        <div class="small text-muted" title="Created: <?= formatDateTime($ticket_reply_created_at) ?><?php if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">
                                             <?= $ticket_reply_created_at_ago ?><?php if ($ticket_reply_updated_at) { echo ' <em>(edited)</em>'; } ?>
                                             <?php if ($ticket_reply_type !== "Client" && $ticket_reply_time_worked && $ticket_reply_time_worked !== "00:00:00") { ?>
                                                 <span class="mx-1">&middot;</span><i class="far fa-fw fa-clock"></i> <?= formatDuration($ticket_reply_time_worked) ?>
@@ -1212,10 +1212,7 @@ if (isset($_GET['ticket_id'])) {
                                                 </a>
                                                 <?php if ($ticket_reply_type !== "Client" && !$ticket_is_closed) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?= $ticket_reply_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                        data-confirm-title="Archive this reply?"
-                                                        data-confirm-text="It disappears from the conversation for everyone, including the client."
-                                                        data-confirm-button="Archive">
+                                                    <a class="dropdown-item text-danger" href="post.php?archive_ticket_reply=<?= $ticket_reply_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
                                                 <?php } ?>
@@ -1410,7 +1407,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <?php if ($ticket_due_at) {
-                                $due_value = "<span class='" . ($ticket_due_overdue ? 'text-danger fw-bold' : '') . "' title='$ticket_due_at'>" . date('M d, Y • g:i A', strtotime($ticket_due_at)) . "</span>";
+                                $due_value = "<span class='" . ($ticket_due_overdue ? 'text-danger fw-bold' : '') . "' title='$ticket_due_at'>" . date('M j, Y g:i A', strtotime($ticket_due_at)) . "</span>";
                                 ?>
                                 <div class="ticket-prop">
                                     <dt>Due</dt>
@@ -1612,7 +1609,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="d-flex align-items-center gap-2 mt-1 text-body-secondary">
                                         <?= ticketStatusHtml($other['ticket_status_name'], $other['ticket_status_color'], 'detail') ?>
                                         <span>Same <?= implode(' and ', $other['shares']) ?></span>
-                                        <span class="ms-auto text-nowrap" title="<?= escapeHtml($other['ticket_created_at']) ?>"><?= timeAgo($other['ticket_created_at']) ?></span>
+                                        <span class="ms-auto text-nowrap" title="<?= formatDateTime($other['ticket_created_at']) ?>"><?= timeAgo($other['ticket_created_at']) ?></span>
                                     </div>
                                 </div>
                             <?php } ?>
@@ -1792,7 +1789,7 @@ if (isset($_GET['ticket_id'])) {
                                     <tr data-task-id="<?= $task_id ?>">
                                         <td class="ps-3 pe-0 ticket-task-check">
                                             <?php if ($task_completed_at) { ?>
-                                                <i class="far fa-fw fa-check-square text-success" title="Completed <?= $task_completed_at ?>"></i>
+                                                <i class="far fa-fw fa-check-square text-success" title="Completed <?= formatDateTime($task_completed_at) ?>"></i>
                                             <?php } elseif ($can_edit_ticket && !$task_needs_approval) { ?>
                                                 <a href="post.php?complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Mark complete" data-task-toggle>
                                                     <i class="far fa-fw fa-square text-body"></i>
@@ -2038,17 +2035,17 @@ if (isset($_GET['ticket_id'])) {
 
                         <dl class="ticket-history-facts mb-0">
                             <dt>Created</dt>
-                            <dd title="<?= $ticket_created_at ?>"><?= date('M d, Y • g:i A', strtotime($ticket_created_at)) ?></dd>
+                            <dd title="<?= formatDateTime($ticket_created_at) ?>"><?= date('M j, Y g:i A', strtotime($ticket_created_at)) ?></dd>
 
                             <?php if ($ticket_first_response_at) { ?>
                                 <dt>First response</dt>
-                                <dd title="<?= $ticket_first_response_at ?>"><?= date('M d, Y • g:i A', strtotime($ticket_first_response_at)) ?></dd>
+                                <dd title="<?= formatDateTime($ticket_first_response_at) ?>"><?= date('M j, Y g:i A', strtotime($ticket_first_response_at)) ?></dd>
                             <?php } ?>
 
                             <?php if ($ticket_sla_id && $ticket_response_due_at) { ?>
                                 <dt>Respond by</dt>
                                 <dd>
-                                    <?= date('M d, Y • g:i A', strtotime($ticket_response_due_at)) ?>
+                                    <?= date('M j, Y g:i A', strtotime($ticket_response_due_at)) ?>
                                     <?php if (!is_null($ticket_response_sla_met)) { echo $ticket_response_sla_met ? "<i class='fas fa-fw fa-check text-success ms-1' title='Response SLA met'></i>" : "<i class='fas fa-fw fa-exclamation-triangle text-danger ms-1' title='Response SLA missed'></i>"; } ?>
                                 </dd>
                             <?php } ?>
@@ -2059,7 +2056,7 @@ if (isset($_GET['ticket_id'])) {
                                     <?php if ($ticket_sla_paused && $ticket_is_open) { ?>
                                         <span class="text-warning-emphasis"><i class="fas fa-fw fa-pause-circle me-1"></i>Paused</span>
                                     <?php } else { ?>
-                                        <?= date('M d, Y • g:i A', strtotime($ticket_resolution_due_at)) ?>
+                                        <?= date('M j, Y g:i A', strtotime($ticket_resolution_due_at)) ?>
                                     <?php } ?>
                                     <?php if (!is_null($ticket_resolution_sla_met)) { echo $ticket_resolution_sla_met ? "<i class='fas fa-fw fa-check text-success ms-1' title='Resolution SLA met'></i>" : "<i class='fas fa-fw fa-exclamation-triangle text-danger ms-1' title='Resolution SLA missed'></i>"; } ?>
                                 </dd>
@@ -2072,13 +2069,13 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php if ($ticket_resolved_at) { ?>
                                 <dt>Resolved</dt>
-                                <dd title="<?= $ticket_resolved_at ?>"><?= date('M d, Y • g:i A', strtotime($ticket_resolved_at)) ?></dd>
+                                <dd title="<?= formatDateTime($ticket_resolved_at) ?>"><?= date('M j, Y g:i A', strtotime($ticket_resolved_at)) ?></dd>
                             <?php } ?>
 
                             <?php if ($ticket_is_closed) { ?>
                                 <dt>Closed</dt>
-                                <dd title="<?= $ticket_closed_at ?>">
-                                    <?= date('M d, Y • g:i A', strtotime($ticket_closed_at)) ?>
+                                <dd title="<?= formatDateTime($ticket_closed_at) ?>">
+                                    <?= date('M j, Y g:i A', strtotime($ticket_closed_at)) ?>
                                     <?php
                                     // A zero closed_by is the client closing it from the portal or guest link,
                                     // or the nightly auto-close on an unassigned ticket - so no name is shown
@@ -2102,7 +2099,7 @@ if (isset($_GET['ticket_id'])) {
                                     ?>
                                     <div class="mb-2 small">
                                         <?= $ticket_history_description ?>
-                                        <div class="text-muted" title="<?= $ticket_history_created_at ?>"><?= timeAgo($ticket_history_created_at) ?></div>
+                                        <div class="text-muted" title="<?= formatDateTime($ticket_history_created_at) ?>"><?= timeAgo($ticket_history_created_at) ?></div>
                                     </div>
                                 <?php } ?>
                             </div>

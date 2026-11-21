@@ -1430,11 +1430,13 @@ if (isset($_GET['archive_ticket_reply'])) {
     [$reply, $row] = ticketReplyForRequest($_GET['archive_ticket_reply'], 2);
     $ticket_reply_id = intval($reply['ticket_reply_id']);
 
+    $undo = undoArchivedBefore('ticket_replies', 'ticket_reply_id', [$ticket_reply_id]); // for Undo on the message
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id");
 
     logAudit("Ticket Reply", "Archive", "$session_name archived a reply on ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_reply_id);
 
     flashAlert("Ticket reply archived", 'error');
+    undoOfferArchived($undo, 'repl', '', [], 'y|ies', 'module_support', 2);
 
     redirect();
 

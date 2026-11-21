@@ -135,7 +135,7 @@ $remember_days = max(1, intval($config_login_remember_me_expire));
                                     <?php if ($browser['is_current']) { ?><span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal ms-1">This browser</span><?php } ?>
                                 </div>
                                 <div class="small text-body-secondary">
-                                    Remembered <span title="<?= escapeHtml($browser['remember_token_created_at']) ?>"><?= escapeHtml(timeAgo($browser['remember_token_created_at'])) ?></span>
+                                    Remembered <span title="<?= formatDateTime($browser['remember_token_created_at']) ?>"><?= escapeHtml(timeAgo($browser['remember_token_created_at'])) ?></span>
                                     <?php if ($login) { ?> from <span class="font-monospace"><?= escapeHtml($login['log_ip']) ?></span><?php } ?>
                                     · skips the code until <?= escapeHtml(date('M j', strtotime($browser['remember_token_expires_at']))) ?>
                                 </div>

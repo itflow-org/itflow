@@ -1823,7 +1823,7 @@ function reportHeatmap(array $counts, $noun = 'ticket') {
     }
     $html = '<div class="table-responsive"><table class="itflow-report-heat" aria-label="When ' . $noun . 's came in, by weekday and hour"><thead><tr><th></th>';
     for ($h = 0; $h < 24; $h++) {
-        $html .= '<th scope="col">' . ($h % 3 === 0 ? date('ga', mktime($h, 0, 0)) : '') . '</th>';
+        $html .= '<th scope="col">' . ($h % 3 === 0 ? date('g A', mktime($h, 0, 0)) : '') . '</th>';
     }
     $html .= '</tr></thead><tbody>';
     for ($d = 1; $d <= 7; $d++) {

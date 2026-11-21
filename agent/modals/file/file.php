@@ -98,7 +98,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Uploaded">
                 <i class="fas fa-fw fa-cloud-upload-alt"></i>
-                <span><span title="<?= escapeHtml($row['file_created_at']) ?>"><?= timeAgo($row['file_created_at']) ?></span><?php if ($row['user_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['user_name']) ?></span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['file_created_at']) ?>"><?= timeAgo($row['file_created_at']) ?></span><?php if ($row['user_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['user_name']) ?></span><?php } ?></span>
             </div>
         </div>
         <div class="col-sm-6">

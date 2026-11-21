@@ -294,7 +294,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                             <?= intval($contract['contract_notice_days']) ? intval($contract['contract_notice_days']) . ' days' : 'None' ?>
                             <?php if ($notice !== '' && $status === 'Active') { ?><div class="small text-body-secondary">By <?= escapeHtml(date('M j, Y', strtotime($notice))) ?></div><?php } ?>
                         </dd>
-                        <?php if ($contract['contract_renewed_at']) { ?><dt>Renewed</dt><dd title="<?= escapeHtml($contract['contract_renewed_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($contract['contract_renewed_at']))) ?></dd><?php } ?>
+                        <?php if ($contract['contract_renewed_at']) { ?><dt>Renewed</dt><dd title="<?= formatDateTime($contract['contract_renewed_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($contract['contract_renewed_at']))) ?></dd><?php } ?>
                         <?php if ($status === 'Cancelled') { ?>
                             <dt>Cancelled</dt>
                             <dd><?= $contract['contract_cancelled_at'] ? escapeHtml(date('M j, Y', strtotime($contract['contract_cancelled_at']))) : '' ?><?php if ($contract['contract_cancel_reason']) { ?><div class="small text-body-secondary"><?= escapeHtml($contract['contract_cancel_reason']) ?></div><?php } ?></dd>
@@ -348,7 +348,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                         <dt>Client</dt><dd><a href="client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($contract['client_name']) ?></a></dd>
                         <dt>Contact</dt><dd><?= $contract['contact_name'] ? '<a href="contact.php?client_id=' . $client_id . '&contact_id=' . intval($contract['contract_contact_id']) . '">' . escapeHtml($contract['contact_name']) . '</a>' : '<span class="text-body-secondary">None</span>' ?></dd>
                         <dt>Owner</dt><dd><?= $contract['owner_name'] ? escapeHtml($contract['owner_name']) : '<span class="text-body-secondary">No one - everyone is reminded</span>' ?></dd>
-                        <dt>Added</dt><dd title="<?= escapeHtml($contract['contract_created_at']) ?>"><?= timeAgo($contract['contract_created_at']) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($contract['contract_created_at']) ?>"><?= timeAgo($contract['contract_created_at']) ?></dd>
                     </dl>
                 </div>
             </div>

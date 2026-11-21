@@ -196,7 +196,7 @@ $csrf = $_SESSION['csrf_token'];
                     </td>
                     <td class="d-none d-md-table-cell small text-nowrap"><?= $used_count ? escapeHtml($used_text) : '<span class="text-body-secondary">Not yet</span>' ?></td>
                     <td class="d-none d-md-table-cell small text-body-secondary text-nowrap"<?= $row['last_used'] ? ' title="' . escapeHtml($row['last_used']) . '"' : '' ?>><?= $row['last_used'] ? timeAgo($row['last_used']) : '-' ?></td>
-                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= escapeHtml($row['changed_at']) ?>">
+                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= formatDateTime($row['changed_at']) ?>">
                         <?= timeAgo($row['changed_at']) ?>
                         <?php if ($row['changed_by'] !== null) { ?><div><?= escapeHtml($row['changed_by']) ?></div><?php } ?>
                     </td>

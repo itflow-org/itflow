@@ -76,7 +76,7 @@ ob_start();
         <div class="col-sm-6">
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span><span title="<?= escapeHtml($row['transfer_created_at']) ?>"><?= timeAgo($row['transfer_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
+                <span><span title="<?= formatDateTime($row['transfer_created_at']) ?>"><?= timeAgo($row['transfer_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
             <?= reconcileGlanceHtml($cleared_out) ?>
             <?= reconcileGlanceHtml($cleared_in) ?>

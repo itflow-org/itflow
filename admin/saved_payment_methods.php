@@ -218,7 +218,7 @@ $page_title = 'Saved Cards';
                             </div>
                         <?php } ?>
                     </td>
-                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= escapeHtml($row['saved_payment_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($row['saved_payment_created_at']))) ?></td>
+                    <td class="d-none d-lg-table-cell small text-body-secondary text-nowrap" title="<?= formatDateTime($row['saved_payment_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($row['saved_payment_created_at']))) ?></td>
                     <td class="text-end pe-3">
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>

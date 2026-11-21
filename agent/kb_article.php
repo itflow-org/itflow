@@ -95,7 +95,7 @@ $page_title = $row['kb_article_title'];
                 <div class="mt-1 d-print-none"><?= $tags_display ?></div>
             <?php } ?>
             <div class="small text-body-secondary mt-1">
-                <span title="<?= escapeHtml($updated_at) ?>">Updated <?= timeAgo($updated_at) ?></span><?= $updated_by !== '' ? " by $updated_by" : '' ?>
+                <span title="<?= formatDateTime($updated_at) ?>">Updated <?= timeAgo($updated_at) ?></span><?= $updated_by !== '' ? " by $updated_by" : '' ?>
                 &middot; Written <?= date('M j, Y', strtotime($row['kb_article_created_at'])) ?><?= $row['created_by_name'] !== null ? ' by ' . escapeHtml($row['created_by_name']) : '' ?>
                 <?php if ($versions) { ?>&middot; <a class="text-reset d-print-none" href="#kbArticleVersions"><?= count($versions) ?> earlier version<?= count($versions) === 1 ? '' : 's' ?></a><?php } ?>
             </div>
@@ -274,7 +274,7 @@ $page_title = $row['kb_article_title'];
                         <?php if ($archived) { ?>
                             Archived <?= timeAgo($row['kb_article_archived_at']) ?>
                         <?php } elseif ($published) { ?>
-                            Published <span title="<?= escapeHtml($row['kb_article_published_at']) ?>"><?= date('M j, Y', strtotime($row['kb_article_published_at'])) ?></span>
+                            Published <span title="<?= formatDateTime($row['kb_article_published_at']) ?>"><?= date('M j, Y', strtotime($row['kb_article_published_at'])) ?></span>
                         <?php } else { ?>
                             A draft - not finished
                         <?php } ?>
@@ -349,7 +349,7 @@ $page_title = $row['kb_article_title'];
                             <div class="min-w-0 flex-grow-1">
                                 <div class="small<?= $comment === '' ? ' fst-italic' : '' ?>"><?= $comment !== '' ? nl2br(escapeHtml($comment)) : "Said it didn't help" ?></div>
                                 <div class="small text-body-secondary">
-                                    <?= $who ?> &middot; <span title="<?= escapeHtml($answer['kb_article_feedback_created_at']) ?>"><?= timeAgo($answer['kb_article_feedback_created_at']) ?></span>
+                                    <?= $who ?> &middot; <span title="<?= formatDateTime($answer['kb_article_feedback_created_at']) ?>"><?= timeAgo($answer['kb_article_feedback_created_at']) ?></span>
                                     <?php if (!$open) { ?>&middot; dealt with<?= $answer['dealt_by_name'] !== null ? ' by ' . escapeHtml($answer['dealt_by_name']) : '' ?><?php } ?>
                                 </div>
                             </div>
@@ -376,8 +376,8 @@ $page_title = $row['kb_article_title'];
                     $version_id = intval($version['kb_article_version_id']); ?>
                     <li class="list-group-item d-flex align-items-center gap-2">
                         <div class="min-w-0 flex-grow-1">
-                            <a class="small fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/kb/kb_article_version.php?id=<?= $version_id ?>" title="<?= escapeHtml($version['kb_article_version_created_at']) ?>">
-                                <?= date('M j, Y g:ia', strtotime($version['kb_article_version_created_at'])) ?>
+                            <a class="small fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/kb/kb_article_version.php?id=<?= $version_id ?>" title="<?= formatDateTime($version['kb_article_version_created_at']) ?>">
+                                <?= date('M j, Y g:i A', strtotime($version['kb_article_version_created_at'])) ?>
                             </a>
                             <div class="small text-body-secondary text-truncate">
                                 <?= escapeHtml($version['user_name'] ?: 'Unknown') ?>

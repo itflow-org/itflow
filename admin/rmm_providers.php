@@ -184,7 +184,7 @@ $csrf = $_SESSION['csrf_token'];
                         <?php } elseif (intval($row['rmm_provider_sync_ok'])) { ?>
                             <span class="text-nowrap" title="<?= escapeHtml($row['rmm_provider_sync_at'] . ' - ' . $row['rmm_provider_sync_note']) ?>"><i class="fas fa-fw fa-check-circle text-success me-1"></i><?= escapeHtml(timeAgo($row['rmm_provider_sync_at'])) ?></span>
                         <?php } else { ?>
-                            <div class="text-danger-emphasis text-nowrap" title="<?= escapeHtml($row['rmm_provider_sync_at']) ?>"><i class="fas fa-fw fa-exclamation-circle me-1"></i>Didn't work, <?= escapeHtml(timeAgo($row['rmm_provider_sync_at'])) ?></div>
+                            <div class="text-danger-emphasis text-nowrap" title="<?= formatDateTime($row['rmm_provider_sync_at']) ?>"><i class="fas fa-fw fa-exclamation-circle me-1"></i>Didn't work, <?= escapeHtml(timeAgo($row['rmm_provider_sync_at'])) ?></div>
                             <div class="text-body-secondary text-truncate" style="max-width: 22rem;" title="<?= escapeHtml((string) $row['rmm_provider_sync_note']) ?>"><?= escapeHtml((string) $row['rmm_provider_sync_note']) ?></div>
                         <?php } ?>
                     </td>

@@ -841,7 +841,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
 
         logAudit("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
-        flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
+        flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice" . ($count === 1 ? '' : 's'));
         undoOfferChanges($undo, "Income category put back on <strong>{n}</strong> invoice{s}", 'module_sales');
     }
 

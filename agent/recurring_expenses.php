@@ -260,7 +260,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                     <td class="text-nowrap">
                         <?= $row_state === 'ended' ? '' : escapeHtml($row_next) ?>
                         <div><?= recurringExpenseNextPill($row) ?></div>
-                        <?php if ($row['recurring_expense_end_date'] && $row_state !== 'ended') { ?><div class="small text-body-secondary" title="Its last run is on or before this date">Ends <?= escapeHtml($row['recurring_expense_end_date']) ?></div><?php } ?>
+                        <?php if ($row['recurring_expense_end_date'] && $row_state !== 'ended') { ?><div class="small text-body-secondary" title="Its last run is on or before this date">Ends <?= formatDate($row['recurring_expense_end_date']) ?></div><?php } ?>
                     </td>
                     <td class="text-nowrap small">
                         <?php if ($row['recurring_expense_last_sent']) { ?>

@@ -431,7 +431,7 @@ if (mysqli_num_rows($sql) == 0) {
                                 <dt>Status</dt>
                                 <dd><span class="text-<?= $rmm_state['tone'] ?>-emphasis fw-semibold"><?= escapeHtml($rmm_state['label']) ?></span>
                                     <?php if ($rmm_each['rmm_device_last_seen_at'] && $rmm_state['key'] !== 'online') { ?>
-                                        <span class="small text-body-secondary">- last seen <span title="<?= escapeHtml($rmm_each['rmm_device_last_seen_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_last_seen_at'])) ?></span></span>
+                                        <span class="small text-body-secondary">- last seen <span title="<?= formatDateTime($rmm_each['rmm_device_last_seen_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_last_seen_at'])) ?></span></span>
                                     <?php } ?>
                                 </dd>
                                 <?php if ((string) $rmm_each['rmm_device_logged_user'] !== '') { ?>
@@ -440,7 +440,7 @@ if (mysqli_num_rows($sql) == 0) {
                                 <?php } ?>
                                 <?php if ($rmm_each['rmm_device_boot_at'] && $rmm_state['key'] === 'online') { ?>
                                     <dt>Up since</dt>
-                                    <dd title="<?= escapeHtml($rmm_each['rmm_device_boot_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_boot_at'])) ?></dd>
+                                    <dd title="<?= formatDateTime($rmm_each['rmm_device_boot_at']) ?>"><?= escapeHtml(timeAgo($rmm_each['rmm_device_boot_at'])) ?></dd>
                                 <?php } ?>
                                 <?php if ((string) $rmm_each['rmm_device_public_ip'] !== '') { ?>
                                     <dt>Public IP</dt>
@@ -566,11 +566,11 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php } ?>
                         <?php if ($asset_purchase_date) { ?>
                             <dt>Purchased</dt>
-                            <dd><?= $asset_purchase_date ?><?php if ($asset_purchase_age) { ?><div class="small text-body-secondary"><?= $asset_purchase_age ?> old</div><?php } ?></dd>
+                            <dd><?= formatDate($asset_purchase_date) ?><?php if ($asset_purchase_age) { ?><div class="small text-body-secondary"><?= $asset_purchase_age ?> old</div><?php } ?></dd>
                         <?php } ?>
                         <?php if ($asset_install_date) { ?>
                             <dt>Installed</dt>
-                            <dd><?= $asset_install_date ?><?php if ($asset_install_age) { ?><div class="small text-body-secondary"><?= $asset_install_age ?> in service</div><?php } ?></dd>
+                            <dd><?= formatDate($asset_install_date) ?><?php if ($asset_install_age) { ?><div class="small text-body-secondary"><?= $asset_install_age ?> in service</div><?php } ?></dd>
                         <?php } ?>
                         <?php if ($vendor_name) { ?>
                             <dt>Vendor</dt>
@@ -580,7 +580,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <dt>Sold on</dt>
                             <dd>
                                 <?= $can_sales ? "<a href=\"invoice.php?invoice_id=$asset_invoice_id\">$asset_sold_number</a>" : $asset_sold_number ?>
-                                <div class="small text-body-secondary">Our invoice, <?= $asset_sold_date ?></div>
+                                <div class="small text-body-secondary">Our invoice, <?= formatDate($asset_sold_date) ?></div>
                             </dd>
                         <?php } ?>
                         <?php if ($asset_product_name) { ?>
@@ -589,7 +589,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($asset_purchase_reference && $asset_purchase_reference !== $asset_sold_number) { ?>
                             <dt>Order ref</dt><dd><?= $asset_purchase_reference ?></dd>
                         <?php } ?>
-                        <dt>Added</dt><dd title="<?= $asset_created_at ?>"><?= timeAgo($asset_created_at) ?></dd>
+                        <dt>Added</dt><dd title="<?= formatDateTime($asset_created_at) ?>"><?= timeAgo($asset_created_at) ?></dd>
                     </dl>
                 </div>
             </div>
@@ -974,7 +974,7 @@ if (mysqli_num_rows($sql) == 0) {
                                             </td>
                                             <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
                                             <td><?= $recurring_ticket_frequency ?></td>
-                                            <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= $recurring_ticket_next_run ?></span></td>
+                                            <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= formatDate($recurring_ticket_next_run) ?></span></td>
                                             <td class="text-end">
                                                 <?php if ($can_edit) { ?>
                                                     <div class="dropdown dropstart">
@@ -1072,7 +1072,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                 </div>
                                             </td>
                                             <td><?= $document_created_by ?></td>
-                                            <td class="text-nowrap small" title="<?= $document_updated_at ?>"><?= timeAgo($document_updated_at) ?></td>
+                                            <td class="text-nowrap small" title="<?= formatDateTime($document_updated_at) ?>"><?= timeAgo($document_updated_at) ?></td>
                                             <td class="text-end text-nowrap">
                                                 <a href="#" class="btn btn-sm btn-light ajax-modal" title="View document" data-modal-size="lg" data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-eye"></i></a>
                                                 <?php if ($can_edit) { ?>
@@ -1130,7 +1130,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap small" title="<?= $file_created_at ?>"><?= timeAgo($file_created_at) ?></td>
+                                            <td class="text-nowrap small" title="<?= formatDateTime($file_created_at) ?>"><?= timeAgo($file_created_at) ?></td>
                                             <td class="text-end">
                                                 <?php if ($can_edit) { ?>
                                                     <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id ?>&file_id=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
@@ -1196,7 +1196,7 @@ if (mysqli_num_rows($sql) == 0) {
                                         <div class="flex-grow-1 min-w-0">
                                             <div class="small text-body-secondary mb-1">
                                                 <span class="fw-semibold text-body"><?= $asset_note_type ?></span>
-                                                &middot; <?= $note_by ?> &middot; <span title="<?= $asset_note_created_at ?>"><?= timeAgo($asset_note_created_at) ?></span>
+                                                &middot; <?= $note_by ?> &middot; <span title="<?= formatDateTime($asset_note_created_at) ?>"><?= timeAgo($asset_note_created_at) ?></span>
                                             </div>
                                             <div><?= $asset_note ?></div>
                                         </div>

@@ -129,7 +129,7 @@ $candidate_columns = [
         return $row['age_days'] === null ? '' : number_format($row['age_days'] / 365.25, 1, '.', '');
     }, 'html' => function ($row) {
         return $row['age_days'] === null ? '<span class="itflow-report-zero">–</span>'
-            : '<span class="' . ($row['old'] ? 'text-danger-emphasis fw-semibold' : '') . '" title="Since ' . escapeHtml($row['age_date']) . '">' . reportYears($row['age_days']) . '</span>';
+            : '<span class="' . ($row['old'] ? 'text-danger-emphasis fw-semibold' : '') . '" title="Since ' . formatDate($row['age_date']) . '">' . reportYears($row['age_days']) . '</span>';
     }],
     'warranty' => ['label' => 'Warranty', 'sort' => false, 'csv' => function ($row) { return $row['warranty'] ? $row['warranty']['date'] : ''; }, 'csv_label' => 'Warranty ends',
         'html' => function ($row) use ($warranty_pill) { return $warranty_pill($row['warranty']); }],

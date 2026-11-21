@@ -194,7 +194,7 @@ function signInMailAlert($name, $email, $title, $text, array $summary, $url) {
             'kind' => 'Security', 'tone' => 'danger', 'preview' => $text,
             'title' => 'Failed sign-ins',
             'intro' => [$text],
-            'summary' => ['When' => date('D j M Y, g:i A')] + $summary,
+            'summary' => ['When' => date('D, M j, Y g:i A')] + $summary,
             'callout' => "$app turns an IP address away after " . SIGN_IN_LOCKOUT . " failed sign-ins in " . SIGN_IN_WINDOW_MINUTES . " minutes. If an account is being guessed at, make sure it has a strong password and multi-factor authentication.",
             'button' => ['label' => 'See the sign-ins', 'url' => "https://$config_base_url$url"],
         ]);

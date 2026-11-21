@@ -54,7 +54,7 @@ ob_start();
                         <label class="flex-grow-1 min-w-0 mb-0" for="addExpense<?= $expense_id ?>">
                             <span class="d-block text-truncate"><?= escapeHtml($line_name) ?></span>
                             <span class="small text-body-secondary d-block text-truncate">
-                                <?= escapeHtml($expense['vendor_name']) ?> &middot; <?= escapeHtml($expense['expense_date']) ?>
+                                <?= escapeHtml($expense['vendor_name']) ?> &middot; <?= formatDate($expense['expense_date']) ?>
                                 &middot; cost <?= escapeHtml(billingMoney($expense['cost'], $currency)) ?> + <?= $markup_text($expense['expense_markup']) ?>
                             </span>
                         </label>

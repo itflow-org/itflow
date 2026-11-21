@@ -91,7 +91,7 @@ ob_start();
         <?php } ?>
 
         <dt>Added</dt>
-        <dd><span title="<?= escapeHtml($user['user_created_at']) ?>"><?= escapeHtml(timeAgo($user['user_created_at'])) ?></span>
+        <dd><span title="<?= formatDateTime($user['user_created_at']) ?>"><?= escapeHtml(timeAgo($user['user_created_at'])) ?></span>
             <?php if ($joined = userInviteJoined($user_id)) { ?>
                 <span class="text-body-secondary" data-user-joined>· joined from <?= $joined['by'] !== '' ? escapeHtml($joined['by']) . "'s" : 'an' ?> invite</span>
             <?php } ?>
@@ -99,7 +99,7 @@ ob_start();
 
         <?php if ($is_archived) { ?>
             <dt>Archived</dt>
-            <dd><span title="<?= escapeHtml($user['user_archived_at']) ?>"><?= escapeHtml(timeAgo($user['user_archived_at'])) ?></span></dd>
+            <dd><span title="<?= formatDateTime($user['user_archived_at']) ?>"><?= escapeHtml(timeAgo($user['user_archived_at'])) ?></span></dd>
         <?php } ?>
     </dl>
 

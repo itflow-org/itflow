@@ -74,7 +74,7 @@ echo settingsPageStart('notification');
 
             <?php if (smsColumnExists('settings', 'config_sms_client_tickets')) {
                 $sms_client = smsClientSettings(); ?>
-                <?= settingsSectionStart('texts', 'Texts to clients', 'What ITFlow texts your clients by itself - only to contacts who agreed to texts, on their contact or in the client portal. Texts that would land between ' . date('ga', mktime(SMS_QUIET_FROM, 0)) . ' and ' . date('ga', mktime(SMS_QUIET_UNTIL, 0)) . ' wait for the morning. A reply to one about a ticket goes on the ticket.') ?>
+                <?= settingsSectionStart('texts', 'Texts to clients', 'What ITFlow texts your clients by itself - only to contacts who agreed to texts, on their contact or in the client portal. Texts that would land between ' . date('g A', mktime(SMS_QUIET_FROM, 0)) . ' and ' . date('g A', mktime(SMS_QUIET_UNTIL, 0)) . ' wait for the morning. A reply to one about a ticket goes on the ticket.') ?>
                     <?php if (!smsReady()) { ?>
                         <div class="alert alert-light border py-2 small" data-notification-no-texting><i class="fas fa-info-circle me-2"></i>Texting isn't set up, so none of these go. <a href="text_messaging.php">Set up texting</a></div>
                     <?php } ?>

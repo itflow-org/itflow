@@ -116,7 +116,7 @@ ob_start();
                 </div>
                 <div class="text-end">
                     <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($doc_state['balance'] > 0 ? $doc_state['balance'] : $doc['invoice_amount'], $doc['invoice_currency_code'])) ?></div>
-                    <div class="small text-body-secondary"><?= $doc_state['balance'] > 0 ? 'due ' . escapeHtml($doc['invoice_due']) : 'total' ?></div>
+                    <div class="small text-body-secondary"><?= $doc_state['balance'] > 0 ? 'due ' . formatDate($doc['invoice_due']) : 'total' ?></div>
                 </div>
             </div>
 

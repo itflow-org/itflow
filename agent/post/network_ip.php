@@ -307,7 +307,7 @@ if (isset($_POST['import_network_ips_csv'])) {
 
     logAudit("IP Address", "Import", "$session_name imported $row_count IP(s) to network " . escapeSql($network['network_name']) . ". $skipped_count row(s) skipped", $client_id);
 
-    flashAlert("<strong>$row_count</strong> IP(s) imported, <strong>$skipped_count</strong> skipped (invalid, outside the subnet or already documented)", $skipped_count ? 'warning' : 'success');
+    flashAlert("<strong>$row_count</strong> IP" . ($row_count === 1 ? '' : 's') . " imported, <strong>$skipped_count</strong> skipped (invalid, outside the subnet or already documented)", $skipped_count ? 'warning' : 'success');
 
     redirect();
 

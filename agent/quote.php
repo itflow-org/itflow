@@ -114,7 +114,7 @@ echo agentBannersHtml($client_id);
                 <?php if ($ticket) { ?>
                     <span><i class="fas fa-fw fa-life-ring me-1"></i>For <a class="text-reset" href="ticket.php?ticket_id=<?= intval($ticket['ticket_id']) ?>"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></a></span>
                 <?php } ?>
-                <span title="<?= escapeHtml($quote['quote_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($quote['quote_created_at'])) ?></span>
+                <span title="<?= formatDateTime($quote['quote_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($quote['quote_created_at'])) ?></span>
             </div>
         </div>
 
@@ -220,7 +220,7 @@ echo agentBannersHtml($client_id);
 <?php if ($expired && $can_edit) { ?>
     <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 d-print-none">
         <i class="fas fa-hourglass-end"></i>
-        <span class="me-auto">It ran out on <?= escapeHtml($quote['quote_expire']) ?> without an answer - the client can still see it but can't accept it.</span>
+        <span class="me-auto">It ran out on <?= formatDate($quote['quote_expire']) ?> without an answer - the client can still see it but can't accept it.</span>
         <button type="button" class="btn btn-sm btn-warning ajax-modal" data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>"><i class="fas fa-calendar-plus me-1"></i>Extend</button>
     </div>
 <?php } ?>
@@ -259,10 +259,10 @@ echo agentBannersHtml($client_id);
                 <?php } ?>
                 <dl class="itflow-asset-dl mb-0">
                     <dt>Status</dt><dd><?= quoteStatusBadge($quote) ?></dd>
-                    <dt>Dated</dt><dd><?= escapeHtml($quote['quote_date']) ?></dd>
+                    <dt>Dated</dt><dd><?= formatDate($quote['quote_date']) ?></dd>
                     <dt>Valid until</dt>
                     <dd>
-                        <?= escapeHtml($quote['quote_expire']) ?>
+                        <?= formatDate($quote['quote_expire']) ?>
                         <?php if ($awaiting || $status === 'Draft') { ?><div class="mt-1"><?= quoteExpiryPill($quote) ?></div><?php } ?>
                     </dd>
                     <?php $margin_html = billingMarginHtml('quote', $items, $currency); if ($margin_html) { ?>
@@ -317,7 +317,7 @@ echo agentBannersHtml($client_id);
                             <?= fileTypeTile($file['file_ext'], 'sm') ?>
                             <div class="flex-grow-1 min-w-0">
                                 <a class="ajax-modal text-break" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= escapeHtml($file['file_name']) ?></a>
-                                <div class="small text-body-secondary"><?= formatBytes(intval($file['file_size'])) ?> &middot; <span title="<?= escapeHtml($file['file_created_at']) ?>"><?= escapeHtml(timeAgo($file['file_created_at'])) ?></span></div>
+                                <div class="small text-body-secondary"><?= formatBytes(intval($file['file_size'])) ?> &middot; <span title="<?= formatDateTime($file['file_created_at']) ?>"><?= escapeHtml(timeAgo($file['file_created_at'])) ?></span></div>
                             </div>
                             <a class="btn btn-sm btn-link text-body-secondary" href="file.php?file_id=<?= $file_id ?>" title="Download"><i class="fas fa-fw fa-download"></i></a>
                         </div>

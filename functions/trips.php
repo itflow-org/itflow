@@ -937,7 +937,7 @@ function tripBillLine(array $trip) {
     $description = trim((string) $trip['trip_purpose']);
     $detail = implode(' - ', array_filter([
         $trip['trip_source'] . ' to ' . $trip['trip_destination'],
-        date('m/d/Y', strtotime((string) $trip['trip_date'])),
+        date('M j, Y', strtotime((string) $trip['trip_date'])),
         tripDistanceText($trip['trip_miles']) . (intval($trip['round_trip']) ? ' round trip' : ''),
         intval($trip['trip_ticket_id']) && ($trip['ticket_number'] ?? null) !== null ? ticketReference($trip) : '',
     ]));

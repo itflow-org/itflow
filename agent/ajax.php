@@ -89,7 +89,7 @@ if (isset($_GET['certificate_check'])) {
         . certificateExpiryPill($expiry, true) . '</div>'
         . '<dl class="itflow-asset-dl mb-0">'
         . '<dt>Issuer</dt><dd class="text-break">' . escapeHtml($check['issuer'] ?: 'Unknown') . ($check['self_signed'] ? ' <span class="text-body-secondary">(self-signed)</span>' : '') . '</dd>'
-        . '<dt>Valid</dt><dd>' . escapeHtml($check['issued_at']) . ' to ' . escapeHtml($check['expire']) . ' <span class="text-body-secondary">(' . $check['days'] . ' days)</span></dd>'
+        . '<dt>Valid</dt><dd>' . formatDate($check['issued_at']) . ' to ' . formatDate($check['expire']) . ' <span class="text-body-secondary">(' . $check['days'] . ' days)</span></dd>'
         . '<dt>Covers</dt><dd class="text-break">' . escapeHtml(implode(', ', array_slice($names, 0, 6))) . (count($names) > 6 ? ' <span class="text-body-secondary">and ' . (count($names) - 6) . ' more</span>' : '') . '</dd>'
         . '</dl>';
 
@@ -1051,7 +1051,7 @@ if (isset($_GET['ticket_reply_peek'])) {
         'label' => $peek['label'],
         'who' => $peek['who'],
         'when' => timeAgo($peek['at']),
-        'at' => $peek['at'],
+        'at' => formatDateTime($peek['at']),
         'text' => emailPlainText($peek['html'], 600),
     ]);
     exit;
@@ -1211,7 +1211,7 @@ if (isset($_POST['share_create'])) {
     }
 
     // "Works until Oct 17 at 9:00 AM, opens once, needs a passphrase, emailed to bob@example.com"
-    $summary = ['Works until ' . date('M j \a\t g:i A', strtotime($result['expire_at']))];
+    $summary = ['Works until ' . date('M j, Y g:i A', strtotime($result['expire_at']))];
     if ($type !== 'Request') {
         $summary[] = $result['views'] ? 'opens ' . strtolower(shareViewOptions()[$result['views']]) : 'opens any number of times';
     }

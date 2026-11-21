@@ -447,9 +447,9 @@ if (isset($_GET['recurring_invoice_catch_up'])) {
     }
     mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_next_date = '" . escapeSql($next) . "' WHERE recurring_invoice_id = $recurring_invoice_id");
     billingLog('recurring', $recurring_invoice_id, 'Rescheduled', "Next date moved from {$row['recurring_invoice_next_date']} to $next by $session_name");
-    logAudit('Recurring Invoice', 'Edit', escapeSql("$session_name moved recurring invoice $number on to $next"), $client_id, $recurring_invoice_id);
+    logAudit('Recurring Invoice', 'Edit', escapeSql("$session_name moved recurring invoice $number on to " . formatDate($next)), $client_id, $recurring_invoice_id);
 
-    flashAlert("<strong>" . escapeHtml($number) . "</strong> next runs on " . escapeHtml($next));
+    flashAlert("<strong>" . escapeHtml($number) . "</strong> next runs on " . formatDate($next));
 
     redirect();
 

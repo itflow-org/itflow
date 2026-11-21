@@ -317,7 +317,7 @@ if (!$can_support) {
                         </button>
                         <div class="dropdown-menu">
                             <?php if ($contact_archived_at) { ?>
-                                <a class="dropdown-item confirm-link" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                             <?php } else { ?>
@@ -460,7 +460,7 @@ if (!$can_support) {
                         </dd>
                     <?php } ?>
                     <dt>Added</dt>
-                    <dd title="<?= $contact_created_at ?>"><?= timeAgo($contact_created_at) ?></dd>
+                    <dd title="<?= formatDateTime($contact_created_at) ?>"><?= timeAgo($contact_created_at) ?></dd>
                 </dl>
             </div>
         </div>
@@ -646,7 +646,7 @@ if (!$can_support) {
                                         </td>
                                         <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
                                         <td><?= escapeHtml($row['recurring_ticket_frequency']) ?></td>
-                                        <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= escapeHtml($row['recurring_ticket_next_run']) ?></span></td>
+                                        <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= formatDate($row['recurring_ticket_next_run']) ?></span></td>
                                         <td class="text-end">
                                             <?php if ($can_support_edit) { ?>
                                                 <div class="dropdown dropstart">
@@ -767,7 +767,7 @@ if (!$can_support) {
                                         <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= escapeHtml($row['file_name']) ?></a>
                                         <?php if ($row['file_description']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($row['file_description']) ?></div><?php } ?>
                                     </div>
-                                    <span class="small text-body-secondary text-nowrap" title="<?= escapeHtml($row['file_created_at']) ?>"><?= formatBytes($row['file_size']) ?> &middot; <?= timeAgo($row['file_created_at']) ?></span>
+                                    <span class="small text-body-secondary text-nowrap" title="<?= formatDateTime($row['file_created_at']) ?>"><?= formatBytes($row['file_size']) ?> &middot; <?= timeAgo($row['file_created_at']) ?></span>
                                     <?php if ($can_edit) { ?>
                                         <a class="btn btn-sm btn-light" title="Unlink" href="post.php?unlink_contact_from_file&contact_id=<?= $contact_id ?>&file_id=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-unlink"></i></a>
                                     <?php } ?>
@@ -827,7 +827,7 @@ if (!$can_support) {
                                     <div class="flex-grow-1 min-w-0">
                                         <div class="small text-body-secondary mb-1">
                                             <span class="fw-semibold text-body"><?= $contact_note_type ?></span>
-                                            &middot; <?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= $contact_note_created_at ?>"><?= timeAgo($contact_note_created_at) ?></span>
+                                            &middot; <?= escapeHtml($row['user_name']) ?> &middot; <span title="<?= formatDateTime($contact_note_created_at) ?>"><?= timeAgo($contact_note_created_at) ?></span>
                                         </div>
                                         <div><?= nl2br(escapeHtml($row['contact_note'])) ?></div>
                                     </div>

@@ -540,7 +540,7 @@ echo agentBannersHtml($project_client_id);
                                                 <?php } ?>
                                                 <span class="flex-grow-1 <?= $task_done ? 'text-decoration-line-through' : '' ?>"><?= escapeHtml($task['task_name']) ?></span>
                                                 <?php if ($task_done) { ?>
-                                                    <span class="small text-nowrap" title="<?= escapeHtml($task['task_completed_at']) ?>"><?= escapeHtml(trim(($task['completed_by'] ?? '') . ', ' . timeAgo($task['task_completed_at']), ', ')) ?></span>
+                                                    <span class="small text-nowrap" title="<?= formatDateTime($task['task_completed_at']) ?>"><?= escapeHtml(trim(($task['completed_by'] ?? '') . ', ' . timeAgo($task['task_completed_at']), ', ')) ?></span>
                                                 <?php } ?>
                                             </li>
                                         <?php } ?>
@@ -665,7 +665,7 @@ echo agentBannersHtml($project_client_id);
                                             <span class="fw-semibold"><?= escapeHtml($who !== '' ? $who : 'Someone') ?></span>
                                             <span class="text-body-secondary"><?= $type === 'Internal' ? 'noted on' : 'on' ?></span>
                                             <?= ticketLink($reply) ?>
-                                            <span class="ms-auto text-body-secondary text-nowrap" title="<?= escapeHtml($reply['ticket_reply_created_at']) ?>">
+                                            <span class="ms-auto text-body-secondary text-nowrap" title="<?= formatDateTime($reply['ticket_reply_created_at']) ?>">
                                                 <?php if ($time) { ?><span class="me-2" title="Time logged"><i class="far fa-clock me-1"></i><?= escapeHtml(substr($time, 0, 5)) ?></span><?php } ?><?= timeAgo($reply['ticket_reply_created_at']) ?>
                                             </span>
                                         </div>
@@ -728,11 +728,11 @@ echo agentBannersHtml($project_client_id);
                     <dt>Manager</dt>
                     <dd><?= $manager ?></dd>
                     <?php if ($project['project_start']) { ?>
-                        <dt>Start</dt><dd><?= escapeHtml(date('D M j, Y', strtotime($project['project_start']))) ?></dd>
+                        <dt>Start</dt><dd><?= escapeHtml(date('D, M j, Y', strtotime($project['project_start']))) ?></dd>
                     <?php } ?>
-                    <dt>Due</dt><dd><?= $project['project_due'] ? escapeHtml(date('D M j, Y', strtotime($project['project_due']))) : '<span class="text-body-secondary">-</span>' ?></dd>
+                    <dt>Due</dt><dd><?= $project['project_due'] ? escapeHtml(date('D, M j, Y', strtotime($project['project_due']))) : '<span class="text-body-secondary">-</span>' ?></dd>
                     <dt>Budget</dt><dd><?= $budget_hours > 0 ? projectHoursText($budget_hours * 3600) : '<span class="text-body-secondary">-</span>' ?></dd>
-                    <dt>Created</dt><dd title="<?= escapeHtml($project['project_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($project['project_created_at']))) ?></dd>
+                    <dt>Created</dt><dd title="<?= formatDateTime($project['project_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($project['project_created_at']))) ?></dd>
                     <?php if ($project['project_completed_at']) { ?>
                         <dt>Completed</dt><dd><?= escapeHtml(date('M j, Y', strtotime($project['project_completed_at']))) ?></dd>
                     <?php } ?>

@@ -34,7 +34,7 @@ ob_start();
     <input type="hidden" name="invoice_id" value="<?= intval($doc['invoice_id']) ?>">
 
     <div class="modal-body">
-        <p class="text-body-secondary small">Bill <?= escapeHtml($doc['client_name']) ?> for the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?> - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?> - again and again<?= $card_fees > 0 ? ', without the card fee it was paid with' : '' ?>. The first one is made a period after <?= escapeHtml($doc_number) ?>'s date, <?= escapeHtml($doc['invoice_date']) ?>; change that and the lines on the recurring invoice after.</p>
+        <p class="text-body-secondary small">Bill <?= escapeHtml($doc['client_name']) ?> for the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?> - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?> - again and again<?= $card_fees > 0 ? ', without the card fee it was paid with' : '' ?>. The first one is made a period after <?= escapeHtml($doc_number) ?>'s date, <?= formatDate($doc['invoice_date']) ?>; change that and the lines on the recurring invoice after.</p>
         <label class="form-label">Billed <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>

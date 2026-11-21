@@ -219,7 +219,7 @@ $view_empty = [
                 $from = implode(' · ', array_filter([(string) $row['log_ip'], $device]));
                 ?>
                 <tr data-log-id="<?= $log_id ?>">
-                    <td class="ps-3 text-nowrap small" title="<?= escapeHtml($row['log_created_at']) ?>">
+                    <td class="ps-3 text-nowrap small" title="<?= formatDateTime($row['log_created_at']) ?>">
                         <div><?= escapeHtml(date('M j, Y g:i A', strtotime($row['log_created_at']))) ?></div>
                         <div class="text-body-secondary"><?= escapeHtml(timeAgo($row['log_created_at'])) ?></div>
                     </td>

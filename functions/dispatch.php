@@ -184,7 +184,7 @@ function dispatchQueue($tab, array $filters = []) {
             'agent_name' => (string) $row['user_name'],
             'age' => timeAgo($row['ticket_created_at']),
             'minutes' => ticketScheduleMinutes($row['ticket_schedule'], $row['ticket_schedule_end']),
-            'booked' => $row['ticket_schedule'] ? date('D M j', strtotime(timezoneToView($row['ticket_schedule']))) : '',
+            'booked' => $row['ticket_schedule'] ? date('D, M j', strtotime(timezoneToView($row['ticket_schedule']))) : '',
         ];
     }
     return ['tab' => $tab, 'counts' => $counts, 'tickets' => $tickets];
@@ -332,7 +332,7 @@ function dispatchContactTickets($ticket_id) {
             'subject' => (string) $other['ticket_subject'],
             'status' => (string) $other['ticket_status_name'],
             'agent' => (string) ($other['user_name'] ?? ''),
-            'booked' => $other['ticket_schedule'] ? date('D M j', strtotime(timezoneToView($other['ticket_schedule']))) : '',
+            'booked' => $other['ticket_schedule'] ? date('D, M j', strtotime(timezoneToView($other['ticket_schedule']))) : '',
             'url' => ticketUrl($other['ticket_id'], $other['ticket_client_id']),
         ];
     }

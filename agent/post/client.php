@@ -920,7 +920,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
         logAudit("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
-        flashAlert("Archived $count client(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> client" . ($count === 1 ? '' : 's'), 'error');
         if (empty($undo_withdrawn)) {
             undoOfferArchive($undo); // a signing request withdrawn can't be put back
         }
@@ -962,7 +962,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
         logAudit("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
 
-        flashAlert("You restored <strong>$count</strong> client(s)");
+        flashAlert("Restored <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
 
     }
 

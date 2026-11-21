@@ -60,7 +60,7 @@ ob_start();
                             <?php } ?>
                         </td>
                         <td class="text-end"><?= $miss['searches'] ?></td>
-                        <td class="small text-nowrap" title="<?= escapeHtml($miss['last_at']) ?>"><?= timeAgo($miss['last_at']) ?></td>
+                        <td class="small text-nowrap" title="<?= formatDateTime($miss['last_at']) ?>"><?= timeAgo($miss['last_at']) ?></td>
                         <td class="text-end text-nowrap pe-3">
                             <?php if ($can_edit) { ?>
                                 <a class="btn btn-sm btn-light border ajax-modal" href="#" data-bs-dismiss="modal" data-modal-size="xl"
