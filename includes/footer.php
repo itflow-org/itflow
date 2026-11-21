@@ -58,6 +58,12 @@
          comment - and all of those still run well after this block. */ ?>
 <script src="<?= staticFileUrl('/js/itflow_select.js') ?>"></script>
 
+<?php /* Browser autofill and password managers kept out of agents' forms - they're about
+         clients, not the agent. Before anything else draws fields; the guest portal keeps them. */ ?>
+<?php if (basename(dirname($_SERVER['REQUEST_URI'])) !== 'guest') { ?>
+<script src="<?= staticFileUrl('/js/autofill_off.js') ?>"></script>
+<?php } ?>
+
 <!-- Bootstrap 5 -->
 <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/bootstrap_defaults.js') ?>"></script>

@@ -17,7 +17,7 @@ $has_avatar = trim((string) $me['user_avatar']) !== '';
     <div class="card-header bg-dark">
         <h3 class="card-title"><i class="fas fa-fw fa-id-badge me-2"></i>Profile</h3>
     </div>
-    <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" id="profileForm">
+    <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" id="profileForm" data-autofill>
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
         <div class="card-body">

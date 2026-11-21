@@ -24,7 +24,7 @@ $remember_days = max(1, intval($config_login_remember_me_expire));
             <div class="card-header bg-dark">
                 <h3 class="card-title"><i class="fas fa-fw fa-key me-2"></i>Password</h3>
             </div>
-            <form action="post.php" method="post" autocomplete="off" id="passwordForm">
+            <form action="post.php" method="post" autocomplete="off" id="passwordForm" data-autofill>
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <div class="card-body">
                     <div class="mb-3">
