@@ -224,7 +224,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Capitals: page and window titles, menu items and buttons are in Title Case - New Ticket, Mark Reviewed, Back Up Now, Turn Off Portal Access - and field labels, section headings, tabs and help are in sentence case - Postal code, Tax rate, Physical location - in the agent pages, Admin and the client portal alike. The settings pages in the menu are now Company Details, Invoices and Billing, Purchase Orders, Client Portal and Single Sign-on.
 - Lists: the first click on a column you aren't sorting by sorts names A-Z and dates, money and counts newest or largest first, and a second click flips it. It used to go the opposite way to the column you were on, so the first click could go either way.
 - Badges and blanks: every badge is a rounded pill, the menu counts included, and an empty value shows as a grey dash everywhere. A request that can't be done - credit over the balance, say - shows in red like every other error, and the client portal's search boxes read Search ... like the agent pages'.
-- Lengths of time: booking lengths, the dispatch board and how long a cron job ran are written 1h 30m like time logged everywhere else - they read 1 hour 30 min and 2 min 5 s - and hours as a number are 12.5 h, project hours included.
+- Sizes and lengths of time: a file or backup size reads 512 B or 1.5 MB everywhere - some pages said 1.53 MB, a portal attachment never less than 1 KB, and setup bytes. Booking lengths, the dispatch board and how long a cron job ran are written 1h 30m like time logged everywhere else - they read 1 hour 30 min and 2 min 5 s - and hours as a number are 12.5 h, project hours included.
 
 ### Bug Fixes
 
@@ -455,6 +455,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Bootstrap 5 classes: `fw-bold` in place of the `text-bold` shim, `text-body-secondary` in place of `text-muted`, and `fas` as the icon prefix in place of Font Awesome 5's `fa` alias, everywhere. The user menu's buttons are `btn-light border`. `css/itflow_custom.css` loses the shims for `text-bold`, `text-xs`, `btn-default`, `btn-flat`, `bg-olive`, `bg-pink` and `bg-purple` and the unused `.small-box` styles. The `data-bs-toggle="tooltip"` on the menu counts did nothing - their `title` still shows - and is gone.
 - Messages: `flashAlert()` and `itflowToast()` are called with 'success', 'info', 'warning' and 'error' only - the 'danger' and 'alert' callers now say 'error' (both are still understood), and the unused 'errpr' alias is gone. Column headings are sentence case like field labels.
 - Menus: 30 menu items carried `text-dark`, which no other menu item has; it's gone.
+- Sizes: `formatBytes()` (one decimal, whole bytes, a unit at 1024) is the one formatter - `backupFormatBytes()` calls it, and the portal and setup scripts write sizes the same way.
 
 ## [26.11.8]
 

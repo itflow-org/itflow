@@ -201,13 +201,14 @@
     }
 
     function formatBytes(bytes) {
-        var units = ['bytes', 'KB', 'MB', 'GB'];
+        // As formatBytes() in functions/format.php writes them - "512 B", "1.5 MB"
+        var units = ['B', 'KB', 'MB', 'GB'];
         var i = 0;
         while (bytes >= 1024 && i < units.length - 1) {
             bytes /= 1024;
             i++;
         }
-        return (i === 0 ? bytes : bytes.toFixed(bytes < 10 ? 1 : 0)) + ' ' + units[i];
+        return (i === 0 ? bytes : Math.round(bytes * 10) / 10) + ' ' + units[i];
     }
 
     /*

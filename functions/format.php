@@ -524,16 +524,17 @@ function validateRecurringFrequency($frequency) {
 }
 
 /*
- * Formats bytes into human readable file sizes
+ * A size for people - "512 B", "1.5 MB" - the one way sizes are written.
  */
-function formatBytes($bytes, $precision = 2) {
-    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+function formatBytes($bytes, $precision = 1) {
+    $bytes = floatval($bytes);
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-    for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+    for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
         $bytes /= 1024;
     }
 
-    return round($bytes, $precision) . ' ' . $units[$i];
+    return round($bytes, $i === 0 ? 0 : $precision) . ' ' . $units[$i];
 }
 
 
