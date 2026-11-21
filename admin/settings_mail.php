@@ -314,7 +314,7 @@ if (!$config_module_enable_ticketing) {
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                                 <input type="text" class="form-control font-monospace" id="mailOauthRedirect" value="<?= escapeHtml($mail_oauth_callback_uri) ?>" readonly>
-                                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#mailOauthRedirect" title="Copy"><i class="fas fa-fw fa-copy"></i></button>
+                                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#mailOauthRedirect" title="Copy"><i class="far fa-fw fa-copy"></i></button>
                             </div>
                             <div class="form-text">Under Authentication in the app registration, as a Web platform.</div>
                             <button type="submit" name="oauth_connect_microsoft_mail" class="btn btn-outline-primary mt-3">

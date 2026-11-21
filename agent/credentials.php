@@ -167,23 +167,23 @@ $filter_url = function ($changes) use ($client_url) {
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_request) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
                             <i class="fas fa-fw fa-inbox me-2"></i>Ask the Client for a Login
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_edit) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=credentials">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=credentials">
                             <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/credential/credential_export.php', ['client_id', 'client', 'tags', 'archived', 'q']) ?>">
                             <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                     <?php if (reportCanOpen('credential_rotation')) { ?>
-                    <a class="dropdown-item text-dark" href="reports/credential_rotation.php<?= $client_url ? '?client_id=' . intval($client_id) : '' ?>">
+                    <a class="dropdown-item" href="reports/credential_rotation.php<?= $client_url ? '?client_id=' . intval($client_id) : '' ?>">
                         <i class="fas fa-fw fa-history me-2"></i>Rotation Report
                     </a>
                     <?php } ?>

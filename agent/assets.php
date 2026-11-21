@@ -232,7 +232,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <?php if ($client_url) { ?>
-                    <a class="dropdown-item text-dark ajax-modal" href="#"
+                    <a class="dropdown-item ajax-modal" href="#"
                         data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=assets">
                         <i class="fas fa-fw fa-upload me-2"></i>Import
                     </a>
@@ -241,7 +241,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php if ($client_url) { ?>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/asset/asset_export.php', ['client_id', 'type', 'client', 'location', 'status', 'tags', 'expire_days', 'archived', 'q']) ?>">
                             <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
@@ -741,7 +741,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         </a>
                                         <?= tagMenuItem('asset', $asset_id) ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
-                                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php if ($asset_archived_at) { ?>

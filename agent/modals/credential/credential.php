@@ -89,7 +89,7 @@ ob_start();
     <div class="d-flex flex-wrap align-items-center gap-2 mt-3 small text-body-secondary">
         <?= credentialAgePill($age) ?>
         <?php if ($last_viewed) { ?>
-            <span title="<?= formatDateTime($last_viewed['log_created_at']) ?>"><i class="far fa-eye me-1"></i>Last looked at by <?= escapeHtml($last_viewed['user_name'] ?: 'someone') ?>, <?= timeAgo($last_viewed['log_created_at']) ?></span>
+            <span title="<?= formatDateTime($last_viewed['log_created_at']) ?>"><i class="fas fa-eye me-1"></i>Last looked at by <?= escapeHtml($last_viewed['user_name'] ?: 'someone') ?>, <?= timeAgo($last_viewed['log_created_at']) ?></span>
         <?php } ?>
         <?php if ($tags) { ?><span><?= tagPills('credential', $credential_id, $tags, "credentials.php?client_id=$client_id&", false) ?></span><?php } ?>
     </div>

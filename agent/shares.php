@@ -118,12 +118,12 @@ $filter_url = function ($changes) {
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_note ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_note ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_export) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
                             <i class="fas fa-fw fa-book me-2"></i>Share the IT Documentation
                         </a>
                     <?php } ?>
                     <?php if ($can_request) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
                             <i class="fas fa-fw fa-inbox me-2"></i>Ask the Client for a Login
                         </a>
                     <?php } ?>

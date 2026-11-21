@@ -149,12 +149,12 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_edit && $client_url) { ?>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=domains">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=domains">
                                 <i class="fas fa-fw fa-upload me-2"></i>Import
                             </a>
                         <?php } ?>
                         <?php if ($num_rows[0] > 0) { ?>
-                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                            <a class="dropdown-item ajax-modal" href="#"
                                 data-modal-url="<?= buildExportModalUrl('modals/domain/domain_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q', 'tags', 'vendor']) ?>">
                                 <i class="fas fa-fw fa-download me-2"></i>Export
                             </a>

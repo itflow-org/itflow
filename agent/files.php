@@ -258,7 +258,7 @@ function filesItemMenu($item) {
             $html .= "<a class=\"dropdown-item\" href=\"document_edit.php?client_id=$client_id&amp;document_id=$id\"><i class=\"fas fa-fw fa-edit me-2\"></i>Edit</a>";
             $html .= tagMenuItem('document', $id, '');
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_rename.php?id=$id\"><i class=\"fas fa-fw fa-pen me-2\"></i>Rename</a>";
-            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_copy.php?id=$id\"><i class=\"fas fa-fw fa-copy me-2\"></i>Copy</a>";
+            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_copy.php?id=$id\"><i class=\"far fa-fw fa-copy me-2\"></i>Copy</a>";
             $favorite = !empty($item['row']['document_favorite']);
             $html .= "<a class=\"dropdown-item\" href=\"post.php?toggle_document_favorite=$id&amp;csrf_token=$csrf\" title=\"Favorites show on the client's overview\"><i class=\"" . ($favorite ? 'far' : 'fas') . " fa-fw fa-star me-2\"></i>" . ($favorite ? 'Unfavorite' : 'Favorite') . "</a>";
             $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/document/document_move.php?id=$id\"><i class=\"fas fa-fw fa-folder-open me-2\"></i>Move</a>";

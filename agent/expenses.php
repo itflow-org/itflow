@@ -419,7 +419,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 <?php if ($can_edit) { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                     <?php if ($row_amount > 0) { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>"><i class="fas fa-fw fa-undo-alt text-secondary me-2"></i>Refund</a>
                                     <?php } ?>

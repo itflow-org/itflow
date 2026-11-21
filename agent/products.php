@@ -419,7 +419,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                             </a>
                                         <?php } ?>
                                         <a class="dropdown-item" href="post.php?copy_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php if ($row['product_archived_at']) { ?>

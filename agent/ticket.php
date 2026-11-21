@@ -686,7 +686,7 @@ if (isset($_GET['ticket_id'])) {
                                                 <i class="fas fa-fw fa-people-carry me-2"></i>Move to Another Client
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?copy_ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
-                                                <i class="fas fa-fw fa-copy me-2"></i>Copy as a New Ticket
+                                                <i class="far fa-fw fa-copy me-2"></i>Copy as a New Ticket
                                             </a>
                                             <?php if (!$ticket_is_closed) { ?>
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_apply_template.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">

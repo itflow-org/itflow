@@ -169,7 +169,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="post.php?copy_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>" title="The same link again - to put it in another menu too">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <?php if ($can_reorder) { ?>
                                     <?php if ($position > 0) { ?>

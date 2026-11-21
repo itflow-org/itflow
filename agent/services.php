@@ -138,11 +138,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit && $client_url) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=services">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=services">
                             <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
                         <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>

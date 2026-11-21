@@ -30,7 +30,7 @@ ob_start();
 
     <div class="modal-body">
         <?php if ($copy_of) { ?>
-            <div class="alert alert-secondary small py-2"><i class="fas fa-fw fa-copy me-1"></i>A new role, starting from <?= escapeHtml($copy_of['role_name']) ?>'s access - its agents keep theirs.</div>
+            <div class="alert alert-secondary small py-2"><i class="far fa-fw fa-copy me-1"></i>A new role, starting from <?= escapeHtml($copy_of['role_name']) ?>'s access - its agents keep theirs.</div>
         <?php } ?>
         <?php require __DIR__ . '/role_form.php'; ?>
     </div>

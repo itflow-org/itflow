@@ -208,14 +208,14 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-plus text-secondary me-2"></i>New Document for a Client
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document_template/document_template_use_several.php?id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For Several Clients
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>For Several Clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document_template/document_template_required.php?id=<?= $template_id ?>">
                                     <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who Should Have One
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_document_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['document_template_archived_at']) { ?>

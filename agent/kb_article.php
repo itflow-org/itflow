@@ -129,7 +129,7 @@ $page_title = $row['kb_article_title'];
                             <?php if ($review) { ?>
                                 <a class="dropdown-item" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-calendar-check me-2"></i>Mark Reviewed</a>
                             <?php } ?>
-                            <a class="dropdown-item" href="post.php?copy_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="A new draft starting from this one"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                            <a class="dropdown-item" href="post.php?copy_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="A new draft starting from this one"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger" href="post.php?archive_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                         <?php } else { ?>

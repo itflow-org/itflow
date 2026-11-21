@@ -240,19 +240,19 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($client_url && $invites_on) { ?>
-                    <a class="dropdown-item text-dark ajax-modal" href="#"
+                    <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>">
                         <i class="fas fa-fw fa-user-plus me-2"></i>Invite to the Portal
                     </a>
                     <?php } ?>
                     <?php if ($client_url) { ?>
-                    <a class="dropdown-item text-dark ajax-modal" href="#"
+                    <a class="dropdown-item ajax-modal" href="#"
                         data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=contacts">
                         <i class="fas fa-fw fa-upload me-2"></i>Import
                     </a>
                     <div class="dropdown-divider"></div>
                     <?php } ?>
-                    <a class="dropdown-item text-dark ajax-modal" href="#"
+                    <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/contact/contact_export.php', ['client_id', 'client', 'location', 'tags', 'archived', 'q']) ?>">
                         <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>

@@ -396,7 +396,7 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                                 <?php if (tripCanEdit($row)) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_edit.php?id=<?= $trip_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                 <?php } ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>&amp;return=1"><i class="fas fa-fw fa-undo-alt text-secondary me-2"></i>Return Trip</a>
                                 <?php if ($pay_back && $can_manage && intval($row['trip_own_vehicle']) && !intval($row['trip_expense_id'])) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_claim.php?trip_ids[]=<?= $trip_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Pay Mileage</a>

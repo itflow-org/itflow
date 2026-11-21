@@ -303,7 +303,7 @@ $export_extra = [
                     <a class="dropdown-item" href="recurring_tickets.php<?= $client_url ? '?' . rtrim($client_url, '&') : '' ?>">
                         <i class="fas fa-fw fa-redo-alt me-2"></i>Recurring Tickets
                     </a>
-                    <a class="dropdown-item text-dark ajax-modal" href="#"
+                    <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'client', 'status', 'billing', 'category', 'priority', 'assigned', 'sla', 'project', 'tags', 'q'], $export_extra) ?>">
                         <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>

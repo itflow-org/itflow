@@ -342,8 +342,8 @@ $total_leads = intval($row['leads']);
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-user-friends me-2"></i>Clients
             <small class="ms-3">
-                <a href="<?= clientsFilterUrl(['leads' => null, 'industry' => null, 'referral' => null]) ?>" class="badge rounded-pill p-1 <?= $leads_filter ? 'text-light' : 'bg-light text-dark' ?>"><strong><?= $total_clients ?></strong> Client<?= $total_clients === 1 ? '' : 's' ?></a> |
-                <a href="<?= clientsFilterUrl(['leads' => 1, 'industry' => null, 'referral' => null]) ?>" class="badge rounded-pill p-1 <?= $leads_filter ? 'bg-light text-dark' : 'text-light' ?>"><strong><?= $total_leads ?></strong> Lead<?= $total_leads === 1 ? '' : 's' ?></a>
+                <a href="<?= clientsFilterUrl(['leads' => null, 'industry' => null, 'referral' => null]) ?>" class="badge rounded-pill p-1 <?= $leads_filter ? 'text-light' : 'text-bg-light' ?>"><strong><?= $total_clients ?></strong> Client<?= $total_clients === 1 ? '' : 's' ?></a> |
+                <a href="<?= clientsFilterUrl(['leads' => 1, 'industry' => null, 'referral' => null]) ?>" class="badge rounded-pill p-1 <?= $leads_filter ? 'text-bg-light' : 'text-light' ?>"><strong><?= $total_leads ?></strong> Lead<?= $total_leads === 1 ? '' : 's' ?></a>
             </small>
         </h3>
         <?php if ($can_edit) { ?>

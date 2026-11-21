@@ -177,7 +177,7 @@ echo agentBannersHtml($client_id);
                     </a>
                     <?php if ($can_edit) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_invoice/recurring_invoice_copy.php?id=<?= $recurring_invoice_id ?>">
-                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to Another Client
+                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy to Another Client
                         </a>
                     <?php } ?>
                     <?php if ($can_edit && $auto_send) { ?>

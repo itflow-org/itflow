@@ -80,7 +80,7 @@ $archived = !empty($template['project_template_archived_at']);
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="post.php?duplicate_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Duplicate
+                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Duplicate
                     </a>
                     <div class="dropdown-divider"></div>
                     <?php if ($archived) { ?>

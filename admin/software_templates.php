@@ -237,14 +237,14 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-plus text-secondary me-2"></i>New License for a Client
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software_template/software_template_use_several.php?id=<?= $template_id ?>">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>For Several Clients
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>For Several Clients
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_required.php?id=<?= $template_id ?>">
                                     <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Who Should Have It
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <a class="dropdown-item" href="post.php?export_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow">
                                     <i class="fas fa-fw fa-download text-secondary me-2"></i>Export

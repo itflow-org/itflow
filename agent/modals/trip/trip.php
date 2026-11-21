@@ -187,7 +187,7 @@ ob_start();
     <?php } ?>
     <div class="btn-group">
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>&amp;return=1"><i class="fas fa-undo-alt me-2"></i>Return Trip</button>
-        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="far fa-copy me-2"></i>Copy</button>
     </div>
     <?php if ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"

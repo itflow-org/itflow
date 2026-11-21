@@ -17,7 +17,7 @@ ob_start();
 
 if (!$template || $template['document_template_archived_at']) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fas fa-fw fa-copy me-2"></i>New Documents</h5>
+        <h5 class="modal-title"><i class="far fa-fw fa-copy me-2"></i>New Documents</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That document template is gone or archived.</div>
@@ -34,7 +34,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-copy me-2"></i>New documents from <strong><?= escapeHtml($template['document_template_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="far fa-fw fa-copy me-2"></i>New documents from <strong><?= escapeHtml($template['document_template_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

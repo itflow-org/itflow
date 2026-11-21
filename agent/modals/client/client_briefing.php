@@ -61,7 +61,7 @@ ob_start();
                 <i class="fas fa-fw fa-file-alt me-2"></i>Save as a Document
             </button>
         <?php } ?>
-        <button type="button" class="btn btn-light border" data-ai-briefing-copy disabled><i class="fas fa-fw fa-copy me-2"></i>Copy</button>
+        <button type="button" class="btn btn-light border" data-ai-briefing-copy disabled><i class="far fa-fw fa-copy me-2"></i>Copy</button>
         <button type="button" class="btn btn-light border" data-ai-briefing-again disabled><i class="fas fa-fw fa-redo me-2"></i>Again</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
     </div>

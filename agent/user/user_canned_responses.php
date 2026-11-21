@@ -192,7 +192,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                     </a>
                                     <a class="dropdown-item" href="post.php?copy_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A new one of yours starting from this one">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                     </a>
                                     <?php if ($session_is_admin && !$row['canned_response_archived_at']) { ?>
                                         <a class="dropdown-item confirm-link" href="/admin/post.php?share_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>"
@@ -216,7 +216,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item" href="post.php?copy_canned_response_to_yours=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A new one of yours starting from this one, to change as you like">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy to Yours
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy to Yours
                                     </a>
                                 <?php } ?>
                             </div>

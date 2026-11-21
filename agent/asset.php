@@ -380,7 +380,7 @@ if (mysqli_num_rows($sql) == 0) {
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
-                                <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                             </a>
                             <div class="dropdown-divider"></div>
                             <?php if ($asset_archived_at) { ?>

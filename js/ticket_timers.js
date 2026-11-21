@@ -207,7 +207,7 @@
         root.classList.toggle('is-running', running > 0);
         badge.hidden = count === 0;
         badge.textContent = count;
-        badge.className = 'badge rounded-pill navbar-badge ' + (running ? 'bg-warning text-dark' : 'bg-light text-dark');
+        badge.className = 'badge rounded-pill navbar-badge ' + (running ? 'bg-warning text-dark' : 'text-bg-light');
         const title = !count
             ? 'Timers'
             : running

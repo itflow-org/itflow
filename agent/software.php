@@ -196,18 +196,18 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg"
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg"
                         data-modal-url="modals/software/software_add_from_template.php?<?= $client_url ?>">
                         <i class="fas fa-fw fa-puzzle-piece me-2"></i>New from Template
                     </a>
                     <?php if ($client_url) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=licenses">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=licenses">
                             <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/software/software_export.php', ['client_id', 'client', 'status', 'software_type', 'license_type', 'tags', 'expire_days', 'archived', 'q']) ?>">
                             <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>

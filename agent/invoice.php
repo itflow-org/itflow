@@ -256,7 +256,7 @@ echo agentBannersHtml($client_id);
                         <?php } ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_copy.php?id=<?= $invoice_id ?>">
-                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                            <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                         </a>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_recurring_add.php?invoice_id=<?= $invoice_id ?>">
                             <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Make Recurring

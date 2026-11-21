@@ -388,7 +388,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                     <?php if ($can_edit) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $income_id ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                     <?php } ?>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>

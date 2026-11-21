@@ -212,7 +212,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </a>
                                 <?php } ?>
                                 <a class="dropdown-item" href="post.php?copy_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A new template starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['ticket_template_archived_at']) { ?>

@@ -171,7 +171,7 @@ $csrf = $_SESSION['csrf_token'];
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
-                                <a class="dropdown-item" href="post.php?copy_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                <a class="dropdown-item" href="post.php?copy_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
                                     <a class="dropdown-item" href="post.php?restore_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>

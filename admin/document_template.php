@@ -87,7 +87,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $use_url ?>"><i class="fas fa-fw fa-plus me-2"></i>New Document for a Client</button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to make one"></button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="fas fa-fw fa-copy me-2"></i>For Several Clients</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>"><i class="far fa-fw fa-copy me-2"></i>For Several Clients</a>
                         <?php if ($coverage && $coverage['missing']) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-fw fa-clipboard-check me-2"></i>For <?= $missing_text ?></a>
                         <?php } ?>
@@ -98,7 +98,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
             <div class="dropdown">
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="post.php?copy_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?copy_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
                     <a class="dropdown-item" href="post.php?export_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;"><i class="fas fa-fw fa-print me-2"></i>Print</a>
                     <?php if ($archived) { ?>
@@ -165,7 +165,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                             <?php if (count($coverage['missing']) > $list_limit) { ?>
                                 <div class="small text-secondary mb-2">and <?= count($coverage['missing']) - $list_limit ?> more</div>
                             <?php } ?>
-                            <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="fas fa-copy me-1"></i>Make for <?= $missing_text ?></button>
+                            <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $several_url ?>&missing=1"><i class="far fa-copy me-1"></i>Make for <?= $missing_text ?></button>
                         <?php } elseif ($coverage['clients']) { ?>
                             <div class="small text-success"><i class="fas fa-fw fa-check me-1"></i>Every one of them has one.</div>
                         <?php } else { ?>

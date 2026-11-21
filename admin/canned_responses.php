@@ -215,7 +215,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <a class="dropdown-item" href="post.php?copy_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="<?= $owner_id ? 'A new shared response starting from this one' : 'A new response starting from this one' ?>">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i><?= $owner_id ? 'Copy as shared' : 'Copy' ?>
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i><?= $owner_id ? 'Copy as shared' : 'Copy' ?>
                                 </a>
                                 <a class="dropdown-item" href="post.php?export_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="A file of it, to import into another ITFlow">
                                     <i class="fas fa-fw fa-download text-secondary me-2"></i>Export

@@ -122,7 +122,7 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $revenue_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
-        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $revenue_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $revenue_id ?>"><i class="far fa-copy me-2"></i>Copy</button>
     <?php } ?>
     <?php if ($can_delete && $cleared) { ?>
         <?= reconcileLockedButtonHtml($cleared) ?>

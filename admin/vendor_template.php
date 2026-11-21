@@ -159,7 +159,7 @@ foreach (vendorTemplateFieldLabels() as $field) {
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $required_url ?>"><i class="fas fa-fw fa-clipboard-check me-2"></i>Who Should Have It</a>
-                    <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?copy_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
                     <a class="dropdown-item" href="post.php?export_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow - without account numbers or PINs"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="/agent/reports/vendor_templates.php" title="Reports > Vendor Templates"><i class="fas fa-fw fa-chart-bar me-2"></i>How they are used</a>
                     <?php if ($archived) { ?>

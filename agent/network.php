@@ -345,7 +345,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                             <?php if ($can_edit) { ?>
                                 <div class="dropdown ms-auto" id="bulkActionButton" hidden>
                                     <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group me-1"></i>Selected (<span id="selectedCount">0</span>)
+                                        <i class="fas fa-fw fa-layer-group me-1"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <h6 class="dropdown-header">Make them</h6>

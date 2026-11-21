@@ -161,7 +161,7 @@ $used_meter = function ($spent, $plan) {
                     <?php if ($has_prev_budget) { ?>
                         <button type="submit" name="copy_budget" value="1" class="btn btn-outline-secondary btn-sm confirm-link"
                                 data-confirm-title="Copy <?= $year - 1 ?>'s budget?" data-confirm-text="Every amount in <?= $year ?> is replaced with <?= $year - 1 ?>'s, month for month." data-confirm-button="Copy it">
-                            <i class="fas fa-fw fa-copy me-1"></i>Copy <?= $year - 1 ?>
+                            <i class="far fa-fw fa-copy me-1"></i>Copy <?= $year - 1 ?>
                         </button>
                     <?php } ?>
                 </div>

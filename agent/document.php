@@ -133,7 +133,7 @@ $page_title = $row['document_name'];
                         <?php if (!$document_archived) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_rename.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename</a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_move.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-folder-open me-2"></i>Move</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_copy.php?id=<?= $document_id ?>" title="For this client or another"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_copy.php?id=<?= $document_id ?>" title="For this client or another"><i class="far fa-fw fa-copy me-2"></i>Copy</a>
                             <?= linkPickerButton('document', $document_id, '', 'Link', 'dropdown-item', 'fas fa-fw fa-link me-2') ?>
                             <a class="dropdown-item" href="post.php?toggle_document_favorite=<?= $document_id ?>&csrf_token=<?= $csrf ?>" title="Favorites show on the client's overview"><i class="<?= intval($row['document_favorite']) ? 'far' : 'fas' ?> fa-fw fa-star me-2"></i><?= intval($row['document_favorite']) ? 'Unfavorite' : 'Favorite' ?></a>
                             <?php if ($config_client_portal_enable) { ?>

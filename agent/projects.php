@@ -153,7 +153,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/project/project_export.php', ['client_id', 'client', 'manager', 'show', 'q']) ?>">
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/project/project_export.php', ['client_id', 'client', 'manager', 'show', 'q']) ?>">
                         <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                     <?php if ($session_is_admin) { ?>

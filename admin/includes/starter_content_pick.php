@@ -255,7 +255,7 @@ function starterPickHtml($pack, array $items, $form = '', $open = false) {
                         </label>
                         <?php if ($previews) { ?>
                             <button type="button" class="btn btn-link btn-sm text-decoration-none flex-shrink-0 ms-auto py-0" data-starter-preview="<?= escapeHtml($pack) ?>" data-starter-key="<?= escapeHtml($item['key']) ?>"
-                                title="See all of <?= escapeHtml($item['name']) ?>"><i class="far fa-eye me-1"></i>Preview</button>
+                                title="See all of <?= escapeHtml($item['name']) ?>"><i class="fas fa-eye me-1"></i>Preview</button>
                         <?php } ?>
                     </div>
                 <?php } ?>

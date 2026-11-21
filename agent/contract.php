@@ -152,7 +152,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                             <?php if ($can_hours && !$show_hours) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contract/contract_hours_add.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-hourglass-half text-secondary me-2"></i>Add Prepaid Hours</a>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contract/contract_add.php?client_id=<?= $client_id ?>&copy=<?= $contract_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contract/contract_add.php?client_id=<?= $client_id ?>&copy=<?= $contract_id ?>"><i class="far fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                             <?php if ($status === 'Active') { ?>
                                 <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/contract/contract_cancel.php?id=<?= $contract_id ?>"><i class="fas fa-fw fa-ban me-2"></i>Cancel</a>
                             <?php } ?>

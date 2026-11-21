@@ -301,7 +301,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                                         <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
-                                        <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                        <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>

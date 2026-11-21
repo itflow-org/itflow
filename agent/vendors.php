@@ -137,23 +137,23 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit && $has_templates) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $add_url ?>&from_template=1">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $add_url ?>&from_template=1">
                             <i class="fas fa-fw fa-puzzle-piece me-2"></i>New from Template
                         </a>
                         <?php if ($view !== 'ours') { ?>
-                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/vendor/vendor_template_clients.php">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor/vendor_template_clients.php">
                                 <i class="fas fa-fw fa-users me-2"></i>Add a Template to Clients
                             </a>
                         <?php } ?>
                     <?php } ?>
                     <?php if ($can_edit && $view !== 'clients') { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=vendors">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=vendors">
                             <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <?php if ($can_edit && ($has_templates || $view !== 'clients')) { ?><div class="dropdown-divider"></div><?php } ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                        <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/vendor/vendor_export.php', ['client_id', 'view', 'client', 'tags', 'archived', 'q']) ?>">
                             <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>

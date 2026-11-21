@@ -157,7 +157,7 @@ if (!$product) {
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="post.php?copy_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>">
-                                <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                             </a>
                             <div class="dropdown-divider"></div>
                             <?php if ($archived_at) { ?>

@@ -151,7 +151,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/role/role_add.php?copy=<?= $role_id ?>" title="A new role starting from this one">
-                                    <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                                    <i class="far fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <?php if ($agent_count) { ?>
                                     <a class="dropdown-item" href="users.php?role=<?= $role_id ?>">
