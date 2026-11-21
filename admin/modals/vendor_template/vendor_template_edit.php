@@ -25,7 +25,7 @@ if (!$template) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-building me-2"></i>Vendor template: <strong><?= escapeHtml($template['vendor_template_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-building me-2"></i>Edit Vendor Template <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($template['vendor_template_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="/admin/post.php" method="post" autocomplete="off">

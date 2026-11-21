@@ -47,7 +47,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-user-plus me-2"></i><?= $helper ? escapeHtml($helper['user_name']) . ' on' : 'Add an agent to' ?> <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small>
+        <i class="fa fa-fw fa-user-plus me-2"></i><?= $helper ? escapeHtml($helper['user_name']) . ' on' : 'Add an agent to' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(ticketReference($row)) ?></span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>

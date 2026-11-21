@@ -64,7 +64,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-credit-card me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'New Payment Provider' ?>
+        <i class="fa fa-fw fa-credit-card me-2"></i><?= $row ? 'Edit Payment Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($name) . '</span>' : 'New Payment Provider' ?>
         <?php if ($mode !== '') { ?>
             <span class="badge <?= $mode === 'live' ? 'text-bg-success' : 'text-bg-warning' ?> ms-2 align-middle" data-provider-mode><?= $mode === 'live' ? 'Live' : 'Test' ?></span>
         <?php } ?>

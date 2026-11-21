@@ -27,7 +27,7 @@ if (empty($cron_job_daily_at)) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-clock me-2"></i>Editing: <strong><?= $cron_job_label ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-clock me-2"></i>Edit Job <span class="fw-normal text-white-50 ms-1"><?= $cron_job_label ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

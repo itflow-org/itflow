@@ -40,7 +40,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-server me-2"></i>Editing rack: <strong><?= $rack_name ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-server me-2"></i>Edit Rack <span class="fw-normal text-white-50 ms-1"><?= $rack_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

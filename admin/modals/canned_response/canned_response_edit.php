@@ -17,7 +17,7 @@ if (!$response) { ?>
     $response_category_ids = cannedResponseCategoryIds($canned_response_id); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-comment-dots me-2"></i>Canned response: <strong><?= escapeHtml($response['canned_response_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-comment-dots me-2"></i>Edit Canned Response <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($response['canned_response_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">

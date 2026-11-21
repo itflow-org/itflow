@@ -28,7 +28,7 @@ if (!officesReady()) { ?>
 <?php } else { ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-map-marker-alt me-2"></i><?= $office ? escapeHtml($office['name']) : 'New office' ?></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-map-marker-alt me-2"></i><?= $office ? 'Edit Office <span class="fw-normal text-white-50 ms-1">' . escapeHtml($office['name']) . '</span>' : 'New Office' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-office-form>

@@ -38,7 +38,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-sms me-2"></i><?= $row ? '<strong>' . escapeHtml($name) . '</strong>' : 'New Texting Provider' ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-sms me-2"></i><?= $row ? 'Edit Texting Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($name) . '</span>' : 'New Texting Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-sms-provider-form>

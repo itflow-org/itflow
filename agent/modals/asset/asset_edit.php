@@ -78,7 +78,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class='fa fa-fw fa-<?= $device_icon ?> me-2'></i>Editing asset: <strong><?= $asset_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class='fa fa-fw fa-<?= $device_icon ?> me-2'></i>Edit Asset <span class="fw-normal text-white-50 ms-1"><?= $asset_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">

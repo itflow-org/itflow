@@ -18,7 +18,7 @@ if (!$custom_link) { ?>
     $custom_link_id = intval($custom_link['custom_link_id']); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-<?= escapeHtml(customLinkIcon($custom_link['custom_link_icon'])) ?> me-2"></i>Link: <strong><?= escapeHtml($custom_link['custom_link_name']) ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-<?= escapeHtml(customLinkIcon($custom_link['custom_link_icon'])) ?> me-2"></i>Edit Link <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($custom_link['custom_link_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

@@ -28,7 +28,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-sync-alt me-2"></i>Change password: <strong><?= escapeHtml($credential['credential_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-sync-alt me-2"></i>Change Password <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($credential['credential_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-credential-rotate>

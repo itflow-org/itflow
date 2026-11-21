@@ -22,7 +22,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-pin me-2"></i>Editing <span class="font-monospace"><?= escapeHtml($form['ip_address']) ?></span></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-map-pin me-2"></i>Edit IP Address <span class="fw-normal text-white-50 ms-1 font-monospace"><?= escapeHtml($form['ip_address']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

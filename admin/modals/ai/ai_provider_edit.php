@@ -43,7 +43,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-robot me-2"></i><?= $row ? '<strong>' . escapeHtml($row['ai_provider_name']) . '</strong>' : 'New AI Provider' ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-robot me-2"></i><?= $row ? 'Edit AI Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($row['ai_provider_name']) . '</span>' : 'New AI Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-ai-provider-form data-kinds="<?= escapeHtml(json_encode($kinds_js)) ?>" data-has-key="<?= $has_key ? '1' : '0' ?>">

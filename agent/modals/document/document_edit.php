@@ -31,7 +31,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-edit me-2"></i>Editing <strong><?= $document_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-edit me-2"></i>Edit Document <span class="fw-normal text-white-50 ms-1"><?= $document_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

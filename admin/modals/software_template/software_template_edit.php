@@ -19,7 +19,7 @@ if (!$template) { ?>
 <?php } else { ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-cube me-2"></i>License template: <strong><?= escapeHtml($template['software_template_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-cube me-2"></i>Edit License Template <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($template['software_template_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

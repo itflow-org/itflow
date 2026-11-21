@@ -12,7 +12,7 @@ if (!$announcement) { ?>
     <div class="modal-body text-center text-secondary py-5">That announcement is gone.</div>
 <?php } else { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-bullhorn me-2"></i>Editing announcement: <strong><?= escapeHtml($announcement['announcement_title']) ?></strong></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-bullhorn me-2"></i>Edit Announcement <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <form action="post.php" method="post" autocomplete="off">

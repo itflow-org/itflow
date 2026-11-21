@@ -60,7 +60,7 @@ if (!managerEnabled()) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'New Instance' : $value('managed_instance_name') ?></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'New Instance' : 'Edit Instance <span class="fw-normal text-white-50 ms-1">' . $value('managed_instance_name') . '</span>' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

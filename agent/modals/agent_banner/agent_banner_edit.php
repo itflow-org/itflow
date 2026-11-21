@@ -29,7 +29,7 @@ if (!$announcement) { ?>
     <div class="modal-body text-center text-secondary py-5">That banner is gone.</div>
 <?php } else { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-bullhorn me-2"></i>Editing banner: <strong><?= escapeHtml($announcement['announcement_title']) ?></strong></h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-bullhorn me-2"></i>Edit Banner <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <form action="/agent/post.php" method="post" autocomplete="off">

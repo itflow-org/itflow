@@ -22,7 +22,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-user-shield me-2"></i><?= $copy_of ? 'Copy ' . escapeHtml($copy_of['role_name']) : 'New Role' ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-shield me-2"></i><?= $copy_of ? 'Copy Role <span class="fw-normal text-white-50 ms-1">' . escapeHtml($copy_of['role_name']) . '</span>' : 'New Role' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

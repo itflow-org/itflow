@@ -23,7 +23,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate">
-        <i class="fas fa-fw fa-project-diagram me-2"></i>Edit Project <small class="ms-1 opacity-75"><?= escapeHtml(projectReference($form)) ?> &middot; <?= $form_client_id ? escapeHtml($form['client_name']) : 'Internal' ?></small>
+        <i class="fas fa-fw fa-project-diagram me-2"></i>Edit Project <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(projectReference($form)) ?> &middot; <?= $form_client_id ? escapeHtml($form['client_name']) : 'Internal' ?></span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>

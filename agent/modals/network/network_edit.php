@@ -16,7 +16,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-network-wired me-2"></i>Editing network: <span class="text-bold"><?= escapeHtml($form['network_name']) ?></span></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-network-wired me-2"></i>Edit Network <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($form['network_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

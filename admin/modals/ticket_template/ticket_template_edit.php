@@ -18,7 +18,7 @@ if (!$template) { ?>
     $template_tag_ids = ticketTemplateTagIds($ticket_template_id); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-life-ring me-2"></i>Ticket template: <strong><?= escapeHtml($template['ticket_template_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-life-ring me-2"></i>Edit Ticket Template <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($template['ticket_template_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

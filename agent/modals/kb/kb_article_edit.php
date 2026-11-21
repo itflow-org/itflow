@@ -23,7 +23,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-book me-2"></i>Editing <strong><?= escapeHtml($kb_form['kb_article_title']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-book me-2"></i>Edit Article <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($kb_form['kb_article_title']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

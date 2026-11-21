@@ -21,7 +21,7 @@ if (!$sla) { ?>
     $sla_tickets = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(ticket_id) FROM tickets WHERE ticket_sla_id = $sla_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL"))[0]); ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-stopwatch me-2"></i>SLA: <strong><?= escapeHtml($sla['sla_name']) ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-stopwatch me-2"></i>Edit SLA <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($sla['sla_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

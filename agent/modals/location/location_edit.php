@@ -47,7 +47,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Editing location: <strong><?= $location_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Edit Location <span class="fw-normal text-white-50 ms-1"><?= $location_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
