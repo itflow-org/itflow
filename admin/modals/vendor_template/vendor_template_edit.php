@@ -15,7 +15,7 @@ ob_start();
 if (!$template) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>Vendor Template</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That vendor template is gone - it may have been deleted.</div>
 <?php } else {
@@ -26,7 +26,7 @@ if (!$template) { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-building me-2"></i>Edit Vendor Template <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($template['vendor_template_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="/admin/post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

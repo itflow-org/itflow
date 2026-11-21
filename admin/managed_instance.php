@@ -175,7 +175,7 @@ $size = function ($mb) {
                                 <?php } ?>
                                 <button type="button" class="btn btn-light ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php?id=<?= $instance_id ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
                                 <div class="dropdown">
-                                    <button class="btn btn-light" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                    <button class="btn btn-light" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <?php if ($can_act) { ?>
                                             <a class="dropdown-item" href="post.php?managed_command=check_updates&id=<?= $instance_id ?>&csrf_token=<?= $csrf ?>" title="It checks at its next check-in, and the answer comes with the one after"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Check for Updates</a>

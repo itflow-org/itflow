@@ -115,7 +115,7 @@ function permissionRefuse($message) {
             ob_end_clean();
         }
         echo json_encode(['content' => '<div class="modal-header bg-dark"><h5 class="modal-title"><i class="fas fa-fw fa-lock me-2"></i>Not for your role</h5>'
-            . '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>'
+            . '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div>'
             . '<div class="modal-body"><p class="mb-0">' . $html . '</p></div>'
             . '<div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button></div>']);
         exit;

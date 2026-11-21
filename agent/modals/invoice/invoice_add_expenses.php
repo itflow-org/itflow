@@ -35,7 +35,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-shopping-cart me-2"></i>Add Expenses <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="invoiceAddExpenses">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

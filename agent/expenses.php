@@ -156,7 +156,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php<?= $vendor_filter ? "?vendor_id=$vendor_filter" : '' ?>"><i class="fas fa-plus me-2"></i>New Expense</button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
                         <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a><?php } ?>

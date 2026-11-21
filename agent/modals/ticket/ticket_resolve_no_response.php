@@ -44,7 +44,7 @@ ob_start();
     <h5 class="modal-title">
         <i class="fas fa-fw fa-comment-slash me-2"></i>Resolve - No Response <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="noResponseForm">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

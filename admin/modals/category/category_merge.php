@@ -62,7 +62,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-compress-alt me-2"></i>Merge <?= $one ? 'Category' : count($merging) . ' Categories' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <?php if (!$merging || !$config) { ?>

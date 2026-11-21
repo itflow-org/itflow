@@ -19,19 +19,19 @@ ob_start();
 if (!managerEnabled()) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i>Instance</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">Managing other ITFlow installs is off in this install's config.php.</div>
 <?php } elseif (!$is_new && !empty($instance['managed_instance_archived_at'])) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i><?= escapeHtml($instance['managed_instance_name']) ?></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">It has been removed, so there's nothing to set for it.</div>
 <?php } elseif (isset($_GET['id']) && $is_new) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i>Instance</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That instance is gone - it may have been deleted.</div>
 <?php } else {
@@ -61,7 +61,7 @@ if (!managerEnabled()) { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $is_new ? 'plus' : 'server' ?> me-2"></i><?= $is_new ? 'New Instance' : 'Edit Instance <span class="fw-normal text-white-50 ms-1">' . $value('managed_instance_name') . '</span>' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

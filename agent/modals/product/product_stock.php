@@ -54,7 +54,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-warehouse me-2"></i>Stock <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($product['product_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="productStock<?= $product_id ?>" data-on-hand="<?= $on_hand ?>" data-level="<?= $level ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

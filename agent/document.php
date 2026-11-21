@@ -128,7 +128,7 @@ $page_title = $row['document_name'];
             <button type="button" class="btn btn-outline-secondary" onclick="window.print();" title="Print"><i class="fas fa-print"></i></button>
             <?php if ($can_edit) { ?>
                 <div class="dropdown">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if (!$document_archived) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_rename.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename</a>

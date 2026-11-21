@@ -159,7 +159,7 @@ echo agentBannersHtml($client_id);
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_to_invoice.php?quote_id=<?= $quote_id ?>">
                         <i class="fas fa-file-invoice-dollar me-2"></i><?= $totals['recurring'] ? 'Start Billing' : 'Make Invoice' ?>
                     </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item confirm-link" href="post.php?mark_quote_invoiced=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="For a quote billed some other way - it is marked invoiced without making an invoice.">

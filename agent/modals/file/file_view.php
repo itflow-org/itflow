@@ -15,7 +15,7 @@
                     <h6 class="modal-title text-truncate" id="modalTitle"></h6>
                     <div class="small text-body-secondary" id="modalMeta"></div>
                 </div>
-                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="position-relative text-center">

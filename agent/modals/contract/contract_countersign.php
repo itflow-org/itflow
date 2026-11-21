@@ -33,7 +33,7 @@ if (!$round || $state['key'] !== 'countersign') { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-pen-nib me-2"></i>Countersign <strong><?= escapeHtml($round['contract_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

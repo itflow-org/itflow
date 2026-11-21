@@ -30,7 +30,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-clipboard-check me-2"></i>Review <strong><?= escapeHtml($service['service_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">

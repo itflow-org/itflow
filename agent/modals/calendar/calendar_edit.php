@@ -33,7 +33,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-circle me-2 small" style="color:<?= escapeHtml(calendarColor($calendar['calendar_color'])) ?>"></i><?= escapeHtml($calendar['calendar_name']) ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

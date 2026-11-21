@@ -36,7 +36,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-clipboard-check me-2"></i>Review <strong><?= escapeHtml($row['kb_article_title']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-review-form data-ai-review-url="/agent/ajax.php?ai_kb_article_review" data-ai-review-param="kb_article_id" data-ai-review-id="<?= $kb_article_id ?>"
     data-ai-review-secrets="Take them out - <?= $row['kb_article_visibility'] === 'agents' ? 'anyone on your team who can read it can read them' : 'its readers outside ITFlow can read them' ?>.">

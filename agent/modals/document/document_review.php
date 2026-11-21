@@ -34,7 +34,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-clipboard-check me-2"></i>Review <strong><?= escapeHtml($row['document_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-review-form data-ai-review-url="/agent/ajax.php?ai_document_review" data-ai-review-param="document_id" data-ai-review-id="<?= $document_id ?>"
     data-ai-review-secrets="Keep them in Credentials, and link the credential to this document instead - anyone who can read it can read them.">

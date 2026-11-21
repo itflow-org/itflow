@@ -38,7 +38,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-vial me-2"></i>Try an Email</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form autocomplete="off" id="ticketMailTryForm">
     <div class="modal-body">

@@ -31,7 +31,7 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-<?= $delete ? 'trash' : 'power-off' ?> me-2"></i><?= $delete ? 'Delete' : 'Switch off' ?> <strong><?= $name ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

@@ -45,7 +45,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>New Contact</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off"
       data-itflow-phone-country="<?= escapeHtml($client_phone_iso2) ?>"<?= $inline ? ' data-quick-add-inline' : '' ?>>

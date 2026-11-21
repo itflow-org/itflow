@@ -27,7 +27,7 @@ ob_start();
 if (!$template || ($name !== '' && !$fill_in)) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-pen-square me-2"></i>Fill-in</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That fill-in is gone - it may have been taken out of the template.</div>
 <?php } else {
@@ -36,7 +36,7 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-pen-square me-2"></i><?= $fill_in ? 'Edit Fill-in' : 'New Fill-in' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($template['document_template_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

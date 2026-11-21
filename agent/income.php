@@ -158,7 +158,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus me-2"></i>New Income</button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
                         <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a><?php } ?>

@@ -39,7 +39,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-sms me-2"></i><?= $row ? 'Edit Texting Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($name) . '</span>' : 'New Texting Provider' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-sms-provider-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

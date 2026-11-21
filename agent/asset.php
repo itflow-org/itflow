@@ -711,7 +711,7 @@ if (mysqli_num_rows($sql) == 0) {
                                         <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
                                             <i class="fas fa-plus me-2"></i>New Interface
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_multiple_add.php?asset_id=<?= $asset_id ?>">
                                                 <i class="fas fa-fw fa-th me-2"></i>Add a Run of Ports

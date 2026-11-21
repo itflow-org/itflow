@@ -26,7 +26,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-magic me-2"></i>Remembered Merchants <span class="fw-normal text-white-50 ms-1"><?= count($rules) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body p-0">
     <div class="px-3 py-2 small text-body-secondary border-bottom">A statement line whose words start like these is matched to what was picked for it last time. Each import updates them.</div>

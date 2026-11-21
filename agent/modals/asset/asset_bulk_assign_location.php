@@ -17,7 +17,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-map-marker-alt me-2"></i>Assign Location to <strong><?= $count ?></strong> asset<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">

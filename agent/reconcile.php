@@ -272,7 +272,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                     <div class="btn-group">
                         <button type="submit" name="reconcile_finish" class="btn btn-success" data-reconcile-finish <?= abs($totals['difference']) >= 0.005 ? 'disabled' : '' ?>
                             title="Once the difference is nothing"><i class="fas fa-check me-2"></i>Finish</button>
-                        <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                        <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item" href="#reconcileStatement" data-bs-toggle="collapse"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Change the Statement</a>
                             <div class="dropdown-divider"></div>

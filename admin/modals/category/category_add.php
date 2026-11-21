@@ -21,7 +21,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw <?= $kind_config['icon'] ?? 'fa-list-ul' ?> me-2"></i>New <?= escapeHtml($kind_config ? ucwords($kind_config['one']) : 'Category') ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="/admin/post.php" method="post" autocomplete="off"<?= $inline ? ' data-category-inline' : '' ?>>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

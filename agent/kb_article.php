@@ -120,7 +120,7 @@ $page_title = $row['kb_article_title'];
             <a class="btn btn-outline-secondary" href="post.php?export_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>" title="Export as PDF"><i class="fas fa-file-pdf"></i><span class="d-none d-md-inline ms-2">PDF</span></a>
             <?php if ($can_edit) { ?>
                 <div class="dropdown">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if (!$archived) { ?>
                             <?php if ($published) { ?>

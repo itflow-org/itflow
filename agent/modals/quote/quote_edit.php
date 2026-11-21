@@ -23,7 +23,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-comment-dollar me-2"></i>Edit Quote <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber($form_type, $form_row)) ?> &middot; <?= escapeHtml($form_row['client_name']) ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

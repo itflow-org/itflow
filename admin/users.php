@@ -245,7 +245,7 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-user-plus"></i><span class="d-none d-lg-inline ms-2">New User</span>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if (userInvitesReady() && !$agent_user_limit_reached) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_invite_bulk.php?role=<?= $role_filter ?>">

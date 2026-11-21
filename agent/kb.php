@@ -137,7 +137,7 @@ $csrf = $_SESSION['csrf_token'];
                     </button>
                 <?php } ?>
                 <?php if ($session_is_admin) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item" href="/admin/categories.php?category=kb">
                             <i class="fas fa-fw fa-list-ul text-secondary me-2"></i>Categories

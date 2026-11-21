@@ -43,7 +43,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-file-medical me-2"></i>Write up <?= escapeHtml(ticketReference($ticket)) ?> as a document <small class="opacity-75 ms-1">for <?= escapeHtml($client_name) ?></small></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-document-form data-ticket-id="<?= $ticket_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

@@ -51,7 +51,7 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-file-signature me-2"></i>Send <strong><?= escapeHtml($contract['contract_name']) ?></strong> to sign</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

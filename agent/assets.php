@@ -229,7 +229,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&type=<?= $type_filter ?>">
                     <i class="fas fa-plus me-2"></i>New <?= $type_filter ? $asset_type_tabs[$type_filter]['new'] : 'Asset' ?>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu">
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item ajax-modal" href="#"

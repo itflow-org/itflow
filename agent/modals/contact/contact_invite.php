@@ -36,7 +36,7 @@ if (!$client) {
 if ($refuse !== '') { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>Invite People</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5"><?= escapeHtml($refuse) ?></div>
 <?php } else {
@@ -44,7 +44,7 @@ if ($refuse !== '') { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>Invite people to the portal for <strong><?= escapeHtml($client['client_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">

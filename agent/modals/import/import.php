@@ -46,7 +46,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw <?= escapeHtml($def['icon']) ?> me-2"></i>Import <?= escapeHtml($def['title']) ?><?php if ($client_name !== '') { ?> <small class="ms-1 opacity-75"><?= escapeHtml($client_name) ?></small><?php } ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form autocomplete="off" data-import-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

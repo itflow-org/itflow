@@ -27,7 +27,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-comment-dots me-2"></i>Save Your Reply as a Canned Response</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="/agent/user/post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-canned-save
     data-editor="<?= escapeHtml($editor_id) ?>" data-picker="<?= escapeHtml($picker_id) ?>" data-ticket-id="<?= $ticket_id ?>">

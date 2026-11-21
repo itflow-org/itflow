@@ -44,7 +44,7 @@ if ($refuse !== '') { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt me-2"></i>Recurring invoice for <strong><?= escapeHtml($contract['contract_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body pb-0">
     <ul class="nav nav-pills nav-justified mb-3" role="tablist">

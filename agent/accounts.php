@@ -104,7 +104,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/account/account_add.php"><i class="fas fa-plus me-2"></i>New Account</button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>

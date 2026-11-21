@@ -37,7 +37,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-book-medical me-2"></i>Write up <?= escapeHtml(ticketReference($ticket)) ?> for the Knowledge Base</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-kb-from-ticket="<?= $kb_use_ai ? 'ai' : '' ?>" data-ticket-id="<?= $ticket_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

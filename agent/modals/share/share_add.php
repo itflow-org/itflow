@@ -100,7 +100,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw <?= $title_icon ?> me-2"></i><?= $title_html ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form autocomplete="off" data-share-add id="<?= $uid ?>"<?= $protect_with_secrets ? ' data-share-protect-secrets' : '' ?>>

@@ -30,7 +30,7 @@ if (!$announcement) { ?>
 <?php } else { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-bullhorn me-2"></i>Edit Banner <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <form action="/agent/post.php" method="post" autocomplete="off">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

@@ -26,7 +26,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-search-minus me-2"></i>Not Found</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body p-0">
     <p class="small text-body-secondary px-3 pt-3 mb-2">What readers searched Help and the public help center for in the last <?= KB_SEARCH_MISS_DAYS ?> days, and found nothing - an article to write, or words to add to one that's there.</p>

@@ -53,7 +53,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-magic me-2"></i>Write <?= escapeHtml($number) ?> with AI</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-ai-billing-form data-type="<?= $type ?>" data-doc-id="<?= $doc_id ?>" data-currency="<?= escapeHtml($currency) ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

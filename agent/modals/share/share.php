@@ -59,7 +59,7 @@ ob_start();
             <div class="small text-body-secondary mt-1"><?= escapeHtml($type_info['label']) ?> &middot; <?= escapeHtml($row['client_name']) ?></div>
         </div>
     </div>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <div class="modal-body">

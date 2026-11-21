@@ -79,7 +79,7 @@ ob_start();
         <i class="fas fa-fw fa-file-alt me-2"></i>Send Account Statement
         <span class="fw-normal text-white-50 ms-1"><?= $client_name ?></span>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" id="clientStatement<?= $client_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

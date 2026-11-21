@@ -3,7 +3,7 @@
         <div class="modal-content border-dark">
             <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fas fa-fw fa-wallet me-2"></i>Adding <strong>Credit</strong> (Credit Balance: <?= billingMoney($credit_balance, $client_currency_code) ?>)</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

@@ -41,7 +41,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-server me-2"></i>Edit Rack <span class="fw-normal text-white-50 ms-1"><?= $rack_name ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">

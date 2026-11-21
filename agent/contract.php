@@ -247,7 +247,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                 <a class="btn btn-outline-secondary btn-sm" href="post.php?export_contract_pdf=<?= $contract_id ?>&round=<?= intval($latest['contract_signature_id']) ?>" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
                                 <?php if ($can_edit && contractSignaturePending($latest)) { ?>
                                     <div class="dropdown">
-                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu">
                                             <?php if ($latest_state['key'] !== 'countersign') { ?>
                                                 <a class="dropdown-item confirm-link" href="post.php?resend_contract_signature=<?= intval($latest['contract_signature_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"

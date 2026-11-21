@@ -29,7 +29,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Change <strong><?= $count ?></strong> network<?= $count === 1 ? '' : 's' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">

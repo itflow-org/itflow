@@ -352,7 +352,7 @@ $total_leads = intval($row['leads']);
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/client/client_add.php<?php if ($leads_filter) { echo "?lead=1"; } ?>">
                         <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New <?= $leads_filter ? 'Lead' : 'Client' ?></span>
                     </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" title="More"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" title="More actions"></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_onboard) { ?>
                             <a class="dropdown-item" href="<?= clientOnboardingUrl() ?>" data-onboard-new>

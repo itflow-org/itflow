@@ -20,7 +20,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-tag me-2"></i>Labor Cost<?= $agent ? ' <span class="fw-normal text-white-50 ms-1">' . escapeHtml($agent['user_name']) . '</span>' : '' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <?php if (!$agent || !laborCostReady()) { ?>
     <div class="modal-body">

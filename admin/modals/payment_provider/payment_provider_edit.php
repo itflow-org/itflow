@@ -69,7 +69,7 @@ ob_start();
             <span class="badge rounded-pill <?= $mode === 'live' ? 'text-bg-success' : 'text-bg-warning' ?> ms-2 align-middle" data-provider-mode><?= $mode === 'live' ? 'Live' : 'Test' ?></span>
         <?php } ?>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-payment-provider-form>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

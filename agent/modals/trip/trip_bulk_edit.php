@@ -41,7 +41,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw <?= $fields[$field]['icon'] ?> me-2"></i>Set <?= $fields[$field]['label'] ?> <span class="fw-normal text-white-50 ms-1"><?= $count ?> trip<?= $count === 1 ? '' : 's' ?></span></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">

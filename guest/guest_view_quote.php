@@ -148,7 +148,7 @@ $paper = [
             <div class="modal-content">
                 <div class="modal-header bg-dark">
                     <h5 class="modal-title"><i class="fas fa-fw fa-file-upload me-2"></i>Send a Signed Copy or PO</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="guest_post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="quote_id" value="<?= $quote_id ?>">

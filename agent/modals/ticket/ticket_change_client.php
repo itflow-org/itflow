@@ -20,7 +20,7 @@ ob_start();
     <h5 class="modal-title">
         <i class="fas fa-fw fa-people-carry me-2"></i>Move to Another Client <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">

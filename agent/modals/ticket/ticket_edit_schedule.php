@@ -29,7 +29,7 @@ ob_start();
     <h5 class="modal-title">
         <i class="fas fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">

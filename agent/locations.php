@@ -113,7 +113,7 @@ $locations_counts = locationCounts(array_keys($locations));
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/location/location_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus me-2"></i>New Location
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item ajax-modal" href="#"

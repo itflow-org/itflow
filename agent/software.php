@@ -194,7 +194,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus me-2"></i>New License
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg"
                         data-modal-url="modals/software/software_add_from_template.php?<?= $client_url ?>">

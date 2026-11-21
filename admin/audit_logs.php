@@ -103,7 +103,7 @@ $view_empty = [
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= buildExportModalUrl('modals/audit_log/audit_log_export.php', ['client', 'user', 'type', 'action', 'entity', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'view' => $view]) ?>">
                     <i class="fas fa-fw fa-download"></i><span class="d-none d-lg-inline ms-2">Export</span>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="/agent/reports/audit_activity.php">
                         <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Activity Report

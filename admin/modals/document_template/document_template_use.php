@@ -20,14 +20,14 @@ ob_start();
 if (!$template || $template['document_template_archived_at']) { ?>
     <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-file-alt me-2"></i>New Document</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That document template is gone or archived.</div>
 <?php } else { ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-file-alt me-2"></i>New document from <strong><?= escapeHtml($template['document_template_name']) ?></strong></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="/agent/post.php" method="post" autocomplete="off" data-doc-template-make>
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

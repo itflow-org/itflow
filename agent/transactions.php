@@ -241,7 +241,7 @@ $is_card = $account && $account['type'] === 3;
                         <i class="fas fa-<?= $is_card ? 'credit-card' : 'exchange-alt' ?> me-2"></i><?= $is_card ? 'Pay the Card' : 'New Transfer' ?>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'reconciliation', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">

@@ -237,7 +237,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus me-2"></i>New Contact
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($client_url && $invites_on) { ?>
                     <a class="dropdown-item ajax-modal" href="#"

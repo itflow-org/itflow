@@ -146,7 +146,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     </button>
                 <?php } ?>
                 <?php if ($num_rows[0] > 0 || ($can_edit && $client_url)) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More actions"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_edit && $client_url) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=domains">
@@ -458,7 +458,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
         <div class="modal-content">
             <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>Set Registrar or Host</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <label class="form-label">What they do</label>

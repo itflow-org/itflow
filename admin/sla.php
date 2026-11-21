@@ -237,7 +237,7 @@ $pill_url = function ($view) use ($on_days) {
                                 <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New SLA</span>
                             </button>
                         <?php } ?>
-                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($on_days) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/holiday_generate.php" data-sla-us-holidays>

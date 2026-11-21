@@ -47,7 +47,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2" data-rmm-kind-icon></i><?= $row ? '<strong>' . escapeHtml(rmmProviderName($row)) . '</strong>' : 'New RMM Provider' ?></h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-rmm-provider-form data-kinds="<?= escapeHtml(json_encode($kinds_js)) ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

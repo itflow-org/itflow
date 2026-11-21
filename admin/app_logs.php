@@ -91,7 +91,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $filters_url('modals/app_log/app_log_export.php') ?>">
                     <i class="fas fa-fw fa-download"></i><span class="d-none d-lg-inline ms-2">Export</span>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More actions"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="<?= $filters_url('modals/app_log/app_log_clear.php') ?>" data-app-log-clear>
                         <i class="fas fa-fw fa-trash me-2"></i>Clear

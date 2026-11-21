@@ -49,7 +49,7 @@ ob_start();
     <h5 class="modal-title">
         <i class="fas fa-fw fa-user-plus me-2"></i><?= $helper ? escapeHtml($helper['user_name']) . ' on' : 'Add an agent to' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(ticketReference($row)) ?></span>
     </h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
