@@ -365,18 +365,17 @@ if (isset($_GET['approve_ticket_task'])) {
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
         task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
 
+    if (!$approval_row) {
+        flashAlert("That task isn't waiting for your approval", 'error');
+        redirect();
+    }
+
     $task_name = escapeSql($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);
     $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);
-
-    if (!$approval_row) {
-        flashAlert("Cannot find/approve that task", 'warning');
-        redirect();
-        exit;
-    }
 
     // Approve
     mysqli_query($mysqli, "UPDATE task_approvals SET approval_status = 'approved', approval_approved_by = $session_user_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'");
@@ -389,7 +388,7 @@ if (isset($_GET['approve_ticket_task'])) {
     // Logging
     logAudit("Task", "Edit", "Contact $session_contact_email approved task $task_name (approval $approval_id)", $session_client_id, $task_id);
 
-    flashAlert("Task Approved");
+    flashAlert("Task approved - thank you");
     redirect();
 
 }
@@ -1206,7 +1205,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured in the system.", 'error');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1214,7 +1213,7 @@ if (isset($_POST['create_stripe_customer'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing. Please contact support.", 'error');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1267,7 +1266,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
             logApp("Stripe", "error", "Failed to create Stripe customer for $session_client_name: $error");
 
-            flashAlert("An error occurred while creating your Stripe customer. Please try again.", 'error');
+            flashAlert("Card payments could not be set up just now - try again", 'error');
 
         }
 
@@ -1390,7 +1389,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider not configured.", 'error');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1398,7 +1397,7 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing.", 'error');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1414,7 +1413,7 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_customer_id = escapeSql($client_provider['payment_provider_client'] ?? '');
 
     if (empty($stripe_customer_id)) {
-        flashAlert("Stripe customer ID not found for client.", 'error');
+        flashAlert("Card payments are not set up for you yet - add your card again", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1423,7 +1422,7 @@ if (isset($_GET['stripe_save_card'])) {
     $expected_session_id = (string) ($_SESSION['stripe_checkout_session_id'] ?? '');
     unset($_SESSION['stripe_checkout_session_id']);
     if ($checkout_session_id === '' || $expected_session_id === '' || !hash_equals($expected_session_id, $checkout_session_id)) {
-        flashAlert("This card setup has expired - please try again.", 'error');
+        flashAlert("That card setup ran out - try again", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1435,7 +1434,7 @@ if (isset($_GET['stripe_save_card'])) {
         $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id, []);
         // ... and set up for this client's own Stripe customer
         if (!empty($checkout_session->customer) && $checkout_session->customer !== stripslashes($stripe_customer_id)) {
-            flashAlert("This card setup does not belong to your account.", 'error');
+            flashAlert("That card setup isn't yours", 'error');
             redirect("saved_payment_methods.php");
         }
         $setup_intent_id = $checkout_session->setup_intent;
@@ -1476,7 +1475,7 @@ if (isset($_GET['stripe_save_card'])) {
         error_log("Stripe error while saving payment method: $error");
         logApp("Stripe", "error", "Exception saving payment method: $error");
 
-        flashAlert("An error occurred while saving your payment method.", 'error');
+        flashAlert("Your payment method could not be saved just now - try again", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1510,7 +1509,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
 
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured.", 'error');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1518,7 +1517,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials are missing.", 'error');
+        flashAlert('Card payments are not set up', 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1534,7 +1533,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $saved_payment = mysqli_fetch_assoc($saved_payment_result);
 
     if (!$saved_payment) {
-        flashAlert("Payment method not found or does not belong to you.", 'error');
+        flashAlert("That payment method isn't here", 'error');
         redirect("saved_payment_methods.php");
     }
 
@@ -1558,7 +1557,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
         logApp("Stripe", "error", "Exception removing payment method $payment_method_id: $error");
 
-        flashAlert("An error occurred while removing your payment method.", 'error');
+        flashAlert("Your payment method could not be removed just now - try again", 'error');
 
         redirect("saved_payment_methods.php");
 
@@ -1609,7 +1608,7 @@ if (isset($_POST['set_recurring_payment'])) {
     $row = mysqli_fetch_assoc($sql);
 
     if (!$row) {
-        flashAlert("Recurring invoice not found.", 'error');
+        flashAlert("That recurring invoice isn't here", 'error');
         redirect("recurring_invoices.php");
     }
 
@@ -1633,7 +1632,7 @@ if (isset($_POST['set_recurring_payment'])) {
         $row = mysqli_fetch_assoc($sql);
 
         if (!$row) {
-            flashAlert("Payment method not found or does not belong to you.", 'error');
+            flashAlert("That payment method isn't here", 'error');
             redirect("recurring_invoices.php");
         }
 

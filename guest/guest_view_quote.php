@@ -15,7 +15,7 @@ $quote = billingRow('quote', intval($_GET['quote_id'] ?? 0), false);
 $url_key = (string) ($_GET['url_key'] ?? '');
 
 if (!$quote || (string) $quote['quote_url_key'] === '' || !hash_equals((string) $quote['quote_url_key'], $url_key)) {
-    echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-comment-dollar fa-3x mb-3 opacity-50"></i><h1 class="h4">This quote link isn\'t working</h1><p>It may have been mistyped or replaced. Ask whoever sent it for a new link.</p></div>';
+    echo guestDeadEndHtml('fa-comment-dollar', "This quote link isn't working", "It may have been mistyped or replaced. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }

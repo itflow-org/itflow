@@ -34,16 +34,13 @@ if (isset($_POST['quote_id'], $_POST['url_key']) && (isset($_POST['accept_quote'
             redirect();
         }
 
-        if ($accept) {
-            flashAlert("Quote Accepted");
-        } else {
-            flashAlert("Quote Declined", 'danger');
-        }
+        $number = escapeHtml(billingNumber('quote', billingRow('quote', $quote_id, false)));
+        flashAlert($accept ? "Thank you - quote <strong>$number</strong> is accepted and our team has been told" : "Quote <strong>$number</strong> declined - thank you for letting us know");
 
         redirect();
 
     } else {
-        echo "Invalid!!";
+        exit("This quote link isn't working - open it again from the email.");
     }
 
 }
@@ -197,16 +194,16 @@ if (isset($_GET['approve_ticket_task'])) {
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
         task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending'"));
 
+    if (!$approval_row) {
+        exit("That task isn't waiting for your approval");
+    }
+
     $task_name = escapeSql($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);
     $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);
-
-    if (!$approval_row) {
-        exit("Cannot find/approve that task");
-    }
 
     // Approve
     mysqli_query($mysqli, "UPDATE task_approvals SET approval_status = 'approved', approval_approved_by = $required_user WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending'");
@@ -217,7 +214,7 @@ if (isset($_GET['approve_ticket_task'])) {
     // Logging
     logAudit("Task", "Edit", "Guest user approved task $task_name via link (approval $approval_id)", 0, $task_id);
 
-    flashAlert("Task Approved");
+    flashAlert("Task approved - thank you");
     redirect();
 
 }
@@ -261,19 +258,22 @@ if (isset($_POST['guest_quote_upload_file'])) {
         // Each PDF to the client's Client Uploads and onto the quote - functions/billing.php, shared with the client portal
         if (!empty($_FILES['file'])) {
             $upload = billingQuoteAddFiles($quote_id, $_FILES['file']);
-            foreach ($upload['added'] as $added) {
-                flashAlert('File uploaded!');
+            if ($upload['added'] && !$upload['failed']) {
+                flashAlert('Sent - thank you. ' . escapeHtml(implode(', ', $upload['added'])) . ' is with us now');
+            } elseif ($upload['added']) {
+                flashAlert('Sent ' . escapeHtml(implode(', ', $upload['added'])) . ' - but ' . $upload['failed'] . ' could not be taken. Only PDFs can be sent', 'error');
+            } else {
+                flashAlert('That file could not be taken - only PDFs can be sent', 'error');
             }
             if ($upload['failed']) {
-                flashAlert('Something went wrong uploading the file - please let the support team know.', 'error');
-                logApp("Guest", "error", "Error uploading file to invoice");
+                logApp("Guest", "error", "Error uploading file to quote");
             }
         }
 
         redirect();
 
     } else {
-        echo "Invalid!!";
+        exit("This quote link isn't working - open it again from the email.");
     }
 
 }
@@ -300,9 +300,8 @@ if (isset($_POST['create_stripe_customer'])) {
 
     // Ensure valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
-        echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
         error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
-        exit();
+        exit("This invoice link isn't working - open it again from the email.");
     }
 
     $row = mysqli_fetch_assoc($sql);
@@ -323,16 +322,16 @@ if (isset($_POST['create_stripe_customer'])) {
 
     $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
     if (!$stripe_provider) {
-        flashAlert("Stripe provider is not configured in the system.", 'danger');
-        redirect("saved_payment_methods.php");
+        flashAlert('Card payments are not set up', 'error');
+        redirect('guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . urlencode($invoice_url_key));
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
     $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        flashAlert("Stripe credentials missing. Please contact support.", 'danger');
-        redirect("saved_payment_methods.php");
+        flashAlert('Card payments are not set up', 'error');
+        redirect('guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . urlencode($invoice_url_key));
     }
 
     // Check if client already has a Stripe customer
@@ -373,7 +372,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
             logAudit("Stripe", "Create", "Guest $name created Stripe customer for $client_name as $stripe_customer_id and authorized future automatic payments", $client_id);
 
-            flashAlert("Stripe customer created. Thank you for your consent.");
+            flashAlert("Thank you - you can pay by card now");
 
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -382,12 +381,12 @@ if (isset($_POST['create_stripe_customer'])) {
 
             logApp("Stripe", "error", "Failed to create Stripe customer for $client_name: $error");
 
-            flashAlert("An error occurred while creating your Stripe customer. Please try again.", 'danger');
+            flashAlert("Card payments could not be set up just now - try again", 'error');
 
         }
 
     } else {
-        flashAlert("Stripe customer already exists for your account.", 'danger');
+        flashAlert("Card payments are already set up - you can pay by card now", 'info');
     }
 
     redirect('guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . urlencode($invoice_url_key));

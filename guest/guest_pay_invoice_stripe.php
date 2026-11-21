@@ -2,7 +2,8 @@
 
 require_once 'includes/inc_all_guest.php';
 
-DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
+// What a payment that can't be confirmed shows - get in touch rather than pay twice
+$payment_failed_html = guestDeadEndHtml('fa-credit-card', "We couldn't confirm that payment", "Get in touch with us before you try to pay again.");
 
 // --- Get Stripe config from payment_providers table ---
 $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_private_key, payment_provider_public_key, payment_provider_active FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
@@ -18,7 +19,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Stripe switched off (Admin > Payment Providers) takes no new payments, even from an old link.
     // A payment already made still comes back below and is booked.
     if (!$stripe_provider || !intval($stripe_provider['payment_provider_active'])) {
-        echo "<br><h2>Paying online isn't available just now. Please get in touch to pay this invoice another way.</h2>";
+        echo guestDeadEndHtml('fa-credit-card', "Paying online isn't available just now", "Get in touch to pay this invoice another way.");
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         exit();
     }
@@ -41,9 +42,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Ensure valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
-        echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
+        echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice link isn't working", "It may have been mistyped, or the invoice is already paid. Ask whoever sent it for a new link.");
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         exit();
     }
 
@@ -72,7 +73,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // As the invoice's Pay button: sent and still owed on, and under Stripe's limit (Admin > Payment Providers)
     if (!invoiceCanPay($row, invoiceState($row, $amount_paid)) || !billingOnlinePayAllowed($invoice_amount)) {
-        echo "<br><h2>This invoice can't be paid online. Please get in touch to pay it another way.</h2>";
+        echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice can't be paid online", "Get in touch to pay it another way.");
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
         exit();
     }
@@ -195,12 +196,18 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     if ($pi_obj->client_secret !== $pi_cs) {
         error_log("Stripe payment error - Payment intent ID/Secret mismatch for $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     } elseif ($pi_obj->status !== "succeeded") {
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     } elseif ($pi_obj->amount !== $pi_obj->amount_received) {
         error_log("Stripe payment error - payment amount does not match amount paid for $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     // PI details
@@ -224,7 +231,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     );
     if (!$invoice_sql || mysqli_num_rows($invoice_sql) !== 1) {
         error_log("Stripe payment error - Invoice with ID $pi_invoice_id is unknown/not eligible. PI $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     $row = mysqli_fetch_assoc($invoice_sql);
@@ -256,14 +265,18 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_fee_cents = intval($pi_fees[$invoice_id] ?? 0);
     if (array_diff_key($pi_fees, [$invoice_id => true])) {
         error_log("Stripe payment error - card fee is not for invoice $invoice_id on $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     // Compare in whole cents - intval() truncates, which silently accepted an underpayment
     // of up to 99c as payment in full while rejecting a 1c overpayment.
     if (intval(round($balance_to_pay * 100)) + $pi_fee_cents !== intval(round($pi_amount_paid * 100))) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
-        exit(WORDING_PAYMENT_FAILED);
+        echo $payment_failed_html;
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+        exit();
     }
 
     // A payment already booked - here, or in the client portal - is never booked again, even
@@ -310,7 +323,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
 
 } else {
-    exit(WORDING_PAYMENT_FAILED);
+    echo $payment_failed_html;
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+    exit();
 }
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

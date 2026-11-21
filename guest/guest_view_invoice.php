@@ -14,7 +14,7 @@ $invoice = billingRow('invoice', intval($_GET['invoice_id'] ?? 0), false);
 $url_key = (string) ($_GET['url_key'] ?? '');
 
 if (!$invoice || (string) $invoice['invoice_url_key'] === '' || !hash_equals((string) $invoice['invoice_url_key'], $url_key)) {
-    echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-file-invoice-dollar fa-3x mb-3 opacity-50"></i><h1 class="h4">This invoice link isn\'t working</h1><p>It may have been mistyped or replaced. Ask whoever sent it for a new link.</p></div>';
+    echo guestDeadEndHtml('fa-file-invoice-dollar', "This invoice link isn't working", "It may have been mistyped or replaced. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }

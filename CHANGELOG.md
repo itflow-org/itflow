@@ -227,6 +227,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Sizes and lengths of time: a file or backup size reads 512 B or 1.5 MB everywhere - some pages said 1.53 MB, a portal attachment never less than 1 KB, and setup bytes. Booking lengths, the dispatch board and how long a cron job ran are written 1h 30m like time logged everywhere else - they read 1 hour 30 min and 2 min 5 s - and hours as a number are 12.5 h, project hours included.
 - Forms: hints inside empty fields are plain examples - example.com, Contracts, Closing remarks - rather than e.g. ..., ex. ... and Enter a ..., and address fields bring up the web keyboard on a phone. New Location and New Network open at the size their Edit windows do, and the transactions list's amount filters take 1,000.00 like every other money field.
 - Messages: the message after a window closes matches its button - created after Create, saved after Save - where some said added, updated or edited. Copying an invoice says which invoice it was copied to, making one recurring names the new recurring invoice, a payment on several invoices says how many it paid and who the receipt was queued to, and attaching files to a ticket without a reply says so rather than Ticket updated.
+- Client portal and emailed links: what a client sees after accepting or declining a quote, approving a task or sending a file reads the same from an emailed link as in the portal - Thank you - quote QUO-79 is accepted and our team has been told, rather than Quote Accepted. Card payment problems are in plain words - Card payments are not set up, rather than Stripe credentials missing. A link that isn't right, online payment that isn't available, or a payment that can't be confirmed shows the same page as a mistyped invoice link, rather than an Oops line on an empty page.
 
 ### Bug Fixes
 
@@ -289,6 +290,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Client menu: a client's Domains count never turned amber or red for domains about to expire or expired, and the Certificates and Licenses counts carried two text colours at once.
 - Audit Logs: income was filed as Income or Revenue, and transfers as Transfer or Account Transfer, depending on where they were made, so the Type filter listed each twice. Each now has one name, and licenses and license templates are License and License Template rather than Software. Entries already in the log are renamed when you update. Entries for RMM providers, collation repairs, the demo reset and Undo have their own icons.
 - Payments: editing a payment said "Payment edited to amount ... added" in your company's currency rather than the payment's, and its audit log entry didn't say who edited it or which client it was for.
+- Invoice links: asking to pay by card when card payments weren't set up went to a page that doesn't exist. It goes back to the invoice and says card payments are not set up.
 
 ### Developer Updates
 
@@ -462,6 +464,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Sizes: `formatBytes()` (one decimal, whole bytes, a unit at 1024) is the one formatter - `backupFormatBytes()` calls it, and the portal and setup scripts write sizes the same way.
 - New-tab links: every `target="_blank"` link has `rel="noopener"`, and `noopener noreferrer` when it leaves ITFlow.
 - Audit log types: database 4.1.0 renames `logs.log_type` Software, Software Template, Revenue and Account Transfer to License, License Template, Income and Transfer (`agent/post/transfer.php` and `functions/income_import.php` now match the API's Transfer). `auditLogKinds()` has those keys, drops Revenue and adds Database, Demo, Undo and RMM Provider; `auditLogActionStyle()` adds Bulk Link, Offboard, Repair, Reset and Sync. The `log` of the license kind in `archivedKinds()`, `importKinds()` and the tag kinds is License, and `linkLogSide()` (`functions/links.php`) names its type from the `LINK_ENTITIES` label and returns which side it is.
+- Guest pages: `guestDeadEndHtml($icon, $title, $text)` in `guest/includes/inc_all_guest.php` is the page a guest link ends on - the bad-link pages of the invoice, quote, contract and task approval links, and the Stripe pages' dead ends (`WORDING_PAYMENT_FAILED` is gone). `guest/guest_post.php` uses `'error'` and `'info'` rather than `'danger'`. The task approval handlers in `guest/guest_post.php` and `client/post.php` check the approval exists before reading it.
 
 ## [26.11.8]
 

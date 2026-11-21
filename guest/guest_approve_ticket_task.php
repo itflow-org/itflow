@@ -11,7 +11,7 @@ $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'htt
 $purifier = new HTMLPurifier($purifier_config);
 
 if (!isset($_GET['task_approval_id'], $_GET['url_key'])) {
-    echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
+    echo guestDeadEndHtml('fa-tasks', "This approval link isn't working", "It may have been mistyped, or the task is no longer waiting for approval. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }
@@ -49,7 +49,7 @@ $task_row = mysqli_fetch_assoc(mysqli_query($mysqli,
 
 if (!$task_row) {
     // Invalid
-    echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
+    echo guestDeadEndHtml('fa-tasks', "This approval link isn't working", "It may have been mistyped, or the task is no longer waiting for approval. Ask whoever sent it for a new link.");
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
     exit();
 }
