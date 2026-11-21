@@ -92,7 +92,7 @@ $value = function ($key) use ($form) {
                 <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
                 <select class="form-select select2" name="role" required data-user-role>
                     <?php if (!isset($form_roles[$form_role_id])) { ?>
-                        <option value="">- Pick a role -</option>
+                        <option value="">- Select a role -</option>
                     <?php } ?>
                     <?php foreach ($form_roles as $role_id => $role) { ?>
                         <option value="<?= $role_id ?>" <?= $form_role_id === $role_id ? 'selected' : '' ?> data-role-admin="<?= intval($role['role_is_admin']) ?>"<?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?><?= $role['role_archived_at'] ? ' (archived)' : '' ?></option>

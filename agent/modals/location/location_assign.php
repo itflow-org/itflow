@@ -86,7 +86,7 @@ ob_start();
                         <label class="form-label">Which <?= strtolower($k['plural']) ?>?</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw <?= $k['icon'] ?>"></i></span>
-                            <select class="form-select select2" name="ids[]" multiple data-placeholder="Pick one or more <?= strtolower($k['plural']) ?>" <?= $kind_key === $kind ? '' : 'disabled' ?> data-assign-select="<?= $kind_key ?>">
+                            <select class="form-select select2" name="ids[]" multiple data-placeholder="- Select one or more <?= strtolower($k['plural']) ?> -" <?= $kind_key === $kind ? '' : 'disabled' ?> data-assign-select="<?= $kind_key ?>">
                                 <?php foreach ($candidates as $row) {
                                     $where = $row['current_location'] ? 'At ' . $row['current_location'] : 'No location';
                                     $description = implode(' · ', array_filter([$row['detail'], $where]));

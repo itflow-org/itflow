@@ -169,7 +169,7 @@ function apiKeyAgentFieldHtml($selected = 0) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
             <select class="form-select select2" name="run_as_user" required>
-                <option value="">- Pick an agent -</option>
+                <option value="">- Select an agent -</option>
                 <?php foreach ($agents as $user_id => $agent) { ?>
                     <option value="<?= $user_id ?>" <?= $user_id === $selected ? 'selected' : '' ?><?= selectOptionUser($user_id, $agent['user_name'], $agent['user_avatar'] ?? '') ?>><?= escapeHtml($agent['user_name']) ?></option>
                 <?php } ?>

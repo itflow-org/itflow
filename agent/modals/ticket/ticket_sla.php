@@ -34,7 +34,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
                 <select class="form-select select2" name="sla_id" required>
-                    <option value="0" <?php if ($ticket_sla_id == 0) { echo "selected"; } ?>>No SLA</option>
+                    <option value="0" <?php if ($ticket_sla_id == 0) { echo "selected"; } ?>>- No SLA -</option>
                     <?php while ($sla_row = mysqli_fetch_assoc($sql_slas)) { ?>
                         <option value="<?= intval($sla_row['sla_id']) ?>" <?php if ($ticket_sla_id == intval($sla_row['sla_id'])) { echo "selected"; } ?>><?= escapeHtml($sla_row['sla_name']) ?></option>
                     <?php } ?>

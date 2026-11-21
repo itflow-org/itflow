@@ -52,7 +52,7 @@ $form_types = accountTypes();
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
             <select class="form-select select2" name="currency_code" required <?= $form_locked ? 'disabled' : '' ?>>
-                <option value="">- Currency -</option>
+                <option value="">- Select a currency -</option>
                 <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
                     <option <?= $form_currency === $currency_code ? 'selected' : '' ?> value="<?= escapeHtml($currency_code) ?>"><?= escapeHtml("$currency_code - $currency_name") ?></option>
                 <?php } ?>

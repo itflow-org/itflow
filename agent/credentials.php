@@ -207,7 +207,7 @@ $filter_url = function ($changes) use ($client_url) {
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on credentials in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
@@ -229,7 +229,7 @@ $filter_url = function ($changes) use ($client_url) {
                 <div class="col-lg-3 col-md-6">
                     <?php if ($client_url) { ?>
                         <select class="form-select select2" name="location" onchange="this.form.submit()">
-                            <option value="">- All Asset Locations -</option>
+                            <option value="">- Any asset location -</option>
                             <?php
                             $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
@@ -239,7 +239,7 @@ $filter_url = function ($changes) use ($client_url) {
                         </select>
                     <?php } else { ?>
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                            <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "
                                 SELECT DISTINCT client_id, client_name, client_abbreviation

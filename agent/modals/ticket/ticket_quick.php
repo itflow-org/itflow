@@ -53,7 +53,7 @@ ob_start();
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client_id" id="quickTicketClient" required>
-                    <option value="">- Select a Client -</option>
+                    <option value="">- Select a client -</option>
                     <?php
                     $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
                         WHERE client_archived_at IS NULL AND client_lead = 0 " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -68,8 +68,8 @@ ob_start();
             <label class="form-label">Contact</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-select select2" name="contact_id" id="quickTicketContact" data-placeholder="Pick the client first" disabled>
-                    <option value="0">- No One -</option>
+                <select class="form-select select2" name="contact_id" id="quickTicketContact" data-placeholder="- Select the client first -" disabled>
+                    <option value="0">- Nobody -</option>
                 </select>
             </div>
             <div class="form-text">Type a name, an email address or a phone number to find them.</div>

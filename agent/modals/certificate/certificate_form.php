@@ -60,7 +60,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required data-certificate-client>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>

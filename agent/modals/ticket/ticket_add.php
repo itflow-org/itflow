@@ -157,7 +157,7 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
-                                    <option value="">- Select a Client -</option>
+                                    <option value="">- Select a client -</option>
                                     <?php
 
                                     // Hide leads from the general list, but include the current client when opening a ticket from a lead page.
@@ -180,7 +180,7 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
-                                    <option value="0">- No One -</option>
+                                    <option value="0">- Nobody -</option>
                                 </select>
                                 <?= quickAddButton('contact', 0) ?>
                             </div>
@@ -228,7 +228,7 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
-                                    <option value="0">- Not Categorized -</option>
+                                    <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $prefill_category_id ?: null) ?>
                                 </select>
                                 <?= categoryAddButtonHtml('Ticket') ?>
@@ -356,7 +356,7 @@ ob_start();
                     <label class="form-label">Other assets</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
+                        <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select additional assets -" multiple>
                         </select>
                     </div>
                 </div>

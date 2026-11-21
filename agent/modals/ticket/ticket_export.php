@@ -122,7 +122,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
-                    <option value="">- All Clients -</option>
+                    <option value="">- Any client -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM tickets WHERE ticket_client_id = client_id)" . clientScopeSql('client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -143,7 +143,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
-                    <option value="">- All Categories -</option>
+                    <option value="">- Any category -</option>
                     <?= categoryFilterOptionsHtml('Ticket', $category_filter, "SELECT DISTINCT ticket_category FROM tickets WHERE ticket_category <> ''") ?>
                 </select>
             </div>

@@ -559,7 +559,7 @@ function ticketFillInFieldHtml(array $fill_in, $value, $required = true) {
     $value = (string) $value;
     if ($fill_in['type'] === 'list' || $fill_in['type'] === 'yesno') {
         $choices = $fill_in['type'] === 'yesno' ? ['Yes', 'No'] : $fill_in['options'];
-        $control = '<select class="form-select' . ($fill_in['type'] === 'list' ? ' select2' : '') . '" ' . $attributes . '><option value="">- Choose -</option>';
+        $control = '<select class="form-select' . ($fill_in['type'] === 'list' ? ' select2' : '') . '" ' . $attributes . '><option value="">- Select one -</option>';
         foreach ($choices as $choice) {
             $control .= '<option value="' . escapeHtml($choice) . '"' . (mb_strtolower($choice) === mb_strtolower($value) ? ' selected' : '') . '>' . escapeHtml($choice) . '</option>';
         }

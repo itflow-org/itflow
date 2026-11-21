@@ -95,7 +95,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                                     <select class="form-select select2" name="account" required>
-                                        <option value="">- Which account -</option>
+                                        <option value="">- Select an account -</option>
                                         <?php foreach ($accounts as $account_id => $row) { ?>
                                             <option value="<?= $account_id ?>" <?= $account_id === intval($config_default_payment_account) ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                                                 data-description="<?= escapeHtml(billingMoney($row['balance'], $row['account_currency_code'])) ?>"><?= escapeHtml($row['account_name']) ?></option>
@@ -108,7 +108,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
                                     <select class="form-select select2" name="payment_method">
-                                        <option value="">- How they paid -</option>
+                                        <option value="">- Select a payment method -</option>
                                         <?php foreach ($methods as $method) { ?>
                                             <option value="<?= escapeHtml($method) ?>" <?= $method === (string) $config_default_payment_method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                                         <?php } ?>
@@ -350,7 +350,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 <td class="itflow-import-pick itflow-import-details">
                                     <div data-income-for="payment">
                                         <select class="form-select form-select-sm" data-income-payer data-value="<?= $action === 'payment' ? intval($line['client_id']) : '' ?>" aria-label="Paid by client">
-                                            <option value="">- Which client paid -</option>
+                                            <option value="">- Select a client -</option>
                                             <?= $payer_options ?>
                                         </select>
                                         <div class="itflow-import-invoices mt-1" data-income-invoices data-value="<?= escapeHtml(implode(',', $line['invoice_ids'])) ?>"></div>
@@ -358,7 +358,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                     </div>
                                     <div data-income-for="income">
                                         <select class="form-select form-select-sm" data-income-category data-value="<?= intval($line['category_id']) ?: '' ?>" aria-label="Category">
-                                            <option value="">- Category -</option>
+                                            <option value="">- Select a category -</option>
                                             <?= $category_options ?>
                                         </select>
                                         <select class="form-select form-select-sm mt-1" data-income-client data-value="<?= $action === 'income' ? intval($line['client_id']) : 0 ?>" aria-label="From client">
@@ -368,7 +368,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                     </div>
                                     <div data-income-for="transfer">
                                         <select class="form-select form-select-sm" data-income-account data-value="<?= intval($line['from_account_id']) ?: '' ?>" aria-label="From account">
-                                            <option value="">- From which of your accounts -</option>
+                                            <option value="">- Select an account -</option>
                                             <?= $account_options ?>
                                         </select>
                                         <div class="small text-body-secondary mt-1">Money moved between your accounts - not income.</div>

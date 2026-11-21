@@ -133,7 +133,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="client_id" required data-contract-client>
-                            <option value="">- Pick a client -</option>
+                            <option value="">- Select a client -</option>
                             <?php foreach ($c_clients as $client_option_id => $client_option) { ?>
                                 <option value="<?= $client_option_id ?>"<?= selectOptionClient($client_option_id, $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                             <?php } ?>
@@ -183,7 +183,7 @@ $tab = 'contractTab' . bin2hex(random_bytes(3));
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
                         <select class="form-select select2" name="owner_id">
-                            <option value="0">- No one -</option>
+                            <option value="0">- Nobody -</option>
                             <?php foreach ($c_owners as $user_id => $owner) { ?>
                                 <option value="<?= $user_id ?>"<?= $user_id === $c_owner_id ? ' selected' : '' ?><?= selectOptionUser($user_id, $owner['user_name'], $owner['user_avatar'] ?? '') ?>><?= escapeHtml($owner['user_name']) ?></option>
                             <?php } ?>

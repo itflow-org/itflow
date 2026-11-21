@@ -62,7 +62,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -101,7 +101,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <input type="hidden" name="tags_form" value="1">
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('location', $location_tag_ids) ?>
                 </select>
             </div>
@@ -156,7 +156,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                 <select class="form-select select2" name="country">
-                    <option value="">- Country -</option>
+                    <option value="">- Select a country -</option>
                     <?php foreach ($countries_array as $country_name) { ?>
                         <option <?= $location_country === $country_name ? 'selected' : '' ?> data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
                     <?php } ?>

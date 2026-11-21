@@ -206,7 +206,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-star"></i></span>
                             <select class="form-select" name="default_tax_id">
-                                <option value="0">No default</option>
+                                <option value="0">- No default -</option>
                                 <?php foreach ($active_taxes as $id => $tax) { ?>
                                     <option value="<?= intval($id) ?>"<?= intval($id) === $tax_settings['default_id'] ? ' selected' : '' ?>><?= escapeHtml(taxLabel($tax)) ?></option>
                                 <?php } ?>

@@ -56,7 +56,7 @@ ob_start();
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                     <select class="form-select select2" name="location_id">
                         <option value="">- No change -</option>
-                        <option value="0" data-icon="fas fa-times">No site</option>
+                        <option value="0" data-icon="fas fa-times">- No site -</option>
                         <?php foreach ($locations as $location) { ?>
                             <option value="<?= intval($location['location_id']) ?>" data-icon="fas fa-<?= intval($location['location_primary']) ? 'building' : 'map-marker-alt' ?>"><?= escapeHtml($location['location_name']) ?></option>
                         <?php } ?>

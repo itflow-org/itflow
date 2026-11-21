@@ -173,7 +173,7 @@ ob_start();
             <label class="form-label" for="<?= $uid ?>Recipient"><?= $type === 'Request' ? 'Ask' : 'Send to' ?></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
-                <select class="form-select select2" id="<?= $uid ?>Recipient" name="recipient" data-placeholder="Pick a contact or type an email" data-tags="true" data-share-recipient>
+                <select class="form-select select2" id="<?= $uid ?>Recipient" name="recipient" data-placeholder="- Select a contact or type an email -" data-tags="true" data-share-recipient>
                     <option value=""></option>
                     <?php foreach ($recipients as $recipient) { ?>
                         <option value="<?= escapeHtml($recipient['contact_email']) ?>"<?= selectOptionContact($recipient['contact_client_id'], $recipient['contact_name'], $recipient['contact_photo'], $recipient['contact_email'], $recipient['contact_id']) ?>><?= escapeHtml($recipient['contact_name']) ?></option>

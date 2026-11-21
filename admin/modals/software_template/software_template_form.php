@@ -70,7 +70,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="type" required>
-                <option value="">- Pick a type -</option>
+                <option value="">- Select a type -</option>
                 <?= categoryOptionsHtml('software_type', $type) ?>
             </select>
             <?= categoryAddButtonHtml('software_type', 'btn btn-outline-secondary') ?>

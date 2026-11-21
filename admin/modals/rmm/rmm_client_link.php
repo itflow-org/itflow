@@ -48,7 +48,7 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
             <select class="form-select select2" name="client_id" required>
-                <option value="">- Select Client -</option>
+                <option value="">- Select a client -</option>
                 <?php while ($client = mysqli_fetch_assoc($clients)) {
                     $client_id = intval($client['client_id']);
                     $others = $linked_to[$client_id] ?? []; ?>

@@ -20,7 +20,7 @@ $header = $import['header'];
 $two = $guess['amount'] === null && ($guess['debit'] !== null || $guess['credit'] !== null);
 $column_select = function ($name, $selected, $optional, $attrs = '') use ($header) {
     $html = '<select class="form-select" name="' . $name . '" ' . $attrs . '>';
-    $html .= '<option value="">' . ($optional ? '- None -' : '- Pick the column -') . '</option>';
+    $html .= '<option value="">' . ($optional ? '- None -' : '- Select a column -') . '</option>';
     foreach ($header as $c => $label) {
         $html .= '<option value="' . $c . '"' . ($selected !== null && intval($selected) === $c ? ' selected' : '') . '>' . escapeHtml($label) . '</option>';
     }

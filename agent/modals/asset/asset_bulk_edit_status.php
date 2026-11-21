@@ -25,7 +25,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
                 <select class="form-select select2" name="bulk_status">
-                    <option value="">- Select Status -</option>
+                    <option value="">- Select a status -</option>
                     <?= categoryOptionsHtml('asset_status') ?>
                 </select>
                 <?= categoryAddButtonHtml('asset_status') ?>

@@ -48,7 +48,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="asset">
-                    <option value="0">No asset</option>
+                    <option value="0">- No asset -</option>
                     <?php
 
                     $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_archived_at, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND (asset_archived_at IS NULL OR asset_id IN ($linked_asset_ids)) ORDER BY asset_name ASC");

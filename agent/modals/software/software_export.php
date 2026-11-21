@@ -63,7 +63,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
-                    <option value="">- All Clients -</option>
+                    <option value="">- Any client -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM software WHERE software_client_id = client_id)" . clientScopeSql('client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -98,7 +98,7 @@ ob_start();
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
                 <select class="form-select select2" name="status">
-                    <option value="">- All -</option>
+                    <option value="">- Any -</option>
                     <?php foreach ($status_filters as $status_key => $status_option) { ?>
                         <option <?php if ($status_filter === $status_key) { echo "selected"; } ?> value="<?= $status_key ?>"<?= selectOptionData(['icon' => 'fas ' . $status_option['icon']]) ?>><?= $status_option['label'] ?></option>
                     <?php } ?>

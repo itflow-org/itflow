@@ -132,7 +132,7 @@ foreach ($racks as $rack_id => $row) {
                 <?php if ($client_url) { ?>
                     <div class="col-lg-2 col-md-4">
                         <select class="form-select select2" name="location" onchange="this.form.submit()">
-                            <option value="">- All Locations -</option>
+                            <option value="">- Any location -</option>
                             <?php
                             $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations
                                 WHERE location_client_id = $client_id
@@ -148,7 +148,7 @@ foreach ($racks as $rack_id => $row) {
                 <?php } else { ?>
                     <div class="col-lg-2 col-md-4">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients
                                 JOIN racks ON rack_client_id = client_id
@@ -166,7 +166,7 @@ foreach ($racks as $rack_id => $row) {
 
                 <div class="col-lg-2 col-md-4">
                     <select class="form-select select2" name="type" onchange="this.form.submit()">
-                        <option value="">- All Types -</option>
+                        <option value="">- Any type -</option>
                         <?= categoryFilterOptionsHtml('rack_type', $type_filter, "SELECT DISTINCT rack_type FROM racks
                             LEFT JOIN clients ON client_id = rack_client_id
                             WHERE rack_type IS NOT NULL AND rack_type <> '' AND $archive_query

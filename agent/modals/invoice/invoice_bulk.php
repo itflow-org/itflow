@@ -123,7 +123,7 @@ ob_start();
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
                         <select class="form-select select2" name="payment_method" required>
-                            <option value="">- How they were paid -</option>
+                            <option value="">- Select a payment method -</option>
                             <?php foreach ($pay_methods as $method) { ?>
                                 <option <?= $config_default_payment_method === $method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                             <?php } ?>

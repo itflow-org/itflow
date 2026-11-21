@@ -48,7 +48,7 @@ $c_max = $c_config['max'] ?? 200;
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="type" required>
-                    <option value="">- What it sorts -</option>
+                    <option value="">- Select a type -</option>
                     <?php foreach (categoryKinds() as $kind_key => $kind_config) { ?>
                         <option value="<?= escapeHtml($kind_key) ?>"><?= escapeHtml(ucfirst($kind_config['many'])) ?></option>
                     <?php } ?>

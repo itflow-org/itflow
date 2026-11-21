@@ -59,8 +59,8 @@ ob_start();
         </div>
         <?php
         $pickers = [
-            'contacts' => ['label' => 'Users', 'icon' => 'fa-user', 'placeholder' => $contact_options ? 'Pick the people licensed to use it' : 'This client has no contacts yet'],
-            'assets' => ['label' => 'Devices', 'icon' => 'fa-desktop', 'placeholder' => $asset_options ? 'Pick the devices it is installed on' : 'This client has no assets yet'],
+            'contacts' => ['label' => 'Users', 'icon' => 'fa-user', 'placeholder' => $contact_options ? '- Select the people licensed to use it -' : 'This client has no contacts yet'],
+            'assets' => ['label' => 'Devices', 'icon' => 'fa-desktop', 'placeholder' => $asset_options ? '- Select the devices it is installed on -' : 'This client has no assets yet'],
         ];
         if (!$users_first) {
             $pickers = array_reverse($pickers, true);

@@ -245,13 +245,13 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
-                        <option value="">- All Categories -</option>
+                        <option value="">- Any category -</option>
                         <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT product_category_id FROM products WHERE product_$archive_query") ?>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="vendor" onchange="this.form.submit()" aria-label="Vendor">
-                        <option value="">- All Vendors -</option>
+                        <option value="">- Any vendor -</option>
                         <?php
                         $sql_vendors_filter = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors
                             WHERE EXISTS (SELECT 1 FROM products WHERE product_vendor_id = vendor_id AND product_$archive_query) ORDER BY vendor_name ASC");

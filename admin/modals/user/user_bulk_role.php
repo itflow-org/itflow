@@ -27,7 +27,7 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
             <select class="form-select select2" name="role" required>
-                <option value="">- Pick a role -</option>
+                <option value="">- Select a role -</option>
                 <?php foreach ($roles as $role_id => $role) { ?>
                     <option value="<?= $role_id ?>"<?= selectOptionRole($role) ?>><?= escapeHtml($role['role_name']) ?></option>
                 <?php } ?>

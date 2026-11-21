@@ -494,7 +494,7 @@
                 const projects = response.projects || [];
 
                 // Projects dropdown
-                const projectSelectDropdown = resetDropdown("projectSelect", '- Select Project -', '0');
+                const projectSelectDropdown = resetDropdown("projectSelect", '- Select a project -', '0');
 
                 // Populate dropdown - the client's own, then our internal ones
                 projects.forEach(project => {

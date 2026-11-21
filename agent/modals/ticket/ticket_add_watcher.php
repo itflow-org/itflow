@@ -28,7 +28,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                 <select class="form-select select2" data-tags="true" name="watcher_email">
-                    <option value="">- Pick a contact or type an email address -</option>
+                    <option value="">- Select a contact or type an email address -</option>
                     <?php
 
                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title, contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' ORDER BY contact_name ASC");

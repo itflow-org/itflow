@@ -192,7 +192,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients
                                 JOIN recurring_invoices ON recurring_invoice_client_id = client_id WHERE 1 " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");

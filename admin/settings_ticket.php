@@ -91,7 +91,7 @@ echo settingsPageStart('ticket');
                         <?= settingsSelect('config_quick_ticket_priority', $quick['priority'], ['Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High', 'Urgent' => 'Urgent'], ['icon' => 'fa-thermometer-half',
                             'help' => 'The window can change it for one ticket. Its SLA follows the priority, as any ticket\'s does.']) ?>
                         <?= settingsSelect('config_quick_ticket_category', $quick['category'], [], ['icon' => 'fa-layer-group', 'search' => true,
-                            'options_html' => '<option value="0"' . ($quick['category'] ? '' : ' selected') . '>- Not Categorized -</option>' . categoryOptionsHtml('Ticket', $quick['category'] ?: null)]) ?>
+                            'options_html' => '<option value="0"' . ($quick['category'] ? '' : ' selected') . '>- Not categorized -</option>' . categoryOptionsHtml('Ticket', $quick['category'] ?: null)]) ?>
                         <?php if ($config_module_enable_accounting) { ?>
                             <?= settingsSelect('config_quick_ticket_billable', $quick['billable'], QUICK_TICKET_BILLABLE, ['icon' => 'fa-dollar-sign']) ?>
                         <?php } ?>

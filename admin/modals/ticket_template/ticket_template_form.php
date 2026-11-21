@@ -227,7 +227,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
             <label class="form-label">The clients</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                <select class="form-select select2" name="portal_clients[]" multiple data-placeholder="Pick the clients that see it">
+                <select class="form-select select2" name="portal_clients[]" multiple data-placeholder="- Select the clients that see it -">
                     <?php
                     $sql_portal_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL AND client_lead = 0) OR client_id IN (" . ($portal_client_ids ? implode(',', $portal_client_ids) : '0') . ") ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_portal_clients)) { ?>

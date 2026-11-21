@@ -157,7 +157,7 @@
             control = document.createElement('select');
             control.className = 'form-select' + (fillIn.type === 'list' ? ' select2' : '');
             const choices = fillIn.type === 'yesno' ? ['Yes', 'No'] : (fillIn.options || []);
-            control.appendChild(new Option('- Choose -', ''));
+            control.appendChild(new Option('- Select one -', ''));
             choices.forEach(function (choice) {
                 control.appendChild(new Option(choice, choice));
             });

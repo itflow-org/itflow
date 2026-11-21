@@ -97,7 +97,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                                     <select class="form-select select2" name="account" required>
-                                        <option value="">- Which account or card -</option>
+                                        <option value="">- Select an account -</option>
                                         <?php foreach ($accounts as $account_id => $row) { ?>
                                             <option value="<?= $account_id ?>" <?= $account_id === intval($config_default_expense_account) ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                                                 data-description="<?= escapeHtml(billingMoney($row['balance'], $row['account_currency_code'])) ?>"><?= escapeHtml($row['account_name']) ?></option>
@@ -110,7 +110,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
                                     <select class="form-select select2" name="payment_method">
-                                        <option value="">- How they were paid -</option>
+                                        <option value="">- Select a payment method -</option>
                                         <?php foreach ($methods as $method) { ?>
                                             <option value="<?= escapeHtml($method) ?>" <?= $method === (string) $config_default_expense_payment_method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                                         <?php } ?>
@@ -317,7 +317,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <?php } else { ?>
                                 <td class="itflow-import-pick">
                                     <select class="form-select form-select-sm" data-import-vendor data-value="<?= escapeHtml($vendor_value) ?>" aria-label="Vendor">
-                                        <option value="">- Vendor -</option>
+                                        <option value="">- Select a vendor -</option>
                                         <option value="new">+ New vendor</option>
                                         <?= $vendor_options ?>
                                     </select>
@@ -325,7 +325,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                                 </td>
                                 <td class="itflow-import-pick">
                                     <select class="form-select form-select-sm" data-import-category data-value="<?= intval($line['category_id']) ?: '' ?>" aria-label="Category">
-                                        <option value="">- Category -</option>
+                                        <option value="">- Select a category -</option>
                                         <?= $category_options ?>
                                     </select>
                                 </td>

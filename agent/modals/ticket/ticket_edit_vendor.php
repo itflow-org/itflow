@@ -32,7 +32,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="vendor">
-                    <option value="0">No vendor</option>
+                    <option value="0">- No vendor -</option>
                     <?php
 
                     // The client's vendors, starred first - and the one already set, even if archived since

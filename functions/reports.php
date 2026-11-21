@@ -1184,14 +1184,14 @@ function reportYearControl($year, array $years) {
 }
 
 /** The client picker - every client this user may see, or one. */
-function reportClientControl($client_id, $all_label = 'All clients', $required = false) {
+function reportClientControl($client_id, $all_label = 'Any client', $required = false) {
     global $mysqli;
     $client_id = intval($client_id);
     $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
         WHERE (client_archived_at IS NULL OR client_id = $client_id)" . clientNotLeadSql($client_id) . clientScopeSql('client_id') . "
         ORDER BY client_name ASC");
     $html = '<div class="col-sm-6 col-lg-3"><select class="form-select select2" name="client_id" data-report-autosubmit aria-label="Client">'
-        . '<option value="">' . escapeHtml($required ? '- Pick a client -' : "- $all_label -") . '</option>';
+        . '<option value="">' . escapeHtml($required ? '- Select a client -' : "- $all_label -") . '</option>';
     while ($row = mysqli_fetch_assoc($sql)) {
         $id = intval($row['client_id']);
         $html .= '<option value="' . $id . '"' . ($id === $client_id ? ' selected' : '') . selectOptionClient($id, $row['client_name'], $row['client_abbreviation'] ?? '') . '>'
@@ -1201,7 +1201,7 @@ function reportClientControl($client_id, $all_label = 'All clients', $required =
 }
 
 /** The agent picker - active agents, and whoever is picked. */
-function reportAgentControl($user_id, $all_label = 'All agents') {
+function reportAgentControl($user_id, $all_label = 'Any agent') {
     global $mysqli;
     $user_id = intval($user_id);
     $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users

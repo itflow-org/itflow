@@ -86,7 +86,7 @@ $co_offer_recurring = $co_contract && !$co_contract_recurring && (contractRecurr
                     </div>
                     <div class="col-sm-6">
                         <?= settingsSelect('category', '0', [], ['id' => 'coCategory', 'icon' => 'fa-tag', 'label' => 'Category',
-                            'options_html' => '<option value="0">- Category -</option>' . categoryOptionsHtml('Income', settingsValue('category', '0'))]) ?>
+                            'options_html' => '<option value="0">- Select a category -</option>' . categoryOptionsHtml('Income', settingsValue('category', '0'))]) ?>
                     </div>
                     <div class="col-12">
                         <?= settingsInput('item_name', $co_contract['contract_name'], ['id' => 'coItemName', 'icon' => 'fa-cube', 'label' => 'Line', 'maxlength' => 200]) ?>

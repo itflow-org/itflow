@@ -64,7 +64,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="account">
-                        <option value="">- Every account -</option>
+                        <option value="">- Any account -</option>
                         <?php foreach (accountsList(null) as $id => $account) { ?>
                             <option value="<?= $id ?>" <?= $account_filter === $id ? 'selected' : '' ?> data-icon="fas <?= $types[$account['type']]['icon'] ?>"><?= escapeHtml($account['account_name']) ?><?= $account['account_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>

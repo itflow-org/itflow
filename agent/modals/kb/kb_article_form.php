@@ -105,7 +105,7 @@ $kb_form_audience = $kb_form_mode === 'edit' ? kbAudienceFields($kb_form) : ['vi
                 <label class="form-label">Clients</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
-                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="Pick clients">
+                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="- Select clients -">
                         <?php
                         $kb_form_picked = array_map('intval', $kb_form_audience['client_ids']);
                         $kb_form_keep = $kb_form_picked ? ' OR clients.client_id IN (' . implode(',', $kb_form_picked) . ')' : '';

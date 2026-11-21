@@ -93,7 +93,7 @@ while ($row = mysqli_fetch_assoc($sql_clients)) {
                 </div>
                 <div class="col-lg-2 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
-                        <option value="">- All Clients -</option>
+                        <option value="">- Any client -</option>
                         <?php foreach ($client_options as $row) { ?>
                             <option value="<?= intval($row['client_id']) ?>" <?= $client_filter === intval($row['client_id']) ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                         <?php } ?>

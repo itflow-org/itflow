@@ -288,7 +288,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <?php if ($client_url) { ?>
                 <div class="col-xl col-lg-4 col-md-6">
                     <select class="form-select select2" name="location" onchange="this.form.submit()">
-                        <option value="">- All Locations -</option>
+                        <option value="">- Any location -</option>
                         <?php
                         $sql_locations_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT location_id, location_name
@@ -308,7 +308,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <?php } else { ?>
                 <div class="col-xl col-lg-4 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -329,7 +329,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <?php } ?>
                 <div class="col-xl col-lg-4 col-md-6">
                     <select class="form-select select2" name="status" onchange="this.form.submit()">
-                        <option value="">- Status -</option>
+                        <option value="">- Any status -</option>
                         <?= categoryFilterOptionsHtml('asset_status', $status_filter, "SELECT DISTINCT asset_status FROM assets
                             LEFT JOIN clients ON client_id = asset_client_id
                             WHERE $archive_query AND asset_status IS NOT NULL AND asset_status <> ''
@@ -337,7 +337,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     </select>
                 </div>
                 <div class="col-xl col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on assets in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
@@ -370,7 +370,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <?php } ?>
                 <div class="col-xl col-lg-3 col-md-6">
                     <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
-                        <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Warranty -</option>
+                        <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Any warranty -</option>
                         <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
                         <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
                             <option value="<?= $expire_option ?>" <?php if ($expire_days === $expire_option) { echo "selected"; } ?>>Expiring in <?= $expire_option ?> days</option>

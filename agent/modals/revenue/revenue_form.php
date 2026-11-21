@@ -63,7 +63,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="category" required>
-                <option value="">- What it was -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income', $form_category, ['exclude' => ['Account Transfer']]) ?>
             </select>
             <?= categoryAddButtonHtml('Income') ?>
@@ -91,7 +91,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
             <select class="form-select select2" name="account" required data-revenue-account <?= $form_lock ? 'disabled' : '' ?>>
-                <option value="">- Which account -</option>
+                <option value="">- Select an account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank" data-currency="<?= escapeHtml($account['account_currency_code'] ?: $session_company_currency) ?>"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
@@ -131,7 +131,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
             <select class="form-select select2" name="payment_method">
-                <option value="">- How it was paid -</option>
+                <option value="">- Select a payment method -</option>
                 <?php foreach ($form_methods as $method) { ?>
                     <option value="<?= escapeHtml($method) ?>" <?= $form_method === $method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                 <?php } ?>

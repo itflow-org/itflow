@@ -47,7 +47,7 @@ ob_start();
                     <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
                     <select class="form-select select2" name="role" required>
                         <?php if (!isset($roles[$role_id])) { ?>
-                            <option value="">- Pick a role -</option>
+                            <option value="">- Select a role -</option>
                         <?php } ?>
                         <?php foreach ($roles as $id => $role) {
                             if ($role['role_archived_at']) {

@@ -333,7 +333,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                 <?php if ($client_url && !$invites_view) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="location" onchange="this.form.submit()">
-                        <option value="">- All Locations -</option>
+                        <option value="">- Any location -</option>
                         <?php
                         $sql_locations_filter = mysqli_query($mysqli, "
                             SELECT location_id, location_name
@@ -351,7 +351,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                 <?php } elseif (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -371,7 +371,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
 
                 <?php if (!$invites_view) { ?>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on contacts in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "

@@ -210,7 +210,7 @@ $csrf = $_SESSION['csrf_token'];
                 <?php } else { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
                                 WHERE client_archived_at IS NULL AND (EXISTS (SELECT 1 FROM networks WHERE network_client_id = client_id) OR client_id = $client_filter)
@@ -223,7 +223,7 @@ $csrf = $_SESSION['csrf_token'];
                     </div>
                 <?php } ?>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?= tagFilterOptionsHtml('network', $tag_filter_ids, '1 ' . clientScopeSql('network_client_id') . ($client_url ? " AND network_client_id = $client_id" : '')) ?>
                     </select>
                 </div>

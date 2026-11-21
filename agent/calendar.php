@@ -84,7 +84,7 @@ foreach ($sources as $key => $source) {
 
                 <label class="form-label small text-body-secondary text-uppercase fw-semibold mb-1" for="calendarAgent">Whose</label>
                 <select class="form-select select2 mb-3" id="calendarAgent">
-                    <option value="0" data-icon="fas fa-users">Everyone</option>
+                    <option value="0" data-icon="fas fa-users">- Everyone -</option>
                     <?php foreach ($agents as $agent) { ?>
                         <option value="<?= intval($agent['user_id']) ?>"<?= selectOptionUser($agent['user_id'], $agent['user_name'], $agent['user_avatar']) ?>><?= escapeHtml($agent['user_name']) ?><?= intval($agent['user_id']) === intval($session_user_id) ? ' (me)' : '' ?></option>
                     <?php } ?>

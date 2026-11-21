@@ -74,7 +74,7 @@ if (!officesReady()) { ?>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-globe-americas"></i></span>
                     <select class="form-select select2" name="office_country">
-                        <option value="">- Country -</option>
+                        <option value="">- Select a country -</option>
                         <?php foreach ($localization['countries'] as $country_name) { ?>
                             <option value="<?= escapeHtml($country_name) ?>" data-iso2="<?= escapeHtml($localization['country_iso2'][$country_name] ?? '') ?>" <?= $country_name === $office_country ? 'selected' : '' ?>><?= escapeHtml($country_name) ?></option>
                         <?php } ?>

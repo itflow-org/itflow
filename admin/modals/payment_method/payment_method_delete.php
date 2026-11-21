@@ -44,7 +44,7 @@ if (!$payment_method) { ?>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
                     <select class="form-select select2" name="move_to" required>
-                        <option value="">- Pick a method -</option>
+                        <option value="">- Select a payment method -</option>
                         <?php foreach ($others as $other_id => $other) { ?>
                             <option value="<?= intval($other_id) ?>"><?= escapeHtml($other['payment_method_name']) ?><?= empty($other['payment_method_archived_at']) ? '' : ' (archived)' ?></option>
                         <?php } ?>

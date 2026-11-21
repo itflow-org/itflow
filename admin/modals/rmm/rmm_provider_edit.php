@@ -141,7 +141,7 @@ ob_start();
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="alert_category_id" id="rmmProviderAlertCategory">
-                            <option value="0">- Not Categorized -</option>
+                            <option value="0">- Not categorized -</option>
                             <?= categoryOptionsHtml('Ticket', $alert_category_id ?: null) ?>
                         </select>
                         <?= categoryAddButtonHtml('Ticket') ?>

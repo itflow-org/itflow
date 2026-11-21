@@ -22,7 +22,7 @@ $form_manager_id = intval($form['project_manager'] ?? 0);
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
             <select class="form-select select2" name="client_id" id="projectClientSelect" required>
-            <option value="">- Pick a client -</option>
+            <option value="">- Select a client -</option>
             <option value="0" data-icon="fas fa-building" data-description="Our own work - no client">Internal</option>
             <?php
             $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql() . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -82,7 +82,7 @@ $form_manager_id = intval($form['project_manager'] ?? 0);
         <div class="input-group">
         <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
         <select class="form-select select2" name="project_manager">
-            <option value="0" data-icon="fas fa-user-slash">No manager</option>
+            <option value="0" data-icon="fas fa-user-slash">- No manager -</option>
             <?php
             $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
                 WHERE user_type = 1" . serviceAccountsOutSql() . " AND ((user_status = 1 AND user_archived_at IS NULL) OR user_id = $form_manager_id)
@@ -99,7 +99,7 @@ $form_manager_id = intval($form['project_manager'] ?? 0);
         <div class="input-group">
         <span class="input-group-text"><i class="fas fa-fw fa-address-card"></i></span>
         <select class="form-select select2" name="contact_id" id="projectContactSelect" data-selected="<?= $form_contact_id ?>">
-            <option value="0">Nobody</option>
+            <option value="0">- Nobody -</option>
             <?php if ($form_client_id) {
                 $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_photo, contact_primary, contact_technical FROM contacts
                     WHERE contact_client_id = $form_client_id AND (contact_archived_at IS NULL OR contact_id = $form_contact_id)

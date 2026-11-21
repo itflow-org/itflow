@@ -56,7 +56,7 @@ ob_start();
             <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'driver') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick who drove -</option>
+                    <option value="">- Select a driver -</option>
                     <?php foreach (tripDrivers() as $user_id => $driver) { ?>
                         <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $driver['user_name'], $driver['user_avatar'] ?? '') ?>><?= escapeHtml($driver['user_name']) ?></option>
                     <?php } ?>

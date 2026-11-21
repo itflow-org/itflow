@@ -29,7 +29,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="bulk_location_id">
-                    <option value="">- Select Location -</option>
+                    <option value="">- Select a location -</option>
                     <?php
 
                     $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");

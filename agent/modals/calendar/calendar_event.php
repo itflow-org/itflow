@@ -129,7 +129,7 @@ ob_start();
                     <input type="hidden" name="event_id" value="<?= $event_id ?>">
                     <div class="input-group flex-grow-1 w-auto" style="min-width: 14rem">
                         <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
-                        <select class="form-select select2" name="agents[]" multiple data-placeholder="Nobody - pick agents">
+                        <select class="form-select select2" name="agents[]" multiple data-placeholder="- Nobody - select agents -">
                             <?php foreach (calendarEventAgentChoices(array_map(function ($attendee) { return intval($attendee['attendee_user_id']); }, $agents)) as $user_id => $row) { ?>
                                 <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $row['user_name'], $row['user_avatar']) ?> <?= in_array($user_id, array_map(function ($attendee) { return intval($attendee['attendee_user_id']); }, $agents), true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
                             <?php } ?>

@@ -149,7 +149,7 @@ $locations_counts = locationCounts(array_keys($locations));
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -167,7 +167,7 @@ $locations_counts = locationCounts(array_keys($locations));
                 </div>
                 <?php } ?>
                 <div class="col-lg-3 col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?php
                         // Tags in use on locations in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "

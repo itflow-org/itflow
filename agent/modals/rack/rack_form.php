@@ -37,7 +37,7 @@ isset($mysqli) || die("Direct file access is not allowed");
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                     <select class="form-select select2" name="type" required>
-                        <option value="">- Type -</option>
+                        <option value="">- Select a type -</option>
                         <?php // Rack types from Admin > Categories - one the rack has that is archived or isn't a type any more stays an option, or the required select would change it on every edit ?>
                         <?= categoryOptionsHtml('rack_type', html_entity_decode($rack_type, ENT_QUOTES, 'UTF-8')) ?>
                     </select>
@@ -89,7 +89,7 @@ isset($mysqli) || die("Direct file access is not allowed");
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                     <select class="form-select select2" name="location">
-                        <option value="">- Location -</option>
+                        <option value="">- Select a location -</option>
                         <?php
                         $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {

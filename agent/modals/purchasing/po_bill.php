@@ -62,7 +62,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                     <select class="form-select select2" name="category" required>
-                        <option value="">- What it was for -</option>
+                        <option value="">- Select a category -</option>
                         <?= categoryOptionsHtml('Expense', $category) ?>
                     </select>
                 </div>
@@ -75,7 +75,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="account" required>
-                        <option value="">- Which account -</option>
+                        <option value="">- Select an account -</option>
                         <?php foreach ($accounts as $account_id => $row) { ?>
                             <option value="<?= $account_id ?>" <?= $account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank" data-description="<?= escapeHtml(billingMoney($row['balance'], $row['account_currency_code'])) ?>"><?= escapeHtml($row['account_name']) ?></option>
                         <?php } ?>
@@ -88,7 +88,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                     <select class="form-select select2" name="payment_method">
-                        <option value="">- How it was paid -</option>
+                        <option value="">- Select a payment method -</option>
                         <?php foreach (paymentMethods('out') as $option) { ?>
                             <option <?= $option === $method ? 'selected' : '' ?>><?= escapeHtml($option) ?></option>
                         <?php } ?>

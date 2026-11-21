@@ -22,7 +22,7 @@
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
                             <select class="form-select select2" name="type" required>
-                                <option value="0">- Select Credit Type -</option>
+                                <option value="0">- Select a credit type -</option>
                                 <option value="manual">Manual</option>
                                 <option value="prepaid">Prepaid</option>
                                 <option value="promotion">Promotion</option>
@@ -55,7 +55,7 @@
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client" required>
-                                    <option value="0">- Client (Optional) -</option>
+                                    <option value="0">- No client -</option>
                                     <?php
 
                                     $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients ORDER BY client_name ASC");

@@ -46,7 +46,7 @@ $form_agents = calendarEventAgentChoices($form_attendees['agents']);
         <label class="form-label">Assigned to</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
-            <select class="form-select select2" name="agents[]" multiple data-placeholder="Pick agents">
+            <select class="form-select select2" name="agents[]" multiple data-placeholder="- Select agents -">
                 <?php foreach ($form_agents as $user_id => $row) { ?>
                     <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $row['user_name'], $row['user_avatar']) ?> <?= in_array($user_id, $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
                 <?php } ?>

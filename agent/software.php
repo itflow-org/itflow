@@ -271,7 +271,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <?php if (!$client_url) { ?>
                 <div class="col-lg-3 col-md-6">
                     <select class="form-select select2" name="client" onchange="this.form.submit()">
-                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+                        <option value="" <?php if ($client == "") { echo "selected"; } ?>>- Any client -</option>
                         <?php
                         $sql_clients_filter = mysqli_query($mysqli, "
                             SELECT DISTINCT client_id, client_name, client_abbreviation
@@ -292,7 +292,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <?php } ?>
                 <div class="<?= $client_url ? 'col-xl col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="software_type" onchange="this.form.submit()">
-                        <option value="">- Software Type -</option>
+                        <option value="">- Any software type -</option>
                         <?= categoryFilterOptionsHtml('software_type', $software_type_filter, "SELECT DISTINCT software_type FROM software
                             LEFT JOIN clients ON client_id = software_client_id
                             WHERE software_type IS NOT NULL AND software_type <> '' AND $archive_query
@@ -301,7 +301,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 </div>
                 <div class="<?= $client_url ? 'col-xl col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="license_type" onchange="this.form.submit()">
-                        <option value="">- License Type -</option>
+                        <option value="">- Any license type -</option>
                         <?php foreach ($license_type_options as $license_type_option) { ?>
                             <option <?= $license_type_option === $license_type_filter ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . softwareLicenseTypeIcon($license_type_option)]) ?>><?= escapeHtml($license_type_option) ?></option>
                         <?php } ?>
@@ -309,7 +309,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 </div>
                 <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
                     <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
-                        <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Renewal -</option>
+                        <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Any renewal -</option>
                         <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
                         <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
                             <option value="<?= $expire_option ?>" <?php if ($expire_days === $expire_option) { echo "selected"; } ?>>Renews in <?= $expire_option ?> days</option>
@@ -317,7 +317,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     </select>
                 </div>
                 <div class="<?= $client_url ? 'col-xl col-lg-3' : 'col-lg-3' ?> col-md-6">
-                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                         <?= tagFilterOptionsHtml('license', $tag_filter_ids, "$archive_query " . clientScopeSql('software_client_id') . " $client_query") ?>
                     </select>
                 </div>

@@ -25,7 +25,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                 <select class="form-select select2" name="bulk_referral">
-                    <option value="">- Select a Referral -</option>
+                    <option value="">- Select a referral -</option>
                     <?= categoryOptionsHtml('Referral') ?>
                 </select>
                 <?= categoryAddButtonHtml('Referral') ?>

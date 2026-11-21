@@ -43,7 +43,7 @@ if (!$template || $template['software_template_archived_at']) { ?>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Pick a client -</option>
+                        <option value="">- Select a client -</option>
                         <?php
                         $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($picked_client_id) . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) { ?>

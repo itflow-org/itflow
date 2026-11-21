@@ -79,7 +79,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sign-out-alt"></i></span>
             <select class="form-select select2" name="account_from" required data-transfer-from <?= $form_lock_out ? 'disabled' : '' ?>>
-                <option value="">- Out of which account -</option>
+                <option value="">- Select an account -</option>
                 <?= $form_account_options($form_from) ?>
             </select>
             <?php if ($form_lock_out) { ?>
@@ -95,7 +95,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sign-in-alt"></i></span>
             <select class="form-select select2" name="account_to" required data-transfer-to <?= $form_lock_in ? 'disabled' : '' ?>>
-                <option value="">- Into which account -</option>
+                <option value="">- Select an account -</option>
                 <?= $form_account_options($form_to) ?>
             </select>
             <?php if ($form_lock_in) { ?>
@@ -136,7 +136,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
             <select class="form-select select2" name="transfer_method">
-                <option value="">- How it was moved -</option>
+                <option value="">- Select a method -</option>
                 <?php foreach ($form_methods as $method) { ?>
                     <option value="<?= escapeHtml($method) ?>" <?= $form_method === $method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                 <?php } ?>

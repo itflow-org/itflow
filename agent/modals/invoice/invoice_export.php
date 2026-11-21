@@ -56,7 +56,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                 <select class="form-select select2" name="status">
-                    <option value="">- All Statuses -</option>
+                    <option value="">- Any status -</option>
                     <option <?php if ($status_filter === 'Draft') { echo "selected"; } ?> value="Draft">Draft</option>
                     <option <?php if ($status_filter === 'Unpaid') { echo "selected"; } ?> value="Unpaid">Unpaid</option>
                     <option <?php if ($status_filter === 'Overdue') { echo "selected"; } ?> value="Overdue">Overdue</option>
@@ -71,7 +71,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
-                    <option value="">- All Categories -</option>
+                    <option value="">- Any category -</option>
                     <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT invoice_category_id FROM invoices") ?>
                 </select>
             </div>

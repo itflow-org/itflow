@@ -63,7 +63,7 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
-                                    <option value="">- Select a Client -</option>
+                                    <option value="">- Select a client -</option>
                                     <?php
 
                                     $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($client_id) . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -132,7 +132,7 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
-                                    <option value="0">- Not Categorized -</option>
+                                    <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket') ?>
                                 </select>
                                 <?= categoryAddButtonHtml('Ticket') ?>
@@ -188,7 +188,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                         <select class="form-select select2" name="frequency" required>
-                            <option value="">- Select Frequency -</option>
+                            <option value="">- Select a frequency -</option>
                             <optgroup label="Days">
                                 <option>Three Days</option>
                                 <option>Weekly</option>

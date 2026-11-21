@@ -79,20 +79,20 @@ ob_start();
             <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick a category -</option>
+                    <option value="">- Select a category -</option>
                     <?= categoryOptionsHtml('Income', null, ['exclude' => ['Account Transfer']]) ?>
                 </select>
                 <?= categoryAddButtonHtml('Income') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick the account it went into -</option>
+                    <option value="">- Select an account -</option>
                     <?php foreach (paymentAccounts() as $option_id => $account) { ?>
                         <option value="<?= $option_id ?>"><?= escapeHtml($account['account_name']) ?><?= $account['account_currency_code'] ? ' (' . escapeHtml($account['account_currency_code']) . ')' : '' ?></option>
                     <?php } ?>
                 </select>
             <?php } elseif ($field === 'method') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick how it was paid -</option>
+                    <option value="">- Select a payment method -</option>
                     <?php foreach (paymentMethods('in') as $method) { ?>
                         <option><?= escapeHtml($method) ?></option>
                     <?php } ?>

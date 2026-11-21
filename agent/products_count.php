@@ -58,7 +58,7 @@ $page_title = 'Count Stock';
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select" onchange="location.href = 'products_count.php' + (this.value ? '?location=' + encodeURIComponent(this.value) : '')" aria-label="Location">
-                            <option value="">Everywhere</option>
+                            <option value="">- Everywhere -</option>
                             <?php foreach ($locations as $place) { ?>
                                 <option value="<?= escapeHtml($place) ?>" <?= $location === $place ? 'selected' : '' ?>><?= escapeHtml($place) ?></option>
                             <?php } ?>

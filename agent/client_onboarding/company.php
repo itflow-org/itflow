@@ -51,7 +51,7 @@ unset($_SESSION['co_kept_tags']);
                 <label class="form-label" for="coTags">Tags</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                    <select class="form-select select2" id="coTags" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                    <select class="form-select select2" id="coTags" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                         <?= tagOptionsHtml('client', $co_tags) ?>
                     </select>
                 </div>

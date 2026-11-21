@@ -78,7 +78,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor" required data-expense-vendor>
-                <option value="">- Who it is paid to -</option>
+                <option value="">- Select a vendor -</option>
                 <?php foreach ($form_vendors as $vendor_id => $vendor) { ?>
                     <option value="<?= $vendor_id ?>" <?= $form_vendor === $vendor_id ? 'selected' : '' ?><?= selectOptionVendor($vendor['vendor_name'], $vendor['vendor_archived_at'] ? 'Archived' : (string) $vendor['vendor_description']) ?>><?= escapeHtml($vendor['vendor_name']) ?></option>
                 <?php } ?>
@@ -144,7 +144,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required data-expense-category>
-                <option value="">- What it is for -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Expense', $form_category) ?>
             </select>
             <?= categoryAddButtonHtml('Expense') ?>
@@ -203,7 +203,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
             <select class="form-select select2" name="account" required data-expense-account>
-                <option value="">- Which account -</option>
+                <option value="">- Select an account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
@@ -218,7 +218,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
             <select class="form-select select2" name="payment_method" data-expense-method>
-                <option value="">- How it is paid -</option>
+                <option value="">- Select a payment method -</option>
                 <?php foreach ($form_methods as $method) { ?>
                     <option value="<?= escapeHtml($method) ?>" <?= $form_method === $method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                 <?php } ?>

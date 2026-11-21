@@ -503,7 +503,7 @@ $pill_url = function ($view) use ($on_days) {
                         <div class="input-group mb-2">
                             <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-flag me-2 text-<?= $flag_tone ?>"></i><?= $priority ?></span>
                             <select class="form-select select2" name="global_sla_<?= strtolower($priority) ?>" aria-label="Default SLA for <?= $priority ?> tickets" data-sla-default="<?= $priority ?>">
-                                <option value="0">No SLA</option>
+                                <option value="0">- No SLA -</option>
                                 <?php foreach ($sla_choices as $choice_id => $choice) { ?>
                                     <option value="<?= $choice_id ?>"<?= $selected_sla_id === $choice_id ? ' selected' : '' ?><?= selectOptionData(['description' => $choice['sla_archived_at'] ? 'Archived - tickets get none' : $targets_text($choice)]) ?>><?= escapeHtml($choice['sla_name']) ?><?= $choice['sla_archived_at'] ? ' (archived)' : '' ?></option>
                                 <?php } ?>

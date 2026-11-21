@@ -35,7 +35,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
                     <select class="form-select select2" name="contract_template_id" required data-bulk-contract-template>
-                        <option value="">- Pick a template -</option>
+                        <option value="">- Select a template -</option>
                         <?php foreach ($templates as $template_id => $template) { ?>
                             <option value="<?= intval($template_id) ?>"><?= escapeHtml($template['contract_template_name']) ?> - <?= escapeHtml(contractTypeLabel($template['contract_template_type'])) ?>, <?= escapeHtml(strtolower(contractTermLabel($template['contract_template_term_months']))) ?></option>
                         <?php } ?>

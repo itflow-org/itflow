@@ -54,7 +54,7 @@ if (!$template) { ?>
             <label class="form-label">Client tags</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" multiple data-placeholder="- Pick client tags -">
+                <select class="form-select select2" name="tags[]" multiple data-placeholder="- Select client tags -">
                     <?php foreach (tagOptionsFor('client', $tag_ids) as $tag) { ?>
                         <?= tagOptionHtml($tag, $tag_ids) ?>
                     <?php } ?>

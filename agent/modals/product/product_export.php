@@ -73,7 +73,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
-                    <option value="">- All Categories -</option>
+                    <option value="">- Any category -</option>
                     <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT product_category_id FROM products") ?>
                 </select>
             </div>
@@ -84,7 +84,7 @@ ob_start();
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="vendor">
-                    <option value="">- All Vendors -</option>
+                    <option value="">- Any vendor -</option>
                     <?php foreach (productVendors() as $filter_vendor_id => $filter_vendor_name) { ?>
                         <option <?php if ($vendor_filter === $filter_vendor_id) { echo "selected"; } ?> value="<?= $filter_vendor_id ?>"><?= escapeHtml($filter_vendor_name) ?></option>
                     <?php } ?>

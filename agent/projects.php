@@ -204,7 +204,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <option value="internal" <?= $client_filter === 'internal' ? 'selected' : '' ?> data-icon="fas fa-building">Internal (no client)</option>
                             <?php
                             $client_filter_id = is_int($client_filter) ? $client_filter : 0;

@@ -38,7 +38,7 @@ ob_start();
             <label class="form-label">Ticket templates <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-life-ring"></i></span>
-                <select class="form-select select2" name="ticket_template_ids[]" multiple required data-placeholder="Pick ticket templates...">
+                <select class="form-select select2" name="ticket_template_ids[]" multiple required data-placeholder="- Select ticket templates -">
                     <?php while ($row = mysqli_fetch_assoc($sql)) {
                         $task_count = intval($row['task_count']); ?>
                         <option value="<?= intval($row['ticket_template_id']) ?>" data-icon="fas fa-life-ring"

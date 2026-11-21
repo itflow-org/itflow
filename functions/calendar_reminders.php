@@ -58,7 +58,7 @@ function calendarReminderFromInput($value) {
 
 /** The options of a reminder picker, the one set picked - "No reminder" first. HTML. */
 function calendarReminderOptions($minutes) {
-    $html = '<option value=""' . ($minutes === null ? ' selected' : '') . '>No reminder</option>';
+    $html = '<option value=""' . ($minutes === null ? ' selected' : '') . '>- No reminder -</option>';
     foreach (CALENDAR_REMINDER_CHOICES as $value => $label) {
         $html .= '<option value="' . $value . '"' . ($minutes !== null && intval($minutes) === $value ? ' selected' : '') . '>' . escapeHtml($label) . '</option>';
     }

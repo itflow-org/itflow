@@ -30,7 +30,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="bulk_category">
-                    <option value="0">- Uncategorized -</option>
+                    <option value="0">- Not categorized -</option>
                     <?= categoryOptionsHtml('Ticket') ?>
                 </select>
                 <?= categoryAddButtonHtml('Ticket') ?>

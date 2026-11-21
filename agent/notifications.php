@@ -95,7 +95,7 @@ $empty_state_skip = true;
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" name="type" onchange="this.form.submit()" aria-label="Notification type">
-                        <option value="">All types</option>
+                        <option value="">- Any type -</option>
                         <?php while ($row = mysqli_fetch_assoc($sql_types)) {
                             $type_option = escapeHtml($row['notification_type']); ?>
                             <option <?php if ($type_filter === $row['notification_type']) { echo "selected"; } ?>><?= $type_option ?></option>

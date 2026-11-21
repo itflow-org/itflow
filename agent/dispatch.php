@@ -105,7 +105,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <select class="form-select select2" data-dispatch-filter="client_id" aria-label="Client">
-                                <option value="">All clients</option>
+                                <option value="">- Any client -</option>
                                 <?php foreach ($clients as $client) { ?>
                                     <option value="<?= intval($client['client_id']) ?>"><?= escapeHtml($client['client_name']) ?></option>
                                 <?php } ?>
@@ -114,7 +114,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                             <select class="form-select select2" data-dispatch-filter="priority" aria-label="Priority">
-                                <option value="">Any priority</option>
+                                <option value="">- Any priority -</option>
                                 <?php foreach (TICKET_PRIORITIES as $priority) { ?>
                                     <option><?= escapeHtml($priority) ?></option>
                                 <?php } ?>

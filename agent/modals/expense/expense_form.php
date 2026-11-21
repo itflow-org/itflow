@@ -112,7 +112,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor" required data-expense-vendor <?= $form_refund ? 'disabled' : '' ?>>
-                <option value="">- Who it was paid to -</option>
+                <option value="">- Select a vendor -</option>
                 <?php foreach ($form_vendors as $vendor_id => $vendor) { ?>
                     <option value="<?= $vendor_id ?>" <?= $form_vendor === $vendor_id ? 'selected' : '' ?><?= selectOptionVendor($vendor['vendor_name'], $vendor['vendor_archived_at'] ? 'Archived' : (string) $vendor['vendor_description']) ?>><?= escapeHtml($vendor['vendor_name']) ?></option>
                 <?php } ?>
@@ -146,7 +146,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required data-expense-category>
-                <option value="">- What it was for -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Expense', $form_category) ?>
             </select>
             <?= categoryAddButtonHtml('Expense') ?>
@@ -180,7 +180,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
                     $form_business_account = $form_edit && !$form_paid_by && isset($form_accounts[$form_account]) ? $form_account : bookkeepingAccount('expense'); ?>
                     <option value="<?= $form_business_account ?>" <?= !$form_paid_by ? 'selected' : '' ?> data-icon="fas fa-building" data-description="Paid by the business">The business</option>
                 <?php } else { ?>
-                <option value="">- Which account -</option>
+                <option value="">- Select an account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= !$form_paid_by && $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
@@ -203,7 +203,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
             <select class="form-select select2" name="payment_method" data-expense-method>
-                <option value="">- How it was paid -</option>
+                <option value="">- Select a payment method -</option>
                 <?php foreach ($form_methods as $method) { ?>
                     <option value="<?= escapeHtml($method) ?>" <?= $form_method === $method ? 'selected' : '' ?>><?= escapeHtml($method) ?></option>
                 <?php } ?>

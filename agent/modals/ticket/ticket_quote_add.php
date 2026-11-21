@@ -112,7 +112,7 @@ ob_start();
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
 
                             <select class="form-select select2" name="category" required>
-                                <option value="">- Select a Category -</option>
+                                <option value="">- Select a category -</option>
                                 <?= categoryOptionsHtml('Income') ?>
                             </select>
                             <?= categoryAddButtonHtml('Income') ?>

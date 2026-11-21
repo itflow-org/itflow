@@ -448,7 +448,7 @@ $total_leads = intval($row['leads']);
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Tags</label>
-                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="Any tag" multiple>
+                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
                                 SELECT tags.tag_id, tags.tag_name, MAX(tags.tag_color) AS tag_color, MAX(tags.tag_icon) AS tag_icon
@@ -469,7 +469,7 @@ $total_leads = intval($row['leads']);
                     <div class="col-md-3">
                         <label class="form-label">Industry</label>
                         <select class="form-select select2" name="industry" onchange="this.form.submit()">
-                            <option value="">Any industry</option>
+                            <option value="">- Any industry -</option>
                             <?php
                             $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_$archive_query AND client_type != '' $leads_query ORDER BY client_type ASC");
                             while ($row = mysqli_fetch_assoc($sql_industries_filter)) {
@@ -481,7 +481,7 @@ $total_leads = intval($row['leads']);
                     <div class="col-md-3">
                         <label class="form-label">Referral</label>
                         <select class="form-select select2" name="referral" onchange="this.form.submit()">
-                            <option value="">Any referral</option>
+                            <option value="">- Any referral -</option>
                             <?= categoryFilterOptionsHtml('Referral', (string) ($_GET['referral'] ?? ''), "SELECT DISTINCT client_referral FROM clients WHERE client_$archive_query AND client_referral != '' $leads_query") ?>
                         </select>
                     </div>
@@ -489,7 +489,7 @@ $total_leads = intval($row['leads']);
                         <div class="col-md-3">
                             <label class="form-label">Contract</label>
                             <select class="form-select select2" name="contract" onchange="this.form.submit()" data-client-contract-filter>
-                                <option value="">Any contract or none</option>
+                                <option value="">- Any contract or none -</option>
                                 <option value="any"<?= $contract_filter === 'any' ? ' selected' : '' ?>>One in force</option>
                                 <option value="none"<?= $contract_filter === 'none' ? ' selected' : '' ?>>None in force - billed on the defaults</option>
                                 <?php foreach (contractTemplates() as $filter_template_id => $filter_template) { ?>

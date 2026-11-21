@@ -191,7 +191,7 @@ $csrf = $_SESSION['csrf_token'];
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             if (contractsReady()) {
                                 $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients

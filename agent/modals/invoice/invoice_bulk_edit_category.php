@@ -27,7 +27,7 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="bulk_category_id" required>
-                <option value="">- Pick a category -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income') ?>
             </select>
             <?= categoryAddButtonHtml('Income') ?>

@@ -54,13 +54,13 @@ ob_start();
             <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick a category -</option>
+                    <option value="">- Select a category -</option>
                     <?= categoryOptionsHtml('Expense') ?>
                 </select>
                 <?= categoryAddButtonHtml('Expense') ?>
             <?php } elseif ($field === 'account') { ?>
                 <select class="form-select select2" name="value" required>
-                    <option value="">- Pick an account -</option>
+                    <option value="">- Select an account -</option>
                     <?php foreach (paymentAccounts() as $account_id => $account) { ?>
                         <option value="<?= $account_id ?>" data-icon="fas fa-piggy-bank" data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?>"><?= escapeHtml($account['account_name']) ?></option>
                     <?php } ?>

@@ -115,7 +115,7 @@ $page_title = 'Saved Cards';
                 <?php if ($provider_count > 1 || $provider_filter) { ?>
                     <div class="col-md-3 col-lg-2">
                         <select class="form-select" name="provider" onchange="this.form.submit()" aria-label="Provider">
-                            <option value="">All providers</option>
+                            <option value="">- Any provider -</option>
                             <?php while ($provider = mysqli_fetch_assoc($providers)) { ?>
                                 <option value="<?= intval($provider['payment_provider_id']) ?>" <?= intval($provider['payment_provider_id']) === $provider_filter ? 'selected' : '' ?>><?= escapeHtml($provider['payment_provider_name']) ?></option>
                             <?php } ?>
@@ -124,7 +124,7 @@ $page_title = 'Saved Cards';
                 <?php } ?>
                 <div class="col-md-3 col-lg-3">
                     <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
-                        <option value="">All clients</option>
+                        <option value="">- Any client -</option>
                         <?php while ($client = mysqli_fetch_assoc($clients)) { ?>
                             <option value="<?= intval($client['client_id']) ?>" <?= intval($client['client_id']) === $client_filter ? 'selected' : '' ?>><?= escapeHtml($client['client_name']) ?></option>
                         <?php } ?>

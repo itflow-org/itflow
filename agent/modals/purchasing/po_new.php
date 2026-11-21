@@ -53,7 +53,7 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor" required>
-                <option value="">- Who it is from -</option>
+                <option value="">- Select a vendor -</option>
                 <?php foreach (poVendors() as $option_id => $option_name) { ?>
                     <option value="<?= $option_id ?>" <?= $option_id === $vendor_id ? 'selected' : '' ?>><?= escapeHtml($option_name) ?></option>
                 <?php } ?>

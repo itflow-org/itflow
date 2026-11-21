@@ -60,7 +60,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
                     <select class="form-select select2" name="document_template_id" required data-doc-template-select>
-                        <option value="">- Pick a template -</option>
+                        <option value="">- Select a template -</option>
                         <?php foreach ($templates as $template_id => $template) {
                             $used = $usage[$template_id]['count'] ?? 0;
                             $about = trim(implode(' · ', array_filter([isset($missing[$template_id]) ? 'this client should have one' : '', trim((string) $template['document_template_description']), $used ? 'used ' . $used . ' time' . ($used === 1 ? '' : 's') : '']))); ?>

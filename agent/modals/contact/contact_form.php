@@ -70,7 +70,7 @@ $contact_roles = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-users fa-fw"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -106,7 +106,7 @@ $contact_roles = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-map-marker-alt fa-fw"></i></span>
                     <select class="form-select select2" name="location">
-                        <option value="">- Select Location -</option>
+                        <option value="">- Select a location -</option>
                         <?php foreach ($location_options as $location_option) {
                             $location_option_id = intval($location_option['location_id']); ?>
                             <option value="<?= $location_option_id ?>" <?php if ($contact_location_id === $location_option_id) { echo "selected"; } ?><?= selectOptionData(['description' => $location_option['location_primary'] ? 'Primary' : '']) ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
@@ -259,7 +259,7 @@ $contact_roles = [
             <label class="form-label">Tags</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-tags fa-fw"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('contact', $contact_tag_id_array) ?>
                 </select>
             </div>

@@ -46,7 +46,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
             <label class="form-label">Clients <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                <select class="form-select select2" name="client_ids[]" multiple required data-placeholder="- Pick clients -">
+                <select class="form-select select2" name="client_ids[]" multiple required data-placeholder="- Select clients -">
                     <?php
                     $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_lead FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($picked) . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients)) { ?>

@@ -151,7 +151,7 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select Client -</option>
+                        <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                         <?php } ?>
@@ -165,7 +165,7 @@ $asset_form_icons = [
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-layer-group fa-fw"></i></span>
                 <select class="form-select select2" name="type" required>
-                    <option value="">- Select Type -</option>
+                    <option value="">- Select a type -</option>
                     <?php foreach ($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
                         <option <?php if ($asset_type_select === $asset_type_raw) { echo "selected"; } ?><?= selectOptionData(['icon' => "fas $asset_icon_select"]) ?>><?= $asset_type_select ?></option>
                     <?php } ?>
@@ -192,7 +192,7 @@ $asset_form_icons = [
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-circle fa-fw" data-asset-form-icon="status" style="color: <?= $asset_form_icons['status'] ?>"></i></span>
                 <select class="form-select select2" name="status">
-                    <option value="">- Status -</option>
+                    <option value="">- Select a status -</option>
                     <?= categoryOptionsHtml('asset_status', html_entity_decode($asset_status)) ?>
                 </select>
                 <?= categoryAddButtonHtml('asset_status') ?>
@@ -209,7 +209,7 @@ $asset_form_icons = [
             <label class="form-label">Tags</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('asset', $asset_tag_id_array) ?>
                 </select>
             </div>
@@ -332,7 +332,7 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-map-marker-alt fa-fw"></i></span>
                     <select class="form-select select2" name="location">
-                        <option value="">- Select Location -</option>
+                        <option value="">- Select a location -</option>
                         <?php foreach ($location_options as $location_option) {
                             $location_option_id = intval($location_option['location_id']); ?>
                             <option value="<?= $location_option_id ?>" <?php if ($asset_location_id === $location_option_id) { echo "selected"; } ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
@@ -387,7 +387,7 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                     <select class="form-select select2" name="network">
-                        <option value="">- Select Network -</option>
+                        <option value="">- Select a network -</option>
                         <?php foreach ($network_options as $network_option) {
                             $network_option_id = intval($network_option['network_id']); ?>
                             <option value="<?= $network_option_id ?>" <?php if ($asset_network_id === $network_option_id) { echo "selected"; } ?><?= selectOptionData(['description' => $network_option['network']]) ?>><?= escapeHtml($network_option['network_name']) ?><?= $network_option['network_archived_at'] ? ' (archived)' : '' ?></option>
@@ -471,7 +471,7 @@ $asset_form_icons = [
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="vendor">
-                        <option value="">- Select Vendor -</option>
+                        <option value="">- Select a vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
                             $vendor_option_id = intval($vendor_option['vendor_id']); ?>
                             <option value="<?= $vendor_option_id ?>" <?php if ($asset_vendor_id === $vendor_option_id) { echo "selected"; } ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>

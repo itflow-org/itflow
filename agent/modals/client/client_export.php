@@ -75,7 +75,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-industry"></i></span>
                 <select class="form-select select2" name="industry">
-                    <option value="">- All Industries -</option>
+                    <option value="">- Any industry -</option>
                     <?php
                     $sql_industry_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_type != '' ORDER BY client_type ASC");
                     while ($row = mysqli_fetch_assoc($sql_industry_filter)) {
@@ -94,7 +94,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-share-alt"></i></span>
                 <select class="form-select select2" name="referral">
-                    <option value="">- All Referrals -</option>
+                    <option value="">- Any referral -</option>
                     <?php
                     $sql_referral_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_referral != '' ORDER BY client_referral ASC");
                     while ($row = mysqli_fetch_assoc($sql_referral_filter)) {
@@ -112,7 +112,7 @@ ob_start();
             <label class="form-label">Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                     <?= tagOptionsHtml('client', $tag_filter) ?>
                 </select>
             </div>

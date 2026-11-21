@@ -27,7 +27,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                 <select class="form-select select2" name="assign_to">
-                    <option value="0">Not Assigned</option>
+                    <option value="0">- Unassigned -</option>
                     <?php
                     $sql_users_select = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
                         WHERE user_type = 1" . serviceAccountsOutSql() . "

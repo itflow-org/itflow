@@ -67,7 +67,7 @@ $co_country = (string) settingsValue('country', $session_company_country);
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                     <select class="form-select select2" id="coLocCountry" name="country">
-                        <option value="">- Country -</option>
+                        <option value="">- Select a country -</option>
                         <?php foreach ($countries_array as $co_country_name) { ?>
                             <option<?= $co_country === $co_country_name ? ' selected' : '' ?> data-iso2="<?= escapeHtml($country_iso2_array[$co_country_name] ?? '') ?>"><?= escapeHtml($co_country_name) ?></option>
                         <?php } ?>

@@ -77,7 +77,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required>
-                <option value="">- Category -</option>
+                <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income', $form_category_id) ?>
             </select>
             <?= categoryAddButtonHtml('Income') ?>
@@ -153,7 +153,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor">
-                <option value="0">- Who you buy it from -</option>
+                <option value="0">- Select a vendor -</option>
                 <?php foreach ($form_vendors as $vendor_id => $vendor_name) { ?>
                     <option value="<?= intval($vendor_id) ?>" <?= $form_vendor_id === intval($vendor_id) ? 'selected' : '' ?>><?= escapeHtml($vendor_name) ?></option>
                 <?php } ?>

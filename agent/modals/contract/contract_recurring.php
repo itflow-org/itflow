@@ -94,7 +94,7 @@ if ($refuse !== '') { ?>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                             <select class="form-select select2" name="category">
-                                <option value="0">- Category -</option>
+                                <option value="0">- Select a category -</option>
                                 <?= categoryOptionsHtml('Income') ?>
                             </select>
                         </div>

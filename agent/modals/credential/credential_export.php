@@ -56,7 +56,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
-                    <option value="">- All Clients -</option>
+                    <option value="">- Any client -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM credentials WHERE credential_client_id = client_id)" . clientScopeSql('client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -76,7 +76,7 @@ ob_start();
             <label class="form-label">Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                     <?= tagOptionsHtml('credential', $tag_filter) ?>
                 </select>
             </div>

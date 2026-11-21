@@ -34,7 +34,7 @@ ob_start();
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
                 <select class="form-select select2" name="project_template_id" required>
-                    <option value="">Pick a template...</option>
+                    <option value="">- Select a template -</option>
                     <?php while ($row = mysqli_fetch_assoc($sql_templates)) {
                         $ticket_count = intval($row['ticket_count']);
                         $task_count = intval($row['task_count']); ?>

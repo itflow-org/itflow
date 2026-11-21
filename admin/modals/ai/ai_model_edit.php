@@ -73,7 +73,7 @@ ob_start();
             <div class="input-group has-validation">
                 <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
                 <select class="form-select select2" name="provider" id="aiModelProvider" data-ai-model-provider>
-                    <option value="">- Pick a provider -</option>
+                    <option value="">- Select a provider -</option>
                     <?php foreach ($providers as $id => $provider) { ?>
                         <option value="<?= $id ?>" <?= $id === $provider_id ? 'selected' : '' ?><?= selectOptionData(['icon' => aiProviderIcon($provider['ai_provider_kind']), 'description' => aiProviderKind($provider['ai_provider_kind'])['name'], 'example' => aiProviderKind($provider['ai_provider_kind'])['example']]) ?>><?= escapeHtml($provider['ai_provider_name']) ?></option>
                     <?php } ?>

@@ -77,7 +77,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
-                            <option value="">- Select Referral -</option>
+                            <option value="">- Select a referral -</option>
                             <?= categoryOptionsHtml('Referral') ?>
                         </select>
                         <?= categoryAddButtonHtml('Referral') ?>
@@ -96,7 +96,7 @@ ob_start();
                     <label class="form-label">Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                        <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                             <?= tagOptionsHtml('client', []) ?>
                         </select>
                     </div>
@@ -143,7 +143,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
                         <select class="form-select select2" name="country">
-                            <option value="">- Select Country -</option>
+                            <option value="">- Select a country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
                                 <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?>  data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
                             <?php } ?>

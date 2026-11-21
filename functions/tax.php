@@ -695,7 +695,7 @@ function taxOptionsHtml(array $taxes, $selected = 0, $usual_label = '', $usual_p
         $taxes[$selected] = $row;
     }
     $html = $usual_label !== '' ? '<option value="' . TAX_USUAL . '" data-percent="' . floatval($usual_percent) . '"' . ($selected === TAX_USUAL ? ' selected' : '') . '>' . escapeHtml($usual_label) . '</option>' : '';
-    $html .= '<option value="0" data-percent="0"' . ($selected === 0 ? ' selected' : '') . '>No tax</option>';
+    $html .= '<option value="0" data-percent="0"' . ($selected === 0 ? ' selected' : '') . '>- No tax -</option>';
     foreach ($taxes as $tax_id => $tax) {
         $html .= '<option value="' . intval($tax_id) . '" data-percent="' . floatval($tax['tax_percent']) . '"' . ($selected === intval($tax_id) ? ' selected' : '') . '>'
             . escapeHtml(taxLabel($tax)) . '</option>';

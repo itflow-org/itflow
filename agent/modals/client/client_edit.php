@@ -109,7 +109,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
-                            <option value="">- Select Referral -</option>
+                            <option value="">- Select a referral -</option>
                             <?= categoryOptionsHtml('Referral', $row_referral) ?>
                         </select>
                         <?= categoryAddButtonHtml('Referral') ?>
@@ -129,7 +129,7 @@ ob_start();
                     <label class="form-label">Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                        <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                             <?= tagOptionsHtml('client', $client_tag_id_array) ?>
                         </select>
                     </div>

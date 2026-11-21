@@ -351,7 +351,7 @@ $export_extra = [
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-3 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
-                            <option value="">- All Clients -</option>
+                            <option value="">- Any client -</option>
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
                                 WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . "
@@ -433,7 +433,7 @@ $export_extra = [
                 <div class="row g-2 mt-1">
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Status</label>
-                        <select onchange="this.form.submit()" class="form-select select2" name="status[]" data-placeholder="Any status" multiple>
+                        <select onchange="this.form.submit()" class="form-select select2" name="status[]" data-placeholder="- Any status -" multiple>
                             <?php
                             // The ones in use - and a switched-off one when it is asked for (from Admin > Ticket Statuses), so it stays picked
                             foreach (ticketStatusOptions($status_filter) as $filter_status_id => $row) { ?>
@@ -444,7 +444,7 @@ $export_extra = [
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Priority</label>
                         <select onchange="this.form.submit()" class="form-select select2" name="priority">
-                            <option value="">Any priority</option>
+                            <option value="">- Any priority -</option>
                             <?php foreach (array_reverse(TICKET_PRIORITIES) as $priority_option) { ?>
                                 <option value="<?= $priority_option ?>" <?= $priority_filter === $priority_option ? 'selected' : '' ?>><?= $priority_option ?></option>
                             <?php } ?>
@@ -453,14 +453,14 @@ $export_extra = [
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Category</label>
                         <select onchange="this.form.submit()" class="form-select select2" name="category">
-                            <option value="">Any category</option>
+                            <option value="">- Any category -</option>
                             <?= categoryFilterOptionsHtml('Ticket', $category_filter, "SELECT DISTINCT ticket_category FROM tickets WHERE ticket_category <> ''") ?>
                         </select>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Project</label>
                         <select onchange="this.form.submit()" class="form-select select2" name="project">
-                            <option value="">Any project</option>
+                            <option value="">- Any project -</option>
                             <?php
                             $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name FROM projects
                                 WHERE ((project_completed_at IS NULL AND project_archived_at IS NULL) OR project_id = $project_filter)
@@ -474,7 +474,7 @@ $export_extra = [
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Tags</label>
-                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="Any tag" multiple>
+                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                             <?= tagFilterOptionsHtml('ticket', $tag_filter_ids, '1 ' . clientScopeSql('ticket_client_id') . ($client_url ? " AND ticket_client_id = $client_id" : '')) ?>
                         </select>
                     </div>
@@ -482,7 +482,7 @@ $export_extra = [
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label small text-body-secondary mb-1">SLA</label>
                             <select class="form-select select2" name="sla" onchange="this.form.submit()">
-                                <option value="">Any SLA state</option>
+                                <option value="">- Any SLA state -</option>
                                 <?php foreach ($sla_filters as $sla_option => [$sla_option_label]) { ?>
                                     <option value="<?= $sla_option ?>" <?= $sla_filter === $sla_option ? 'selected' : '' ?>><?= $sla_option_label ?></option>
                                 <?php } ?>

@@ -56,7 +56,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-toggle-on"></i></span>
                 <select class="form-select select2" name="status">
-                    <option value="">- Any Status -</option>
+                    <option value="">- Any status -</option>
                     <option <?php if ($status_filter === 'active') { echo "selected"; } ?> value="active">Active</option>
                     <option <?php if ($status_filter === 'inactive') { echo "selected"; } ?> value="inactive">Inactive</option>
                 </select>

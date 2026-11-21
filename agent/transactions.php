@@ -276,7 +276,7 @@ $is_card = $account && $account['type'] === 3;
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Account">
-                            <option value="">- Every account -</option>
+                            <option value="">- Any account -</option>
                             <?php foreach ($open_accounts + ($account && $account['account_archived_at'] ? [$account_filter => $account] : []) as $id => $option) { ?>
                                 <option value="<?= $id ?>" <?= $account_filter === $id ? 'selected' : '' ?> data-icon="fas <?= $types[$option['type']]['icon'] ?>" data-description="<?= escapeHtml(accountBalanceText($option)) ?>"><?= escapeHtml($option['account_name']) ?></option>
                             <?php } ?>

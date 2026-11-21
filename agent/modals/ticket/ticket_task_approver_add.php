@@ -43,7 +43,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="approval_scope" id="approval_scope" required>
-                    <option value="">- Pick one -</option>
+                    <option value="">- Select one -</option>
                     <option value="internal">Our team</option>
                     <option value="client">The client</option>
                 </select>
@@ -67,7 +67,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
                 <select class="form-select select2" name="approval_required_user_id" id="specific_user_select">
-                    <option value="">Select user...</option>
+                    <option value="">- Select a user -</option>
                 </select>
             </div>
         </div>
@@ -159,7 +159,7 @@ ob_start();
                     return res.json();
                 })
                 .then(function (data) {
-                    var pairs = [['', 'Select user...']];
+                    var pairs = [['', '- Select a user -']];
                     data.users.forEach(function (u) {
                         pairs.push([u.user_id, u.user_name]);
                     });

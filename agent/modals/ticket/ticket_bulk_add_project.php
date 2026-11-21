@@ -28,7 +28,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                 <select class="form-select select2" name="project_id">
-                    <option value="0">No Project</option>
+                    <option value="0">- No project -</option>
                     <?php
                     // Internal projects, and those of the ticked tickets' clients - the only ones they can go on
                     $bulk_ticket_ids = implode(',', array_merge([0], array_map('intval', (array) ($_GET['ticket_ids'] ?? []))));

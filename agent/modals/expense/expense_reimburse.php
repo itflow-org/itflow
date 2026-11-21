@@ -69,7 +69,7 @@ ob_start();
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account" required>
-                            <option value="">- Which account -</option>
+                            <option value="">- Select an account -</option>
                             <?php foreach ($accounts as $account_id => $account) { ?>
                                 <option value="<?= $account_id ?>" <?= $account_id === $default_account ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                                     data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?>"><?= escapeHtml($account['account_name']) ?></option>
@@ -90,7 +90,7 @@ ob_start();
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
                         <select class="form-select select2" name="payment_method">
-                            <option value="">- How they were paid -</option>
+                            <option value="">- Select a payment method -</option>
                             <?php foreach ($methods as $method) { ?>
                                 <option value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
                             <?php } ?>

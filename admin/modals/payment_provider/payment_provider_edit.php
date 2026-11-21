@@ -148,7 +148,7 @@ ob_start();
             <div class="input-group has-validation">
                 <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                 <select class="form-select select2" name="account" id="paymentProviderAccount">
-                    <option value="">- Pick an account -</option>
+                    <option value="">- Select an account -</option>
                     <?php while ($account = mysqli_fetch_assoc($accounts)) { ?>
                         <option value="<?= intval($account['account_id']) ?>" <?= intval($account['account_id']) === $account_id ? 'selected' : '' ?>><?= escapeHtml($account['account_name']) ?><?= $account['account_archived_at'] ? ' (archived)' : '' ?></option>
                     <?php } ?>
@@ -186,7 +186,7 @@ ob_start();
                 <div class="input-group has-validation">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="expense_vendor" id="paymentProviderVendor">
-                        <option value="">- Pick a vendor -</option>
+                        <option value="">- Select a vendor -</option>
                         <?php while ($vendor = mysqli_fetch_assoc($vendors)) { ?>
                             <option value="<?= intval($vendor['vendor_id']) ?>" <?= intval($vendor['vendor_id']) === $vendor_id ? 'selected' : '' ?>><?= escapeHtml($vendor['vendor_name']) ?><?= $vendor['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
@@ -201,7 +201,7 @@ ob_start();
                 <div class="input-group has-validation">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                     <select class="form-select select2" name="expense_category" id="paymentProviderCategory">
-                        <option value="">- Pick a category -</option>
+                        <option value="">- Select a category -</option>
                         <?= categoryOptionsHtml('Expense', $category_id ?: null) ?>
                     </select>
                     <?= categoryAddButtonHtml('Expense') ?>

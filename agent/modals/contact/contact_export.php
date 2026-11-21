@@ -59,7 +59,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
-                    <option value="">- All Clients -</option>
+                    <option value="">- Any client -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM contacts WHERE contact_client_id = client_id)" . clientScopeSql('client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -81,7 +81,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="location">
-                    <option value="">- All Locations -</option>
+                    <option value="">- Any location -</option>
                     <?php
                     $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
@@ -101,7 +101,7 @@ ob_start();
             <label class="form-label">Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Any tag -" multiple>
                     <?= tagOptionsHtml('contact', $tag_filter) ?>
                 </select>
             </div>

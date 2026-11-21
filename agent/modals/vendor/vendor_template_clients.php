@@ -86,7 +86,7 @@ ob_start();
                 <label class="form-label">Clients</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="Pick the clients that use them" <?= $option_id === $template_id ? '' : 'disabled' ?>>
+                    <select class="form-select select2" name="client_ids[]" multiple data-placeholder="- Select the clients that use them -" <?= $option_id === $template_id ? '' : 'disabled' ?>>
                         <?php foreach ($clients as $client) {
                             $client_option_id = intval($client['client_id']);
                             $client_has = isset($has[$option_id][$client_option_id]); ?>
