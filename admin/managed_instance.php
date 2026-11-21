@@ -29,6 +29,7 @@ if (!$row) { ?>
 }
 
 $name = escapeHtml($row['managed_instance_name']);
+$page_title = $row['managed_instance_name'];
 $removed = !empty($row['managed_instance_archived_at']);
 $health = managedInstanceHealth($row);
 $state = $health['state'];

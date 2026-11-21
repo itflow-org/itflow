@@ -22,6 +22,7 @@ if (!$template) {
 
 $ticket_template_id = intval($template['ticket_template_id']);
 $name = escapeHtml($template['ticket_template_name']);
+$page_title = $template['ticket_template_name'];
 $archived = !empty($template['ticket_template_archived_at']);
 $tasks = ticketTemplateTasks($ticket_template_id);
 $task_minutes = array_sum(array_column($tasks, 'estimate'));

@@ -40,6 +40,7 @@ if (mysqli_num_rows($sql) == 0) {
 
     $row = mysqli_fetch_assoc($sql);
     $rack_name = escapeHtml($row['rack_name']);
+    $page_title = $row['rack_name'];
     $rack_description = escapeHtml($row['rack_description']);
     $rack_model = escapeHtml($row['rack_model']);
     $rack_depth = escapeHtml($row['rack_depth']);

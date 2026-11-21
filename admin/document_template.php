@@ -24,6 +24,7 @@ if (!$template) {
 
 $document_template_id = intval($template['document_template_id']);
 $name = escapeHtml($template['document_template_name']);
+$page_title = $template['document_template_name'];
 $archived = !empty($template['document_template_archived_at']);
 $usage = documentTemplateUsage([$document_template_id])[$document_template_id] ?? ['count' => 0, 'clients' => 0, 'last' => null];
 $content = trim((string) $template['document_template_content']) !== '' ? documentTemplateMarkBrackets(documentHtmlPurify($template['document_template_content'])) : '';

@@ -281,6 +281,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Messages: archiving, restoring, deleting, favoriting or setting the category of several contacts, clients, assets or products said contact(s), client(s) and so on, an import of network IPs said IP(s), and the message after restoring clients started "You restored". They now say 1 contact, 3 contacts, with the number in bold, like the rest.
 - Contacts: the button in the archive window read Arhive.
 - Tickets: cancelling Reset the timer still marked the timer as stopped in that browser, so it showed as stopped after a reload while it was still counting.
+- Browser tabs: many pages were named after their file - Kb, Ai Providers, Rmm Providers, Sla, Settings Ticket, Profit Loss - and one with & in its name showed &amp;. Each tab now has the name the menu gives the page, and a rack, an instance and a ticket, document or project template show their own name.
 
 ### Developer Updates
 
@@ -447,6 +448,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Confirms: `itflowConfirm({title, text, button, icon, danger})` in `js/confirm_modal.js` asks the SweetAlert question from script and resolves true when confirmed; `confirm-link` goes through it, and with no `data-confirm-button` takes the link's own text (three words or fewer) for the button. `fa-ellipsis-v`, `fa-trash`, `fa-redo` and `fa-download` are the icons for More, Delete, Restore and Export - `fa-redo-alt` stays for recurring and `fa-undo` for restoring a backup or a version.
 - UI text: titles, menu items and buttons in Title Case, with a, an, the, and, but, or, for, as, at, by, in, of, on, to, via, from, with and into lower case unless first or last, and a verb's particle capitalised (Turn Off, Back Up, Sign In); field labels, section headings, tabs and help in sentence case. Proper names and acronyms keep their capitals either way. The empty-state and header `'actions'` labels are buttons, so Title Case too.
 - Lists: `sortLink($column, $label, $first, $title, $class)` in `functions/format.php` draws a sortable column header from what `includes/filter_header.php` sets, and `sortFirstOrder()` picks the first direction from the column's name. It replaces the 48 copied `$sort_link` closures and the 115 header links written out by hand; a page with its own first directions passes `$first`.
+- Tab titles: `includes/page_title.php` takes a report's title from `reportCatalog()`, a settings page's from `settingsPages()` and a few others from a short list, and makes the rest from the file name with its acronyms in capitals. `$page_title` is no longer HTML-escaped there - the footer writes it with `json_encode()` and `emptyStateHtml()` escapes it.
 
 ## [26.11.8]
 

@@ -23,6 +23,8 @@ if (!$template) { ?>
     exit;
 }
 
+$page_title = $template['project_template_name'];
+
 // Its ticket templates in order, then all their tasks in one go
 $sql = mysqli_query($mysqli, "SELECT ticket_templates.ticket_template_id, ticket_template_name, ticket_template_subject, ticket_template_description, ticket_template_order
     FROM project_template_ticket_templates
