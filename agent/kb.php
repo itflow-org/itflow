@@ -141,7 +141,7 @@ $csrf = $_SESSION['csrf_token'];
                     </button>
                 <?php } ?>
                 <?php if ($session_is_admin) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item" href="/admin/categories.php?category=kb">
                             <i class="fas fa-fw fa-list-ul text-secondary me-2"></i>Categories
@@ -209,7 +209,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_kb_articles">
-                                        <i class="fas fa-fw fa-box-open me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
@@ -349,7 +349,7 @@ $csrf = $_SESSION['csrf_token'];
                                             </a>
                                         <?php } else { ?>
                                             <a class="dropdown-item" href="post.php?restore_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>">
-                                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                         <?php } ?>
                                         <?php if ($can_delete) { ?>

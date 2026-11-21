@@ -165,7 +165,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['role_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_role=<?= $role_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } elseif ($archive_blocker !== '') { ?>
                                     <span class="dropdown-item disabled" title="<?= escapeHtml($archive_blocker) ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</span>

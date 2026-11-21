@@ -16,7 +16,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-download me-2"></i>Export document templates</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-download me-2"></i>Export document templates</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

@@ -178,7 +178,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <a class="dropdown-item" href="post.php?copy_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
-                                    <a class="dropdown-item" href="post.php?restore_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                    <a class="dropdown-item" href="post.php?restore_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>" title="Kept, but not offered on a new contract"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                 <?php } ?>

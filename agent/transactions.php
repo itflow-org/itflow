@@ -241,7 +241,7 @@ $is_card = $account && $account['type'] === 3;
                         <i class="fas fa-<?= $is_card ? 'credit-card' : 'exchange-alt' ?> me-2"></i><?= $is_card ? 'Pay the Card' : 'New Transfer' ?>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'reconciliation', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
@@ -285,7 +285,7 @@ $is_card = $account && $account['type'] === 3;
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search transactions" title="Who or what, description, reference, amount, category, client, account">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search transactions..." title="Who or what, description, reference, amount, category, client, account">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#ledgerMoreFilters"><i class="fas fa-filter"></i></button>
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>

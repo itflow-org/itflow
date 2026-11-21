@@ -122,7 +122,7 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
                     </a>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_export.php">
-                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/license_templates.php">
@@ -251,12 +251,12 @@ $csrf = $_SESSION['csrf_token'];
                                     <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                                 <a class="dropdown-item" href="post.php?export_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow">
-                                    <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                                    <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['software_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="Not offered for new licenses - the licenses made from it stay">

@@ -50,7 +50,7 @@
     <?php if (lookupUserPermission("module_client") >= 1) { ?>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_export_data.php?client_id=<?= $client_id ?>" data-modal-size="lg">
-            <i class="fas fa-fw fa-file-export me-2"></i>Export Data
+            <i class="fas fa-fw fa-download me-2"></i>Export Data
         </a>
     <?php } ?>
     <?php if (reportCan(reportFind('client_review'))) { ?>
@@ -73,7 +73,7 @@
     <?php } else { ?>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item text-primary" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-            <i class="fas fa-fw fa-archive me-2"></i>Restore Client
+            <i class="fas fa-fw fa-redo me-2"></i>Restore Client
         </a>
     <?php } ?>
 

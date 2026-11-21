@@ -83,7 +83,7 @@ $archived = !empty($template['project_template_archived_at']);
                     <div class="dropdown-divider"></div>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                            <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                            <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                         </a>
                     <?php } else { ?>
                         <a class="dropdown-item text-danger" href="post.php?archive_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

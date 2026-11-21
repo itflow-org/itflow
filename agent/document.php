@@ -319,7 +319,7 @@ $page_title = $row['document_name'];
                         </div>
                         <a class="itflow-copy ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_changes.php?document_id=<?= $document_id ?>&version_id=<?= $version_id ?>" title="What changed"><i class="fas fa-exchange-alt"></i></a>
                         <?php if ($can_delete) { ?>
-                            <a class="itflow-copy confirm-link text-danger" href="post.php?delete_document_version=<?= $version_id ?>&csrf_token=<?= $csrf ?>" title="Delete this version" data-confirm-text="This version is removed from the history for good."><i class="fas fa-trash-alt"></i></a>
+                            <a class="itflow-copy confirm-link text-danger" href="post.php?delete_document_version=<?= $version_id ?>&csrf_token=<?= $csrf ?>" title="Delete this version" data-confirm-text="This version is removed from the history for good."><i class="fas fa-trash"></i></a>
                         <?php } ?>
                     </li>
                 <?php } ?>

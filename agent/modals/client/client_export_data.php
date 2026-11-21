@@ -59,7 +59,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-file-export me-2"></i>Export <?= $client_name ?></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-download me-2"></i>Export <?= $client_name ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

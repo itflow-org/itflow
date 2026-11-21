@@ -284,7 +284,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                             <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>"><i class="fa fa-fw fa-list-alt text-secondary me-2"></i>Transactions</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger confirm-link" href="post.php?reconcile_discard=<?= intval($open['reconciliation_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                data-confirm-title="Discard this reconciliation?" data-confirm-text="What is ticked comes off, and nothing is marked cleared." data-confirm-button="Discard"><i class="fa fa-fw fa-trash-alt me-2"></i>Discard</a>
+                                data-confirm-title="Discard this reconciliation?" data-confirm-text="What is ticked comes off, and nothing is marked cleared." data-confirm-button="Discard"><i class="fa fa-fw fa-trash me-2"></i>Discard</a>
                         </div>
                     </div>
                 </form>

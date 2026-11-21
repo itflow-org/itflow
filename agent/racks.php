@@ -124,7 +124,7 @@ foreach ($racks as $rack_id => $row) {
 
                 <div class="col-lg-3 col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks and what's in them">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks..." title="Racks and what's in them">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>

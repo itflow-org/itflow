@@ -190,7 +190,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['custom_link_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>" title="Back at the end of the <?= escapeHtml($location_config['label']) ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>" title="Kept, but no longer shown">

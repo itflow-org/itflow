@@ -132,7 +132,7 @@ $csrf = $_SESSION['csrf_token'];
                                         </a>
                                         <?php if ($show_archived) { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_tags">
-                                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </button>
                                         <?php } else { ?>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_archive_tags">
@@ -232,7 +232,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <div class="dropdown-divider"></div>
                                             <?php if ($tag['tag_archived_at']) { ?>
                                                 <a class="dropdown-item" href="post.php?restore_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>">
-                                                    <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                    <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                 </a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item text-danger" href="post.php?archive_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>" title="It stays on its <?= $kind['plural'] ?>, but isn't offered for tagging or in the filters">

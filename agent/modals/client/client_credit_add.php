@@ -18,7 +18,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Type<strong class="text-danger ms-2">*</strong></label>
+                        <label class="form-label">Type <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
                             <select class="form-select select2" name="type" required>
@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Amount<strong class="text-danger ms-2">*</strong></label>
+                        <label class="form-label">Amount <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Note<strong class="text-danger ms-2">*</strong></label>
+                        <label class="form-label">Note <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                             <input type="text" class="form-control" name="note" placeholder="Enter a note" maxlength="250">

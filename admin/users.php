@@ -786,7 +786,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <?php } elseif ($is_archived) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>">
-                                            <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Restore
+                                            <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>">

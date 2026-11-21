@@ -113,7 +113,7 @@ if (!$po || !poAccessible($po['po_id'])) {
                     <a class="btn btn-primary" href="receiving.php?po_id=<?= $po_id ?>"><i class="fas fa-truck-loading me-2"></i>Receive</a>
                 <?php } ?>
                 <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i><span class="visually-hidden">More</span></button>
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i><span class="visually-hidden">More</span></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item" href="post.php?po_pdf=<?= $po_id ?>&csrf_token=<?= $csrf ?>" target="_blank"><i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>PDF</a>
                         <?php if ($can_edit && $ordered_or_after) { ?>

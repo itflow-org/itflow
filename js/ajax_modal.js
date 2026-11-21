@@ -144,7 +144,11 @@ document.addEventListener('click', function (e) {
         })
         .catch(function (error) {
             clearSpinner();
-            alert('Error loading modal content. Please try again.');
+            if (typeof itflowToast === 'function') {
+                itflowToast('That window could not be opened - try again.', 'error');
+            } else {
+                alert('That window could not be opened - try again.');
+            }
             console.error('Modal AJAX Error:', error);
         });
 });

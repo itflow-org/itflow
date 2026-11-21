@@ -413,7 +413,7 @@ $preview = []; // the grid's previewer payload
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?= escapeHtml($search) ?>" placeholder="Search <?= $search_label === 'all folders' ? 'all folders' : 'in ' . $search_label ?> - names and document text">
+                        <input type="search" class="form-control" name="q" value="<?= escapeHtml($search) ?>" placeholder="Search <?= $search_label === 'all folders' ? 'all folders' : 'in ' . $search_label ?>..." title="Names and document text">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
@@ -523,7 +523,7 @@ $preview = []; // the grid's previewer payload
                 </nav>
                 <?php if (!$archived && $search === '') { ?>
                     <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown" title="This folder"><i class="fas fa-ellipsis-h"></i></button>
+                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="dropdown" title="This folder"><i class="fas fa-ellipsis-v"></i></button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <!-- Everything in it and the folders under it, documents as web pages (agent/post/file.php) -->
                             <a class="dropdown-item" href="post.php?download_folder_zip=<?= $folder_id ?>&client_id=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-file-archive me-2"></i><?= $folder_id ? 'Download as zip' : 'Download everything as zip' ?></a>

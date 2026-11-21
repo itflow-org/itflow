@@ -31,7 +31,7 @@ ob_start();
     <div class="modal-footer">
         <?php if (!intval($form['interface_primary'])) { ?>
             <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                data-confirm-text="<?= escapeHtml($form['interface_name']) ?> goes for good<?= $form['link'] ? ', and its connection to ' . escapeHtml($form['link']['asset_name'] . ' ' . $form['link']['interface_name']) . ' with it' : '' ?>."><i class="fas fa-trash-alt me-2"></i>Delete</a>
+                data-confirm-text="<?= escapeHtml($form['interface_name']) ?> goes for good<?= $form['link'] ? ', and its connection to ' . escapeHtml($form['link']['asset_name'] . ' ' . $form['link']['interface_name']) . ' with it' : '' ?>."><i class="fas fa-trash me-2"></i>Delete</a>
         <?php } ?>
         <button type="submit" name="edit_asset_interface" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>

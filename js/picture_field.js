@@ -681,7 +681,7 @@
                         '<input type="file" hidden data-camera-file accept="image/*" capture="environment">' +
                     '</div>' +
                     '<div class="modal-footer">' +
-                        '<button type="button" class="btn btn-outline-danger me-auto" data-remove><i class="fas fa-trash-alt me-2"></i>Remove</button>' +
+                        '<button type="button" class="btn btn-outline-danger me-auto" data-remove><i class="fas fa-trash me-2"></i>Remove</button>' +
                         '<button type="button" class="btn btn-outline-secondary" data-another hidden><i class="fas fa-images me-2"></i>Choose another</button>' +
                         '<button type="button" class="btn btn-primary text-bold" data-use disabled><i class="fas fa-check me-2"></i><span data-use-label>Use this picture</span></button>' +
                         '<button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>' +

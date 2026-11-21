@@ -34,7 +34,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?delete_network_ip=<?= $ip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= escapeHtml($form['ip_address']) ?> is no longer documented."><i class="fas fa-trash-alt me-2"></i>Delete</a>
+            data-confirm-text="<?= escapeHtml($form['ip_address']) ?> is no longer documented."><i class="fas fa-trash me-2"></i>Delete</a>
         <button type="submit" name="edit_network_ip" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>

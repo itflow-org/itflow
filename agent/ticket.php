@@ -1834,7 +1834,7 @@ if (isset($_GET['ticket_id'])) {
                                                         <?php } ?>
                                                         <div class="dropdown-divider"></div>
                                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-fw fa-trash-alt me-2"></i>Delete
+                                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     </div>
                                                 </div>

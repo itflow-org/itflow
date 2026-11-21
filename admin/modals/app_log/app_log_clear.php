@@ -28,7 +28,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-trash-alt me-2"></i>Clear App Logs</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-trash me-2"></i>Clear App Logs</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -67,7 +67,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($total) { ?>
-            <button type="submit" name="clear_app_logs" class="btn btn-danger text-bold"><i class="fas fa-trash-alt me-2"></i>Clear</button>
+            <button type="submit" name="clear_app_logs" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i>Clear</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

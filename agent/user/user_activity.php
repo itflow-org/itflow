@@ -109,7 +109,7 @@ $view_empty = [
             <div class="row g-2 align-items-center">
                 <div class="col-lg-6 col-md-7">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search what you did" title="What you did, the client, the IP address or the browser">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search your activity..." title="What you did, the client, the IP address or the browser">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>

@@ -211,7 +211,7 @@ if (!$total_missing) {
                                     data-confirm-title="Remove the demo data?"
                                     data-confirm-text="The demo clients go, with all of their contacts, assets, documentation, credentials, tickets, quotes, invoices and payments, and so do the demo suppliers, accounts, response targets and company expenses. This can't be undone."
                                     data-confirm-button="Remove it">
-                                <i class="fas fa-fw fa-trash-alt me-2"></i>Remove demo data
+                                <i class="fas fa-fw fa-trash me-2"></i>Remove demo data
                             </button>
                         </form>
                     <?php } ?>

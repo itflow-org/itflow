@@ -90,7 +90,7 @@ $fee_terms = $fee_rates ? ' Each card payment has a card fee added: ' . billingC
                             <a class="btn btn-sm btn-outline-danger confirm-link" href="post.php?delete_saved_payment=<?= intval($card['saved_payment_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                 data-confirm-title="Remove <?= escapeHtml($c['label']) ?>?"
                                 data-confirm-text="<?= $card['autopay'] ? 'Autopay with this card stops - those invoices will need paying by hand.' : 'You can save it again any time.' ?>"
-                                data-confirm-button="Remove" data-confirm-icon="warning"><i class="fas fa-trash-alt me-1"></i>Remove</a>
+                                data-confirm-button="Remove" data-confirm-icon="warning"><i class="fas fa-trash me-1"></i>Remove</a>
                         </li>
                     <?php } ?>
                 </ul>

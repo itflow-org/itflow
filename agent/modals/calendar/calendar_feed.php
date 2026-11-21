@@ -98,7 +98,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($feed) { ?>
             <div class="dropdown dropup me-auto">
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item confirm-link" href="post.php?calendar_feed_regenerate=1&csrf_token=<?= $csrf ?>"
                         data-confirm-title="Make a new link?" data-confirm-button="New link"

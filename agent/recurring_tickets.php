@@ -145,7 +145,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                         <i class="fas fa-plus me-2"></i>New Recurring Ticket
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="tickets.php<?= $client_url ? '?' . rtrim($client_url, '&') : '' ?>">
                         <i class="fa fa-fw fa-life-ring me-2"></i>Tickets

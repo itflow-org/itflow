@@ -207,7 +207,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <div class="dropdown-divider"></div>
                                     <?php if ($row['canned_response_archived_at']) { ?>
                                         <a class="dropdown-item" href="post.php?restore_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>">
-                                            <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                            <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item text-danger" href="post.php?archive_your_canned_response=<?= $canned_response_id ?>&csrf_token=<?= $csrf ?>" title="Not offered on tickets">

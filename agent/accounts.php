@@ -104,7 +104,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/account/account_add.php"><i class="fas fa-plus me-2"></i>New Account</button>
                 <?php } ?>
-                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
@@ -125,7 +125,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
             <form autocomplete="off" class="me-auto" style="min-width: 16rem;">
                 <?php if ($show) { ?><input type="hidden" name="show" value="<?= $show ?>"><?php } ?>
                 <div class="input-group">
-                    <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_text) ?>" placeholder="Search accounts">
+                    <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_text) ?>" placeholder="Search accounts...">
                     <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                 </div>
             </form>
@@ -229,7 +229,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                                     <?php } ?>
                                 <?php } elseif ($can_edit) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="post.php?restore_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Restore</a>
+                                    <a class="dropdown-item" href="post.php?restore_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                 <?php } ?>
                                 <?php if ($can_delete && !$in_use && !accountInUse($account_id)) { ?>
                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"

@@ -133,7 +133,7 @@ $page_title = $row['kb_article_title'];
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger" href="post.php?archive_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                         <?php } else { ?>
-                            <a class="dropdown-item" href="post.php?restore_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-box-open me-2"></i>Restore</a>
+                            <a class="dropdown-item" href="post.php?restore_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
                         <?php } ?>
                         <?php if ($can_delete) { ?>
                             <div class="dropdown-divider"></div>
@@ -180,7 +180,7 @@ $page_title = $row['kb_article_title'];
                                 <a class="btn btn-sm btn-light border" href="kb_file.php?file_id=<?= $file_id ?>" title="Download"><i class="fas fa-download"></i></a>
                                 <?php if ($can_edit) { ?>
                                     <a class="itflow-copy text-danger confirm-link" href="post.php?delete_kb_article_file=<?= $file_id ?>&csrf_token=<?= $csrf ?>" title="Take it off"
-                                        data-confirm-title="Take <?= escapeHtml($file['kb_article_file_name']) ?> off?" data-confirm-text="It goes for good." data-confirm-button="Take it off"><i class="fas fa-trash-alt"></i></a>
+                                        data-confirm-title="Take <?= escapeHtml($file['kb_article_file_name']) ?> off?" data-confirm-text="It goes for good." data-confirm-button="Take it off"><i class="fas fa-trash"></i></a>
                                 <?php } ?>
                             </li>
                         <?php } ?>
@@ -385,7 +385,7 @@ $page_title = $row['kb_article_title'];
                             </div>
                         </div>
                         <?php if ($can_delete) { ?>
-                            <a class="itflow-copy confirm-link text-danger" href="post.php?delete_kb_article_version=<?= $version_id ?>&csrf_token=<?= $csrf ?>" title="Delete this version" data-confirm-text="This version is removed from the history for good."><i class="fas fa-trash-alt"></i></a>
+                            <a class="itflow-copy confirm-link text-danger" href="post.php?delete_kb_article_version=<?= $version_id ?>&csrf_token=<?= $csrf ?>" title="Delete this version" data-confirm-text="This version is removed from the history for good."><i class="fas fa-trash"></i></a>
                         <?php } ?>
                     </li>
                 <?php } ?>

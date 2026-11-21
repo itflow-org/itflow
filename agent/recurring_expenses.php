@@ -142,7 +142,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                 <?php if ($can_edit) { ?>
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_add.php<?= $vendor_filter ? "?vendor_id=$vendor_filter" : '' ?>"><i class="fas fa-plus me-2"></i>New Recurring Expense</button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="expenses.php"><i class="fa fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses</a>
                     <?php if (reportCanOpen('expense_by_vendor')) { ?>
@@ -159,7 +159,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search recurring expenses" title="Vendor, description, reference, amount, client, category">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search recurring expenses..." title="Vendor, description, reference, amount, client, category">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>

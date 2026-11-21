@@ -223,7 +223,8 @@ if ($contacts) {
 }
 
 $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label']) . ' contacts' : 'contacts';
-$search_placeholder = $invites_view ? 'Search invites by email, name or client' : "Search $search_noun, phones, emails...";
+$search_placeholder = $invites_view ? 'Search invites...' : "Search $search_noun...";
+$search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, phone, department, location, client or tag';
 
 ?>
 
@@ -324,7 +325,7 @@ $search_placeholder = $invites_view ? 'Search invites by email, name or client' 
 
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="<?= $search_placeholder ?>">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="<?= $search_placeholder ?>" title="<?= $search_title ?>">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>

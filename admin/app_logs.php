@@ -98,7 +98,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="<?= $filters_url('modals/app_log/app_log_clear.php') ?>" data-app-log-clear>
-                        <i class="fas fa-fw fa-trash-alt me-2"></i>Clear
+                        <i class="fas fa-fw fa-trash me-2"></i>Clear
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="settings_logs.php">
@@ -117,7 +117,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-12">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the app logs" title="The category or what it says">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the app logs..." title="The category or what it says">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>

@@ -396,7 +396,7 @@ $pill_url = function ($view) use ($on_days) {
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                             <?php if ($sla['sla_archived_at']) { ?>
-                                                <a class="dropdown-item" href="post.php?unarchive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-restore><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                                <a class="dropdown-item" href="post.php?unarchive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>" data-sla-restore><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                             <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger" href="post.php?archive_sla=<?= $sla_id ?>&amp;csrf_token=<?= $csrf ?>">

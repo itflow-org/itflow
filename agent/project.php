@@ -228,7 +228,7 @@ echo agentBannersHtml($project_client_id);
                         <div class="dropdown-divider"></div>
                         <?php if ($project['project_archived_at']) { ?>
                             <a class="dropdown-item" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                             </a>
                         <?php } else { ?>
                             <a class="dropdown-item text-danger" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

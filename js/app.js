@@ -721,7 +721,7 @@ function itflowInit() {
                         var newContent = '<span style="font-weight: bold; color: red;">[REDACTED]</span>';
                         editor.selection.setContent(newContent);
                     } else {
-                        alert('Please select a word to redact');
+                        itflowToast('Select the text to redact first', 'warning');
                     }
                 }
             });
@@ -777,7 +777,7 @@ function itflowInit() {
                         var newContent = '<span style="font-weight: bold; color: red;">[REDACTED]</span>';
                         editor.selection.setContent(newContent);
                     } else {
-                        alert('Please select a word to redact');
+                        itflowToast('Select the text to redact first', 'warning');
                     }
                 }
             });

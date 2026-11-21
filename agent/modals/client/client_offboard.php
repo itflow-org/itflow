@@ -49,7 +49,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="alert alert-info d-flex align-items-center gap-2 py-2">
-            <i class="fas fa-file-export"></i>
+            <i class="fas fa-download"></i>
             <span class="me-auto">Keep a copy of everything first?</span>
             <a class="btn btn-sm btn-outline-primary ajax-modal" href="#" data-modal-url="modals/client/client_export_data.php?client_id=<?= $client_id ?>" data-modal-size="lg">Export Data</a>
         </div>

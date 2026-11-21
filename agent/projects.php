@@ -155,7 +155,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                         <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Project</span>
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/project/project_export.php', ['client_id', 'client', 'manager', 'show', 'q']) ?>">
                         <i class="fa fa-fw fa-download me-2"></i>Export
@@ -244,7 +244,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_restore_projects">
-                                        <i class="fas fa-fw fa-box-open me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
@@ -442,7 +442,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                         <?php } ?>
                                         <?php if ($row['project_archived_at']) { ?>
                                             <a class="dropdown-item" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                         <?php } else { ?>
                                             <a class="dropdown-item text-danger" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

@@ -95,10 +95,10 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
             <?php } ?>
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="xl" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit me-2"></i>Edit</button>
             <div class="dropdown">
-                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="post.php?copy_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
-                    <a class="dropdown-item" href="post.php?export_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
+                    <a class="dropdown-item" href="post.php?export_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow"><i class="fas fa-fw fa-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;"><i class="fas fa-fw fa-print me-2"></i>Print</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
@@ -270,7 +270,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                                                     data-confirm-title="Reset <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is still in what it says, so it stays asked for - as plain, optional text." data-confirm-button="Reset"><i class="fas fa-fw fa-undo me-2"></i>Reset</a>
                                             <?php } else { ?>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_document_template_fill_in=<?= $fill_in['id'] ?>&csrf_token=<?= $csrf ?>"
-                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for." data-confirm-button="Remove"><i class="fas fa-fw fa-trash-alt me-2"></i>Remove</a>
+                                                    data-confirm-title="Remove <?= escapeHtml($fill_in['name']) ?>?" data-confirm-text="It is no longer asked for." data-confirm-button="Remove"><i class="fas fa-fw fa-trash me-2"></i>Remove</a>
                                             <?php } ?>
                                         <?php } ?>
                                     </div>

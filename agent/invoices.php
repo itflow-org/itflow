@@ -200,7 +200,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         <i class="fas fa-plus me-2"></i>New Invoice
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/invoice/invoice_export.php', ['client_id', 'status', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">

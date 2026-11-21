@@ -207,7 +207,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <?php if ($archived) { ?>
                                     <a class="dropdown-item" href="post.php?restore_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>" title="Back in the pickers">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $csrf ?>"

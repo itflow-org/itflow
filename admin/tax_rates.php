@@ -158,7 +158,7 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>" data-modal-size="lg"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                         <?php if ($rate['tax_archived_at']) { ?>
-                                            <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore</a>
+                                            <a class="dropdown-item" href="post.php?restore_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                         <?php } else { ?>
                                             <?php if (!$u['default']) { ?>
                                                 <a class="dropdown-item" href="post.php?default_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-star text-secondary me-2"></i>Make default</a>

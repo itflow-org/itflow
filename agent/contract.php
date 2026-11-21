@@ -247,7 +247,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                 <a class="btn btn-outline-secondary btn-sm" href="post.php?export_contract_pdf=<?= $contract_id ?>&round=<?= intval($latest['contract_signature_id']) ?>" title="Download PDF"><i class="fas fa-file-pdf"></i></a>
                                 <?php if ($can_edit && contractSignaturePending($latest)) { ?>
                                     <div class="dropdown">
-                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-h"></i></button>
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" title="More"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu">
                                             <?php if ($latest_state['key'] !== 'countersign') { ?>
                                                 <a class="dropdown-item confirm-link" href="post.php?resend_contract_signature=<?= intval($latest['contract_signature_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
@@ -536,7 +536,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                                 <td class="text-end">
                                                     <?php if (!intval($block['uses'])) { ?>
                                                         <a class="btn btn-sm btn-link text-danger p-0 confirm-link" href="post.php?delete_contract_block=<?= $block_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Delete these hours"
-                                                            data-confirm-title="Delete <?= escapeHtml(contractHoursText($block['contract_block_hours'])) ?>?" data-confirm-text="Nothing was drawn from them.<?= intval($block['contract_block_invoice_id']) ? ' Their invoice stays - void it if it should go too.' : '' ?>" data-confirm-button="Delete"><i class="fas fa-fw fa-trash-alt"></i></a>
+                                                            data-confirm-title="Delete <?= escapeHtml(contractHoursText($block['contract_block_hours'])) ?>?" data-confirm-text="Nothing was drawn from them.<?= intval($block['contract_block_invoice_id']) ? ' Their invoice stays - void it if it should go too.' : '' ?>" data-confirm-button="Delete"><i class="fas fa-fw fa-trash"></i></a>
                                                     <?php } ?>
                                                 </td>
                                             <?php } ?>

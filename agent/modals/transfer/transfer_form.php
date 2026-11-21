@@ -89,7 +89,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     </div>
 
     <div class="col-md-6">
-        <label class="form-label d-flex align-items-center">To <strong class="text-danger ms-1">*</strong>
+        <label class="form-label d-flex align-items-center">To <strong class="text-danger">*</strong>
             <button type="button" class="btn btn-link btn-sm p-0 ms-auto text-decoration-none" data-transfer-swap title="Turn it round" <?= $form_lock ? 'hidden' : '' ?>><i class="fas fa-exchange-alt me-1"></i>Swap</button>
         </label>
         <div class="input-group">

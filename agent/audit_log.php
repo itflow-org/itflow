@@ -120,7 +120,7 @@ $view_empty = [
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $client_name ?>'s audit log" title="What was done, who did it, the IP address or the browser">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the audit log..." title="What was done, who did it, the IP address or the browser">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#auditMoreFilters"><i class="fas fa-filter"></i></button>
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>

@@ -120,7 +120,7 @@ ob_start();
     <?php if ($is_self) { ?>
         <a class="btn btn-primary" href="/agent/user/user_details.php"><i class="fas fa-user-cog me-2"></i>Your account</a>
     <?php } elseif ($is_archived) { ?>
-        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>"><i class="fas fa-redo-alt me-2"></i>Restore</button>
+        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>"><i class="fas fa-redo me-2"></i>Restore</button>
     <?php } else { ?>
         <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>"><i class="fas fa-user-edit me-2"></i>Edit</button>
     <?php } ?>

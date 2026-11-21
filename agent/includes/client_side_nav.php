@@ -457,7 +457,7 @@
                 <?php if ($client_nav_quiet) { ?>
                     <li class="nav-item mt-2">
                         <a href="#" class="nav-link" data-nav-more title="None for this client yet: <?= escapeHtml(implode(', ', $client_nav_quiet)) ?>">
-                            <i class="nav-icon fas fa-ellipsis-h"></i>
+                            <i class="nav-icon fas fa-ellipsis-v"></i>
                             <p>More <span class="right badge text-light"><?= count($client_nav_quiet) ?></span></p>
                         </a>
                     </li>

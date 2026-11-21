@@ -56,7 +56,7 @@ ob_start();
             <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                 data-confirm-title="Delete <?= escapeHtml($form['event_title']) ?>?" data-confirm-button="Delete"
                 <?php if ($form_invited) { ?>data-confirm-text="Everyone who was sent the invitation is emailed the cancellation."<?php } ?>>
-                <i class="fas fa-trash-alt me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
+                <i class="fas fa-trash me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
             </a>
         <?php } ?>
         <button type="submit" name="edit_event" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>

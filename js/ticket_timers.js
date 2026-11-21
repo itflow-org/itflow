@@ -282,7 +282,7 @@
             top.appendChild(call.running
                 ? button('fa-pause', 'Pause', 'btn-outline-secondary', callPause)
                 : button('fa-play', 'Resume', 'btn-outline-secondary', callStart));
-            top.appendChild(button('fa-trash-alt', 'Throw this time away', 'btn-outline-danger', function () { confirming = 'call'; finding = false; }));
+            top.appendChild(button('fa-trash', 'Throw this time away', 'btn-outline-danger', function () { confirming = 'call'; finding = false; }));
         }
         row.appendChild(top);
 
@@ -460,7 +460,7 @@
                 top.appendChild(t.running
                     ? button('fa-pause', 'Pause', 'btn-outline-secondary', function () { pause(t.id); })
                     : button('fa-play', 'Resume', 'btn-outline-secondary', function () { resume(t.id); }));
-                top.appendChild(button('fa-trash-alt', 'Throw this time away', 'btn-outline-danger', function () { confirming = t.id; }));
+                top.appendChild(button('fa-trash', 'Throw this time away', 'btn-outline-danger', function () { confirming = t.id; }));
             }
             row.appendChild(top);
 

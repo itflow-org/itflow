@@ -115,7 +115,7 @@ $filter_url = function ($changes) {
                         <i class="fas fa-user-secret me-2"></i>Secure Note
                     </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_note ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_note ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <button type="button" class="btn btn-primary dropdown-toggle <?= $can_note ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_note ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_export) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">

@@ -122,7 +122,7 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
                     <td class="small"><?= escapeHtml(implode(' ', $when)) ?><div class="text-secondary">Posted by <?= escapeHtml($row['user_name'] ?: 'someone') ?></div></td>
                     <td>
                         <div class="dropdown dropstart text-center">
-                            <button class="btn btn-secondary btn-sm" title="More actions" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <button class="btn btn-secondary btn-sm" title="More actions" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/portal_announcement/portal_announcement_edit.php?id=<?= $announcement_id ?>" data-modal-size="lg"><i class="fas fa-fw fa-edit me-2"></i>Edit</a>
                                 <?php if ($row['announcement_archived_at']) { ?>

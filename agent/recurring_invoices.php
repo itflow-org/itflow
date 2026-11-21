@@ -159,7 +159,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_invoice/recurring_invoice_add.php?<?= $client_url ?>"><i class="fas fa-plus me-2"></i>New Recurring Invoice</button>
                 <?php } ?>
                 <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/recurring_invoice/recurring_invoice_export.php', ['client_id', 'category', 'q'], ['status' => in_array($status, ['active', 'inactive'], true) ? $status : '', 'client_id' => $client ?: '']) ?>">
                             <i class="fa fa-fw fa-download text-secondary me-2"></i>Export

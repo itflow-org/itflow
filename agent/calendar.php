@@ -117,7 +117,7 @@ foreach ($sources as $key => $source) {
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_calendar=<?= $calendar_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Delete <?= escapeHtml($calendar['calendar_name']) ?>?" data-confirm-button="Delete"
-                                            data-confirm-text="Its events are deleted with it, and anyone sent an invitation to one is emailed the cancellation."><i class="fas fa-fw fa-trash-alt me-2"></i>Delete</a>
+                                            data-confirm-text="Its events are deleted with it, and anyone sent an invitation to one is emailed the cancellation."><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                     </div>
                                 </div>
                             <?php } ?>

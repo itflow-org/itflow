@@ -201,7 +201,7 @@ ob_start();
 
 <div class="modal-footer">
     <div class="dropdown dropup me-auto">
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-h"></i></button>
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="post.php?export_event_ics=<?= $event_id ?>"><i class="fas fa-fw fa-download me-2"></i>Download .ics</a>
             <?php if ($repeats && $can_edit) { ?>
@@ -216,7 +216,7 @@ ob_start();
                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $csrf ?>"
                     data-confirm-title="Delete <?= escapeHtml($event['event_title']) ?>?" data-confirm-button="Delete"
                     <?php if ($invited) { ?>data-confirm-text="Everyone who was sent the invitation is emailed the cancellation."<?php } ?>>
-                    <i class="fas fa-fw fa-trash-alt me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
+                    <i class="fas fa-fw fa-trash me-2"></i><?= $repeats ? 'Delete series' : 'Delete' ?>
                 </a>
             <?php } ?>
         </div>

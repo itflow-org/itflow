@@ -121,7 +121,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <a class="btn btn-outline-secondary me-auto" href="post.php?import_template=<?= escapeHtml($def['kind']) ?><?= $client_id ? "&amp;client_id=$client_id" : '' ?>" data-import-template><i class="fas fa-download me-2"></i>Template</a>
-        <button type="button" class="btn btn-outline-secondary d-none" data-import-failed><i class="fas fa-file-download me-2"></i>Rows not imported</button>
+        <button type="button" class="btn btn-outline-secondary d-none" data-import-failed><i class="fas fa-download me-2"></i>Rows not imported</button>
         <button type="submit" class="btn btn-primary text-bold" disabled data-import-run><i class="fas fa-upload me-2"></i>Import</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal" data-import-close><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

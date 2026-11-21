@@ -116,7 +116,7 @@ if (!officesReady()) { ?>
     </div>
     <div class="modal-footer">
         <?php if ($office) { ?>
-            <a href="post.php?remove_office=<?= $office_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger me-auto confirm-link" data-confirm-title="Remove this office?" data-confirm-text="Those who work there go back to the main office." data-confirm-button="Remove" data-office-remove><i class="fas fa-trash-alt me-2"></i>Remove</a>
+            <a href="post.php?remove_office=<?= $office_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger me-auto confirm-link" data-confirm-title="Remove this office?" data-confirm-text="Those who work there go back to the main office." data-confirm-button="Remove" data-office-remove><i class="fas fa-trash me-2"></i>Remove</a>
         <?php } ?>
         <button type="submit" name="save_office" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i><?= $office ? 'Save' : 'Create' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>

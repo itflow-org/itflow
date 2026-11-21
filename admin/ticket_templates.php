@@ -96,7 +96,7 @@ $csrf = $_SESSION['csrf_token'];
                         <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
                     </a>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_template/ticket_template_export.php">
-                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="/agent/reports/ticket_templates.php">
@@ -221,7 +221,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <?php if ($row['ticket_template_archived_at']) { ?>
                                     <a class="dropdown-item" href="post.php?restore_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>">
-                                        <i class="fas fa-fw fa-box-open text-secondary me-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_ticket_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>" title="Not offered for new tickets - recurring tickets and project templates that use it keep it">

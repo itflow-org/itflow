@@ -13,15 +13,15 @@ $agent_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FR
 ob_start();
 
 ?>
-<div class="modal-header bg-danger">
-    <h5 class="modal-title text-white"><i class="fas fa-fw fa-skull-crossbones me-2"></i>Incident response</h5>
+<div class="modal-header bg-dark">
+    <h5 class="modal-title"><i class="fas fa-fw fa-skull-crossbones me-2"></i>Incident response</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-        <p class="fw-semibold mb-2">Reset the password of every other agent - <?= $agent_count ?> of them.</p>
+        <div class="alert alert-danger fw-semibold">Reset the password of every other agent - <?= $agent_count ?> of them.</div>
         <ul class="small mb-3 ps-3">
             <li>Each gets a new password, shown to you once on the next page - give them out by phone, not email, and have them changed.</li>
             <li>Their remembered browsers are forgotten, so anyone with MFA is asked for a code again.</li>

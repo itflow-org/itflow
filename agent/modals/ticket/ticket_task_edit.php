@@ -104,8 +104,8 @@ ob_start();
                             <td><?= ucfirst($approval_status) ?></td>
                             <td>
                                 <?php if ($approval_status !== 'approved') { ?>
-                                    <a class="text-danger"
-                                       onclick="return confirm('Delete this approval request?');"
+                                    <a class="text-danger confirm-link"
+                                       data-confirm-title="Remove this approval request?" data-confirm-button="Remove"
                                        href="post.php?delete_ticket_task_approver=<?= $approval_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-times"></i>Remove
                                     </a>
