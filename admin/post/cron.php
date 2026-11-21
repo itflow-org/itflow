@@ -79,7 +79,7 @@ if (isset($_POST['edit_cron_job'])) {
 
     logAudit("Cron", "Edit", "$session_name edited the schedule for cron job $cron_job_name", 0, $cron_job_id);
 
-    flashAlert("Cron job schedule updated.");
+    flashAlert("Cron job schedule saved");
 
     redirect();
 
@@ -153,7 +153,7 @@ if (isset($_GET['clear_cron_error'])) {
 
     mysqli_query($mysqli, "UPDATE cron_jobs SET cron_job_last_error = NULL, cron_job_last_error_at = NULL WHERE cron_job_id = $cron_job_id");
 
-    flashAlert("Error cleared.");
+    flashAlert("Error cleared");
 
     redirect();
 
@@ -187,7 +187,7 @@ if (isset($_POST['edit_cron_alerts'])) {
 
     logAudit("Cron", "Edit", "$session_name set cron alerts " . ($alert_email ? 'to email ' . ($alert_to === '' ? 'every active admin' : $alert_to) : 'not to email'));
 
-    flashAlert("Cron alerts saved.");
+    flashAlert("Cron alerts saved");
 
     redirect();
 

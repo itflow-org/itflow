@@ -80,7 +80,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring Invoice from Invoice $invoice_prefix$invoice_number", $client_id, $recurring_invoice_id);
 
-    flashAlert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> made recurring as <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
@@ -125,7 +125,7 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring invoice $config_recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    flashAlert("Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
+    flashAlert("Recurring invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
@@ -200,7 +200,7 @@ if (isset($_POST['copy_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Create", escapeSql("$session_name copied recurring invoice $from_number to $client_name as $new_number"), $client_id, $recurring_invoice_id);
 
-    flashAlert("Recurring Invoice <strong>" . escapeHtml($new_number) . "</strong> made for <strong>" . escapeHtml($client_name) . "</strong>, first billing on " . escapeHtml($start)
+    flashAlert("Recurring invoice <strong>" . escapeHtml($new_number) . "</strong> made for <strong>" . escapeHtml($client_name) . "</strong>, first billing on " . escapeHtml($start)
         . ($seat_changes ? ' - seats counted for them: ' . escapeHtml(implode('; ', $seat_changes)) : ''));
 
     redirect("recurring_invoice.php?client_id=$client_id&recurring_invoice_id=$recurring_invoice_id");
@@ -250,7 +250,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name edited recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    flashAlert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited");
+    flashAlert("Recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> saved");
 
     redirect();
 
@@ -307,7 +307,7 @@ if (isset($_GET['delete_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Delete", "$session_name deleted recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $recurring_invoice_scope", $client_id);
 
-    flashAlert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
+    flashAlert("Recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
 
     redirect();
 
@@ -406,14 +406,14 @@ if (isset($_POST['set_recurring_payment'])) {
 
         logAudit("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment <strong>$saved_payment_description</strong> enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic payment with <strong>$saved_payment_description</strong> turned on for recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
         logAudit("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", 'error');
+        flashAlert("Automatic payment turned off for recurring invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>", 'error');
     }
 
     redirect();

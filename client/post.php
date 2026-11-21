@@ -301,7 +301,7 @@ if (isset($_POST['set_contact_phone'])) {
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name updated their phone numbers in the client portal", $session_client_id, $session_contact_id);
 
-    flashAlert("Phone numbers updated");
+    flashAlert("Phone numbers saved");
 
     redirect('profile.php');
 
@@ -348,7 +348,7 @@ if (isset($_POST['set_contact_pin'])) {
     // an audit trail an agent can read would defeat the point of having one
     logAudit("Contact", "Edit", "Client contact $session_contact_name set their phone PIN in the client portal", $session_client_id, $session_contact_id);
 
-    flashAlert("Phone PIN updated");
+    flashAlert("Phone PIN saved");
 
     redirect('profile.php');
 
@@ -1488,7 +1488,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     logAudit("Stripe", "Create", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);
 
-    flashAlert("Payment method saved – thank you.");
+    flashAlert("Payment method saved - thank you");
     redirect("saved_payment_methods.php");
 }
 
@@ -1589,7 +1589,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     logAudit("Stripe", "Delete", "$session_contact_name deleted Stripe payment method $saved_payment_description (PM: $payment_method_id)", $session_client_id);
 
-    flashAlert("Payment method $saved_payment_description removed.");
+    flashAlert("Payment method $saved_payment_description removed");
 
     redirect("saved_payment_methods.php");
 }
@@ -1649,14 +1649,14 @@ if (isset($_POST['set_recurring_payment'])) {
 
         logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment $saved_payment_description enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic payment with $saved_payment_description turned on for recurring invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
         logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . billingMoney($recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
-        flashAlert("Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic payment turned off for recurring invoice $recurring_invoice_prefix$recurring_invoice_number");
     }
 
     redirect();

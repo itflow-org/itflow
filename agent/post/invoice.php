@@ -84,7 +84,7 @@ if (isset($_POST['edit_invoice'])) {
 
     logAudit("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> saved");
 
     redirect();
 
@@ -159,7 +159,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     triggerCustomAction('invoice_create', $new_invoice_id);
 
-    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
+    flashAlert("Invoice <strong>$old_invoice_prefix$old_invoice_number</strong> copied to <strong>$config_invoice_prefix$new_invoice_number</strong>" . ($card_fees > 0 ? ' - without its card fee' : ''));
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 

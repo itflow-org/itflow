@@ -218,7 +218,7 @@ if (isset($_POST['edit_quote'])) {
 
     logAudit("Quote", "Edit", "$session_name edited quote $quote_prefix$quote_number", $client_id, $quote_id);
 
-    flashAlert("Quote edited");
+    flashAlert("Quote <strong>$quote_prefix$quote_number</strong> saved");
 
     redirect();
 

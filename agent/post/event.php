@@ -245,7 +245,7 @@ if (isset($_POST['add_event'])) {
 
     logAudit("Calendar Event", "Create", "$session_name added the event " . escapeSql($event['event_title']) . " to calendar " . escapeSql($event['calendar_name']), $client_id, $event_id);
 
-    flashAlert("Event <strong>" . escapeHtml($event['event_title']) . "</strong> added" . calendarSentText($sent));
+    flashAlert("Event <strong>" . escapeHtml($event['event_title']) . "</strong> created" . calendarSentText($sent));
 
     redirect();
 

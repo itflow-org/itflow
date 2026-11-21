@@ -77,9 +77,9 @@ if (isset($_POST['check_ai_model']) || isset($_POST['add_ai_model']) || isset($_
         $model_id = aiModelWrite($after);
         logAudit("AI Model", "Create", "$session_name added AI model " . escapeSql("$name on {$provider['ai_provider_name']}, for $use_case"), 0, $model_id);
         if ($already && $already['ai_model_use_case'] === $use_case) {
-            flashAlert('<strong>' . escapeHtml($name) . '</strong> added - but <strong>' . escapeHtml($already['ai_model_name']) . "</strong> is for $use_case already and is the one used. Delete it, or set it to something else, to use this one", 'warning');
+            flashAlert('<strong>' . escapeHtml($name) . '</strong> created - but <strong>' . escapeHtml($already['ai_model_name']) . "</strong> is for $use_case already and is the one used. Delete it, or set it to something else, to use this one", 'warning');
         } else {
-            flashAlert('<strong>' . escapeHtml($name) . "</strong> added - it is used for " . ($use_case === 'General' ? 'everything without a model of its own' : $use_case));
+            flashAlert('<strong>' . escapeHtml($name) . "</strong> created - it is used for " . ($use_case === 'General' ? 'everything without a model of its own' : $use_case));
         }
         redirect('ai_models.php');
     }

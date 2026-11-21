@@ -63,7 +63,7 @@ if (isset($_GET['delete_labor_cost_rate'])) {
     if ($user_id) {
         $agent_name = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $user_id"))[0] ?? "agent $user_id");
         logAudit("Settings", "Edit", "$session_name took away a labor cost of " . escapeSql($agent_name), 0, $user_id);
-        flashAlert("Rate taken away.");
+        flashAlert("Rate taken away");
     }
 
     redirect();

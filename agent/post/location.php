@@ -117,7 +117,7 @@ if (isset($_POST['edit_location'])) {
     $name = trim($_POST['name']);
     logAudit("Location", "Edit", "$session_name edited location " . escapeSql($name), $client_id, $location_id);
 
-    flashAlert("Location <strong>$name</strong> updated");
+    flashAlert("Location <strong>$name</strong> saved");
 
     redirect();
 

@@ -132,11 +132,11 @@ if (isset($_POST['billing_item_save'])) {
     // A quote line's picture - a new one, or taken off (functions/quote_images.php)
     $image_error = $type === 'quote' ? quoteImageSave('quote_items', $saved, $_POST, $_FILES) : '';
     if ($image_error !== '') {
-        flashAlert('<strong>' . escapeHtml($name) . '</strong> ' . ($item_id ? 'updated' : 'added') . ', but its picture couldn\'t be added: ' . escapeHtml($image_error), 'warning');
+        flashAlert('<strong>' . escapeHtml($name) . '</strong> ' . ($item_id ? 'saved' : 'added') . ', but its picture couldn\'t be added: ' . escapeHtml($image_error), 'warning');
         billingPostBack($type, $doc_id, "line-$saved");
     }
 
-    flashAlert('<strong>' . escapeHtml($name) . '</strong> ' . ($item_id ? 'updated' : 'added'));
+    flashAlert('<strong>' . escapeHtml($name) . '</strong> ' . ($item_id ? 'saved' : 'added'));
 
     billingPostBack($type, $doc_id, $item_id ? "line-$saved" : 'add-line');
 

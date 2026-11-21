@@ -186,7 +186,7 @@ if (isset($_POST['edit_domain'])) {
     $name = $form['name'];
     logAudit("Domain", "Edit", "$session_name edited domain " . escapeSql($name), $client_id, $domain_id);
 
-    flashAlert("Domain <strong>$name</strong> updated");
+    flashAlert("Domain <strong>$name</strong> saved");
 
     redirect();
 

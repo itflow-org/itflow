@@ -116,7 +116,7 @@ if (isset($_POST['edit_credential'])) {
     $name = trim($_POST['name']);
     logAudit("Credential", "Edit", "$session_name edited credential " . escapeSql($name) . ($password_changed ? ' and changed its password' : ''), $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$name</strong> updated");
+    flashAlert("Credential <strong>$name</strong> saved");
 
     redirect();
 

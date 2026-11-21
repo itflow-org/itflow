@@ -71,7 +71,7 @@ if (isset($_POST['add_payment'])) {
 
         triggerCustomAction('invoice_pay', $invoice_id);
 
-        flashAlert("Payment amount <strong>" . billingMoney($amount, $invoice_currency_code) . "</strong> added");
+        flashAlert("Payment of <strong>" . billingMoney($amount, $invoice_currency_code) . "</strong> added");
 
         redirect();
 
@@ -110,9 +110,11 @@ if (isset($_POST['edit_payment'])) {
     // A changed amount can leave the invoice paid, part paid or owing again
     updateInvoiceStatusFromPayments(intval(getFieldById('payments', $payment_id, 'payment_invoice_id')));
 
-    logAudit("Payment", "Edit", "Payment edited amount of " . billingMoney($amount, $session_company_currency));
+    $currency_code = (string) getFieldById('payments', $payment_id, 'payment_currency_code');
 
-    flashAlert("Payment edited to amount <strong>" . billingMoney($amount, $session_company_currency) . "</strong> added");
+    logAudit("Payment", "Edit", "$session_name edited a payment to " . billingMoney($amount, $currency_code), $client_id, $payment_id);
+
+    flashAlert("Payment of <strong>" . billingMoney($amount, $currency_code) . "</strong> saved");
 
     redirect();
 
@@ -526,13 +528,14 @@ if (isset($_POST['add_bulk_payment'])) {
                 billingLog('invoice', $entry['invoice_id'], 'Sent', 'Payment receipt emailed to ' . implode(', ', $receipt_to));
             }
             logAudit("Payment", "Email", "Bulk Payment receipt for multiple Invoices queued to " . escapeSql(implode(', ', $receipt_to)), $client_id);
-            $alert_message .= "Email receipt queued and ";
+            $alert_message = " - receipt queued to <strong>" . escapeHtml(implode(', ', $receipt_to)) . "</strong>";
         }
     }
 
     logAudit("Invoice", "Payment", "Bulk Payment amount of " . billingMoney($bulk_payment_amount_static, $currency_code) . " applied to multiple invoices", $client_id);
 
-    flashAlert("$alert_message Bulk Payment added");
+    $paid = count($applied_payments);
+    flashAlert("Payment of <strong>" . billingMoney($bulk_payment_amount_static, $currency_code) . "</strong> added across <strong>$paid</strong> invoice" . ($paid === 1 ? '' : 's') . $alert_message);
 
     redirect();
 

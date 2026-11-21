@@ -211,7 +211,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
     logAudit("Recurring Ticket", "Edit", "$session_name edited recurring ticket {$f['subject']}", $client_id, $recurring_ticket_id);
 
-    flashAlert("Recurring ticket <strong>" . escapeHtml(trim($_POST['subject'])) . "</strong> updated");
+    flashAlert("Recurring ticket <strong>" . escapeHtml(trim($_POST['subject'])) . "</strong> saved");
 
     redirect();
 

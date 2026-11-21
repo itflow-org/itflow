@@ -45,11 +45,11 @@ if (isset($_POST['add_product'])) {
     // Its picture (functions/quote_images.php)
     $image_error = quoteImageSave('products', $product_id, $_POST, $_FILES);
     if ($image_error !== '') {
-        flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> added, but its picture couldn't be added: " . escapeHtml($image_error), 'warning');
+        flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> created, but its picture couldn't be added: " . escapeHtml($image_error), 'warning');
         redirect();
     }
 
-    flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> added");
+    flashAlert("$type_label <strong>" . escapeHtml($product['product_name']) . "</strong> created");
 
     redirect();
 

@@ -37,7 +37,7 @@ if (isset($_POST['add_payment_method']) || isset($_POST['edit_payment_method']))
     } else {
         $payment_method_id = paymentMethodCreate($fields);
         logAudit("Payment Method", "Create", "$session_name added payment method " . escapeSql($fields['name']) . " for " . strtolower(PAYMENT_METHOD_USES[$fields['use']]['short']), 0, $payment_method_id);
-        flashAlert("Payment method <strong>" . escapeHtml($fields['name']) . "</strong> added");
+        flashAlert("Payment method <strong>" . escapeHtml($fields['name']) . "</strong> created");
     }
 
     redirect();

@@ -226,6 +226,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Badges and blanks: every badge is a rounded pill, the menu counts included, and an empty value shows as a grey dash everywhere. A request that can't be done - credit over the balance, say - shows in red like every other error, and the client portal's search boxes read Search ... like the agent pages'.
 - Sizes and lengths of time: a file or backup size reads 512 B or 1.5 MB everywhere - some pages said 1.53 MB, a portal attachment never less than 1 KB, and setup bytes. Booking lengths, the dispatch board and how long a cron job ran are written 1h 30m like time logged everywhere else - they read 1 hour 30 min and 2 min 5 s - and hours as a number are 12.5 h, project hours included.
 - Forms: hints inside empty fields are plain examples - example.com, Contracts, Closing remarks - rather than e.g. ..., ex. ... and Enter a ..., and address fields bring up the web keyboard on a phone. New Location and New Network open at the size their Edit windows do, and the transactions list's amount filters take 1,000.00 like every other money field.
+- Messages: the message after a window closes matches its button - created after Create, saved after Save - where some said added, updated or edited. Copying an invoice says which invoice it was copied to, making one recurring names the new recurring invoice, a payment on several invoices says how many it paid and who the receipt was queued to, and attaching files to a ticket without a reply says so rather than Ticket updated.
 
 ### Bug Fixes
 
@@ -287,6 +288,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Browser tabs: many pages were named after their file - Kb, Ai Providers, Rmm Providers, Sla, Settings Ticket, Profit Loss - and one with & in its name showed &amp;. Each tab now has the name the menu gives the page, and a rack, an instance and a ticket, document or project template show their own name.
 - Client menu: a client's Domains count never turned amber or red for domains about to expire or expired, and the Certificates and Licenses counts carried two text colours at once.
 - Audit Logs: income was filed as Income or Revenue, and transfers as Transfer or Account Transfer, depending on where they were made, so the Type filter listed each twice. Each now has one name, and licenses and license templates are License and License Template rather than Software. Entries already in the log are renamed when you update. Entries for RMM providers, collation repairs, the demo reset and Undo have their own icons.
+- Payments: editing a payment said "Payment edited to amount ... added" in your company's currency rather than the payment's, and its audit log entry didn't say who edited it or which client it was for.
 
 ### Developer Updates
 

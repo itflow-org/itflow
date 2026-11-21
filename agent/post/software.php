@@ -156,7 +156,7 @@ if (isset($_POST['edit_software'])) {
     logAudit("License", "Edit", "$session_name edited license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
 
     $warning = softwareSeatWarning($software_id);
-    flashAlert("License <strong>$name</strong> updated$warning", $warning ? 'warning' : 'success');
+    flashAlert("License <strong>$name</strong> saved$warning", $warning ? 'warning' : 'success');
 
     redirect();
 

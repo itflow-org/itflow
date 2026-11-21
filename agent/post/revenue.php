@@ -39,7 +39,7 @@ if (isset($_POST['add_revenue'])) {
 
     logAudit("Income", "Create", "$session_name added other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
 
-    flashAlert("Income <strong>" . escapeHtml($label) . "</strong> added");
+    flashAlert("Income <strong>" . escapeHtml($label) . "</strong> created");
 
     redirect();
 

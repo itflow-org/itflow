@@ -365,7 +365,7 @@ if (isset($_POST['edit_ticket'])) {
 
     logAudit("Ticket", "Edit", "$session_name edited ticket $reference", $client_id, $ticket_id);
 
-    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> updated");
+    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> saved");
 
     redirect();
 
@@ -400,7 +400,7 @@ if (isset($_POST['edit_ticket_sla'])) {
 
     triggerCustomAction('ticket_update', $ticket_id);
 
-    flashAlert("SLA updated from <strong>" . escapeHtml($original_sla_name) . "</strong> to <strong>" . escapeHtml($sla_name) . "</strong>");
+    flashAlert("SLA changed from <strong>" . escapeHtml($original_sla_name) . "</strong> to <strong>" . escapeHtml($sla_name) . "</strong>");
 
     redirect();
 
@@ -1258,7 +1258,7 @@ if (isset($_POST['add_ticket_reply'])) {
         // so it attaches to the ticket itself
         $emailable_attachments = filterEmailableAttachments(array_merge(saveTicketAttachments($ticket_id, null),
             cannedResponseAttachFiles((array) ($_POST['canned_response_file_ids'] ?? []), $ticket_id, null, $session_user_id)));
-        flashAlert("Ticket updated");
+        flashAlert("Files attached to ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong>");
     }
 
     // A status that counts as the first response, for a ticket the reply didn't answer (functions/ticket_status.php)
@@ -1396,7 +1396,7 @@ if (isset($_POST['edit_ticket_reply'])) {
 
     logAudit("Ticket", "Reply", "$session_name edited a reply on ticket " . escapeSql(ticketReference($row)), $client_id, intval($row['ticket_id']));
 
-    flashAlert("Ticket reply updated" . ($told ? " - <strong>" . escapeHtml(ticketMentionNames($told)) . "</strong> " . (count($told) === 1 ? 'was' : 'were') . " told" : ''));
+    flashAlert("Reply saved" . ($told ? " - <strong>" . escapeHtml(ticketMentionNames($told)) . "</strong> " . (count($told) === 1 ? 'was' : 'were') . " told" : ''));
 
     redirect();
 

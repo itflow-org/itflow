@@ -135,9 +135,9 @@ if (isset($_POST['edit_client'])) {
     // Another contract, started from a template picked on the Billing tab (functions/contract.php)
     [$contract_id, $contract_name, $contract_error] = contractFromClientForm($client_id, $_POST);
     if ($contract_error !== '') {
-        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated - the contract wasn't added: " . escapeHtml($contract_error), 'warning');
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> saved - the contract wasn't added: " . escapeHtml($contract_error), 'warning');
     } else {
-        flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated" . ($contract_id ? ", with new contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
+        flashAlert("Client <strong>" . stripslashes($name) . "</strong> saved" . ($contract_id ? ", with new contract <strong>" . escapeHtml($contract_name) . "</strong>" : ''));
     }
 
     redirect();

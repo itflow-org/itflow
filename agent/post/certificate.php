@@ -137,7 +137,7 @@ if (isset($_POST['edit_certificate'])) {
     $name = $form['name'];
     logAudit("Certificate", "Edit", "$session_name edited certificate " . escapeSql($name), $client_id, $certificate_id);
 
-    flashAlert("Certificate <strong>" . escapeHtml($name) . "</strong> updated");
+    flashAlert("Certificate <strong>" . escapeHtml($name) . "</strong> saved");
 
     redirect();
 

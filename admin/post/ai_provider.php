@@ -88,9 +88,9 @@ if (isset($_POST['check_ai_provider']) || isset($_POST['add_ai_provider']) || is
         if ($first_model !== '') {
             $model_id = aiModelWrite(['ai_model_ai_provider_id' => $provider_id, 'ai_model_name' => $first_model, 'ai_model_use_case' => 'General', 'ai_model_temperature' => null, 'ai_model_prompt' => '']);
             logAudit("AI Model", "Create", "$session_name added AI model " . escapeSql("$first_model on $name, for General"), 0, $model_id);
-            flashAlert('<strong>' . escapeHtml($name) . '</strong> added, with <strong>' . escapeHtml($first_model) . '</strong> for everything - AI is ready to use');
+            flashAlert('<strong>' . escapeHtml($name) . '</strong> created, with <strong>' . escapeHtml($first_model) . '</strong> for everything - AI is ready to use');
         } else {
-            flashAlert('<strong>' . escapeHtml($name) . '</strong> added - now add the model to use on it');
+            flashAlert('<strong>' . escapeHtml($name) . '</strong> created - now add the model to use on it');
         }
         redirect('ai_providers.php');
     }

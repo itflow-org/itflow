@@ -256,7 +256,7 @@ if (isset($_POST['edit_vendor'])) {
     $name = trim($_POST['name']);
     logAudit("Vendor", "Edit", "$session_name edited vendor " . escapeSql($name), $client_id, $vendor_id);
 
-    flashAlert("Vendor <strong>$name</strong> updated");
+    flashAlert("Vendor <strong>$name</strong> saved");
 
     redirect();
 

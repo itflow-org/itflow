@@ -83,7 +83,7 @@ if (isset($_POST['edit_backup_settings'])) {
     mysqli_query($mysqli, "UPDATE settings SET config_backup_retention_days = $retention_days, config_backup_retention_count = $retention_count, config_backup_cron_type = '$cron_type' WHERE company_id = 1");
 
     logAudit("Backup", "Edit", ($session_name ?? 'Unknown User') . " updated the backup settings");
-    flashAlert("Backup settings saved.");
+    flashAlert("Backup settings saved");
 
     redirect("backup.php");
 }

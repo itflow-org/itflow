@@ -213,7 +213,7 @@ if (isset($_POST['edit_contact'])) {
 
     triggerCustomAction('contact_update', $contact_id);
 
-    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> updated" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
+    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> saved" . ($invited ? ' and invited to the client portal' : ($invited === false ? ' - the portal invite was not sent, as ' . (portalMailReady() ? 'their email address is not valid' : 'outgoing mail is not set up') : '')), $invited === false ? 'warning' : 'success');
 
     redirect();
 
@@ -523,7 +523,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
-        flashAlert("Roles updated on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
+        flashAlert("Roles set on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
         undoOfferChanges($undo, "Roles put back on <strong>{n}</strong> contact{s}", 'module_client');
     }
 
