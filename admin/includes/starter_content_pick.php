@@ -51,7 +51,7 @@ function starterItemLook($pack, $row) {
 
 /* The packs whose items have more to them than a line - shown whole by Preview. */
 function starterPreviewPacks() {
-    return ['ticket_templates', 'project_templates', 'canned_responses', 'vendor_templates', 'document_templates', 'license_templates', 'products'];
+    return ['ticket_templates', 'project_templates', 'canned_responses', 'kb_articles', 'vendor_templates', 'document_templates', 'license_templates', 'products'];
 }
 
 /* [Words in brackets] in a template, marked as the bits filled in as it is used. */
@@ -170,6 +170,16 @@ function starterItemPreview($pack, $row) {
                 . '</dl>';
             $html .= starterPreviewFillIns((array) ($row['fill_ins'] ?? []));
             return $html . '<h3 class="itflow-starter-preview-head">What it says</h3><div class="itflow-starter-preview-doc">' . starterPreviewFills($row['content'] ?? '') . '</div>';
+
+        case 'kb_articles':
+            $review = intval($row['review_months'] ?? 0);
+            $html .= '<dl class="itflow-starter-preview-facts">'
+                . starterPreviewFact('Category', escapeHtml((string) ($row['category'] ?? '')))
+                . starterPreviewFact('Tags', escapeHtml(implode(', ', (array) ($row['tags'] ?? []))))
+                . starterPreviewFact('Reviewed', $review ? 'Every ' . ($review === 12 ? 'year' : "$review months") : '')
+                . starterPreviewFact('Comes in as', 'A draft only your team can see')
+                . '</dl>';
+            return $html . '<h3 class="itflow-starter-preview-head">What it says</h3><div class="itflow-starter-preview-doc">' . starterKbFill($row['content'] ?? '') . '</div>';
 
         case 'license_templates':
             $html .= '<dl class="itflow-starter-preview-facts">'

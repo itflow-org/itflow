@@ -25,12 +25,12 @@ function starterContentPacks() {
         'categories' => [
             'label' => 'Categories',
             'icon' => 'fa-list-ul',
-            'description' => 'Expense, income, referral and ticket categories for an MSP. Income categories are also what products are filed under.',
+            'description' => 'Expense, income, referral, ticket and Knowledge Base categories for an MSP. Income categories are also what products are filed under.',
         ],
         'tags' => [
             'label' => 'Tags',
             'icon' => 'fa-tags',
-            'description' => 'Tags for clients, locations, contacts, credentials, assets, vendors, domains, licenses, services, networks, documents and tickets.',
+            'description' => 'Tags for clients, locations, contacts, credentials, assets, vendors, domains, licenses, services, networks, documents, tickets and Knowledge Base articles.',
         ],
         'ticket_templates' => [
             'label' => 'Ticket Templates',
@@ -54,6 +54,16 @@ function starterContentPacks() {
             'update' => [
                 'button' => 'update_starter_canned_responses',
                 'confirm' => 'Bring the %d starter canned responses you have up to date? What they say, where they are offered and what they set up are replaced with this version - changes you made to them are lost. How often they have been used stays.',
+            ],
+        ],
+        'kb_articles' => [
+            'label' => 'Knowledge Base Articles',
+            'icon' => 'fa-book',
+            'description' => "How-tos and fixes clients ask for again and again - resetting a password, setting up MFA, reporting phishing, Outlook, OneDrive, the VPN, printers, Wi-Fi - each filed under its Knowledge Base category with its tags, and reviewed once a year. They come in as drafts only your team can see, ending with how to reach you from Company Details: read each, make it say what your clients use, then publish it to the clients it suits.",
+            'requires' => 'categories',
+            'update' => [
+                'button' => 'update_starter_kb_articles',
+                'confirm' => 'Bring the %d starter Knowledge Base articles you have up to date? Their summary, what they say, category and review period are replaced with this version - what they said before is kept as a version, so changes you made can be put back. Whether they are published, who can read them, their tags, reads and feedback stay as they are.',
             ],
         ],
         'vendor_templates' => [
@@ -218,6 +228,8 @@ function starterContentLoad($mysqli, $pack, $dry_run = false, $only = null) {
             return starterLoadProjectTemplates($mysqli, $dry_run, $only);
         case 'canned_responses':
             return starterLoadCannedResponses($mysqli, $dry_run, $only);
+        case 'kb_articles':
+            return starterLoadKbArticles($mysqli, $dry_run, $only);
         case 'vendor_templates':
             return starterLoadVendorTemplates($mysqli, $dry_run, $only);
         case 'document_templates':
@@ -246,6 +258,8 @@ function starterContentRows($pack) {
             return starterContentProjectTemplates();
         case 'canned_responses':
             return starterContentCannedResponses();
+        case 'kb_articles':
+            return starterContentKbArticles();
         case 'vendor_templates':
             return starterContentVendorTemplates();
         case 'document_templates':
@@ -294,6 +308,8 @@ function starterItemGroup($pack, $row) {
             return function_exists('tagEntityByType') ? (string) (tagEntityByType($row[0])['title'] ?? '') : '';
         case 'products':
             return (string) $row[4];
+        case 'kb_articles':
+            return (string) $row['category'];
     }
     return '';
 }
@@ -340,7 +356,8 @@ function starterContentItems($mysqli, $pack) {
         default:
             $tables = ['ticket_templates' => ['ticket_templates', 'ticket_template_name'], 'project_templates' => ['project_templates', 'project_template_name'],
                 'vendor_templates' => ['vendor_templates', 'vendor_template_name'], 'document_templates' => ['document_templates', 'document_template_name'],
-                'products' => ['products', 'product_name'], 'license_templates' => ['software_templates', 'software_template_name']];
+                'products' => ['products', 'product_name'], 'license_templates' => ['software_templates', 'software_template_name'],
+                'kb_articles' => ['kb_articles', 'kb_article_title']];
             if (!isset($tables[$pack])) {
                 return [];
             }
@@ -376,6 +393,7 @@ function starterPackRecords($pack) {
         'document_templates' => ['table' => 'document_templates', 'id' => 'document_template_id', 'name' => 'document_template_name', 'archived' => 'document_template_archived_at'],
         'products' => ['table' => 'products', 'id' => 'product_id', 'name' => 'product_name', 'archived' => 'product_archived_at', 'kind' => 'product_code'],
         'license_templates' => ['table' => 'software_templates', 'id' => 'software_template_id', 'name' => 'software_template_name', 'archived' => 'software_template_archived_at'],
+        'kb_articles' => ['table' => 'kb_articles', 'id' => 'kb_article_id', 'name' => 'kb_article_title', 'archived' => 'kb_article_archived_at'],
     ];
     return $packs[$pack] ?? null;
 }
@@ -445,7 +463,7 @@ function starterPackUsed($mysqli, $pack, array $ids) {
     switch ($pack) {
         case 'categories':
             // What Admin > Categories counts for each kind, and what it doesn't
-            foreach (['Expense', 'Income', 'Referral', 'Ticket'] as $kind) {
+            foreach (['Expense', 'Income', 'Referral', 'Ticket', 'kb'] as $kind) {
                 foreach (array_keys(categoryUsage($kind)) as $category_id) {
                     $used[intval($category_id)] = true;
                 }
@@ -518,6 +536,14 @@ function starterPackUsed($mysqli, $pack, array $ids) {
             break;
         case 'license_templates':
             $queries = ["SELECT software_template_id FROM software WHERE software_template_id IN ($in)"];
+            break;
+        case 'kb_articles':
+            // Published, read, reviewed, reworded (it has versions) or answered - anything more than the draft it came in as
+            $queries = [
+                "SELECT kb_article_id FROM kb_articles WHERE kb_article_id IN ($in) AND (kb_article_published_at IS NOT NULL OR kb_article_views > 0 OR kb_article_reviewed_at IS NOT NULL)",
+                "SELECT kb_article_version_kb_article_id FROM kb_article_versions WHERE kb_article_version_kb_article_id IN ($in)",
+                "SELECT kb_article_feedback_kb_article_id FROM kb_article_feedback WHERE kb_article_feedback_kb_article_id IN ($in)",
+            ];
             break;
     }
     foreach ($queries as $query) {
@@ -615,6 +641,8 @@ function starterContentTotal($pack) {
             return count(starterContentProjectTemplates());
         case 'canned_responses':
             return count(starterContentCannedResponses());
+        case 'kb_articles':
+            return count(starterContentKbArticles());
         case 'vendor_templates':
             return count(starterContentVendorTemplates());
         case 'document_templates':
@@ -886,6 +914,139 @@ function starterUpdateLicenseTemplates() {
 }
 
 // ------------------------------
+// starterLoadKbArticles
+// As drafts only agents can read, each with its Knowledge Base category and
+// tags - those of the Categories and Tags packs, so one that isn't here
+// leaves the article without it. One whose title an article here already
+// has, archived or not, is left alone. How to reach you is filled in from
+// Company Details as they are now (starterKbFill()).
+// ------------------------------
+function starterLoadKbArticles($mysqli, $dry_run = false, $only = null) {
+    $existing = starterExistingNames($mysqli, 'kb_articles', 'kb_article_title');
+    $added = 0;
+
+    foreach (starterOnly('kb_articles', starterContentKbArticles(), $only) as $article) {
+        if (isset($existing[mb_strtolower($article['name'])])) {
+            continue;
+        }
+        $added++;
+        if ($dry_run) {
+            continue;
+        }
+        $kb_article_id = kbArticleSave(starterKbFields($mysqli, $article) + ['published' => false, 'visibility' => 'agents', 'all_clients' => false, 'client_tag_ids' => [], 'client_ids' => []]);
+        starterKbTags($mysqli, $kb_article_id, $article['tags']);
+        $existing[mb_strtolower($article['name'])] = true;
+    }
+
+    return $added;
+}
+
+// ------------------------------
+// starterUpdateKbArticles
+// The starter articles here, not archived, brought up to this library's
+// version - their summary, what they say, category (when it is here) and
+// review period. What one said before is kept as a version, as any edit's
+// is; one that already says this is left untouched. Whether they are
+// published, who can read them, their reads and feedback stay, and they gain
+// the library's tags they haven't got. Returns ['replaced' => n].
+// ------------------------------
+function starterUpdateKbArticles() {
+    global $mysqli;
+
+    $here = starterPackHere($mysqli, 'kb_articles');
+    $replaced = 0;
+    foreach (starterContentKbArticles() as $article) {
+        $row = kbArticleRow($here[mb_strtolower($article['name'])] ?? 0);
+        if (!$row) {
+            continue;
+        }
+        $fields = starterKbFields($mysqli, $article);
+        $fields['title'] = $row['kb_article_title'];
+        $fields['category_id'] = $fields['category_id'] ?: intval($row['kb_article_category_id']);
+        if ($fields['summary'] !== (string) $row['kb_article_summary'] || $fields['content'] !== (string) $row['kb_article_content']
+            || $fields['category_id'] !== intval($row['kb_article_category_id']) || $fields['review_months'] !== intval($row['kb_article_review_months'])) {
+            kbArticleSave($fields + ['published' => !empty($row['kb_article_published_at'])] + kbAudienceFields($row), $row);
+        }
+        starterKbTags($mysqli, $row['kb_article_id'], $article['tags']);
+        $replaced++;
+    }
+
+    return ['replaced' => $replaced];
+}
+
+// ------------------------------
+// starterKbFields
+// A library article as kbArticleSave() takes it - its category this
+// install's Knowledge Base category of that name (0 when there is none), and
+// what it says filled in (starterKbFill()).
+// ------------------------------
+function starterKbFields($mysqli, array $article) {
+    return [
+        'title' => $article['name'],
+        'summary' => $article['description'],
+        'category_id' => starterCategoryId($mysqli, $article['category'], 'kb'),
+        'review_months' => intval($article['review_months']),
+        'content' => starterKbFill($article['content']),
+    ];
+}
+
+// ------------------------------
+// starterKbTags
+// Puts the Knowledge Base article tags of these names on an article - the
+// ones here and not archived, and not on it already.
+// ------------------------------
+function starterKbTags($mysqli, $kb_article_id, array $names) {
+    $kb_article_id = intval($kb_article_id);
+    if (!$kb_article_id || !$names) {
+        return;
+    }
+    $names_sql = implode(', ', array_map(function ($name) {
+        return "'" . escapeSql(mb_strtolower($name)) . "'";
+    }, $names));
+    $sql = mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_type = 13 AND tag_archived_at IS NULL AND LOWER(tag_name) IN ($names_sql)");
+    while ($row = mysqli_fetch_row($sql)) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO kb_article_tags SET kb_article_id = $kb_article_id, tag_id = " . intval($row[0]));
+    }
+}
+
+// ------------------------------
+// starterKbFill
+// A starter article's [Portal] and [Contact us] filled in from this install:
+// a link to the client portal (words alone when the portal is off), and a
+// closing line saying how to reach you - open a ticket in the portal, the
+// address tickets are emailed from (or the company's), and the company's
+// phone, from Company Details as they are now.
+// ------------------------------
+function starterKbFill($html) {
+    global $config_base_url, $config_ticket_from_email;
+
+    $company = billingCompany();
+    $portal_on = function_exists('moduleOn') && moduleOn('portal') && !empty($config_base_url);
+    $portal_url = $portal_on ? 'https://' . $config_base_url . '/client/' : '';
+    $portal = $portal_on ? '<a href="' . escapeHtml($portal_url) . '">the client portal</a>' : 'the client portal';
+
+    $ways = [];
+    if ($portal_on) {
+        $ways[] = 'open a ticket in ' . $portal;
+    }
+    $email = trim((string) ($config_ticket_from_email ?? '')) ?: trim((string) ($company['company_email'] ?? ''));
+    if ($email !== '') {
+        $ways[] = 'email <a href="mailto:' . escapeHtml($email) . '">' . escapeHtml($email) . '</a>';
+    }
+    if (($company['phone_display'] ?? '') !== '') {
+        $ways[] = 'call ' . escapeHtml($company['phone_display']);
+    }
+    if ($ways) {
+        $last = array_pop($ways);
+        $contact = '<p><strong>Still stuck?</strong> ' . ucfirst($ways ? implode(', ', $ways) . ' or ' . $last : $last) . ' and we will take it from there.</p>';
+    } else {
+        $contact = '<p><strong>Still stuck?</strong> Get in touch with us and we will take it from there.</p>';
+    }
+
+    return str_replace(['[Portal]', '[Contact us]'], [$portal, $contact], (string) $html);
+}
+
+// ------------------------------
 // starterLoadProducts
 // Products are filed under income categories. A category that is not present
 // leaves the product uncategorised rather than blocking the load, so this pack
@@ -1034,6 +1195,22 @@ function starterContentCategories() {
         ['Other', '#343a40', 'fa-question-circle', 'Does not fit any standard category'],
     ];
 
+    // How Knowledge Base articles are grouped - an article's icon is its category's
+    $kb_categories = [
+        ['Getting Help', '#007bff', 'fa-life-ring', 'Reaching the help desk, the client portal and support hours'],
+        ['Accounts and Passwords', '#ffc107', 'fa-key', 'Signing in, passwords and multi-factor authentication'],
+        ['Email and Calendar', '#fd7e14', 'fa-envelope', 'Outlook, mailboxes, calendars and shared mail'],
+        ['Files and Sharing', '#20c997', 'fa-folder-open', 'OneDrive, SharePoint, shared drives and sending files'],
+        ['Security', '#dc3545', 'fa-shield-alt', 'Phishing, lost devices and keeping data safe'],
+        ['Remote Work', '#6f42c1', 'fa-laptop-house', 'The VPN, working from home and traveling'],
+        ['Printing and Scanning', '#6c757d', 'fa-print', 'Printers, scanners and copiers'],
+        ['Phones and Meetings', '#28a745', 'fa-headset', 'Desk phones, voicemail and video meetings'],
+        ['Devices', '#17a2b8', 'fa-laptop', 'Computers, phones and tablets, and keeping them up to date'],
+        ['Network and Wi-Fi', '#6610f2', 'fa-wifi', 'The office and guest Wi-Fi, and the internet connection'],
+        ['Policies', '#001f3f', 'fa-clipboard-check', 'How we work together - new starters, leavers and acceptable use'],
+        ['Internal Procedures', '#343a40', 'fa-user-shield', 'How your team does things - kept to agents'],
+    ];
+
     $categories = [];
 
     $simple_types = [
@@ -1054,17 +1231,19 @@ function starterContentCategories() {
         }
     }
 
-    $order = 1;
-    foreach ($ticket_categories as $row) {
-        $categories[] = [
-            'type' => 'Ticket',
-            'name' => $row[0],
-            'color' => $row[1],
-            'icon' => $row[2],
-            'description' => $row[3],
-            'order' => $order,
-        ];
-        $order++;
+    foreach (['Ticket' => $ticket_categories, 'kb' => $kb_categories] as $type => $rows) {
+        $order = 1;
+        foreach ($rows as $row) {
+            $categories[] = [
+                'type' => $type,
+                'name' => $row[0],
+                'color' => $row[1],
+                'icon' => $row[2],
+                'description' => $row[3],
+                'order' => $order,
+            ];
+            $order++;
+        }
     }
 
     return $categories;
@@ -1074,7 +1253,8 @@ function starterContentCategories() {
 // ------------------------------
 // starterContentTags
 // tag_type 1 Client, 2 Location, 3 Contact, 4 Credential, 5 Asset, 6 Vendor, 7 Domain,
-// 8 License, 9 Service, 10 Network, 11 Document, 12 Ticket - tagKinds() in functions/tags.php.
+// 8 License, 9 Service, 10 Network, 11 Document, 12 Ticket, 13 Knowledge Base article - tagKinds()
+// in functions/tags.php.
 // tag_icon is stored without the fa- prefix, the views add it.
 // ------------------------------
 function starterContentTags() {
@@ -1220,6 +1400,18 @@ function starterContentTags() {
         [12, 'Warranty Claim', '#28a745', 'certificate'],
         [12, 'Waiting on Vendor', '#ffc107', 'hourglass-half'],
         [12, 'Security', '#343a40', 'shield-alt'],
+
+        // Knowledge Base article
+        [13, 'How-To', '#007bff', 'list-ol'],
+        [13, 'Troubleshooting', '#fd7e14', 'wrench'],
+        [13, 'Quick Fix', '#ffc107', 'bolt'],
+        [13, 'Self-Service', '#28a745', 'hand-pointer'],
+        [13, 'Security', '#dc3545', 'shield-alt'],
+        [13, 'Policy', '#001f3f', 'gavel'],
+        [13, 'Microsoft 365', '#0078d4', 'cloud'],
+        [13, 'Mobile', '#17a2b8', 'mobile-alt'],
+        [13, 'New Starter', '#20c997', 'user-plus'],
+        [13, 'Known Issue', '#d81b60', 'exclamation-triangle'],
     ];
 
     return $tags;
@@ -2465,6 +2657,381 @@ function starterContentLicenseTemplates() {
         $template('Windows Server CAL', 'Client access licenses for users or devices that use a Windows Server', 'Operating System', 'User', '', 'Microsoft', null, [
             'One per user, or per device, that reaches a Windows Server - not per server. Remote Desktop sessions need Remote Desktop Services CALs on top.',
         ]),
+
+    ];
+
+}
+
+// ------------------------------
+// starterContentKbArticles
+// How-tos and fixes for an MSP's clients - name (the title), description (the
+// line under it), category (a Knowledge Base category of the Categories
+// pack), tags (Knowledge Base article tags of the Tags pack), review_months
+// and content (HTML). Written as the MSP, to its clients' staff, for
+// Microsoft 365 and Windows as most clients have them - each says where to
+// put what yours differs in. [Portal] and [Contact us] are filled in as each
+// comes in (starterKbFill()).
+// ------------------------------
+function starterContentKbArticles() {
+
+    $steps = function (array $items) {
+        return '<ol><li>' . implode('</li><li>', $items) . '</li></ol>';
+    };
+    $list = function (array $items) {
+        return '<ul><li>' . implode('</li><li>', $items) . '</li></ul>';
+    };
+    $article = function ($name, $description, $category, array $tags, $content, $review_months = 12) {
+        return ['name' => $name, 'description' => $description, 'category' => $category, 'tags' => $tags, 'review_months' => $review_months, 'content' => $content . '[Contact us]'];
+    };
+
+    return [
+
+        // Getting Help
+        $article('Getting help from the help desk', 'How to reach us, what to tell us so we can help straight away, and what happens next.', 'Getting Help', ['How-To'],
+            '<p>The quickest way to get help is to open a ticket in [Portal] - it reaches the whole team, and you can follow it as we work on it. Email works too, and for anything stopping you from working, call us.</p>'
+            . '<h5>Tell us</h5>' . $list([
+                'What you were trying to do, and what happened instead - the exact wording of any error helps a lot (a screenshot is even better)',
+                'When it started, and whether anything changed around then',
+                'Whether it is just you, or others too',
+                'The best number to reach you on, and when you are free',
+            ])
+            . '<h5>What happens next</h5><p>You get an email with the ticket\'s number straight away. Reply to that email to add anything - keep the number in the subject so it lands on the same ticket. We let you know when someone has picked it up, when we need something from you, and when it is fixed.</p>'
+            . '<p>If something is urgent - you can\'t work, or several people are affected - say so, and call as well as opening the ticket.</p>'),
+
+        $article('Raising a ticket in the client portal', 'Sign in to the client portal, open a ticket and follow it as we work on it.', 'Getting Help', ['How-To', 'Self-Service'],
+            '<p>The client portal is where you open tickets, see what is happening with them and reply to us. It is quicker than email, and nothing gets lost in an inbox.</p>'
+            . $steps([
+                'Go to [Portal] and sign in with your work email address. The first time, use <strong>Forgot your password?</strong> to set one.',
+                'Choose <strong>New Ticket</strong>.',
+                'Give it a subject that says what is wrong - "Outlook won\'t open on my laptop" helps more than "Problem".',
+                'Say what happened, when it started and anything you have tried. Add a screenshot if you have one.',
+                'Choose how urgent it is, then <strong>Submit</strong>.',
+            ])
+            . '<p>While you type the subject, the portal suggests articles that might answer it - worth a look, you may not have to wait for us at all.</p>'
+            . '<p>Your tickets are under <strong>Tickets</strong>. Open one to see where it is up to and to reply. When we mark it resolved, you can reply to reopen it if it isn\'t fixed.</p>'),
+
+        // Accounts and Passwords
+        $article('Changing or resetting your Microsoft 365 password', 'Change your password yourself, reset it when you have forgotten it, and what to do when you are locked out.', 'Accounts and Passwords', ['How-To', 'Self-Service', 'Microsoft 365'],
+            '<h5>Change it while you know it</h5>' . $steps([
+                'Sign in at <a href="https://myaccount.microsoft.com">myaccount.microsoft.com</a>.',
+                'Choose <strong>Password</strong> (or <strong>Change password</strong>).',
+                'Type your old password, then the new one twice, and save.',
+            ])
+            . '<h5>Forgotten it</h5>' . $steps([
+                'Go to <a href="https://passwordreset.microsoftonline.com">passwordreset.microsoftonline.com</a>.',
+                'Enter your work email address and the characters shown.',
+                'Prove it is you with your authenticator app, a text or a call, as you set up when you registered.',
+                'Choose a new password.',
+            ])
+            . '<p>On a work computer, sign in with the new password straight away. Your phone and other devices will ask for it next time they check email - type it in when they do.</p>'
+            . '<h5>Locked out</h5><p>After too many wrong attempts your account locks for a while. Wait 15 minutes and try again, or use the reset above. If self-service reset isn\'t set up for you, we can reset it - we will check it is really you first, so expect a call back.</p>'
+            . '<p>Never send your password to anyone by email or in a ticket - we will never ask for it.</p>'),
+
+        $article('Setting up multi-factor authentication', 'Register the Microsoft Authenticator app so signing in needs your phone as well as your password.', 'Accounts and Passwords', ['How-To', 'Security', 'Microsoft 365', 'Mobile'],
+            '<p>Multi-factor authentication (MFA) means that signing in takes your password and a tap on your phone. Even if someone gets your password, they can\'t get in without your phone.</p>'
+            . '<h5>You need</h5>' . $list(['Your phone, with the <strong>Microsoft Authenticator</strong> app installed from the App Store or Google Play', 'A computer, signed in to your work account']) 
+            . '<h5>Set it up</h5>' . $steps([
+                'On the computer, go to <a href="https://aka.ms/mfasetup">aka.ms/mfasetup</a> and sign in.',
+                'When asked to keep your account secure, choose <strong>Next</strong> until a QR code shows.',
+                'In the Authenticator app, tap <strong>+</strong>, choose <strong>Work or school account</strong>, then <strong>Scan a QR code</strong>, and scan it.',
+                'Back on the computer, choose <strong>Next</strong>. A test notification arrives on your phone - type the number shown on screen into the app and approve it.',
+                'Add your phone number as a backup method when asked.',
+            ])
+            . '<p>From now on, when you sign in somewhere new you are asked to approve it on your phone.</p>'
+            . '<p><strong>Only approve a sign-in you have just started yourself.</strong> If your phone asks you to approve one you didn\'t start, deny it and tell us straight away - someone has your password.</p>'),
+
+        $article('Moving your authenticator to a new phone', 'Get multi-factor sign-in onto a new phone before you wipe or trade in the old one.', 'Accounts and Passwords', ['How-To', 'Mobile', 'Microsoft 365'],
+            '<p>Do this while you still have the old phone - without it, you won\'t be able to sign in until we reset your methods.</p>'
+            . $steps([
+                'Install <strong>Microsoft Authenticator</strong> on the new phone.',
+                'On a computer, go to <a href="https://mysignins.microsoft.com/security-info">mysignins.microsoft.com/security-info</a> and sign in, approving on the old phone.',
+                'Choose <strong>Add sign-in method</strong>, then <strong>Authenticator app</strong>, and follow the steps with the new phone to scan the QR code.',
+                'Make the new phone the default method if asked.',
+                'Delete the old phone\'s entry from the list, then remove the account from the app on the old phone.',
+                'If your phone number changed, update it on the same page.',
+            ])
+            . '<h5>Already lost or wiped the old phone</h5><p>Contact us. We will check it is really you, clear your old methods, and you set the new phone up the next time you sign in.</p>'),
+
+        $article('Choosing a strong password and using a password manager', 'How to pick passwords that are hard to guess and easy to remember, and why a password manager helps.', 'Accounts and Passwords', ['Security'],
+            '<p>Most account break-ins use passwords that were guessed or leaked from another website. Two habits stop nearly all of them.</p>'
+            . '<h5>Use a passphrase</h5><p>Three or four random words make a password that is long, strong and easy to remember - <em>copper-lantern-river-oak</em> is far harder to crack than <em>P@ssw0rd1</em>. Don\'t use names, dates, or anything someone could find on your social media.</p>'
+            . '<h5>Never reuse it</h5><p>Every website gets its own password. When one site is breached, criminals try the same email and password everywhere else.</p>'
+            . '<h5>Let a password manager remember them</h5>' . $list([
+                'It remembers a different strong password for every site, and fills them in for you',
+                'You only remember one passphrase - the one that unlocks it',
+                'It only fills a password in on the real website, so it helps you spot fake ones',
+            ])
+            . '<p>Ask us which password manager we support for your business before you put work passwords in a personal one.</p>'),
+
+        // Security
+        $article('Spotting and reporting a phishing email', 'The signs of a phishing email, and how to report one without clicking anything.', 'Security', ['Security', 'How-To'],
+            '<p>Phishing emails pretend to be from someone you trust to get you to click a link, open an attachment, enter your password or pay something.</p>'
+            . '<h5>Warning signs</h5>' . $list([
+                'It is urgent or threatening - your account will be closed, a payment is overdue, act now',
+                'The sender\'s address doesn\'t match who it says it is from - hover over the name to see the real address',
+                'A link\'s address, shown when you hover over it, goes somewhere unexpected',
+                'It asks you to sign in, pay, change bank details or buy gift cards',
+                'An attachment you weren\'t expecting, even from someone you know',
+                'A warning banner saying it is from outside the company, when it claims to be from inside',
+            ])
+            . '<h5>Report it</h5>' . $steps([
+                'Don\'t click links, open attachments or reply.',
+                'In Outlook, use <strong>Report</strong> (or <strong>Report Phishing</strong>) on the toolbar - or forward it to us as an attachment.',
+                'Delete it.',
+            ])
+            . '<p>Not sure? Ask us before you click - we would much rather check ten genuine emails than clean up after one bad one. If someone asks you to change bank details or make an urgent payment, call them on a number you already have to check.</p>'),
+
+        $article('I clicked a link or entered my password - what now?', 'What to do straight away if you think you fell for a phishing email.', 'Security', ['Security', 'Quick Fix'],
+            '<p>It happens to everyone. Acting quickly makes the difference, so don\'t wait to be sure.</p>'
+            . $steps([
+                'If you typed your password into a page, change it now - see <em>Changing or resetting your Microsoft 365 password</em>. Change it anywhere else you used the same one.',
+                'If you opened an attachment or ran something, unplug the network cable or turn off Wi-Fi on that computer, but leave it switched on.',
+                'Call us straight away and tell us what you clicked, when, and what happened. Keep the email - don\'t delete it.',
+                'Deny any multi-factor sign-in request you didn\'t start.',
+            ])
+            . '<p>We will check your account for anything changed - forwarding rules, new sign-ins, sent email - and tell you if anything else needs doing. Nobody is in trouble for reporting it; the only mistake is keeping quiet.</p>'),
+
+        $article('Lost or stolen laptop or phone', 'What to do straight away when a device with work email or files on it goes missing.', 'Security', ['Security'],
+            '<p>Tell us as soon as you notice - day or night. The sooner we know, the less anyone can do with it.</p>'
+            . $steps([
+                'Call us, and say which device it is and when you last had it.',
+                'If it was stolen, report it to the police and keep the reference number.',
+                'Change your Microsoft 365 password from another device.',
+            ])
+            . '<p>We sign the device out of your work account, and for devices we manage we can lock or wipe it remotely. If it turns up, let us know before you use it again.</p>'),
+
+        // Devices
+        $article('Keeping your computer up to date', 'Why updates matter, what the restart reminders mean, and how to get them done without losing work.', 'Devices', ['How-To', 'Self-Service'],
+            '<p>Updates fix security holes that attackers use. We send them out to managed computers and schedule most of them for outside working hours - but many only finish when the computer restarts.</p>'
+            . '<h5>When it asks you to restart</h5>' . $list([
+                'Save your work and restart at the end of the day, or choose a time that suits you',
+                'Don\'t keep putting it off - after a few days it restarts on its own',
+                'Leave the computer on and plugged in at night when you can - most updates run then',
+            ])
+            . '<h5>To check yourself</h5><p>On Windows, open <strong>Settings &gt; Windows Update</strong> and choose <strong>Check for updates</strong>. On a Mac, open <strong>System Settings &gt; General &gt; Software Update</strong>.</p>'
+            . '<p>Keep your phone and tablet up to date too - install updates when they appear.</p>'),
+
+        $article('Restarting your computer properly', 'Why restarting fixes so much, and why shutting down isn\'t the same.', 'Devices', ['Quick Fix', 'Troubleshooting'],
+            '<p>A restart clears out programs that have stopped responding, finishes updates and reconnects to the network. It fixes a surprising number of problems, so it is the first thing to try.</p>'
+            . $steps([
+                'Save your work and close your programs.',
+                'Choose <strong>Start</strong>, the power button, then <strong>Restart</strong> - not Shut down.',
+                'Wait for it to start again and sign in.',
+            ])
+            . '<p>On Windows, <strong>Shut down</strong> keeps part of the system as it was so it starts faster - it doesn\'t clear things out the way <strong>Restart</strong> does. Closing a laptop\'s lid only puts it to sleep.</p>'
+            . '<p>If it still isn\'t right after a restart, tell us what you were doing and what you see - and that you have restarted, which saves a step.</p>'),
+
+        // Email and Calendar
+        $article('Setting an out of office reply', 'Tell people who email you that you are away, in Outlook or on the web.', 'Email and Calendar', ['How-To', 'Self-Service', 'Microsoft 365'],
+            '<h5>Outlook on the web, or the new Outlook</h5>' . $steps([
+                'Open <strong>Settings</strong> (the gear), then <strong>Account &gt; Automatic replies</strong>.',
+                'Turn on <strong>Turn on automatic replies</strong>.',
+                'Tick <strong>Send replies only during a time period</strong> and choose when you leave and when you are back.',
+                'Write the message - one for people in your company, and one for everyone else if you want it to differ.',
+                'Choose <strong>Save</strong>.',
+            ])
+            . '<h5>Classic Outlook on Windows</h5><p>Choose <strong>File &gt; Automatic Replies</strong>, then as above.</p>'
+            . '<p>Say when you are back and who to contact meanwhile - but keep personal details, like being on holiday abroad, out of the reply that goes outside the company.</p>'),
+
+        $article('Sharing your calendar or opening someone else\'s', 'Let colleagues see when you are free, and add their calendars beside yours.', 'Email and Calendar', ['How-To', 'Microsoft 365'],
+            '<h5>Share yours</h5>' . $steps([
+                'In Outlook, open your calendar.',
+                'Choose <strong>Share</strong> (or right-click your calendar and choose <strong>Sharing permissions</strong>).',
+                'Add the person, and choose what they see - just when you are busy, the titles and places, or everything - or let them edit it.',
+                'Choose <strong>Share</strong>. They get an email to accept.',
+            ])
+            . '<h5>Open someone else\'s</h5><p>In your calendar choose <strong>Add calendar</strong>, then <strong>Add from directory</strong> (or <strong>Open shared calendar</strong>), and pick the person. You see what they have shared with you.</p>'
+            . '<p>To book a meeting without needing their calendar, use the <strong>Scheduling Assistant</strong> in a new meeting - it shows when everyone is free.</p>'),
+
+        $article('Adding a shared mailbox in Outlook', 'Open a shared mailbox like info@ or accounts@ alongside your own.', 'Email and Calendar', ['How-To', 'Microsoft 365'],
+            '<p>Once we have given you access, a shared mailbox usually appears in Outlook on its own within an hour or so - restart Outlook if it hasn\'t.</p>'
+            . '<h5>If it doesn\'t appear</h5><p><strong>Outlook on the web or the new Outlook:</strong> right-click <strong>Folders</strong> in the folder list, choose <strong>Add shared folder or mailbox</strong> and type the mailbox\'s address.</p>'
+            . '<p><strong>Classic Outlook on Windows:</strong> choose <strong>File &gt; Account Settings &gt; Account Settings</strong>, select your account, <strong>Change &gt; More Settings &gt; Advanced</strong>, then <strong>Add</strong> the mailbox\'s address.</p>'
+            . '<h5>Sending as the shared mailbox</h5><p>In a new email, show the <strong>From</strong> field (under <strong>Options</strong>), choose <strong>Other email address</strong> and pick the shared mailbox. If you get an error saying you don\'t have permission, ask us - sending as a mailbox is a separate permission from reading it.</p>'
+            . '<p>Need access to a shared mailbox you don\'t have? Open a ticket saying which one - we check with whoever looks after it first.</p>'),
+
+        $article('Outlook keeps asking for your password or won\'t sync', 'Quick fixes when Outlook prompts for a password over and over, or new email stops arriving.', 'Email and Calendar', ['Troubleshooting', 'Microsoft 365'],
+            '<p>Try these in order, checking after each one.</p>'
+            . $steps([
+                'Check you can sign in at <a href="https://outlook.office.com">outlook.office.com</a>. If you can\'t, your password may have expired or your account may be locked - see <em>Changing or resetting your Microsoft 365 password</em>.',
+                'If you changed your password recently, type the new one when Outlook asks.',
+                'Close Outlook completely and open it again.',
+                'Restart the computer.',
+                'Check the bottom of the Outlook window - <strong>Working Offline</strong> means it isn\'t connecting. On the <strong>Send / Receive</strong> tab, turn <strong>Work Offline</strong> off.',
+                'Check other websites load - if not, it is your internet connection, not Outlook.',
+            ])
+            . '<p>If email works on the web but not in Outlook, tell us - your Outlook profile may need rebuilding, which we can do remotely.</p>'),
+
+        // Files and Sharing
+        $article('Sending large files securely', 'Share files too big for email, or too sensitive for an attachment, with a OneDrive link.', 'Files and Sharing', ['How-To', 'Security', 'Microsoft 365'],
+            '<p>Email attachments are limited in size and stay in inboxes forever. A sharing link from OneDrive is better for both: no size limit, and you can stop sharing at any time.</p>'
+            . $steps([
+                'Save the file to OneDrive (or find it in SharePoint or Teams).',
+                'Right-click it and choose <strong>Share</strong>.',
+                'Choose who the link works for - <strong>Specific people</strong> is safest - and type their email addresses.',
+                'Untick <strong>Allow editing</strong> unless they need to change it, and set an expiry date for anything sensitive.',
+                'Choose <strong>Send</strong>, or <strong>Copy link</strong> to paste it into your own email.',
+            ])
+            . '<p>To stop sharing later, choose <strong>Manage access</strong> on the file and remove the link.</p>'
+            . '<p>For bank details, ID documents or health information, check with us how your business has agreed to send them before you do.</p>'),
+
+        $article('Syncing SharePoint and Teams files to your computer', 'Work on shared files from File Explorer, the same as files on your computer.', 'Files and Sharing', ['How-To', 'Microsoft 365'],
+            $steps([
+                'In Teams, open the channel and its <strong>Files</strong> tab, and choose <strong>Open in SharePoint</strong> - or go to the SharePoint site directly.',
+                'Choose <strong>Sync</strong> (or <strong>Add shortcut to My files</strong>, which works on every computer you sign in to).',
+                'Allow the browser to open OneDrive if it asks.',
+                'The library appears in File Explorer under your organization\'s name, or in your OneDrive.',
+            ])
+            . '<h5>What the icons mean</h5>' . $list([
+                'A cloud - the file is online only, and downloads when you open it',
+                'A green tick - it is on this computer too',
+                'Red with a cross - it didn\'t sync. Click the OneDrive cloud by the clock to see why',
+            ])
+            . '<p>Two people editing the same Word, Excel or PowerPoint file at once is fine - open it from the shared library rather than a copy you emailed around.</p>'),
+
+        $article('Getting back a deleted or overwritten file', 'Restore a file from the recycle bin, or an earlier version of one, from OneDrive or SharePoint.', 'Files and Sharing', ['How-To', 'Self-Service', 'Microsoft 365'],
+            '<h5>Deleted</h5>' . $steps([
+                'Go to <a href="https://www.office.com">office.com</a>, open OneDrive (or the SharePoint site the file was in).',
+                'Choose <strong>Recycle bin</strong>.',
+                'Select the file and choose <strong>Restore</strong>.',
+            ])
+            . '<p>Files stay in the recycle bin for 93 days.</p>'
+            . '<h5>Saved over by mistake</h5>' . $steps([
+                'Find the file in OneDrive or SharePoint on the web.',
+                'Right-click it and choose <strong>Version history</strong>.',
+                'Find the version from before the change and choose <strong>Restore</strong>.',
+            ])
+            . '<p>Can\'t find it, or it was on a shared drive or a computer rather than OneDrive? Tell us the file\'s name, where it was and roughly when it was last right - we can restore it from backup.</p>'),
+
+        // Remote Work
+        $article('Connecting to the VPN when you work away from the office', 'Reach the office\'s shared drives and systems securely from home or on the road.', 'Remote Work', ['How-To'],
+            '<p>The VPN connects your work computer to the office network over the internet, securely. You need it for shared drives and systems that only run in the office - email, Teams and OneDrive work without it.</p>'
+            . $steps([
+                'Connect to the internet first - home Wi-Fi, or your phone\'s hotspot.',
+                'Open the VPN app from the system tray by the clock, or from the Start menu.',
+                'Choose <strong>Connect</strong> and sign in with your work account, approving it on your phone.',
+                'When it says connected, open your shared drives as usual.',
+            ])
+            . '<p>Disconnect when you have finished, especially on a hotel or other shared Wi-Fi.</p>'
+            . '<h5>If it won\'t connect</h5>' . $list(['Check other websites load', 'Disconnect, wait a minute and connect again', 'Restart the computer', 'Tell us the exact error message - a screenshot is best'])
+            . '<p><em>Your VPN\'s name, and anything different about it, go here.</em></p>'),
+
+        $article('Working securely from home or on the road', 'Simple habits that keep work data safe away from the office.', 'Remote Work', ['Security', 'Policy'],
+            $list([
+                'Lock your screen whenever you step away - press <strong>Windows + L</strong>, or <strong>Control + Command + Q</strong> on a Mac',
+                'Use your work computer for work, and don\'t let family members use it',
+                'Keep work files in OneDrive or SharePoint, not on the desktop or a USB stick',
+                'On public or hotel Wi-Fi, connect to the VPN, or use your phone\'s hotspot instead',
+                'Don\'t take calls about sensitive matters where others can hear, and watch who can see your screen',
+                'Keep your home router updated and change its default password',
+                'Print work documents only when you need to, and shred them afterwards',
+            ])
+            . '<p>If a work device is lost or stolen, tell us straight away - see <em>Lost or stolen laptop or phone</em>.</p>'),
+
+        // Printing and Scanning
+        $article('Adding a printer', 'Add an office printer to your computer, or add it again after it disappears.', 'Printing and Scanning', ['How-To'],
+            '<p>On managed computers the office printers are added for you. If one is missing:</p>'
+            . '<h5>Windows</h5>' . $steps([
+                'Open <strong>Settings &gt; Bluetooth &amp; devices &gt; Printers &amp; scanners</strong>.',
+                'Choose <strong>Add device</strong> and wait for the list.',
+                'Choose the printer by its name - often written on a label on the printer - and <strong>Add device</strong>.',
+            ])
+            . '<h5>Mac</h5><p>Open <strong>System Settings &gt; Printers &amp; Scanners</strong>, choose <strong>Add Printer, Scanner or Fax</strong>, pick it from the list and choose <strong>Add</strong>.</p>'
+            . '<p>If it isn\'t listed, make sure you are on the office network (not guest Wi-Fi), then tell us the printer\'s name and where it is.</p>'),
+
+        $article('Printer not printing', 'Quick checks before you open a ticket about a printer.', 'Printing and Scanning', ['Troubleshooting', 'Quick Fix'],
+            $steps([
+                'Look at the printer\'s screen - paper jams, empty trays and low toner show there.',
+                'Check you sent it to the right printer - the name is in the print window.',
+                'Open the print queue - <strong>Settings &gt; Printers &amp; scanners</strong>, the printer, <strong>Open print queue</strong> - and cancel anything stuck at the top.',
+                'Turn the printer off, wait 30 seconds and turn it on again.',
+                'Restart your computer.',
+                'Try printing from another computer - if that works, the problem is on yours.',
+            ])
+            . '<p>Still not printing? Tell us the printer\'s name, what its screen says, and whether it is just you or everyone.</p>'),
+
+        $article('Scanning to email or a folder', 'Scan documents on the office copier straight to your inbox or a shared folder.', 'Printing and Scanning', ['How-To'],
+            $steps([
+                'Put the pages face up in the feeder on top, or face down on the glass.',
+                'On the copier\'s screen, choose <strong>Scan</strong> (or <strong>Send</strong>).',
+                'Choose <strong>Email</strong> and pick yourself from the address book - or choose the folder you scan to.',
+                'Check the settings - PDF, color or black and white, one or both sides.',
+                'Press <strong>Start</strong>.',
+            ])
+            . '<p>The scan arrives in a minute or two. If it doesn\'t, check your junk email folder, then tell us the copier\'s name and the time you scanned.</p>'
+            . '<p><em>Your copier\'s name, and where scans to a folder land, go here.</em></p>'),
+
+        // Phones and Meetings
+        $article('Fixing sound and video in Teams meetings', 'What to check when people can\'t hear or see you in a Teams meeting, or you can\'t hear them.', 'Phones and Meetings', ['Troubleshooting', 'Microsoft 365'],
+            '<h5>Before you join</h5><p>On the joining screen, check the camera preview and choose <strong>Device settings</strong> (the gear) to pick the right microphone, speaker and camera - a headset, not the laptop\'s own, if you use one.</p>'
+            . '<h5>In the meeting</h5>' . $steps([
+                'Check you aren\'t muted in Teams, and that your headset doesn\'t have its own mute switch on.',
+                'Choose <strong>More &gt; Settings &gt; Device settings</strong> and check the microphone and speaker - make a test call from there.',
+                'Unplug the headset and plug it in again, then pick it again in Device settings.',
+                'Close other apps that might be using the camera or microphone.',
+                'Leave the meeting and join again.',
+            ])
+            . '<p>Choppy sound or frozen video is usually the connection - turn your camera off, move closer to the Wi-Fi, or plug in a network cable.</p>'),
+
+        $article('Setting up voicemail and forwarding on your desk phone', 'Record your voicemail greeting, check messages and forward calls when you are away from your desk.', 'Phones and Meetings', ['How-To', 'Self-Service'],
+            '<h5>Voicemail</h5>' . $steps([
+                'Press the <strong>Messages</strong> (envelope) button, or dial your voicemail number.',
+                'Enter your PIN - the first time, use the one we gave you and choose a new one when asked.',
+                'Follow the prompts to record your name and greeting.',
+            ])
+            . '<h5>Forwarding</h5><p>Press <strong>Forward</strong> on the phone\'s screen, enter the number to forward to, and confirm. Press it again to turn it off. Some systems let you forward from the phone\'s web portal or app instead.</p>'
+            . '<p>Forgotten your voicemail PIN, or want calls to ring your mobile too? Open a ticket - we can set both up.</p>'
+            . '<p><em>Your phone system\'s voicemail number and the exact buttons go here.</em></p>'),
+
+        // Network and Wi-Fi
+        $article('Connecting to the office or guest Wi-Fi', 'Which Wi-Fi to use for work devices, and for visitors and personal phones.', 'Network and Wi-Fi', ['How-To'],
+            '<p>The office has two Wi-Fi networks, kept apart on purpose:</p>'
+            . $list([
+                '<strong>The staff network</strong> - for work computers and work phones. It reaches the printers and shared drives. Managed devices connect to it on their own.',
+                '<strong>The guest network</strong> - for visitors and personal phones. It reaches the internet only.',
+            ])
+            . '<p>Please don\'t connect personal devices to the staff network, or give its password to visitors. The guest network\'s password is posted at reception, and changes from time to time.</p>'
+            . '<h5>Not connecting</h5>' . $list(['Turn Wi-Fi off and on again', 'Choose the network, <strong>Forget</strong> it, and connect again with the password', 'Restart the device', 'Try a spot nearer the access point - is it just you, or everyone in that area?'])
+            . '<p><em>Your network names go here.</em></p>'),
+
+        $article('Slow or no internet - checks before you call', 'Work out whether it is your computer, the Wi-Fi or the office\'s connection.', 'Network and Wi-Fi', ['Troubleshooting', 'Quick Fix'],
+            $steps([
+                'Try a couple of different websites - is it everything, or one site? One site may be down for everyone.',
+                'Ask a colleague - is it just you, or everyone? If everyone, tell us straight away.',
+                'If it is just you, turn Wi-Fi off and on, or unplug and replug the network cable.',
+                'Restart your computer.',
+                'At home, restart your router: unplug it, wait 30 seconds and plug it back in. Give it a few minutes.',
+            ])
+            . '<p>If the whole office is down, we usually know already from our monitoring - but call so we know it affects you. Working from home and only your connection is slow? That is your internet provider, but tell us if it stops you working and we will help.</p>'),
+
+        // Policies
+        $article('New starters and leavers', 'What we need to know before someone joins or leaves, and how far ahead.', 'Policies', ['Policy', 'New Starter'],
+            '<h5>Someone joining</h5><p>Let us know at least five working days before their first day - longer if they need a new computer, which can take a couple of weeks to arrive. Tell us:</p>'
+            . $list([
+                'Their name, job title and start date',
+                'Who they report to, and which team they are in',
+                'Who they will work like - we give them the same access, mailboxes and software',
+                'Whether they need a computer, phone or desk phone, and where they will sit',
+            ])
+            . '<h5>Someone leaving</h5><p>Tell us as soon as you know their last day, and straight away if they are leaving sooner than planned. Say:</p>'
+            . $list([
+                'Their last day, and when their access should stop - for an awkward exit, ask us to stop it at a set time',
+                'Who should get their email and files, and for how long',
+                'Which equipment is coming back, and when',
+            ])
+            . '<p>Only the people allowed to ask for these changes should - we will check with you if a request comes from someone else.</p>'),
+
+        $article('Acceptable use of work computers and accounts', 'The ground rules for using company computers, email and accounts - a starting point for your own policy.', 'Policies', ['Policy'],
+            '<p><em>A starting point: make it match your organization\'s own policy before publishing it.</em></p>'
+            . $list([
+                'Work computers, phones and accounts are for work. Reasonable personal use is fine, as long as it doesn\'t get in the way of work or break these rules.',
+                'Your account is yours alone. Don\'t share your password, or let anyone else use your account or approve sign-ins for them.',
+                'Only install software we have approved - ask us first.',
+                'Keep work files in the company\'s systems, not on personal accounts, personal devices or USB sticks.',
+                'Lock your screen when you step away.',
+                'Report anything suspicious straight away - a strange email, a sign-in request you didn\'t start, a lost device. You won\'t be in trouble for reporting it.',
+                'What you send and store on company systems isn\'t private, and may be monitored to keep them secure.',
+            ])),
 
     ];
 
