@@ -34,6 +34,7 @@
 <script src="<?= staticFileUrl('/libs/sweetalert2/js/sweetalert2.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/autosubmit.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 
 <?php if (!empty($portal_load_phone_inputs)) { ?>
     <script src="<?= staticFileUrl('/libs/intl-tel-input/js/intlTelInputWithUtils.min.js') ?>"></script>

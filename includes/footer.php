@@ -92,6 +92,7 @@ try {
 <script src="<?= staticFileUrl('/js/tag_picker.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/link_picker.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/tab_fold.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/quick_pick.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/ajax_modal.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/confirm_modal.js') ?>"></script>

@@ -90,6 +90,7 @@ $mfa_secret = $_SESSION['mfa_token'];
     <!-- Bootstrap 4 -->
     <script src="<?= staticFileUrl('/js/http.js') ?>"></script>
     <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+    <script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 
     <script>
 

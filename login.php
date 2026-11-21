@@ -584,15 +584,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         // Now that we've transferred what we need, it's safe to clear the dual-role pending session.
                         unset($_SESSION['pending_dual_login']);
 
-                        $token_field = "
-                            <div class='input-group mb-3'>
-                                <input type='text' inputmode='numeric' pattern='[0-9]*' maxlength='6'
-                                       class='form-control' placeholder='Verify your 2FA code'
-                                       name='current_code' required autofocus>
-                                  <div class='input-group-text'>
-                                    <span class='fas fa-key'></span>
-                                  </div>
-                            </div>";
+                        $token_field = otpCodeInput('current_code', ['class' => 'mb-3', 'submit' => true, 'autofocus' => true, 'invalid' => $code_given && !$mfa_locked]);
 
                         if ($mfa_locked) {
 
@@ -700,14 +692,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             ];
                             unset($_SESSION['pending_dual_login']);
 
-                            $token_field = "
-                                <p class='small text-body-secondary mb-2'>Enter the 6-digit code from your authenticator app.</p>
-                                <div class='input-group mb-3'>
-                                    <span class='input-group-text'><span class='fas fa-fw fa-mobile-alt'></span></span>
-                                    <input type='text' inputmode='numeric' pattern='[0-9]{6}' maxlength='6' minlength='6'
-                                           class='form-control' placeholder='6-digit code' aria-label='6-digit code'
-                                           name='current_code' autocomplete='one-time-code' required autofocus>
-                                </div>";
+                            $token_field = otpCodeInput('current_code', ['class' => 'mb-3', 'submit' => true, 'autofocus' => true, 'invalid' => !$client_mfa_locked && ($client_code !== '' || isset($_POST['current_code']))]);
 
                             if ($client_mfa_locked) {
                                 // As for agents: no log row while locked, so the window can run out
@@ -899,18 +884,20 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                 <?php endif; ?>
 
                 <?php if ($show_mfa_form): ?>
-                    <!-- STEP 3: MFA only -->
-                    <?= $token_field ?>
+                    <!-- STEP 3: MFA only - the code goes in six boxes and signs in on the last digit, so Remember comes first -->
+                    <p class="small text-body-secondary mb-2">Enter the 6-digit code from your authenticator app.</p>
 
-                    <input type="hidden" name="pending_mfa_token"
-                           value="<?= htmlspecialchars($_SESSION['pending_mfa_login']['token'] ?? '', ENT_QUOTES) ?>">
-
-                    <div class="mb-3 mb-3">
+                    <div class="mb-3">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
                             <label class="form-check-label" for="remember_me">Remember this browser for <?= $config_login_remember_me_expire ?> day<?= $config_login_remember_me_expire === 1 ? '' : 's' ?></label>
                         </div>
                     </div>
+
+                    <?= $token_field ?>
+
+                    <input type="hidden" name="pending_mfa_token"
+                           value="<?= htmlspecialchars($_SESSION['pending_mfa_login']['token'] ?? '', ENT_QUOTES) ?>">
 
                     <button type="submit" class="btn btn-dark w-100 mb-3" name="mfa_login">Verify & Sign In</button>
                 <?php endif; ?>
@@ -957,6 +944,7 @@ if (!$config_whitelabel_enabled) {
 <script src="<?= staticFileUrl('/libs/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/libs/adminlte/js/adminlte.min.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/login_prevent_resubmit.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 
 </body>
 </html>

@@ -519,6 +519,38 @@ function userMfaQrSvg($secret, $email) {
     return qrCodeSvg($uri, 'class="itflow-mfa-qr" role="img" aria-label="QR code for your authenticator app"');
 }
 
+/**
+ * A 6-digit code, typed into six boxes - signing in with MFA, setting it up,
+ * and share codes. The one field under the boxes is what the form sends and
+ * what phones and password managers fill in; js/otp_input.js draws the boxes
+ * over it (a plain field without it). $options: id, label (its accessible
+ * name), class (on the wrapper), autofocus, submit (send the form once the
+ * sixth digit is in), invalid (a code that was just wrong - the boxes go red).
+ */
+function otpCodeInput($name, array $options = []) {
+    $attrs = [
+        'type' => 'text',
+        'class' => 'form-control form-control-lg font-monospace text-center itflow-otp-input' . (empty($options['invalid']) ? '' : ' is-invalid'),
+        'name' => $name,
+        'id' => $options['id'] ?? '',
+        'inputmode' => 'numeric',
+        'pattern' => '[0-9]{6}',
+        'minlength' => '6',
+        'maxlength' => '6',
+        'autocomplete' => 'one-time-code',
+        'placeholder' => '000000',
+        'aria-label' => $options['label'] ?? '6-digit code',
+    ];
+    $html = '<input';
+    foreach ($attrs as $attr => $value) {
+        if ($value !== '') {
+            $html .= ' ' . $attr . '="' . escapeHtml($value) . '"';
+        }
+    }
+    $html .= ' required data-otp' . (empty($options['submit']) ? '' : ' data-otp-submit') . (empty($options['autofocus']) ? '' : ' autofocus') . '>';
+    return '<div class="itflow-otp' . (empty($options['class']) ? '' : ' ' . escapeHtml($options['class'])) . '">' . $html . '</div>';
+}
+
 /** An agent's work not finished - [tickets not closed, recurring tickets] assigned to them. */
 function userOpenWork($user_id) {
     global $mysqli;

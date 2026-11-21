@@ -307,10 +307,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                         <ol class="small ps-3 mb-2" start="3">
                             <li>Enter the 6-digit code it shows:</li>
                         </ol>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text"><i class="fas fa-fw fa-mobile-alt"></i></span>
-                            <input type="text" class="form-control form-control-lg font-monospace text-center itflow-mfa-code" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" name="verify_code" placeholder="000000" autocomplete="one-time-code" aria-label="6-digit code" required autofocus>
-                        </div>
+                        <?= otpCodeInput('verify_code', ['class' => 'mb-3', 'submit' => true, 'autofocus' => true]) ?>
                         <div class="d-flex flex-wrap gap-2">
                             <button type="submit" class="btn btn-primary" name="portal_mfa_enable"><i class="fas fa-check me-2"></i>Turn on</button>
                             <?php if (!$portal_mfa_setup_needed) { ?>

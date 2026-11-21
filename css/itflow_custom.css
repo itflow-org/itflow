@@ -6628,12 +6628,99 @@ tr:hover .itflow-files-rename,
     width: 12rem;
     height: 12rem;
 }
-.itflow-mfa-code {
-    letter-spacing: .4em;
+
+/* A 6-digit code in six boxes (otpCodeInput(), js/otp_input.js). The one real field lies
+   over the boxes, see-through, so typing, pasting and autofill all go to it; the boxes only
+   show its digits. Before the script runs it is a plain field. */
+.itflow-otp.is-ready {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    max-width: 22rem;
+    margin-inline: auto;
 }
-.itflow-mfa-code::placeholder {
-    letter-spacing: .4em;
-    opacity: .35;
+.itflow-otp.is-ready > .itflow-otp-input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    font-size: 16px;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: transparent;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: 0;
+    cursor: text;
+}
+.itflow-otp.is-ready > .itflow-otp-input::selection {
+    background: transparent;
+}
+.itflow-otp.is-ready > .itflow-otp-input::placeholder {
+    color: transparent;
+}
+/* Autofilled - keep the browser's colour off */
+.itflow-otp.is-ready > .itflow-otp-input:-webkit-autofill {
+    transition: background-color 600000s 0s, color 600000s 0s;
+}
+.itflow-otp-slot {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    max-width: 3rem;
+    height: 3.5rem;
+    font-family: var(--bs-font-monospace);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.itflow-otp-slot.is-filled {
+    border-color: var(--bs-secondary-color);
+}
+.itflow-otp-slot.is-active {
+    border-color: rgba(var(--bs-primary-rgb), .75);
+    box-shadow: 0 0 0 .2rem rgba(var(--bs-primary-rgb), .25);
+}
+/* The next digit goes here - a blinking caret */
+.itflow-otp-slot.is-caret::after {
+    content: "";
+    width: 2px;
+    height: 1.6rem;
+    background: var(--bs-body-color);
+    animation: itflow-otp-caret 1s step-end infinite;
+}
+@keyframes itflow-otp-caret {
+    50% { opacity: 0; }
+}
+/* Three and three, as the codes are read out */
+.itflow-otp-sep {
+    flex: 0 0 .6rem;
+    align-self: center;
+    height: 2px;
+    background: var(--bs-border-color);
+    border-radius: 1px;
+}
+.itflow-otp.is-invalid .itflow-otp-slot {
+    border-color: var(--bs-form-invalid-border-color);
+}
+.itflow-otp.is-invalid .itflow-otp-slot.is-active {
+    box-shadow: 0 0 0 .2rem rgba(var(--bs-danger-rgb), .25);
+}
+@media (prefers-reduced-motion: reduce) {
+    .itflow-otp-slot.is-caret::after {
+        animation: none;
+    }
 }
 .itflow-mfa-state {
     display: inline-flex;

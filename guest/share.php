@@ -91,11 +91,7 @@ $item_id = intval($_GET['id'] ?? 0);
             <div class="alert alert-success py-2 small" role="status" data-share-code-sent hidden>Code sent - it can take a minute to arrive, and works for <?= SHARE_CODE_MINUTES ?> minutes.</div>
             <button type="button" class="btn btn-primary w-100 text-bold mb-3" data-share-send-code><i class="fas fa-paper-plane me-2"></i>Email me a code</button>
             <div data-share-code-entry hidden>
-                <label class="form-label" for="shareCode">Code</label>
-                <div class="input-group mb-3">
-                    <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
-                    <input type="text" class="form-control font-monospace" id="shareCode" name="code" inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" autocomplete="one-time-code" placeholder="123456">
-                </div>
+                <?= otpCodeInput('code', ['id' => 'shareCode', 'label' => 'The 6-digit code from the email', 'class' => 'mb-3', 'submit' => true]) ?>
                 <button type="submit" class="btn btn-primary w-100 text-bold"><i class="fas fa-unlock me-2"></i>Continue</button>
                 <button type="button" class="btn btn-link w-100 btn-sm mt-2" data-share-resend>Send another code</button>
             </div>
@@ -255,6 +251,7 @@ $item_id = intval($_GET['id'] ?? 0);
 </div>
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>
+<script src="<?= staticFileUrl('/js/otp_input.js') ?>"></script>
 <script src="<?= staticFileUrl('/js/guest_share.js') ?>"></script>
 
 <?php
