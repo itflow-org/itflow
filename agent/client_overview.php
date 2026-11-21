@@ -170,22 +170,20 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php if ($open_tickets['total']) { ?><a class="small ms-2" href="tickets.php?client_id=<?= $client_id ?>">View all <?= $open_tickets['total'] ?></a><?php } ?>
                     </div>
                     <?php if ($open_tickets['tickets']) { ?>
-                        <div class="list-group list-group-flush">
+                        <div class="list-group list-group-flush itflow-dash-mine">
                             <?php foreach ($open_tickets['tickets'] as $ticket) {
                                 $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
                                 $ticket_who = trim(implode(', ', array_filter([$ticket['contact_name'], $ticket['user_name'] ? 'assigned to ' . $ticket['user_name'] : 'unassigned'])));
                                 ?>
-                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= intval($ticket['ticket_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= intval($ticket['ticket_id']) ?>" class="list-group-item list-group-item-action py-2">
                                     <span class="itflow-dash-dot bg-<?= $priority_colors[$ticket['ticket_priority']] ?? 'secondary' ?>" title="<?= escapeHtml($ticket['ticket_priority']) ?> priority"></span>
-                                    <span class="flex-grow-1 overflow-hidden">
+                                    <span class="overflow-hidden">
                                         <span class="d-block text-truncate"><span class="small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?></span>
                                         <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml(ucfirst($ticket_who)) ?></span>
                                     </span>
-                                    <?php if ($ticket['sla_breached']) { ?>
-                                        <span class="badge rounded-pill text-bg-danger" title="Past SLA"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
-                                    <?php } ?>
-                                    <span class="d-none d-sm-inline"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
-                                    <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
+                                    <span class="itflow-dash-mine-cell"><?php if ($ticket['sla_breached']) { ?><span class="badge rounded-pill text-bg-danger" title="Past SLA"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span><?php } ?></span>
+                                    <span class="itflow-dash-mine-cell d-none d-sm-flex"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></span>
+                                    <span class="itflow-dash-mine-cell justify-content-end small text-body-secondary text-nowrap d-none d-md-flex" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
                                 </a>
                             <?php } ?>
                         </div>

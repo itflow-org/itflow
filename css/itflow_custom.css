@@ -3061,8 +3061,9 @@ a.itflow-dash-rail-item:focus-visible {
 [data-bs-theme=dark] .itflow-dash-dot.bg-dark {
     background-color: var(--bs-emphasis-color) !important;
 }
-/* Open and assigned to you: each row takes its columns from the list (subgrid), so the SLA
-   pills, the statuses and the last activity line up down the card whatever their widths.
+/* Open tickets - yours on the dashboard, a client's on its overview: each row takes its columns
+   from the list (subgrid), so the SLA pills, the statuses and the last activity line up down
+   the card whatever their widths.
    The status shows from sm and the last activity from md, so the columns do too. */
 .itflow-dash-mine {
     display: grid;
