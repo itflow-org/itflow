@@ -3,7 +3,8 @@
 /*
  * Admin > Settings > Tickets (admin/settings_ticket.php):
  * edit_ticket_settings saves the numbering, email and text to ticket, who hears of a
- * new ticket and whether AI triages it, what a quick ticket starts with, the timer
+ * new ticket and whether AI triages it, whether the first agent to reply to an
+ * unassigned ticket is assigned it, what a quick ticket starts with, the timer
  * and billing, the messages to clients, closing and the tickets page. A next
  * number already in use, an email address that isn't one or a closing time
  * out of range comes back to the page saying so - nothing is saved. Billable
@@ -21,6 +22,7 @@ if (isset($_POST['edit_ticket_settings'])) {
     $before = settingsCurrent(array_merge(['config_ticket_prefix', 'config_ticket_next_number', 'config_ticket_email_parse', 'config_ticket_email_parse_unknown_senders',
         'config_ticket_new_ticket_notification_email', 'config_ticket_timer_autostart', 'config_ticket_default_billable', 'config_ticket_autoclose_hours',
         'config_ticket_default_view', 'config_ticket_ordering', 'config_ticket_moving_columns'], aiTriageReady() ? ['config_ticket_ai_triage'] : [],
+        version_compare((string) CURRENT_DATABASE_VERSION, '4.0.9', '>=') ? ['config_ticket_reply_assigns'] : [],
         settingsColumnExists($mysqli, 'config_ticket_sms_parse') ? ['config_ticket_sms_parse', 'config_ticket_sms_unknown_senders', 'config_ticket_sms_acknowledge'] : [],
         ticketStatusReplyReady() ? ['config_ticket_assigned_message'] : [], ticketNoResponseReady() ? ['config_ticket_no_response_message'] : [],
         quickTicketReady() ? ['config_quick_ticket_on', 'config_quick_ticket_assign', 'config_quick_ticket_status', 'config_quick_ticket_priority', 'config_quick_ticket_category',
@@ -40,6 +42,10 @@ if (isset($_POST['edit_ticket_settings'])) {
     ];
     foreach (['config_ticket_email_parse', 'config_ticket_email_parse_unknown_senders', 'config_ticket_timer_autostart', 'config_ticket_ordering', 'config_ticket_moving_columns'] as $switch) {
         $after[$switch] = empty($_POST[$switch]) ? 0 : 1;
+    }
+    // Assigning a ticket to the first agent to reply - once the database has it
+    if (array_key_exists('config_ticket_reply_assigns', $before)) {
+        $after['config_ticket_reply_assigns'] = empty($_POST['config_ticket_reply_assigns']) ? 0 : 1;
     }
     // Text to ticket - once the database has it
     if (array_key_exists('config_ticket_sms_parse', $before)) {

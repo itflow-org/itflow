@@ -1223,9 +1223,17 @@ if (isset($_POST['add_ticket_reply'])) {
             setTicketFirstResponse($ticket_id);
         }
 
+        // Nobody had it - a reply the client sees makes it this agent's, as Assign to me
+        // would (Admin > Settings > Tickets). Not an internal note: a ticket can be
+        // triaged, or someone @mentioned on it, without taking it
+        $taken = false;
+        if ($ticket_reply_type === 'Public' && !intval($row['ticket_assigned_to']) && ticketReplyAssigns()) {
+            [$taken] = ticketChangeAssignee($ticket_id, $session_user_id);
+        }
+
         triggerCustomAction($ticket_reply_type === 'Internal' ? 'ticket_reply_agent_internal' : 'reply_reply_agent_public', $ticket_id);
 
-        $reference_html = "<strong>" . escapeHtml(ticketReference($row)) . "</strong>";
+        $reference_html = "<strong>" . escapeHtml(ticketReference($row)) . "</strong>" . ($taken ? ' (now assigned to you)' : '');
         if ($ticket_reply_type === 'Internal') {
             flashAlert("Internal note added to ticket $reference_html" . ($told ? " - <strong>" . escapeHtml(ticketMentionNames($told)) . "</strong> " . (count($told) === 1 ? 'was' : 'were') . " told" : ''));
         } elseif ($texted) {

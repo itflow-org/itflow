@@ -3835,6 +3835,7 @@ CREATE TABLE `settings` (
   `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_ordering` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_moving_columns` tinyint(1) NOT NULL DEFAULT 1,
+  `config_ticket_reply_assigns` tinyint(1) NOT NULL DEFAULT 1,
   `config_cron_last_dispatch_at` datetime DEFAULT NULL,
   `config_cron_alert_email` tinyint(1) NOT NULL DEFAULT 1,
   `config_cron_alert_to` varchar(500) DEFAULT NULL,

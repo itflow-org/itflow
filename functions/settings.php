@@ -280,6 +280,8 @@ function settingsFields() {
         'config_quick_ticket_primary' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Start on the client\'s primary contact', 'words' => 'quick ticket primary contact'] + $on_off,
         'config_quick_ticket_open_tickets' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Show the contact\'s open tickets', 'words' => 'quick ticket open tickets duplicate'] + $on_off,
         'config_quick_ticket_email_client' => ['page' => 'ticket', 'section' => 'Quick tickets', 'label' => 'Email the contact that it was opened', 'words' => 'quick ticket email contact created'] + $on_off,
+        'config_ticket_reply_assigns' => ['page' => 'ticket', 'section' => 'Assigning', 'label' => 'Assign an unassigned ticket to the first agent to reply',
+            'words' => 'assign assigned first reply respond responder take own technician unassigned automatic'] + $on_off,
         'config_ticket_default_billable' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'New tickets are billable', 'words' => 'billable default bill'] + $on_off,
         'config_ticket_timer_autostart' => ['page' => 'ticket', 'section' => 'Time and billing', 'label' => 'Start the timer on opening a ticket', 'words' => 'timer autostart time tracking'] + $on_off,
         'config_ticket_autoclose_hours' => ['page' => 'ticket', 'section' => 'Closing', 'label' => 'Close resolved tickets after', 'words' => 'auto close autoclose resolved hours'],

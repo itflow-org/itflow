@@ -75,6 +75,23 @@ function ticketChangePriority($ticket_id, $priority) {
 }
 
 /*
+ * Whether a reply the client sees, on a ticket nobody is assigned to, assigns it to
+ * the agent who sent it - Admin > Settings > Tickets, config_ticket_reply_assigns.
+ * On until database 4.0.9 adds the switch.
+ */
+function ticketReplyAssigns() {
+    global $mysqli;
+    static $on = null;
+    if ($on === null) {
+        $on = true;
+        if (version_compare(defined('CURRENT_DATABASE_VERSION') ? (string) CURRENT_DATABASE_VERSION : '0', '4.0.9', '>=')) {
+            $on = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_ticket_reply_assigns FROM settings WHERE company_id = 1"))[0] ?? 1) === 1;
+        }
+    }
+    return $on;
+}
+
+/*
  * Assign to an agent, or to no one with 0. A New ticket that gets an agent
  * becomes Open. Returns [ok, message].
  */

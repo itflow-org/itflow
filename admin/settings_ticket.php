@@ -67,6 +67,12 @@ echo settingsPageStart('ticket');
                 <?php } ?>
             <?= settingsSectionEnd() ?>
 
+            <?php if (version_compare((string) CURRENT_DATABASE_VERSION, '4.0.9', '>=')) { ?>
+                <?= settingsSectionStart('assigning', 'Assigning', 'Who a ticket goes to when nobody has picked it up.') ?>
+                    <?= settingsSwitch('config_ticket_reply_assigns', ticketReplyAssigns() ? 1 : 0, ['help' => 'The agent who replies to a ticket nobody is assigned to - by email, by text or as a public note - is assigned it, as Assign to me would. An internal note doesn\'t assign it, so a ticket can be looked at, or someone @mentioned on it, without taking it. A ticket already assigned keeps its agent.']) ?>
+                <?= settingsSectionEnd() ?>
+            <?php } ?>
+
             <?= settingsSectionStart('time', 'Time and billing', 'How time on a ticket starts, and whether it bills.') ?>
                 <?= settingsSwitch('config_ticket_timer_autostart', $config_ticket_timer_autostart, ['help' => 'The timer runs from opening a ticket, rather than from pressing start.']) ?>
                 <?php if ($config_module_enable_accounting) { ?>
