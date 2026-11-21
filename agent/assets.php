@@ -257,14 +257,14 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
         <div class="card-header py-2 itflow-asset-tabs">
             <nav class="nav nav-pills flex-nowrap overflow-auto">
                 <a class="nav-link text-nowrap <?= $type_filter === '' ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&type=">
-                    All <span class="badge rounded-pill ms-1"><?= $tab_counts[''] ?></span>
+                    All <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[''])) ?></span>
                 </a>
                 <?php foreach ($asset_type_tabs as $tab_key => $tab) {
                     if (!$tab_counts[$tab_key] && $type_filter !== $tab_key) {
                         continue;
                     } ?>
                     <a class="nav-link text-nowrap <?= $type_filter === $tab_key ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&type=<?= $tab_key ?>">
-                        <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab_counts[$tab_key] ?></span>
+                        <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[$tab_key])) ?></span>
                     </a>
                 <?php } ?>
             </nav>

@@ -1656,7 +1656,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($show_trips && ($ticket_trip_count || $ticket_onsite)) { ?>
                     <div class="card mb-3 itflow-ticket-trips">
                         <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-route me-2"></i>Trips<?php if ($ticket_trip_count) { ?> <span class="badge rounded-pill text-bg-secondary ms-1"><?= $ticket_trip_count ?></span><?php } ?></h5>
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-route me-2"></i>Trips<?php if ($ticket_trip_count) { ?> <span class="badge rounded-pill text-bg-secondary ms-1"><?= number_format(intval($ticket_trip_count)) ?></span><?php } ?></h5>
                             <div class="card-tools">
                                 <a class="btn btn-tool ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>" title="Log a trip"><i class="fas fa-plus"></i></a>
                             </div>

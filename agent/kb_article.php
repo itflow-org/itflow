@@ -324,7 +324,7 @@ $page_title = $row['kb_article_title'];
             <div class="card mb-3" id="kbArticleFeedback">
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-thumbs-down me-2 text-body-secondary"></i>Feedback
-                        <?php if ($feedback_counts['open']) { ?><span class="badge rounded-pill text-bg-warning ms-1" title="Not dealt with yet"><?= $feedback_counts['open'] ?></span><?php } ?>
+                        <?php if ($feedback_counts['open']) { ?><span class="badge rounded-pill text-bg-warning ms-1" title="Not dealt with yet"><?= number_format(intval($feedback_counts['open'])) ?></span><?php } ?>
                     </h3>
                     <?php if ($can_edit && $feedback_counts['open'] > 1) { ?>
                         <div class="card-tools">

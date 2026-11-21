@@ -321,7 +321,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="network-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#network-pane-<?= $tab_key ?>" data-network-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 </button>
                             </li>
                         <?php } ?>

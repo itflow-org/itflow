@@ -72,7 +72,7 @@ function quotesUrl(array $changes) {
     <?php foreach ($tabs as $key => $t) { ?>
         <a class="<?= $key === $tab ? 'active' : '' ?><?= $key === 'waiting' && $counts['waiting'] ? ' itflow-portal-tab-alert' : '' ?>" href="<?= escapeHtml(quotesUrl(['tab' => $key, 'page' => null])) ?>">
             <i class="fas <?= $t['icon'] ?>"></i><?= escapeHtml($t['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>

@@ -81,7 +81,7 @@ function assetsUrl(array $changes) {
         } ?>
         <a class="<?= $key === $tab ? 'active' : '' ?>" href="<?= escapeHtml(assetsUrl(['tab' => $key, 'page' => null])) ?>">
             <i class="fas <?= $group['icon'] ?>"></i><?= escapeHtml($group['label']) ?>
-            <span class="badge rounded-pill"><?= $counts[$key] ?></span>
+            <span class="badge rounded-pill"><?= number_format(intval($counts[$key])) ?></span>
         </a>
     <?php } ?>
 </nav>

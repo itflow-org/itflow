@@ -105,7 +105,7 @@
                             Contacts
                             <?php
                             if ($num_contacts > 0) { ?>
-                                <span class="right badge rounded-pill text-light"><?= $num_contacts ?></span>
+                                <span class="right badge rounded-pill text-light"><?= number_format(intval($num_contacts)) ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -118,7 +118,7 @@
                             Locations
                             <?php
                             if ($num_locations > 0) { ?>
-                                <span class="right badge rounded-pill text-light"><?= $num_locations ?></span>
+                                <span class="right badge rounded-pill text-light"><?= number_format(intval($num_locations)) ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -131,7 +131,7 @@
                             Vendors
                             <?php
                             if ($num_vendors > 0) { ?>
-                                <span class="right badge rounded-pill text-light"><?= $num_vendors ?></span>
+                                <span class="right badge rounded-pill text-light"><?= number_format(intval($num_vendors)) ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -145,7 +145,7 @@
                                 Calendar
                                 <?php
                                 if ($num_calendar_events > 0) { ?>
-                                    <span class="right badge rounded-pill text-light"><?= $num_calendar_events ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_calendar_events)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -183,7 +183,7 @@
                                 Recurring Tickets
                                 <?php
                                 if ($num_recurring_tickets) { ?>
-                                    <span class="right badge rounded-pill text-light"><?= $num_recurring_tickets ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_recurring_tickets)) ?></span>
                                 <?php } ?>
 
                             </p>
@@ -196,7 +196,7 @@
                             <p>
                                 Projects
                                 <?php if ($num_active_projects) { ?>
-                                    <span class="right badge rounded-pill text-light" title="Open Projects"><?= $num_active_projects ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Open Projects"><?= number_format(intval($num_active_projects)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -216,7 +216,7 @@
                                     Assets
                                     <?php
                                     if ($num_assets > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_assets ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_assets)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -229,7 +229,7 @@
                                     Networks
                                     <?php
                                     if ($num_networks > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_networks ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_networks)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -242,7 +242,7 @@
                                     Racks
                                     <?php
                                     if ($num_racks > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_racks ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_racks)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -258,7 +258,7 @@
                                         Credentials
                                         <?php
                                         if ($num_credentials > 0) { ?>
-                                            <span class="right badge rounded-pill text-light"><?= $num_credentials ?></span>
+                                            <span class="right badge rounded-pill text-light"><?= number_format(intval($num_credentials)) ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>
@@ -325,7 +325,7 @@
                                     Services
                                     <?php
                                     if ($num_services > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_services ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_services)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -341,7 +341,7 @@
                                 Files
                                 <?php
                                 if ($num_files > 0) { ?>
-                                    <span class="right badge rounded-pill text-light"><?= $num_files ?></span>
+                                    <span class="right badge rounded-pill text-light"><?= number_format(intval($num_files)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -362,7 +362,7 @@
                                     Quotes
                                     <?php
                                     if ($num_quotes > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_quotes ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_quotes)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -402,7 +402,7 @@
                                     Recurring Invoices
                                     <?php
                                     if ($num_recurring_invoices) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_recurring_invoices ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_recurring_invoices)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -430,7 +430,7 @@
                                     Income
                                     <?php
                                     if ($num_income > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_income ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_income)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -445,7 +445,7 @@
                                     Trips
                                     <?php
                                     if ($num_trips > 0) { ?>
-                                        <span class="right badge rounded-pill text-light"><?= $num_trips ?></span>
+                                        <span class="right badge rounded-pill text-light"><?= number_format(intval($num_trips)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

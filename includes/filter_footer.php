@@ -62,7 +62,7 @@ if ($total_found_rows > 5) {
 
         <div class="col col-sm">
             <p class="text-center mb-0">
-              Showing <strong><?= $start ?></strong> to <strong><?= $end ?></strong> of <strong><?= $total_found_rows ?></strong> records
+              Showing <strong><?= number_format($start) ?></strong> to <strong><?= number_format($end) ?></strong> of <strong><?= number_format(intval($total_found_rows)) ?></strong> records
             </p>
         </div>
         <div class="col-12 col-xl-auto">

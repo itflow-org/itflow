@@ -405,7 +405,7 @@ if (!$product) {
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="product-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#product-pane-<?= $tab_key ?>" data-product-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 </button>
                             </li>
                         <?php } ?>

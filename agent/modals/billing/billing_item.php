@@ -153,7 +153,7 @@ ob_start();
                             $type_id = 'seatType' . substr(md5($asset_type), 0, 8); ?>
                             <input type="checkbox" class="btn-check" name="seat_types[]" value="<?= escapeHtml($asset_type) ?>" id="<?= $type_id ?>" autocomplete="off" data-seat-input
                                 <?= $seat_source === 'assets' && in_array($asset_type, $seat_filter['types'] ?? [], true) ? 'checked' : '' ?>>
-                            <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= $asset_count ?></span></label>
+                            <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= number_format(intval($asset_count)) ?></span></label>
                         <?php } ?>
                         <?php if (!$seat_options['asset_types']) { ?>
                             <span class="small text-body-secondary">The client has no devices yet.</span>
@@ -178,7 +178,7 @@ ob_start();
                                 $type_id = 'seatManagedType' . substr(md5($asset_type), 0, 8); ?>
                                 <input type="checkbox" class="btn-check" name="seat_types[]" value="<?= escapeHtml($asset_type) ?>" id="<?= $type_id ?>" autocomplete="off" data-seat-input
                                     <?= $seat_source === 'managed' && in_array($asset_type, $seat_filter['types'] ?? [], true) ? 'checked' : '' ?>>
-                                <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= $asset_count ?></span></label>
+                                <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= number_format(intval($asset_count)) ?></span></label>
                             <?php } ?>
                             <?php if (!$seat_options['managed_types']) { ?>
                                 <span class="small text-body-secondary">None of the client's devices are in your RMM yet - link the client on its RMM provider's Clients page.</span>

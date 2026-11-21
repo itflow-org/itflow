@@ -76,7 +76,7 @@ ob_start();
                 <?php if ($software_archived) { ?><span class="badge rounded-pill text-bg-secondary fw-normal fs-6">Archived</span><?php } ?>
                 <span class="fs-6"><?= $renewal && $renewal['state'] !== 'active' ? softwareRenewalPill($renewal) : '' ?></span>
                 <?php if ($seats['state'] === 'over') { ?>
-                    <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis border border-danger-subtle fw-normal fs-6"><?= $seats['over'] ?> over seats</span>
+                    <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis border border-danger-subtle fw-normal fs-6"><?= number_format(intval($seats['over'])) ?> over seats</span>
                 <?php } ?>
             </h5>
             <div class="small text-body-secondary d-flex flex-wrap column-gap-3 mt-1">
@@ -167,7 +167,7 @@ ob_start();
                 <?php foreach ($quick_tabs as $tab_key => $tab) { ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-nowrap <?= $tab_key === $first_tab ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#<?= $quick_id ?>-<?= $tab_key ?>" data-license-quick-tab="<?= $tab_key ?>" type="button" role="tab">
-                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                         </button>
                     </li>
                 <?php } ?>

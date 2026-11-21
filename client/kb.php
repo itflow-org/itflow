@@ -86,9 +86,9 @@ function kbPortalUrl(array $changes) {
 
 <?php if (count($categories) > 1) { ?>
     <nav class="itflow-portal-tabs" aria-label="Categories">
-        <a class="<?= $category === null ? 'active' : '' ?>" href="<?= escapeHtml(kbPortalUrl(['category' => null, 'page' => null])) ?>"><i class="fas fa-list"></i>All <span class="badge rounded-pill"><?= $all_count ?></span></a>
+        <a class="<?= $category === null ? 'active' : '' ?>" href="<?= escapeHtml(kbPortalUrl(['category' => null, 'page' => null])) ?>"><i class="fas fa-list"></i>All <span class="badge rounded-pill"><?= number_format(intval($all_count)) ?></span></a>
         <?php foreach ($categories as $id => $c) { ?>
-            <a class="<?= $category === $id ? 'active' : '' ?>" href="<?= escapeHtml(kbPortalUrl(['category' => $id, 'page' => null])) ?>"><i class="fas fa-<?= $c['icon'] ?>"></i><?= escapeHtml($c['name']) ?> <span class="badge rounded-pill"><?= $c['count'] ?></span></a>
+            <a class="<?= $category === $id ? 'active' : '' ?>" href="<?= escapeHtml(kbPortalUrl(['category' => $id, 'page' => null])) ?>"><i class="fas fa-<?= $c['icon'] ?>"></i><?= escapeHtml($c['name']) ?> <span class="badge rounded-pill"><?= number_format(intval($c['count'])) ?></span></a>
         <?php } ?>
     </nav>
 <?php } ?>

@@ -149,7 +149,7 @@ function searchResultBadge($badge) {
                     <div class="card-header py-2 d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">
                             <i class="fas fa-fw fa-<?= $group_icon ?> me-2 text-secondary"></i><?= $group_label ?>
-                            <span class="badge rounded-pill text-bg-secondary ms-1"><?= $group_total ?></span>
+                            <span class="badge rounded-pill text-bg-secondary ms-1"><?= number_format(intval($group_total)) ?></span>
                         </h3>
                         <?php if ($search_group['list_url']) { ?>
                             <a class="small" href="<?= escapeHtml($search_group['list_url']) ?>">

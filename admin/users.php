@@ -380,7 +380,7 @@ $csrf = $_SESSION['csrf_token'];
                 // The search and role narrow agents, and the search, client and sign-in narrow portal users - none follow to the other side
                 $view_filters = ($key === 'portal') === ($show === 'portal') ? [] : ['q' => null, 'role' => null, 'client' => null, 'access' => null, 'sort' => null, 'order' => null]; ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key === '' || $show === $key ? null : $key] + $view_filters)) ?>" title="<?= escapeHtml($view['title']) ?>">
-                    <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$key] ?></span>
+                    <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>

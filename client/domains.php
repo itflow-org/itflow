@@ -51,8 +51,8 @@ function domainsState($expiry) {
 </div>
 
 <nav class="itflow-portal-tabs" aria-label="Domains and certificates">
-    <a class="<?= $tab === 'domains' ? 'active' : '' ?>" href="domains.php"><i class="fas fa-globe"></i>Domains <span class="badge rounded-pill"><?= $counts['domains'] ?></span></a>
-    <a class="<?= $tab === 'certificates' ? 'active' : '' ?>" href="domains.php?tab=certificates"><i class="fas fa-lock"></i>Certificates <span class="badge rounded-pill"><?= $counts['certificates'] ?></span></a>
+    <a class="<?= $tab === 'domains' ? 'active' : '' ?>" href="domains.php"><i class="fas fa-globe"></i>Domains <span class="badge rounded-pill"><?= number_format(intval($counts['domains'])) ?></span></a>
+    <a class="<?= $tab === 'certificates' ? 'active' : '' ?>" href="domains.php?tab=certificates"><i class="fas fa-lock"></i>Certificates <span class="badge rounded-pill"><?= number_format(intval($counts['certificates'])) ?></span></a>
 </nav>
 
 <section class="itflow-portal-panel">

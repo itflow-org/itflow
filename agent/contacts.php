@@ -267,19 +267,19 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
         <div class="card-header py-2 itflow-asset-tabs">
             <nav class="nav nav-pills flex-nowrap overflow-auto">
                 <a class="nav-link text-nowrap <?= $role_filter === '' && !$invites_view ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&role=">
-                    All <span class="badge rounded-pill ms-1"><?= $tab_counts[''] ?></span>
+                    All <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[''])) ?></span>
                 </a>
                 <?php foreach ($contact_role_tabs as $tab_key => $tab) {
                     if (!$tab_counts[$tab_key] && $role_filter !== $tab_key) {
                         continue;
                     } ?>
                     <a class="nav-link text-nowrap <?= $role_filter === $tab_key ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&role=<?= $tab_key ?>">
-                        <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab_counts[$tab_key] ?></span>
+                        <i class="fas fa-fw <?= $tab['icon'] ?> me-1"></i><?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[$tab_key])) ?></span>
                     </a>
                 <?php } ?>
                 <?php if ($show_invites_tab) { ?>
                     <a class="nav-link text-nowrap <?= $invites_view ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&role=invites" data-contacts-invites-tab>
-                        <i class="fas fa-fw fa-paper-plane me-1"></i>Invites <span class="badge rounded-pill ms-1"><?= $invites_count ?></span>
+                        <i class="fas fa-fw fa-paper-plane me-1"></i>Invites <span class="badge rounded-pill ms-1"><?= number_format(intval($invites_count)) ?></span>
                     </a>
                 <?php } ?>
             </nav>

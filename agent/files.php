@@ -374,10 +374,10 @@ $preview = []; // the grid's previewer payload
                 All<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['file'] + $type_counts['document'] ?></span><?php } ?>
             </a>
             <a class="nav-link text-nowrap <?= $type_filter === 'document' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'document'])) ?>">
-                <i class="fas fa-fw fa-file-alt me-1"></i>Documents<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['document'] ?></span><?php } ?>
+                <i class="fas fa-fw fa-file-alt me-1"></i>Documents<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($type_counts['document'])) ?></span><?php } ?>
             </a>
             <a class="nav-link text-nowrap <?= $type_filter === 'file' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'file'])) ?>">
-                <i class="fas fa-fw fa-paperclip me-1"></i>Uploads<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= $type_counts['file'] ?></span><?php } ?>
+                <i class="fas fa-fw fa-paperclip me-1"></i>Uploads<?php if ($type_filter !== 'due') { ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($type_counts['file'])) ?></span><?php } ?>
             </a>
             <?php if ($due_documents || $type_filter === 'due') { ?>
                 <a class="nav-link text-nowrap <?= $type_filter === 'due' ? 'active' : '' ?>" href="<?= escapeHtml(filesUrl(['type' => 'due'])) ?>" title="Documents due a review - from every folder">
@@ -494,7 +494,7 @@ $preview = []; // the grid's previewer payload
                             <span class="itflow-folder-toggle"></span>
                             <a class="itflow-folder-link" href="<?= escapeHtml(filesUrl(['folder_id' => 0, 'q' => ''])) ?>">
                                 <i class="fas fa-fw fa-home me-2"></i><span class="text-truncate">Top level</span>
-                                <?php if (!empty($folder_counts[0])) { ?><span class="badge rounded-pill ms-auto"><?= $folder_counts[0] ?></span><?php } ?>
+                                <?php if (!empty($folder_counts[0])) { ?><span class="badge rounded-pill ms-auto"><?= number_format(intval($folder_counts[0])) ?></span><?php } ?>
                             </a>
                         </div>
                     </li>

@@ -483,7 +483,7 @@ if (!$can_support) {
                         <li class="nav-item" role="presentation">
                             <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="contact-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#contact-pane-<?= $tab_key ?>" data-contact-tab="<?= $tab_key ?>" type="button" role="tab">
                                 <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                                <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                                 <?php if (!empty($tab['badge'])) { ?>
                                     <span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span>
                                 <?php } ?>

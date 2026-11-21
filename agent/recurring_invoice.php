@@ -388,7 +388,7 @@ echo agentBannersHtml($client_id);
 
         <div class="card mb-3">
             <div class="card-header d-flex align-items-center">
-                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices made <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $generated_count ?></span></h3>
+                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoices made <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= number_format(intval($generated_count)) ?></span></h3>
                 <?php if ($generated_count > count($generated)) { ?>
                     <a class="small" href="invoices.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>">All</a>
                 <?php } ?>

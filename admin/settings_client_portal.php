@@ -83,7 +83,7 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
         <span class="text-secondary small me-auto">Shown at the top of the portal's home page - to every client, or one - between their start and end. For a banner your agents see instead, use <a href="agent_banners.php">Agent Banners</a>.</span>
         <div class="btn-group btn-group-sm">
             <a class="btn btn-outline-secondary<?= $show_archived ? '' : ' active' ?>" href="settings_client_portal.php">Current</a>
-            <a class="btn btn-outline-secondary<?= $show_archived ? ' active' : '' ?>" href="settings_client_portal.php?archived=1">Archived <span class="badge rounded-pill text-bg-secondary ms-1"><?= $archived_count ?></span></a>
+            <a class="btn btn-outline-secondary<?= $show_archived ? ' active' : '' ?>" href="settings_client_portal.php?archived=1">Archived <span class="badge rounded-pill text-bg-secondary ms-1"><?= number_format(intval($archived_count)) ?></span></a>
         </div>
     </div>
     <div class="table-responsive-sm">

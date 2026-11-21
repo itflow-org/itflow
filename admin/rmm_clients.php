@@ -162,7 +162,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                     continue;
                 } ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key === '' ? null : $key])) ?>" title="<?= escapeHtml($view['title']) ?>">
-                    <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= escapeHtml($view['label']) ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$key] ?></span>
+                    <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= escapeHtml($view['label']) ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>

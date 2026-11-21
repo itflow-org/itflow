@@ -111,7 +111,7 @@ $found = array_sum(array_column($sections, 'total'));
         } ?>
         <section class="itflow-portal-panel mb-4" data-search-section="<?= $key ?>">
             <div class="itflow-portal-panel-head">
-                <h2><i class="fas <?= $section['icon'] ?>"></i><?= $section['label'] ?> <span class="badge rounded-pill text-bg-secondary ms-1"><?= $section['total'] ?></span></h2>
+                <h2><i class="fas <?= $section['icon'] ?>"></i><?= $section['label'] ?> <span class="badge rounded-pill text-bg-secondary ms-1"><?= number_format(intval($section['total'])) ?></span></h2>
                 <?php if ($section['total'] > count($section['rows'])) { ?>
                     <a class="small" href="<?= escapeHtml($section['all']) ?>">See all <?= $section['total'] ?></a>
                 <?php } ?>

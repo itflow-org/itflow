@@ -358,9 +358,9 @@ if (!$config_module_enable_ticketing) {
                     <span class="me-auto">
                         <strong>Mail Queue</strong>
                         <span class="text-body-secondary">- <?= $mail_queue['last_sent'] ? 'last sent ' . escapeHtml(timeAgo($mail_queue['last_sent'])) : 'nothing sent yet' ?></span>
-                        <?php if ($mail_queue['waiting']) { ?><span class="badge rounded-pill text-bg-primary ms-1"><?= $mail_queue['waiting'] ?> waiting</span><?php } ?>
-                        <?php if ($mail_queue['retrying']) { ?><span class="badge rounded-pill text-bg-warning ms-1"><?= $mail_queue['retrying'] ?> retrying</span><?php } ?>
-                        <?php if ($mail_queue['failed_day']) { ?><span class="badge rounded-pill text-bg-danger ms-1"><?= $mail_queue['failed_day'] ?> failed in the last day</span><?php } ?>
+                        <?php if ($mail_queue['waiting']) { ?><span class="badge rounded-pill text-bg-primary ms-1"><?= number_format(intval($mail_queue['waiting'])) ?> waiting</span><?php } ?>
+                        <?php if ($mail_queue['retrying']) { ?><span class="badge rounded-pill text-bg-warning ms-1"><?= number_format(intval($mail_queue['retrying'])) ?> retrying</span><?php } ?>
+                        <?php if ($mail_queue['failed_day']) { ?><span class="badge rounded-pill text-bg-danger ms-1"><?= number_format(intval($mail_queue['failed_day'])) ?> failed in the last day</span><?php } ?>
                     </span>
                     <a class="btn btn-sm btn-outline-secondary" href="mail_queue.php<?= $mail_queue['failed_day'] ? '?show=failed' : '' ?>">Open the Mail Queue</a>
                 </div>

@@ -282,7 +282,7 @@ $pill_url = function ($view) use ($on_days) {
                     <?php foreach ($views as $view_key => $view) {
                         if ($view_key === 'days') { ?><span class="vr mx-1 my-1"></span><?php } ?>
                         <a class="nav-link text-nowrap <?= $show === (string) $view_key ? 'active' : '' ?>" href="<?= escapeHtml($pill_url($view_key)) ?>" title="<?= escapeHtml($view['title']) ?>" data-sla-view="<?= $view_key ?>">
-                            <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$view_key] ?></span>
+                            <i class="fas fa-fw <?= $view['icon'] ?> me-1"></i><?= $view['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$view_key])) ?></span>
                         </a>
                     <?php } ?>
                 </nav>

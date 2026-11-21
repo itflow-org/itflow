@@ -235,7 +235,7 @@ ob_start();
                 <?php foreach ($quick_tabs as $tab_key => $tab) { ?>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link text-nowrap <?= $tab_key === $first_tab ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#contact-quick-<?= $contact_id ?>-<?= $tab_key ?>" data-contact-quick-tab="<?= $tab_key ?>" type="button" role="tab">
-                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab['count'] ?></span>
+                            <?= $tab['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?></span>
                             <?php if (!empty($tab['badge'])) { ?><span class="badge rounded-pill text-bg-danger" title="Open"><?= intval($tab['badge']) ?> open</span><?php } ?>
                         </button>
                     </li>

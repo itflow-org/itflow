@@ -368,7 +368,7 @@ $is_card = $account && $account['type'] === 3;
             <?php foreach ($shows as $key => $s) { ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>">
                     <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
-                    <span class="badge rounded-pill ms-1"><?= $counts[$key] ?></span>
+                    <span class="badge rounded-pill ms-1"><?= number_format(intval($counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>

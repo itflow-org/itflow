@@ -302,7 +302,7 @@ $audit_url = function (array $query) use ($dates_query) {
                         <td class="text-end d-none d-sm-table-cell">
                             <?= number_format(intval($row['ips'])) ?>
                             <?php if (!empty($new_ips[$user_id])) { ?>
-                                <div><span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="First used to sign in in these dates" data-new-ips><?= $new_ips[$user_id] ?> new</span></div>
+                                <div><span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal" title="First used to sign in in these dates" data-new-ips><?= number_format(intval($new_ips[$user_id])) ?> new</span></div>
                             <?php } ?>
                         </td>
                         <td class="d-none d-lg-table-cell small text-nowrap" title="<?= escapeHtml($row['last_seen']) ?>"><?= escapeHtml(timeAgo($row['last_seen'])) ?></td>

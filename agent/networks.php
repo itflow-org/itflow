@@ -272,7 +272,7 @@ $csrf = $_SESSION['csrf_token'];
         <!-- The types, counted over what the filters above leave - then starred and archived -->
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <a class="nav-link text-nowrap <?= $show === '' && !$type_filter ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => null, 'type' => null])) ?>">
-                <i class="fas fa-fw fa-network-wired me-1"></i>Active <span class="badge rounded-pill ms-1"><?= $view_counts[''] ?></span>
+                <i class="fas fa-fw fa-network-wired me-1"></i>Active <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[''])) ?></span>
             </a>
             <?php foreach (NETWORK_TYPES as $type => [$icon]) {
                 if (empty($type_counts[$type]) && $type_filter !== $type) {
@@ -285,7 +285,7 @@ $csrf = $_SESSION['csrf_token'];
             <span class="vr mx-1 my-1"></span>
             <?php foreach (['starred', 'archived'] as $key) { ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $show === $key ? null : $key])) ?>">
-                    <i class="fas fa-fw <?= $shows[$key]['icon'] ?> me-1"></i><?= $shows[$key]['label'] ?> <span class="badge rounded-pill ms-1"><?= $view_counts[$key] ?></span>
+                    <i class="fas fa-fw <?= $shows[$key]['icon'] ?> me-1"></i><?= $shows[$key]['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($view_counts[$key])) ?></span>
                 </a>
             <?php } ?>
         </nav>

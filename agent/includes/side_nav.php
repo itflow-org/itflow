@@ -59,7 +59,7 @@
                             <p>
                                 Clients
                                 <?php if ($num_active_clients) { ?>
-                                    <span class="right badge rounded-pill text-light" title="Active Clients"><?= $num_active_clients ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Active Clients"><?= number_format(intval($num_active_clients)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -104,7 +104,7 @@
                                 <p>
                                     Tickets
                                     <?php if ($num_active_tickets) { ?>
-                                        <span class="right badge rounded-pill text-light" title="Open Tickets"><?= $num_active_tickets ?></span>
+                                        <span class="right badge rounded-pill text-light" title="Open Tickets"><?= number_format(intval($num_active_tickets)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -125,7 +125,7 @@
                                         Texts
                                         <?php $nav_texts_waiting = smsInboxWaiting(); ?>
                                         <?php if ($nav_texts_waiting) { ?>
-                                            <span class="right badge rounded-pill text-bg-warning" title="Texts waiting for someone - unmatched, and codes just in" data-nav-texts-waiting><?= $nav_texts_waiting ?></span>
+                                            <span class="right badge rounded-pill text-bg-warning" title="Texts waiting for someone - unmatched, and codes just in" data-nav-texts-waiting><?= number_format(intval($nav_texts_waiting)) ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>
@@ -137,7 +137,7 @@
                                 <p>
                                     Recurring Tickets
                                     <?php if ($num_recurring_tickets) { ?>
-                                        <span class="right badge rounded-pill text-light" title="Active Recurring Tickets"><?= $num_recurring_tickets ?></span>
+                                        <span class="right badge rounded-pill text-light" title="Active Recurring Tickets"><?= number_format(intval($num_recurring_tickets)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -148,7 +148,7 @@
                                 <p>
                                     Projects
                                     <?php if ($num_active_projects) { ?>
-                                        <span class="right badge rounded-pill text-light" title="Open Projects"><?= $num_active_projects ?></span>
+                                        <span class="right badge rounded-pill text-light" title="Open Projects"><?= number_format(intval($num_active_projects)) ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -166,7 +166,7 @@
                             <p>
                                 Quotes
                                 <?php if ($num_open_quotes) { ?>
-                                    <span class="right badge rounded-pill text-light" title="Active Quotes"><?= $num_open_quotes ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Active Quotes"><?= number_format(intval($num_open_quotes)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -177,7 +177,7 @@
                             <p>
                                 Invoices
                                 <?php if ($num_open_invoices) { ?>
-                                    <span class="right badge rounded-pill text-light" title="Open Invoices"><?= $num_open_invoices ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Open Invoices"><?= number_format(intval($num_open_invoices)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -209,7 +209,7 @@
                             <p>
                                 Recurring Invoices
                                 <?php if ($num_recurring_invoices) { ?>
-                                    <span class="right badge rounded-pill text-light" title="Active Recurring Invoices"><?= $num_recurring_invoices ?></span>
+                                    <span class="right badge rounded-pill text-light" title="Active Recurring Invoices"><?= number_format(intval($num_recurring_invoices)) ?></span>
                                 <?php } ?>
                             </p>
                         </a>

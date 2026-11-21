@@ -162,8 +162,8 @@ $csrf = $_SESSION['csrf_token'];
                     </div>
                 </form>
                 <nav class="nav nav-pills itflow-asset-tabs mt-2">
-                    <a class="nav-link <?= $show_archived ? '' : 'active' ?>" href="<?= escapeHtml($pill_url(false)) ?>"><i class="fas fa-fw <?= $config['icon'] ?> me-1"></i>Active <span class="badge rounded-pill ms-1"><?= $counts[0] ?></span></a>
-                    <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url(true)) ?>" title="They stay on their records, but aren't offered for new ones"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= $counts[1] ?></span></a>
+                    <a class="nav-link <?= $show_archived ? '' : 'active' ?>" href="<?= escapeHtml($pill_url(false)) ?>"><i class="fas fa-fw <?= $config['icon'] ?> me-1"></i>Active <span class="badge rounded-pill ms-1"><?= number_format(intval($counts[0])) ?></span></a>
+                    <a class="nav-link <?= $show_archived ? 'active' : '' ?>" href="<?= escapeHtml($pill_url(true)) ?>" title="They stay on their records, but aren't offered for new ones"><i class="fas fa-fw fa-archive me-1"></i>Archived <span class="badge rounded-pill ms-1"><?= number_format(intval($counts[1])) ?></span></a>
                 </nav>
             </div>
 

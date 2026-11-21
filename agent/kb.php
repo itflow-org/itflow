@@ -127,7 +127,7 @@ $csrf = $_SESSION['csrf_token'];
             <?php if ($search_misses) { ?>
                 <!-- What readers searched for and didn't find (modals/kb/kb_search_misses.php) -->
                 <button type="button" class="btn btn-outline-light ajax-modal" data-modal-size="lg" data-modal-url="modals/kb/kb_search_misses.php" title="What readers searched Help and the help center for, and didn't find - in the last <?= KB_SEARCH_MISS_DAYS ?> days">
-                    <i class="fas fa-search-minus"></i><span class="d-none d-lg-inline ms-2">Not Found</span><span class="badge rounded-pill text-bg-warning ms-2"><?= $search_misses ?></span>
+                    <i class="fas fa-search-minus"></i><span class="d-none d-lg-inline ms-2">Not Found</span><span class="badge rounded-pill text-bg-warning ms-2"><?= number_format(intval($search_misses)) ?></span>
                 </button>
             <?php } ?>
             <div class="btn-group">

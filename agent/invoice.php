@@ -414,10 +414,10 @@ echo agentBannersHtml($client_id);
         <?php if ($hardware) { ?>
             <div class="card mb-3">
                 <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-laptop text-secondary me-2"></i>Hardware <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $hardware_units ?></span></h3>
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-laptop text-secondary me-2"></i>Hardware <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= number_format(intval($hardware_units)) ?></span></h3>
                     <?php if ($can_add_assets) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/invoice/invoice_assets.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add to Assets <span class="badge rounded-pill text-bg-primary ms-1" title="Not on their assets yet"><?= $hardware_to_add ?></span>
+                            <i class="fas fa-plus me-1"></i>Add to Assets <span class="badge rounded-pill text-bg-primary ms-1" title="Not on their assets yet"><?= number_format(intval($hardware_to_add)) ?></span>
                         </button>
                     <?php } ?>
                 </div>
@@ -434,7 +434,7 @@ echo agentBannersHtml($client_id);
                                 <?php if ($line['units'] && $line_done >= $line['units']) { ?>
                                     <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal text-nowrap"><i class="fas fa-check me-1"></i>On assets</span>
                                 <?php } elseif ($status !== 'Cancelled' && $line['units']) { ?>
-                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal text-nowrap" title="On the client's assets"><?= $line_done ?> of <?= $line['units'] ?></span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal text-nowrap" title="On the client's assets"><?= number_format(intval($line_done)) ?> of <?= $line['units'] ?></span>
                                 <?php } ?>
                             </div>
                             <?php if ($line['assets']) { ?>
@@ -471,7 +471,7 @@ echo agentBannersHtml($client_id);
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Tickets <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($tickets) ?></span></h3>
                     <?php if ($unbilled_tickets) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-url="modals/invoice/invoice_add_ticket.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="Unbilled"><?= $unbilled_tickets ?></span>
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="Unbilled"><?= number_format(intval($unbilled_tickets)) ?></span>
                         </button>
                     <?php } ?>
                 </div>
@@ -507,7 +507,7 @@ echo agentBannersHtml($client_id);
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($billed_expenses) ?></span></h3>
                     <?php if ($unbilled_expenses) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/invoice/invoice_add_expenses.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= $unbilled_expenses ?></span>
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= number_format(intval($unbilled_expenses)) ?></span>
                         </button>
                     <?php } ?>
                 </div>
@@ -554,7 +554,7 @@ echo agentBannersHtml($client_id);
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-route text-secondary me-2"></i>Travel <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($billed_trips) ?></span></h3>
                     <?php if ($unbilled_trips) { ?>
                         <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/invoice/invoice_add_trips.php?invoice_id=<?= $invoice_id ?>">
-                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= $unbilled_trips ?></span>
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= number_format(intval($unbilled_trips)) ?></span>
                         </button>
                     <?php } ?>
                 </div>

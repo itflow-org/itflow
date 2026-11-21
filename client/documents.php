@@ -80,9 +80,9 @@ function documentsUrl(array $changes) {
 
 <?php if (count($folders) > 1) { ?>
     <nav class="itflow-portal-tabs" aria-label="Folders">
-        <a class="<?= $folder === null ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => null, 'page' => null])) ?>"><i class="fas fa-list"></i>All <span class="badge rounded-pill"><?= $all_count ?></span></a>
+        <a class="<?= $folder === null ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => null, 'page' => null])) ?>"><i class="fas fa-list"></i>All <span class="badge rounded-pill"><?= number_format(intval($all_count)) ?></span></a>
         <?php foreach ($folders as $id => $f) { ?>
-            <a class="<?= $folder === $id ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => $id, 'page' => null])) ?>"><i class="fas <?= $id ? 'fa-folder' : 'fa-file' ?>"></i><?= escapeHtml($f['name']) ?> <span class="badge rounded-pill"><?= $f['count'] ?></span></a>
+            <a class="<?= $folder === $id ? 'active' : '' ?>" href="<?= escapeHtml(documentsUrl(['folder' => $id, 'page' => null])) ?>"><i class="fas <?= $id ? 'fa-folder' : 'fa-file' ?>"></i><?= escapeHtml($f['name']) ?> <span class="badge rounded-pill"><?= number_format(intval($f['count'])) ?></span></a>
         <?php } ?>
     </nav>
 <?php } ?>

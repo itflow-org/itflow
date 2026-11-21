@@ -239,7 +239,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
         <div class="card-header py-2 itflow-asset-tabs">
             <nav class="nav nav-pills flex-nowrap overflow-auto">
                 <a class="nav-link text-nowrap <?= $status === '' ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&status=">
-                    All <span class="badge rounded-pill ms-1"><?= $tab_counts[''] ?></span>
+                    All <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[''])) ?></span>
                 </a>
                 <?php foreach ($status_filters as $status_key => $status_filter) {
                     if (!$tab_counts[$status_key] && $status !== $status_key) {
@@ -247,7 +247,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     }
                     $tab_tone = ['expired' => 'danger', 'over' => 'danger', 'renewing' => 'warning'][$status_key] ?? ''; ?>
                     <a class="nav-link text-nowrap <?= $status === $status_key ? 'active' : '' ?>" href="?<?= $url_query_strings_sort ?>&status=<?= $status_key ?>" title="<?= $status_filter['title'] ?>">
-                        <i class="fas fa-fw <?= $status_filter['icon'] ?> me-1 <?= $tab_tone && $status !== $status_key ? "text-$tab_tone" : '' ?>"></i><?= $status_filter['label'] ?> <span class="badge rounded-pill ms-1"><?= $tab_counts[$status_key] ?></span>
+                        <i class="fas fa-fw <?= $status_filter['icon'] ?> me-1 <?= $tab_tone && $status !== $status_key ? "text-$tab_tone" : '' ?>"></i><?= $status_filter['label'] ?> <span class="badge rounded-pill ms-1"><?= number_format(intval($tab_counts[$status_key])) ?></span>
                     </a>
                 <?php } ?>
             </nav>

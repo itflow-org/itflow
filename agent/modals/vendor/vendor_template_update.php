@@ -93,7 +93,7 @@ ob_start();
                         <i class="fas fa-fw <?= $labels[$key]['icon'] ?> text-secondary"></i>
                         <span class="flex-grow-1"><?= $labels[$key]['label'] ?></span>
                         <span class="small text-body-secondary text-truncate" style="max-width: 50%;" title="What the template says"><?= vendorTemplateValueHtml($key, $template, 'template') ?></span>
-                        <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal"><?= $count ?> differ<?= $count === 1 ? 's' : '' ?></span>
+                        <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-normal"><?= number_format(intval($count)) ?> differ<?= $count === 1 ? 's' : '' ?></span>
                     </label>
                 <?php } ?>
             </div>

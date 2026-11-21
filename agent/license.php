@@ -325,7 +325,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link text-nowrap <?= $tab['count'] ? '' : 'is-empty' ?>" id="license-tab-<?= $tab_key ?>" data-bs-toggle="pill" data-bs-target="#license-pane-<?= $tab_key ?>" data-license-tab="<?= $tab_key ?>" type="button" role="tab">
                                     <i class="fas fa-fw <?= $tab['icon'] ?> me-1 d-none d-xxl-inline"></i><?= $tab['label'] ?>
-                                    <span class="badge rounded-pill ms-1"><?= $tab['count'] ?><?= $tab_key === 'seats' && $seats['total'] ? ' / ' . $seats['total'] : '' ?></span>
+                                    <span class="badge rounded-pill ms-1"><?= number_format(intval($tab['count'])) ?><?= $tab_key === 'seats' && $seats['total'] ? ' / ' . $seats['total'] : '' ?></span>
                                 </button>
                             </li>
                         <?php } ?>
