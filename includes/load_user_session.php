@@ -91,8 +91,8 @@ $client_access_array = []; // allow
 $client_deny_array = [];   // deny
 while ($row = mysqli_fetch_assoc($user_client_access_result)) {
     if ($row['permission_type'] === 'deny') {
-        $client_deny_array[] = (int) $row['client_id'];
+        $client_deny_array[] = intval($row['client_id']);
     } else {
-        $client_access_array[] = (int) $row['client_id'];
+        $client_access_array[] = intval($row['client_id']);
     }
 }

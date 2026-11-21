@@ -18,7 +18,7 @@ $per_page = 20;
 $page = max(1, intval($_GET['page'] ?? 1));
 $list = billingClientPayments($session_client_id, $per_page, ($page - 1) * $per_page);
 $total = $list['total'];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 if ($page > $pages) {
     $page = $pages;
     $list = billingClientPayments($session_client_id, $per_page, ($page - 1) * $per_page);

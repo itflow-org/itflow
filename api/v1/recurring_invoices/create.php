@@ -51,7 +51,7 @@ $insert_id = $recurring_invoice_id;
 $recurring = billingRow('recurring', $recurring_invoice_id, false);
 $reference = billingNumber('recurring', $recurring);
 $return_arr['recurring_invoice_reference'] = $reference;
-$return_arr['amount'] = (float) $recurring['recurring_invoice_amount'];
+$return_arr['amount'] = floatval($recurring['recurring_invoice_amount']);
 
 logAudit("Recurring Invoice", "Create", escapeSql("Created recurring invoice $reference - " . $recurring['recurring_invoice_scope'] . " via API ($api_key_name)"), $client_id, $recurring_invoice_id);
 logAudit("API", "Success", escapeSql("Created recurring invoice $reference via API ($api_key_name)"), $client_id);
@@ -72,7 +72,7 @@ if (intval($_POST['invoice_now'] ?? 0) === 1) {
         $return_arr['invoice'] = [
             'invoice_id' => $invoice_id,
             'reference' => billingNumber('invoice', $invoice),
-            'amount' => (float) $invoice['invoice_amount'],
+            'amount' => floatval($invoice['invoice_amount']),
             'currency' => (string) $invoice['invoice_currency_code'],
             'due' => (string) $invoice['invoice_due'],
             'status' => (string) $invoice['invoice_status'],

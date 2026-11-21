@@ -274,7 +274,7 @@ if (isset($_POST['test_email_imap'])) {
     }
 
     $host       = $config_imap_host;
-    $port       = (int) $config_imap_port;
+    $port       = intval($config_imap_port);
     $encryption = strtolower(trim($config_imap_encryption)); // e.g. "ssl", "tls", "none"
     $username   = $config_imap_username;
     $password   = $config_imap_password;
@@ -386,7 +386,7 @@ if (isset($_POST['test_email_imap'])) {
             }
 
             $password = $json['access_token'];
-            $expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+            $expires_at = date('Y-m-d H:i:s', time() + intval($json['expires_in'] ?? 3600));
             $refresh_token_to_save = $json['refresh_token'] ?? null;
 
             $token_esc = mysqli_real_escape_string($mysqli, $password);
@@ -501,7 +501,7 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     }
 
     $new_access_token = escapeSql($json['access_token']);
-    $new_expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+    $new_expires_at = date('Y-m-d H:i:s', time() + intval($json['expires_in'] ?? 3600));
     $new_refresh_token = !empty($json['refresh_token']) ? escapeSql($json['refresh_token']) : '';
 
     $new_access_token_esc = mysqli_real_escape_string($mysqli, $new_access_token);

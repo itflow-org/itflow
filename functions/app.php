@@ -189,7 +189,7 @@ function getFieldById($table, $id, $field) {
     }
 
     // Sanitize id as an integer
-    $id = (int)$id;
+    $id = intval($id);
 
     /*
      * Get the list of columns from the table, to find the primary key and to
@@ -808,12 +808,12 @@ function addToMailQueue($data) {
     global $mysqli;
 
     foreach ($data as $email) {
-        $from = strval($email['from']);
-        $from_name = strval($email['from_name']);
-        $recipient = strval($email['recipient']);
-        $recipient_name = strval($email['recipient_name']);
-        $subject = strval($email['subject']);
-        $body = strval($email['body']);
+        $from = (string) $email['from'];
+        $from_name = (string) $email['from_name'];
+        $recipient = (string) $email['recipient'];
+        $recipient_name = (string) $email['recipient_name'];
+        $subject = (string) $email['subject'];
+        $body = (string) $email['body'];
 
         $cal_str = '';
         if (isset($email['cal_str'])) {
@@ -832,8 +832,8 @@ function addToMailQueue($data) {
                 }
                 // A picture in the message goes in inline, where its cid: points (emailInlineImages())
                 $attachment_manifest[] = [
-                    'path' => strval($attachment['path']),
-                    'name' => strval($attachment['name'])
+                    'path' => (string) $attachment['path'],
+                    'name' => (string) $attachment['name']
                 ] + (!empty($attachment['cid']) ? ['cid' => preg_replace('/[^A-Za-z0-9@._-]/', '', (string) $attachment['cid'])] : []);
             }
             if ($attachment_manifest) {

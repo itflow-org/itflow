@@ -83,7 +83,7 @@ if (!is_array($json) || empty($json['refresh_token']) || empty($json['access_tok
 
 $refresh_token = (string) $json['refresh_token'];
 $access_token = (string) $json['access_token'];
-$expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+$expires_at = date('Y-m-d H:i:s', time() + intval($json['expires_in'] ?? 3600));
 
 $refresh_token_esc = mysqli_real_escape_string($mysqli, $refresh_token);
 $access_token_esc = mysqli_real_escape_string($mysqli, $access_token);

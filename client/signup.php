@@ -17,8 +17,7 @@ require_once '../functions.php';
 require_once '../includes/load_global_settings.php';
 
 if (!portalSignupOpen()) {
-    header("Location: /login.php");
-    exit();
+    redirect("/login.php");
 }
 
 require_once __DIR__ . "/../includes/session_init.php";

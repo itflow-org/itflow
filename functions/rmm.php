@@ -206,7 +206,7 @@ function rmmHttp(array $provider, string $method, string $url, array $headers = 
     curl_setopt_array($ch, $options);
     $raw = curl_exec($ch);
     $transport = curl_error($ch);
-    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
     curl_close($ch);
 
     $host = (string) parse_url($url, PHP_URL_HOST);
@@ -894,7 +894,7 @@ function rmmSyncAll(int $max_seconds = 120): array
         if (!rmmProviderUsable($provider)) {
             continue;
         }
-        $left = $max_seconds - (int) (microtime(true) - $clock);
+        $left = $max_seconds - intval(microtime(true) - $clock);
         if ($left < 5) {
             $results[rmmProviderName($provider)] = ['ok' => true, 'note' => 'Left for the next run - out of time', 'counts' => []];
             continue;
@@ -1271,7 +1271,7 @@ function rmmAlertsPollAll(int $max_seconds = 50): array
         if (!rmmAlertsOn($provider)) {
             continue;
         }
-        $left = $max_seconds - (int) (microtime(true) - $clock);
+        $left = $max_seconds - intval(microtime(true) - $clock);
         if ($left < 5) {
             break;
         }

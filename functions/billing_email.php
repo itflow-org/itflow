@@ -123,7 +123,7 @@ function billingReminderNext(array $invoice, ?array $rules = null, $late_only = 
     }
     $today = new DateTime('today');
     $due_date = new DateTime($due);
-    $from = (int) $due_date->diff($today)->format('%r%a') + 1;
+    $from = intval($due_date->diff($today)->format('%r%a')) + 1;
     if ($late_only) {
         $from = max($from, 1);
     }

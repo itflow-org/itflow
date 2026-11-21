@@ -217,7 +217,7 @@ foreach ($racks as $rack_id => $row) {
                     $rack_client_name = escapeHtml($row['client_name']);
                     $rack_archived_at = $row['rack_archived_at'];
                     $occupancy = $row['occupancy'];
-                    $used_percent = (int) round($occupancy['any'] / $rack_units * 100);
+                    $used_percent = intval(round($occupancy['any'] / $rack_units * 100));
                     $usage_tone = $used_percent >= 90 ? 'danger' : ($used_percent >= 75 ? 'warning' : 'primary');
                     $rack_items = array_map('rackUnitView', $racks_units[$rack_id]);
                     $power_used = array_sum(array_column($rack_items, 'power'));

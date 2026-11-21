@@ -198,8 +198,8 @@ function billingCardFeeCents($cents, $rates) {
     if (!$rates || $cents <= 0) {
         return 0;
     }
-    $keep = 10000 - (int) round(floatval($rates['percent']) * 100);   // what Stripe leaves, in hundredths of a percent
-    $fixed = (int) round(floatval($rates['fixed']) * 100);
+    $keep = 10000 - intval(round(floatval($rates['percent']) * 100));   // what Stripe leaves, in hundredths of a percent
+    $fixed = intval(round(floatval($rates['fixed']) * 100));
     if ($keep <= 0) {
         return 0;
     }
@@ -502,7 +502,7 @@ function billingPaySelection($client_id, array $invoice_ids, &$error = '') {
             return null;
         }
         $row = $open[$id];
-        $cents = (int) round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100);
+        $cents = intval(round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100));
         $currency = strtoupper((string) $row['invoice_currency_code']);
         if ($selection['currency'] !== '' && $currency !== $selection['currency']) {
             $error = 'Those invoices are in different currencies - pay each currency on its own';

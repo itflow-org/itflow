@@ -403,7 +403,7 @@ function demoIsFuture($date) {
 // How much history a client gets - their whole life with us, capped at the two
 // year window. Newer clients ramp up rather than appearing fully formed.
 function demoClientMonths($profile) {
-    return max(3, min(24, (int)floor($profile['age_days'] / 30)));
+    return max(3, min(24, intval(floor($profile['age_days'] / 30))));
 }
 
 // ------------------------------
@@ -1978,8 +1978,8 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
             // this properly is what makes the warranty, end of life and refresh
             // reports show anything - a fleet where nothing is ever old is not a
             // fleet anyone recognises.
-            $batch = (int)floor(($number - 1) / 4);
-            $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + (int)floor($profile['age_days'] / 120));
+            $batch = intval(floor(($number - 1) / 4));
+            $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + intval(floor($profile['age_days'] / 120)));
             // A few of the oldest Windows machines never made the move to Windows 11
             $os = $model[2];
             if (strpos($os, 'Windows 11') === 0 && $purchase_months >= 50 && ($seed + $index) % 3 === 0) {
@@ -2561,8 +2561,8 @@ function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
         if ($stopped_at) {
             // Business minutes, approximated at eight hours to the day rather
             // than pulling the business hours calculation in here
-            $elapsed = max(1, (int)round((strtotime($stopped_at) - strtotime($fields['ticket_created_at'])) / 60));
-            $days = max(1, (int)ceil($elapsed / 1440));
+            $elapsed = max(1, intval(round((strtotime($stopped_at) - strtotime($fields['ticket_created_at'])) / 60)));
+            $days = max(1, intval(ceil($elapsed / 1440)));
             starterInsert($mysqli, 'sla_history', [
                 'sla_history_started_at' => $fields['ticket_created_at'],
                 'sla_history_ended_at' => $stopped_at,
@@ -2739,7 +2739,7 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
     }
 
     // ---- Two years of closed work ----
-    $per_month = max(2, (int)floor($profile['seats'] / 10));
+    $per_month = max(2, intval(floor($profile['seats'] / 10)));
     $sequence = 0;
 
     for ($month = $months - 1; $month >= 1; $month--) {
@@ -3661,7 +3661,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 continue;
             }
             // Last year's plan was set a little lower than this year's
-            $amount = $year < (int)date('Y') ? $budget[1] * 0.94 : $budget[1];
+            $amount = $year < intval(date('Y')) ? $budget[1] * 0.94 : $budget[1];
             for ($month = 1; $month <= 12; $month++) {
                 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT budget_id FROM budget WHERE budget_category_id = $category_id AND budget_month = $month AND budget_year = $year LIMIT 1"));
                 if (!empty($row['budget_id'])) {
@@ -3885,7 +3885,7 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
     foreach ($fixtures as $fixture) {
 
         // Monday a quarter back, then the weekday offset
-        $days_ago = (13 * 7) - $fixture[3] + (int)date('N') - 1;
+        $days_ago = (13 * 7) - $fixture[3] + intval(date('N')) - 1;
         $start = demoDateTime($days_ago, $fixture[4], 0);
         $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
 
@@ -5310,7 +5310,7 @@ function demoExpandProfile($spec) {
     }
 
     // Quotes in flight
-    $refresh_count = max(2, (int)floor($seats / 5));
+    $refresh_count = max(2, intval(floor($seats / 5)));
     $quotes = [
         ['Workstation refresh - machines past five years old', [
             ['Business Desktop', $refresh_count, 985.00, $foss ? 'Small form factor desktop supplied with Linux Mint and LibreOffice' : 'Small form factor desktop, 16GB memory, 512GB NVMe', 1],

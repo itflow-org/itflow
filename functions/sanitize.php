@@ -108,7 +108,7 @@ function checkFileUpload($file, $allowed_extensions) {
     }
 
     // Reject empty files and enforce the 500 MB ceiling
-    $size = (int) $file['size'];
+    $size = intval($file['size']);
     if ($size <= 0 || $size > 500 * 1024 * 1024) {
         return false;
     }

@@ -30,7 +30,7 @@ $ticked = [];
 $total_cents = 0;
 $currency = '';
 foreach ($open as $i => $row) {
-    $cents = (int) round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100);
+    $cents = intval(round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100));
     $open[$i]['cents'] = $cents;
     $currency = $currency ?: strtoupper((string) $row['invoice_currency_code']);
     // One payment can carry so many invoices - the oldest are ticked first
@@ -39,7 +39,7 @@ foreach ($open as $i => $row) {
         $total_cents += $cents;
     }
 }
-$limit_cents = $provider ? (int) round(floatval($provider['payment_provider_threshold']) * 100) : 0;
+$limit_cents = $provider ? intval(round(floatval($provider['payment_provider_threshold']) * 100)) : 0;
 // The card fee, worked out again by js/portal.js as the ticks change - in hundredths of a percent and cents
 $fee_rates = $provider ? billingCardFeeFor($session_client_id) : null;
 $fee_cents = billingCardFeeCents($total_cents, $fee_rates);
@@ -72,7 +72,7 @@ $pay_token = bin2hex(random_bytes(16));
 
     <form action="post.php" method="post" data-portal-pay data-portal-once
         data-pay-currency="<?= escapeHtml($currency) ?>" data-pay-locale="<?= escapeHtml($locale) ?>" data-pay-limit="<?= $limit_cents ?>" data-pay-max="<?= BILLING_PAY_MAX_INVOICES ?>"<?php if ($fee_rates) { ?>
-        data-pay-fee-percent="<?= (int) round($fee_rates['percent'] * 100) ?>" data-pay-fee-fixed="<?= (int) round($fee_rates['fixed'] * 100) ?>"<?php } ?>>
+        data-pay-fee-percent="<?= intval(round($fee_rates['percent'] * 100)) ?>" data-pay-fee-fixed="<?= intval(round($fee_rates['fixed'] * 100)) ?>"<?php } ?>>
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="pay_token" value="<?= $pay_token ?>">
 

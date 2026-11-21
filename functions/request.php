@@ -113,8 +113,8 @@ function redirect($url = null, $permanent = false) {
         exit;
     } else {
         // Fallback for headers already sent
-        echo "<script>window.location.href = '" . addslashes($url) . "';</script>";
-        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url) . '"></noscript>';
+        echo '<script>window.location.href = ' . json_encode((string) $url, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES) . ';</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . escapeHtml($url) . '"></noscript>';
         exit;
     }
 }

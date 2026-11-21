@@ -79,7 +79,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // The card fee, when the client pays it - guest_ajax.php charges the same
     $fee_rates = billingCardFeeFor($client_id);
-    $card_fee = billingCardFeeCents((int) round($balance_to_pay * 100), $fee_rates) / 100;
+    $card_fee = billingCardFeeCents(intval(round($balance_to_pay * 100)), $fee_rates) / 100;
 
     // Get invoice items
     $sql_invoice_items = mysqli_query($mysqli, "SELECT item_name, item_quantity, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
@@ -207,7 +207,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_date = date('Y-m-d', $pi_obj->created);
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
-    $pi_amount_paid = floatval(($pi_obj->amount_received / 100));
+    $pi_amount_paid = floatval($pi_obj->amount_received / 100);
     $pi_currency = strtoupper(escapeSql($pi_obj->currency));
     $pi_livemode = $pi_obj->livemode;
 
@@ -261,7 +261,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     // Compare in whole cents - intval() truncates, which silently accepted an underpayment
     // of up to 99c as payment in full while rejecting a 1c overpayment.
-    if ((int) round($balance_to_pay * 100) + $pi_fee_cents !== (int) round($pi_amount_paid * 100)) {
+    if (intval(round($balance_to_pay * 100)) + $pi_fee_cents !== intval(round($pi_amount_paid * 100))) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     }
@@ -269,8 +269,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // A payment already booked - here, or in the client portal - is never booked again, even
     // when its invoice has been reopened since (an edit, a payment deleted) and owes it again
     if (mysqli_num_rows(mysqli_query($mysqli, "SELECT payment_id FROM payments WHERE payment_reference = 'Stripe - $pi_id' LIMIT 1"))) {
-        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
-        exit();
+        redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
     }
 
     // Claim the invoice - the conditional UPDATE is the lock, and the row lock it takes
@@ -279,8 +278,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND invoice_status NOT IN ('Draft', 'Paid', 'Cancelled')");
     if (mysqli_affected_rows($mysqli) !== 1) {
         error_log("Stripe payment - invoice $invoice_id was already settled by a concurrent request; skipping duplicate booking of $pi_id");
-        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
-        exit();
+        redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
     }
 
     // The card fee goes on the invoice first, so the payment - balance and fee - pays it to the cent
@@ -309,7 +307,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     }
 
     // Redirect user to invoice
-    header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
+    redirect('//' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
 
 } else {
     exit(WORDING_PAYMENT_FAILED);

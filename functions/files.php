@@ -254,7 +254,7 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
         $stored_attachments[] = [
             'name' => $single_file['name'],
             'path' => "uploads/tickets/$ticket_id/$attachment_reference_name",
-            'size' => (int) $single_file['size']
+            'size' => intval($single_file['size'])
         ];
     }
 

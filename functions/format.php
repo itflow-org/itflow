@@ -451,7 +451,7 @@ function selectOptionAsset($asset_type, $description = '') {
 }
 
 function roundUpToNearestMultiple($n, $increment = 1000) {
-    return (int) ($increment * ceil($n / $increment));
+    return intval($increment * ceil($n / $increment));
 }
 
 
@@ -562,10 +562,10 @@ function secondsToTime($inputSeconds) {
     // Format and return
     $timeParts = [];
     $sections = [
-        'day' => (int)$days,
-        'hour' => (int)$hours,
-        'minute' => (int)$minutes,
-        'second' => (int)$seconds,
+        'day' => intval($days),
+        'hour' => intval($hours),
+        'minute' => intval($minutes),
+        'second' => intval($seconds),
     ];
 
     foreach ($sections as $name => $value) {

@@ -16,7 +16,7 @@
 require __DIR__ . '/inc_empty_state.php';
 
 $total_found_rows = $num_rows[0];
-$total_pages = (int) ceil($total_found_rows / $user_config_records_per_page);
+$total_pages = intval(ceil($total_found_rows / $user_config_records_per_page));
 
 if ($total_found_rows > 5) {
     ?>

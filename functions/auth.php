@@ -249,8 +249,8 @@ function enforceClientAccess($client_id = null) {
         return true;
     }
 
-    $client_id = (int) $client_id;
-    $session_user_id = (int) $session_user_id;
+    $client_id = intval($client_id);
+    $session_user_id = intval($session_user_id);
 
     if (empty($client_id) || empty($session_user_id)) {
         flashAlert('Access Denied.', 'error');

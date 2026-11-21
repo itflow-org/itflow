@@ -111,7 +111,7 @@ function apiKeyStatePill(array $row, $role) {
     if ($problem !== '') {
         return '<span class="badge rounded-pill bg-danger-subtle text-danger-emphasis fw-normal" title="Every call is turned away until it acts as an active agent with a role"><i class="fas fa-exclamation-triangle me-1"></i>Won\'t work - ' . escapeHtml($problem) . '</span>';
     }
-    $days = (int) floor((strtotime($row['api_key_expire']) - strtotime(date('Y-m-d'))) / 86400);
+    $days = intval(floor((strtotime($row['api_key_expire']) - strtotime(date('Y-m-d'))) / 86400));
     if ($days <= 14) {
         return '<span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal" title="It stops working on ' . $expire . '"><i class="fas fa-hourglass-half me-1"></i>Expires in ' . $days . ' day' . ($days === 1 ? '' : 's') . '</span>';
     }

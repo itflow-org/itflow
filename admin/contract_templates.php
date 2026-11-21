@@ -137,7 +137,7 @@ $csrf = $_SESSION['csrf_token'];
                 };
                 $cover = array_filter([
                     $row['contract_template_support_hours'],
-                    $row['contract_template_rate_standard'] !== null ? number_format((float) $row['contract_template_rate_standard'], 2) . '/hr'
+                    $row['contract_template_rate_standard'] !== null ? number_format(floatval($row['contract_template_rate_standard']), 2) . '/hr'
                         : ($template_defaults['rate'] > 0 ? number_format($template_defaults['rate'], 2) . '/hr (default)' : ''),
                     $row['contract_template_net_terms'] !== null ? $net_text($row['contract_template_net_terms']) : $net_text($template_defaults['net_terms']) . ' (default)',
                 ]);

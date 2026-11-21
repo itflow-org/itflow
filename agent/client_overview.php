@@ -633,7 +633,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php if ($open_invoices['invoices']) { ?>
                             <div class="list-group list-group-flush">
                                 <?php foreach ($open_invoices['invoices'] as $invoice) {
-                                    $days_over = (int) (new DateTime('today'))->diff(new DateTime($invoice['invoice_due']))->format('%r%a') * -1;
+                                    $days_over = intval((new DateTime('today'))->diff(new DateTime($invoice['invoice_due']))->format('%r%a')) * -1;
                                     ?>
                                     <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= intval($invoice['invoice_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
                                         <span class="flex-grow-1 overflow-hidden">

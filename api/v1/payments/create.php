@@ -70,7 +70,7 @@ if ($invoice) {
     $reference = $payment_set['reference'] ?? '';
 
     $refuse = '';
-    if ((int) round($amount * 100) > (int) round($state['balance'] * 100)) {
+    if (intval(round($amount * 100)) > intval(round($state['balance'] * 100))) {
         $refuse = 'amount is more than is owed on ' . $reference_text . ' - ' . billingMoney($state['balance'], $currency) . '.';
     } elseif (!isset(paymentAccounts()[$account_id])) {
         $refuse = 'account_id is needed - the account it went into. There is no default payment account (Admin > Settings > Invoices and billing).';

@@ -409,7 +409,7 @@ if (!$config_module_enable_ticketing) {
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
-                        <input type="hidden" name="oauth_provider" value="<?= htmlspecialchars($oauth_provider_for_test) ?>">
+                        <input type="hidden" name="oauth_provider" value="<?= escapeHtml($oauth_provider_for_test) ?>">
                         <p class="text-muted mb-2">Validates the refresh token and stores a new access token for <?= $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace' ?>.</p>
                         <button type="submit" name="test_oauth_token_refresh" class="btn btn-success"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</button>
                     </form>

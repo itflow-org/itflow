@@ -29,7 +29,7 @@ $c_start = $c_new ? date('Y-m-d') : (string) $c_value('start_date');
 $c_term = intval($c_value('term_months', 12));
 $c_end = $c_new ? contractTermEnd($c_start, $c_term) : (string) $c_value('end_date');
 $c_money = function ($value) {
-    return $value === '' || $value === null ? '' : number_format((float) $value, 2, '.', '');
+    return $value === '' || $value === null ? '' : number_format(floatval($value), 2, '.', '');
 };
 $c_hours = function ($value) {
     return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';

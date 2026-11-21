@@ -90,8 +90,8 @@ function quoteImageStore($bytes) {
     $width = imagesx($source);
     $height = imagesy($source);
     $scale = min(1, QUOTE_IMAGE_MAX_SIDE / max($width, $height));
-    $new_width = max(1, (int) round($width * $scale));
-    $new_height = max(1, (int) round($height * $scale));
+    $new_width = max(1, intval(round($width * $scale)));
+    $new_height = max(1, intval(round($height * $scale)));
     $alpha = in_array($info[2], [IMAGETYPE_PNG, IMAGETYPE_GIF, IMAGETYPE_WEBP], true);
     $image = imagecreatetruecolor($new_width, $new_height);
     if ($alpha) {
@@ -187,7 +187,7 @@ function quoteImageIpIsPublic($ip) {
  */
 function quoteImageFetch($url, $deadline) {
     for ($hop = 0; $hop < 4; $hop++) {
-        $time_left = (int) floor($deadline - microtime(true));
+        $time_left = intval(floor($deadline - microtime(true)));
         if ($time_left < 2) {
             throw new RuntimeException('The website took too long to answer.');
         }
@@ -237,7 +237,7 @@ function quoteImageFetch($url, $deadline) {
             },
         ]);
         curl_exec($ch);
-        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $status = intval(curl_getinfo($ch, CURLINFO_RESPONSE_CODE));
         $type = strtolower((string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE));
         $redirect = (string) curl_getinfo($ch, CURLINFO_REDIRECT_URL);
         $error = curl_error($ch);

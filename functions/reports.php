@@ -1905,7 +1905,7 @@ function reportLifecycleAssets($client_id = 0, $type = '') {
             $date = $physical ? DateTime::createFromFormat('!Y-m-d', substr((string) $row[$column], 0, 10)) : false;
             if ($date && $date->format('Y') > 1900) {
                 $row['age_date'] = $date->format('Y-m-d');
-                $row['age_days'] = max(0, (int) $date->diff($today)->format('%r%a'));
+                $row['age_days'] = max(0, intval($date->diff($today)->format('%r%a')));
                 break;
             }
         }
@@ -1964,7 +1964,7 @@ function reportRenewals($client_id, $ahead, array $kinds = []) {
         $rows[] = [
             'kind' => $kind, 'id' => intval($id), 'name' => (string) $name, 'detail' => trim((string) $detail, " ·"),
             'client_id' => intval($row['client_id']), 'client' => $row['client_name'], 'abbr' => $row['client_abbreviation'],
-            'date' => $due->format('Y-m-d'), 'days' => (int) $today->diff($due)->format('%r%a'), 'auto' => (bool) $auto, 'url' => $url, 'tile' => $tile,
+            'date' => $due->format('Y-m-d'), 'days' => intval($today->diff($due)->format('%r%a')), 'auto' => (bool) $auto, 'url' => $url, 'tile' => $tile,
         ];
     };
 

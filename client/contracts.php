@@ -37,7 +37,7 @@ $counts = array_map('intval', mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT "
 // The tab with something to sign when there is one, else the ones in force, else all
 $tab = isset($tabs[$_GET['tab'] ?? '']) ? $_GET['tab'] : ($counts['waiting'] ? 'waiting' : ($counts['active'] ? 'active' : 'all'));
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 

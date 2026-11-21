@@ -39,8 +39,8 @@ if (isset($_POST['add_payment'])) {
         redirect();
     }
 
-    $amount_cents = (int) round($amount * 100);
-    if ($amount_cents <= 0 || $amount_cents > (int) round($state['balance'] * 100)) {
+    $amount_cents = intval(round($amount * 100));
+    if ($amount_cents <= 0 || $amount_cents > intval(round($state['balance'] * 100))) {
         flashAlert("The payment must be more than 0 and no more than the balance of " . escapeHtml(billingMoney($state['balance'], $invoice['invoice_currency_code'])), 'error');
         redirect();
     } else {
@@ -327,7 +327,7 @@ if (isset($_POST['add_payment_stripe'])) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_amount, invoice_status FROM invoices WHERE invoice_id = $invoice_id"));
     $invoice_status = (string) ($row['invoice_status'] ?? '');
     $invoice_amount = round(floatval($row['invoice_amount'] ?? 0) - invoicePaid($invoice_id), 2);
-    if (($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') || (int) round($invoice_amount * 100) <= 0) {
+    if (($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') || intval(round($invoice_amount * 100)) <= 0) {
         mysqli_query($mysqli, "SELECT RELEASE_LOCK('$pay_lock')");
         flashAlert("This invoice is paid, or no longer waiting for a payment", 'error');
         redirect();
@@ -339,7 +339,7 @@ if (isset($_POST['add_payment_stripe'])) {
 
     $balance_to_pay = round($invoice_amount, 2);
     // The card fee, when the client pays it - as the Charge Saved Card window showed it (functions/billing_pay.php)
-    $balance_cents = (int) round($balance_to_pay * 100);
+    $balance_cents = intval(round($balance_to_pay * 100));
     $fee_cents = billingCardFeeCents($balance_cents, billingCardFeeFor($client_id));
     $pi_metadata = [
         'itflow_client_id' => $client_id,
@@ -369,7 +369,7 @@ if (isset($_POST['add_payment_stripe'])) {
         // Get details from PI
         $pi_id = escapeSql($payment_intent->id);
         $pi_date = date('Y-m-d', $payment_intent->created);
-        $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
+        $pi_amount_paid = floatval($payment_intent->amount_received / 100);
         $pi_currency = strtoupper(escapeSql($payment_intent->currency));
         $pi_livemode = $payment_intent->livemode;
 
@@ -465,13 +465,13 @@ if (isset($_POST['add_bulk_payment'])) {
     // a payment that pays the invoices exactly leaves every one of them Paid
     $owed = [];
     while ($row = mysqli_fetch_assoc($result_invoices)) {
-        $owed_cents = (int) round((floatval($row['invoice_amount']) - invoicePaid($row['invoice_id'])) * 100);
+        $owed_cents = intval(round((floatval($row['invoice_amount']) - invoicePaid($row['invoice_id'])) * 100));
         // Nothing owed on this one - a zero-value invoice, or one paid without its status catching up
         if ($owed_cents > 0) {
             $owed[] = [$row, $owed_cents];
         }
     }
-    $bulk_payment_cents = (int) round($bulk_payment_amount * 100);
+    $bulk_payment_cents = intval(round($bulk_payment_amount * 100));
     $total_owed_cents = array_sum(array_column($owed, 1));
     if ($bulk_payment_cents <= 0 || $bulk_payment_cents > $total_owed_cents) {
         flashAlert("The payment must be more than 0 and no more than the client's balance of " . escapeHtml(billingMoney($total_owed_cents / 100, stripslashes($currency_code))), 'error');
@@ -624,7 +624,7 @@ if (isset($_GET['refund_payment_stripe'])) {
         $stripe_payment_intent_id = $matches['payment_intent'];
     }
     // Only this payment's part - one card payment from the client portal can pay several invoices
-    $refund_cents = (int) round(floatval($row['payment_amount']) * 100);
+    $refund_cents = intval(round(floatval($row['payment_amount']) * 100));
     
     // Get invoice details
     $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,

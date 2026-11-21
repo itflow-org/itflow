@@ -135,4 +135,4 @@ if ($itflow_pulse) { ?>
 
 //$time_end = microtime(true);
 //$execution_time = ($time_end - $time_start);
-//echo '<h2>Total Execution Time: '.number_format((float) $execution_time, 10) .' seconds</h2>';
+//echo '<h2>Total Execution Time: '.number_format(floatval($execution_time), 10) .' seconds</h2>';

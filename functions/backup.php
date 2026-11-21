@@ -1474,7 +1474,7 @@ function backupParseIniBytes($value): int
     }
 
     $unit = strtolower(substr($value, -1));
-    $number = (int)$value;
+    $number = intval($value);
 
     switch ($unit) {
         case 'g':
@@ -1490,7 +1490,7 @@ function backupParseIniBytes($value): int
 
 function backupFormatBytes($bytes): string
 {
-    $bytes = (float)$bytes;
+    $bytes = floatval($bytes);
     $units = ['B', 'KB', 'MB', 'GB', 'TB'];
     $i = 0;
     while ($bytes >= 1024 && $i < count($units) - 1) {

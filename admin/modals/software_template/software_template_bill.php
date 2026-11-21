@@ -90,7 +90,7 @@ if (!$template) { ?>
                                 break;
                             }
                         }
-                        $default = $default ?: (int) array_key_first($options);
+                        $default = $default ?: intval(array_key_first($options));
                         ?>
                         <tr data-bill-id="<?= $software_id ?>">
                             <td class="ps-2"><input class="form-check-input" type="checkbox" name="software_ids[]" value="<?= $software_id ?>" aria-label="Bill <?= escapeHtml($row['client_name']) ?>" <?= $options ? 'checked' : 'disabled' ?>></td>

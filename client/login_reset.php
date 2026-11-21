@@ -19,8 +19,7 @@ require_once '../functions.php';
 require_once '../includes/load_global_settings.php';
 
 if (intval($config_client_portal_enable) !== 1) {
-    header("Location: /login.php");
-    exit();
+    redirect("/login.php");
 }
 
 require_once __DIR__ . "/../includes/session_init.php";
@@ -99,8 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_
         portalMailAccountChange($link_user['user_email'], $link_user['contact_name'], 'password_link');
         $_SESSION['login_message'] = 'Your password is set - sign in with it below.';
         $_SESSION['login_message_type'] = 'success';
-        header("Location: /login.php");
-        exit();
+        redirect("/login.php");
     }
 
 } elseif (isset($_GET['token'])) {

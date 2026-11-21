@@ -92,7 +92,7 @@ if ($client_ok) {
         $quote = billingRow('quote', $quote_id, false);
         $reference = billingNumber('quote', $quote);
         $return_arr['quote_reference'] = $reference;
-        $return_arr['amount'] = (float) $quote['quote_amount'];
+        $return_arr['amount'] = floatval($quote['quote_amount']);
         $return_arr['url'] = billingGuestUrl('quote', $quote);
 
         $reference = escapeSql($reference);

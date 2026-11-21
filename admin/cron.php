@@ -43,7 +43,7 @@ $managed_kept = $managed_mode === 'active' ? [] : (MANAGED_KEEP_JOBS[$managed_mo
 $install_root = dirname(__DIR__);
 $file_owner = '';
 if (function_exists('posix_getpwuid')) {
-    $file_owner = (string) (posix_getpwuid((int) @fileowner($install_root . '/cron/cron.php'))['name'] ?? '');
+    $file_owner = (string) (posix_getpwuid(intval(@fileowner($install_root . '/cron/cron.php')))['name'] ?? '');
 }
 $shell_word = function ($word) {
     return preg_match('/^[A-Za-z0-9_\/.@%+=:,-]+$/', $word) ? $word : escapeshellarg($word);
@@ -194,9 +194,9 @@ $took = function ($seconds) {
     if ($seconds < 60) {
         return round($seconds) . ' s';
     }
-    $minutes = intdiv((int) round($seconds), 60);
+    $minutes = intdiv(intval(round($seconds)), 60);
     if ($minutes < 60) {
-        return $minutes . ' min ' . ((int) round($seconds) % 60) . ' s';
+        return $minutes . ' min ' . (intval(round($seconds)) % 60) . ' s';
     }
     return intdiv($minutes, 60) . ' h ' . ($minutes % 60) . ' min';
 };

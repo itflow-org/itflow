@@ -53,8 +53,7 @@ if ($open && $_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['kb_feedback
             kbFeedbackComment($kb_article_id, $_POST['comment'] ?? '');
         }
     }
-    header('Location: ' . ($row ? kbPublicArticleUrl($row) . '#kb-feedback' : 'kb.php'));
-    exit;
+    redirect($row ? kbPublicArticleUrl($row) . '#kb-feedback' : 'kb.php');
 }
 
 $article = null;
@@ -107,7 +106,7 @@ if ($open && isset($_GET['article'])) {
     if ($q !== '' && !$total && $category === null) {
         kbSearchMissSave($q, 'public');
     }
-    $pages = max(1, (int) ceil($total / $per_page));
+    $pages = max(1, intval(ceil($total / $per_page)));
     $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
     $offset = ($page - 1) * $per_page;
     $order = $q !== '' ? "(kb_article_title LIKE '%$q_sql%') DESC, MATCH(kb_article_content_raw) AGAINST ('$q_sql') DESC" : 'COALESCE(kb_article_updated_at, kb_article_created_at) DESC';

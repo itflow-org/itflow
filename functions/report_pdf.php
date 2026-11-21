@@ -438,7 +438,7 @@ class ReportPdfWriter {
         if (!$tiles) {
             return;
         }
-        $per_row = count($tiles) <= 5 ? count($tiles) : (int) ceil(count($tiles) / ceil(count($tiles) / 4));
+        $per_row = count($tiles) <= 5 ? count($tiles) : intval(ceil(count($tiles) / ceil(count($tiles) / 4)));
         $width = round(100 / $per_row, 3);
         $html = '<table cellpadding="5" cellspacing="0" width="100%">';
         foreach (array_chunk($tiles, $per_row) as $row) {

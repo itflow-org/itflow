@@ -696,7 +696,7 @@ function smsSkyetelSend(array $provider, string $to, string $text, array $media 
     ]);
     $raw = curl_exec($ch);
     $curl_error = curl_error($ch);
-    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
     curl_close($ch);
 
     if ($raw === false) {
@@ -1058,7 +1058,7 @@ function smsSaveMedia(array $urls, int $ticket_id, ?int $reply_id, int $message_
             },
         ]);
         $ok = curl_exec($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $code = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
         $type = strtolower(trim(explode(';', (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE))[0]));
         curl_close($ch);
         if (strlen($data) > SMS_MEDIA_MAX_BYTES) {

@@ -50,7 +50,7 @@ if ($stripe && invoiceCanPay($invoice, $state) && (floatval($stripe['payment_pro
     $pay_url = ($stripe_customer ? 'guest_pay_invoice_stripe.php' : 'guest_pay_setup_stripe_customer.php') . "?invoice_id=$invoice_id&url_key=$query_key";
 }
 // The card fee on paying by card, when the client pays one (functions/billing_pay.php)
-$card_fee = $pay_url ? billingCardFeeCents((int) round($state['balance'] * 100), billingCardFeeFor($client_id)) / 100 : 0;
+$card_fee = $pay_url ? billingCardFeeCents(intval(round($state['balance'] * 100)), billingCardFeeFor($client_id)) / 100 : 0;
 // Paid by its recurring invoice's autopay on the due date - said, so it isn't paid twice, while that will go through
 $autopay = $state['state'] === 'open' ? invoiceAutopay($invoice) : null;
 if ($autopay && $autopay['problem'] !== '') {

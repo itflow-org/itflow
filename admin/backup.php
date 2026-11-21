@@ -149,7 +149,7 @@ $type_noun = function ($type) {
 $install_root = dirname(__DIR__);
 $file_owner = '';
 if (function_exists('posix_getpwuid')) {
-    $file_owner = (string) (posix_getpwuid((int) @fileowner($install_root . '/scripts/restore_cli.php'))['name'] ?? '');
+    $file_owner = (string) (posix_getpwuid(intval(@fileowner($install_root . '/scripts/restore_cli.php')))['name'] ?? '');
 }
 $shell_word = function ($word) {
     return preg_match('/^[A-Za-z0-9_\/.@%+=:,-]+$/', $word) ? $word : escapeshellarg($word);

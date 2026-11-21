@@ -81,7 +81,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
     $can_link = $billing_on && $can_edit && !$recurring && (contractRecurringShouldRun($contract) || $status === 'Draft');
     $currency = $session_company_currency ?? '';
     $money = function ($amount) use ($currency) {
-        return escapeHtml(function_exists('billingMoney') ? billingMoney($amount, $currency) : number_format((float) $amount, 2));
+        return escapeHtml(function_exists('billingMoney') ? billingMoney($amount, $currency) : number_format(floatval($amount), 2));
     };
 
     // How far through its term it is

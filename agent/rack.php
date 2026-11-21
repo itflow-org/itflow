@@ -62,9 +62,9 @@ if (mysqli_num_rows($sql) == 0) {
     $rack_rows = rackLoadUnits([$rack_id])[$rack_id];
     $rack_items = array_map('rackUnitView', $rack_rows);
     $occupancy = rackOccupancy($rack_rows, $rack_units);
-    $used_percent = (int) round($occupancy['any'] / $rack_units * 100);
+    $used_percent = intval(round($occupancy['any'] / $rack_units * 100));
     $power_used = array_sum(array_column($rack_items, 'power'));
-    $power_percent = $rack_power_capacity ? (int) round($power_used / $rack_power_capacity * 100) : 0;
+    $power_percent = $rack_power_capacity ? intval(round($power_used / $rack_power_capacity * 100)) : 0;
     $item_count = count($rack_items);
     $gap = $occupancy['largest_gap'];
 

@@ -635,7 +635,7 @@ function productHardwareSql() {
 /** How many units a line stands for - its quantity rounded up, none for a credit. */
 function productHardwareUnits($qty) {
     $qty = round(floatval($qty), 2);
-    return $qty > 0 ? (int) ceil($qty) : 0;
+    return $qty > 0 ? intval(ceil($qty)) : 0;
 }
 
 /** When a warranty of $months from $date (Y-m-d) runs out - the 31st becomes the month's last day. Null for none. */

@@ -45,7 +45,7 @@ $total = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM kb_
 if ($q !== '' && !$total && $category === null && !portalViewingAs()) {
     kbSearchMissSave($q, 'portal', $session_client_id);
 }
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 

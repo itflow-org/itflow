@@ -202,7 +202,7 @@ function mailGraphHttp($method, $url, array $headers = [], $body = null, $timeou
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     $raw = curl_exec($ch);
     $error = curl_error($ch);
-    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $status = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
     curl_close($ch);
     $json = is_string($raw) ? json_decode($raw, true) : null;
     return ['status' => $status, 'json' => is_array($json) ? $json : [], 'body' => (string) $raw, 'error' => $error];

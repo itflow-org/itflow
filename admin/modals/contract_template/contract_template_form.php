@@ -14,7 +14,7 @@ $t_value = function ($key, $default = '') use ($t) {
     return $t !== null && array_key_exists("contract_template_$key", $t) && $t["contract_template_$key"] !== null ? $t["contract_template_$key"] : $default;
 };
 $t_money = function ($value) {
-    return $value === '' || $value === null ? '' : number_format((float) $value, 2, '.', '');
+    return $value === '' || $value === null ? '' : number_format(floatval($value), 2, '.', '');
 };
 $t_hours = function ($value) {
     return floatval($value) > 0 ? rtrim(rtrim(number_format(floatval($value), 2, '.', ''), '0'), '.') : '';

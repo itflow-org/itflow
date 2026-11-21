@@ -450,8 +450,7 @@ function taxPackageSend($writer, array $tables, $from, $to, $rate, $label, $pack
     $zip = new ZipArchive();
     if ($zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
         flashAlert('The package could not be made - the server could not write to uploads/tmp.', 'error');
-        header('Location: ' . reportUrl(['export' => null]));
-        return;
+        redirect(reportUrl(['export' => null]));
     }
     // Whatever ends the request, the package does not stay on the server
     register_shutdown_function(function () use ($zip_path) {
@@ -598,8 +597,7 @@ function taxPackageSend($writer, array $tables, $from, $to, $rate, $label, $pack
 
     if (!$zip->close()) {
         flashAlert('The package could not be made - the server could not write to uploads/tmp.', 'error');
-        header('Location: ' . reportUrl(['export' => null]));
-        return;
+        redirect(reportUrl(['export' => null]));
     }
 
     // $session_name is SQL-safe already - see reportCsv()

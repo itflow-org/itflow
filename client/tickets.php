@@ -41,7 +41,7 @@ foreach ($tabs as $key => $t) {
 $counts = array_map('intval', mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . " $from")));
 
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min($page, $pages);
 $offset = ($page - 1) * $per_page;
 

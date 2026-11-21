@@ -19,8 +19,7 @@ require_once '../functions.php';
 require_once '../includes/load_global_settings.php';
 
 if (intval($config_client_portal_enable) !== 1 || !portalInvitesReady()) {
-    header("Location: /login.php");
-    exit();
+    redirect("/login.php");
 }
 
 require_once __DIR__ . "/../includes/session_init.php";
@@ -65,8 +64,7 @@ if ($invite && $link['state'] === 'pending') {
                 ? 'Sign in with your Microsoft 365 account below.'
                 : 'Sign in with ' . $invite['invite_email'] . ' and your new password.');
             $_SESSION['login_message_type'] = 'success';
-            header("Location: /login.php");
-            exit();
+            redirect("/login.php");
         }
         // Used in the meantime - say so rather than show the form again
         $link = portalInviteByLink($invite_id, $token);

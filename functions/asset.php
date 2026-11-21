@@ -131,7 +131,7 @@ function assetWarranty($warranty_expire, $soon_days = 90) {
         return null;
     }
     $today = new DateTime('today');
-    $days = (int) $today->diff($expires)->format('%r%a');
+    $days = intval($today->diff($expires)->format('%r%a'));
     $date = $expires->format('Y-m-d');
 
     if ($days < 0) {

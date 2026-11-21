@@ -29,7 +29,7 @@ foreach ($tabs as $key => $info) {
     $counts[$key] = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM logs WHERE $scope AND {$info['where']}"))[0]);
 }
 $total = $counts[$tab];
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 

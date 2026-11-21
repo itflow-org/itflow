@@ -375,7 +375,7 @@ function expenseImportLines(array $rows, array $map) {
         } else {
             $debit = $map['debit'] !== null ? expenseImportAmount($cells[$map['debit']] ?? '') : null;
             $credit = $map['credit'] !== null ? expenseImportAmount($cells[$map['credit']] ?? '') : null;
-            $amount = $debit === null && $credit === null ? null : round(abs((float) $debit) - abs((float) $credit), 2);
+            $amount = $debit === null && $credit === null ? null : round(abs(floatval($debit)) - abs(floatval($credit)), 2);
         }
         // Totals and notes - nothing like a date where the date goes
         if (($date === null && $amount === null) || ($date === null && !preg_match('/\d/', (string) ($cells[$map['date']] ?? '')))) {
@@ -570,7 +570,7 @@ function expenseImportMatch(array $lines) {
 function expenseImportKeys($account_id, array $lines) {
     $seen = [];
     foreach ($lines as $i => $line) {
-        $base = intval($account_id) . '|' . $line['date'] . '|' . number_format((float) $line['amount'], 2, '.', '') . '|' . mb_strtolower(preg_replace('/\s+/u', ' ', $line['description']));
+        $base = intval($account_id) . '|' . $line['date'] . '|' . number_format(floatval($line['amount']), 2, '.', '') . '|' . mb_strtolower(preg_replace('/\s+/u', ' ', $line['description']));
         $seen[$base] = ($seen[$base] ?? 0) + 1;
         $lines[$i]['key_hash'] = hash('sha256', $base . '|' . $seen[$base]);
     }

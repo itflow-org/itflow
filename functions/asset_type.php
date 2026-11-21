@@ -287,7 +287,7 @@ function assetSpecs($asset_id) {
 
 /** A number as it was meant - 16, not 16.00; 1.5 as typed. */
 function assetSpecNumber($value) {
-    $value = (float) $value;
+    $value = floatval($value);
     return rtrim(rtrim(number_format($value, 2, '.', ''), '0'), '.');
 }
 
@@ -314,8 +314,8 @@ function assetSpecsFromInput($asset_type, $input, $client_id, $asset_id = 0, &$p
         switch ($spec['input']) {
             case 'number':
                 $number = str_replace(',', '', $value);
-                if (!is_numeric($number) || (float) $number < ($spec['min'] ?? 0) || (float) $number > ($spec['max'] ?? PHP_INT_MAX)
-                    || (($spec['step'] ?? 'any') === 1 && floor((float) $number) != (float) $number)) {
+                if (!is_numeric($number) || floatval($number) < ($spec['min'] ?? 0) || floatval($number) > ($spec['max'] ?? PHP_INT_MAX)
+                    || (($spec['step'] ?? 'any') === 1 && floor(floatval($number)) != floatval($number))) {
                     $problems[] = $spec['label'] . ': ' . (($spec['step'] ?? 'any') === 1 ? 'a whole number' : 'a number') . ' from ' . ($spec['min'] ?? 0) . ' to ' . ($spec['max'] ?? '') . (isset($spec['unit']) ? ' ' . $spec['unit'] : '');
                     continue 2;
                 }

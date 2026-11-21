@@ -59,7 +59,7 @@ if (isset($_GET['stripe_create_pi'])) {
     $balance_to_pay = round($balance_to_pay, 2);
 
     // In whole cents - a balance under 1.00 can still be paid, and nothing owed (or overpaid) can't
-    if ((int) round($balance_to_pay * 100) <= 0) {
+    if (intval(round($balance_to_pay * 100)) <= 0) {
         exit(json_encode(['error' => 'Nothing is owed on this invoice']));
     }
 
@@ -87,7 +87,7 @@ if (isset($_GET['stripe_create_pi'])) {
     $stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
     // The card fee, when the client pays it - as guest_pay_invoice_stripe.php showed it, and booked from itflow_fees on the way back
-    $balance_cents = (int) round($balance_to_pay * 100);
+    $balance_cents = intval(round($balance_to_pay * 100));
     $fee_cents = billingCardFeeCents($balance_cents, billingCardFeeFor($client_id));
     $pi_metadata = [
         'itflow_client_id' => $client_id,

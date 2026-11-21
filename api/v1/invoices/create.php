@@ -91,7 +91,7 @@ if ($client_ok) {
         $invoice = billingRow('invoice', $invoice_id, false);
         $reference = billingNumber('invoice', $invoice);
         $return_arr['invoice_reference'] = $reference;
-        $return_arr['amount'] = (float) $invoice['invoice_amount'];
+        $return_arr['amount'] = floatval($invoice['invoice_amount']);
         $return_arr['url'] = billingGuestUrl('invoice', $invoice);
 
         $reference = escapeSql($reference);

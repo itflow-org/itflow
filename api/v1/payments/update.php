@@ -55,7 +55,7 @@ if ($payment_row) {
     // No more than the invoice's total with its other payments
     $others = invoicePaid($invoice_id) - floatval($payment_row['payment_amount']);
     $room = round(floatval($payment_row['invoice_amount']) - $others, 2);
-    if ((int) round($amount * 100) > (int) round($room * 100)) {
+    if (intval(round($amount * 100)) > intval(round($room * 100))) {
         http_response_code(400);
         $return_arr['success'] = "False";
         $return_arr['message'] = "amount is more than $reference_text has left to pay with its other payments - " . billingMoney(max(0, $room), $payment_row['invoice_currency_code']) . '.';

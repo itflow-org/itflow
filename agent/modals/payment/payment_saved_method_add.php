@@ -33,7 +33,7 @@ if (!$cards) {
 // What is charged - agent/post/payment.php works it out the same way
 $currency = (string) $invoice['invoice_currency_code'];
 $fee_rates = billingCardFeeFor($client_id);
-$invoice_cents = (int) round(floatval($invoice['invoice_amount']) * 100);
+$invoice_cents = intval(round(floatval($invoice['invoice_amount']) * 100));
 $fee = billingCardFeeCents($invoice_cents, $fee_rates) / 100;
 $charge = $invoice_cents / 100 + $fee;
 

@@ -335,7 +335,7 @@ function expandRecurringEvent(array $event, $window_start, $window_end, $limit =
     $until = !empty($event['event_repeat_until']) ? substr($event['event_repeat_until'], 0, 10) . ' 23:59:59' : null;
     $skip = array_flip(calendarSkippedDates($event));
     $step = ['Day' => 'day', 'Week' => 'week', 'Month' => 'month', 'Year' => 'year'][$repeat];
-    $base_day = (int) $base->format('j');
+    $base_day = intval($base->format('j'));
     $by_day = calendarEventByDay($event);
 
     $occurrences = [];
@@ -344,12 +344,12 @@ function expandRecurringEvent(array $event, $window_start, $window_end, $limit =
         $candidate = clone $base;
         if ($i > 0 && $by_day !== '') {
             // Stepped from the 1st, so no month is passed over, then put on the rule's day - at the same time
-            $candidate->setDate((int) $base->format('Y'), (int) $base->format('n'), 1);
+            $candidate->setDate(intval($base->format('Y')), intval($base->format('n')), 1);
             $candidate->modify('+' . ($i * $interval) . " $step");
-            $candidate->setDate((int) $candidate->format('Y'), (int) $candidate->format('n'), (int) substr(byDayDate((int) $candidate->format('Y'), (int) $candidate->format('n'), $by_day), 8, 2));
+            $candidate->setDate(intval($candidate->format('Y')), intval($candidate->format('n')), intval(substr(byDayDate(intval($candidate->format('Y')), intval($candidate->format('n')), $by_day), 8, 2)));
         } elseif ($i > 0) {
             $candidate->modify('+' . ($i * $interval) . " $step");
-            if (($step === 'month' || $step === 'year') && (int) $candidate->format('j') !== $base_day) {
+            if (($step === 'month' || $step === 'year') && intval($candidate->format('j')) !== $base_day) {
                 if ($candidate > $to) {
                     break;
                 }

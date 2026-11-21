@@ -35,8 +35,8 @@ function updateInvoiceStatusFromPayments($invoice_id)
     $amount_paid = floatval($row['amount_paid']);
 
     // Compare in whole cents - float equality on decimal(15,2) values is not reliable
-    $paid_cents = (int) round($amount_paid * 100);
-    $total_cents = (int) round($invoice_amount * 100);
+    $paid_cents = intval(round($amount_paid * 100));
+    $total_cents = intval(round($invoice_amount * 100));
 
     if ($paid_cents <= 0) {
         $new_status = 'Sent';

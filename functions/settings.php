@@ -757,7 +757,7 @@ function settingsSame($a, $b) {
         return $a === $b || (in_array($a, ['', '0'], true) && in_array($b, ['', '0'], true));
     }
     if (is_numeric($a) && is_numeric($b)) {
-        return (float) $a === (float) $b;
+        return floatval($a) === floatval($b);
     }
     return rtrim(str_replace("\r\n", "\n", (string) $a)) === rtrim(str_replace("\r\n", "\n", (string) $b));
 }

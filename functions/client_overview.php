@@ -483,7 +483,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
             $items[] = [
                 'kind' => $kind, 'icon' => $icon, 'label' => $label,
                 'name' => $row['name'], 'date' => $row['d'],
-                'days' => (int) $today->diff($date)->format('%r%a'),
+                'days' => intval($today->diff($date)->format('%r%a')),
                 'url' => in_array($kind, ['domain', 'certificate', 'warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
             ];
         }

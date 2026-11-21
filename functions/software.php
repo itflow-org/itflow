@@ -110,7 +110,7 @@ function softwareRenewal($expire, $soon_days = 30) {
     if (!$date) {
         return null;
     }
-    $days = (int) (new DateTime('today'))->diff($date)->format('%r%a');
+    $days = intval((new DateTime('today'))->diff($date)->format('%r%a'));
     $ymd = $date->format('Y-m-d');
 
     if ($days < 0) {
@@ -153,7 +153,7 @@ function softwareSeats($used, $total) {
     $text = ['over' => "$over over", 'full' => 'All in use', 'unused' => 'None in use', 'ok' => "$free free"][$state];
     return [
         'used' => $used, 'total' => $total, 'free' => $free, 'over' => $over,
-        'pct' => min(100, (int) round($used / $total * 100)),
+        'pct' => min(100, intval(round($used / $total * 100))),
         'state' => $state,
         'tone' => ['over' => 'danger', 'full' => 'warning', 'unused' => 'secondary', 'ok' => 'primary'][$state],
         'text' => $text,

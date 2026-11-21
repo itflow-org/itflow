@@ -185,9 +185,9 @@ function incomeImportPickInvoices(array $invoices, $amount) {
     if (!$invoices || $amount <= 0) {
         return [[], ''];
     }
-    $cents = (int) round($amount * 100);
+    $cents = intval(round($amount * 100));
     foreach ($invoices as $invoice) {
-        if ((int) round($invoice['balance'] * 100) === $cents) {
+        if (intval(round($invoice['balance'] * 100)) === $cents) {
             return [[$invoice['invoice_id']], 'exact'];
         }
     }
@@ -199,7 +199,7 @@ function incomeImportPickInvoices(array $invoices, $amount) {
         $ids = [];
         for ($i = 0; $i < $count; $i++) {
             if ($mask & (1 << $i)) {
-                $sum += (int) round($invoices[$i]['balance'] * 100);
+                $sum += intval(round($invoices[$i]['balance'] * 100));
                 $ids[] = $invoices[$i]['invoice_id'];
             }
         }
@@ -214,7 +214,7 @@ function incomeImportPickInvoices(array $invoices, $amount) {
     $ids = [];
     foreach ($invoices as $invoice) {
         $ids[] = $invoice['invoice_id'];
-        $total += (int) round($invoice['balance'] * 100);
+        $total += intval(round($invoice['balance'] * 100));
         if ($total >= $cents) {
             return [$ids, 'oldest'];
         }
@@ -338,13 +338,13 @@ function incomeImportMatch(array $lines, $account_id, $default_method = '') {
     foreach ($by_client as $client_id => $invoices) {
         $cents = 0;
         foreach ($invoices as $invoice) {
-            $cents += (int) round($invoice['balance'] * 100);
+            $cents += intval(round($invoice['balance'] * 100));
         }
         $client_totals[$cents][] = $client_id;
     }
     $balances = [];
     foreach ($open as $invoice) {
-        $balances[(int) round($invoice['balance'] * 100)][] = $invoice['invoice_id'];
+        $balances[intval(round($invoice['balance'] * 100))][] = $invoice['invoice_id'];
     }
     $money = function ($amount, $currency = '') {
         return billingMoney($amount, $currency);
@@ -361,7 +361,7 @@ function incomeImportMatch(array $lines, $account_id, $default_method = '') {
             continue;
         }
         $amount = $line['amount'];
-        $cents = (int) round($amount * 100);
+        $cents = intval(round($amount * 100));
         $pay = function ($client_id, $invoices, $matched, $note) use (&$line, $amount) {
             [$ids, $how] = incomeImportPickInvoices($invoices, $amount);
             $line['action'] = 'payment';
@@ -388,7 +388,7 @@ function incomeImportMatch(array $lines, $account_id, $default_method = '') {
             $line['action'] = 'payment';
             $line['client_id'] = $client_id;
             $line['invoice_ids'] = array_column($named, 'invoice_id');
-            $owed = (int) round(array_sum(array_column($named, 'balance')) * 100);
+            $owed = intval(round(array_sum(array_column($named, 'balance')) * 100));
             $line['how'] = $owed === $cents ? (count($named) > 1 ? 'sum' : 'exact') : ($owed > $cents ? 'oldest' : 'over');
             $line['matched'] = 'number';
             $line['match_note'] = "$refs in the text";
@@ -543,9 +543,9 @@ function incomeImportDuplicates($account_id, array $lines) {
             WHERE payment_account_id = $account_id AND payment_import_key IS NULL AND payment_archived_at IS NULL AND payment_date BETWEEN '$from' AND '$to'
             ORDER BY payment_date, payment_id");
         while ($row = mysqli_fetch_assoc($sql)) {
-            $singles[] = ['type' => 'payment', 'ids' => [intval($row['payment_id'])], 'date' => $row['payment_date'], 'cents' => (int) round($row['payment_amount'] * 100),
+            $singles[] = ['type' => 'payment', 'ids' => [intval($row['payment_id'])], 'date' => $row['payment_date'], 'cents' => intval(round($row['payment_amount'] * 100)),
                 'label' => 'Payment on ' . ($row['what'] !== '' ? $row['what'] : 'an invoice') . ' on ' . $row['payment_date']];
-            $days[$row['payment_date']][] = ['id' => intval($row['payment_id']), 'cents' => (int) round($row['payment_amount'] * 100), 'what' => $row['what']];
+            $days[$row['payment_date']][] = ['id' => intval($row['payment_id']), 'cents' => intval(round($row['payment_amount'] * 100)), 'what' => $row['what']];
         }
         $sql = mysqli_query($mysqli, "SELECT revenue_id, revenue_date, revenue_amount, revenue_description, category_name, transfer_id FROM revenues
             LEFT JOIN categories ON category_id = revenue_category_id
@@ -554,7 +554,7 @@ function incomeImportDuplicates($account_id, array $lines) {
             ORDER BY revenue_date, revenue_id");
         while ($row = mysqli_fetch_assoc($sql)) {
             $what = $row['transfer_id'] !== null ? 'A transfer in' : (trim(strtok((string) $row['revenue_description'], "\n")) ?: ($row['category_name'] ?: 'Other income'));
-            $singles[] = ['type' => 'revenue', 'ids' => [intval($row['revenue_id'])], 'date' => $row['revenue_date'], 'cents' => (int) round($row['revenue_amount'] * 100),
+            $singles[] = ['type' => 'revenue', 'ids' => [intval($row['revenue_id'])], 'date' => $row['revenue_date'], 'cents' => intval(round($row['revenue_amount'] * 100)),
                 'label' => $what . ' on ' . $row['revenue_date'], 'transfer' => $row['transfer_id'] !== null];
         }
     }
@@ -577,7 +577,7 @@ function incomeImportDuplicates($account_id, array $lines) {
         if ($lines[$i]['imported'] !== '' || $line['problem'] !== '') {
             continue;
         }
-        $cents = (int) round($line['amount'] * 100);
+        $cents = intval(round($line['amount'] * 100));
         foreach ([$singles, $groups] as $pool) {
             $best = null;
             foreach ($pool as $j => $candidate) {
@@ -672,7 +672,7 @@ function incomeImportSave(array $import, array $picks, array $opts, &$error = ''
 
     // Check every ticked deposit first, working out what each payment leaves owing
     $bring = [];
-    $balances = array_map(function ($invoice) { return (int) round($invoice['balance'] * 100); }, $open);
+    $balances = array_map(function ($invoice) { return intval(round($invoice['balance'] * 100)); }, $open);
     foreach ($lines as $line) {
         $pick = $picks[$line['n']] ?? null;
         if (!$pick || empty($pick['take']) || !in_array($line['state'], ['new', 'entered', 'recorded'], true)) {
@@ -705,7 +705,7 @@ function incomeImportSave(array $import, array $picks, array $opts, &$error = ''
                 $invoices[] = $open[$id];
             }
             usort($invoices, function ($a, $b) { return [$a['due'], $a['invoice_id']] <=> [$b['due'], $b['invoice_id']]; });
-            $left = (int) round($line['amount'] * 100);
+            $left = intval(round($line['amount'] * 100));
             foreach ($invoices as $invoice) {
                 $owed = $balances[$invoice['invoice_id']];
                 if ($left <= 0 || $owed <= 0) {

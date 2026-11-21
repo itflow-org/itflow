@@ -124,9 +124,9 @@ $sql_api_perms = mysqli_query($mysqli,
     "SELECT client_id, permission_type FROM user_client_permissions WHERE user_id = $session_user_id");
 while ($sql_api_perms && $prow = mysqli_fetch_assoc($sql_api_perms)) {
     if ($prow['permission_type'] === 'deny') {
-        $client_deny_array[] = (int) $prow['client_id'];
+        $client_deny_array[] = intval($prow['client_id']);
     } else {
-        $client_access_array[] = (int) $prow['client_id'];
+        $client_access_array[] = intval($prow['client_id']);
     }
 }
 

@@ -42,7 +42,7 @@ $cards = billingStripeProvider() !== null;
 $can_pay = $owing && $cards && billingOnlinePayAllowed($state['balance']);
 // The card fee on paying the balance by card, when the client pays one - autopay adds it too
 $fee_rates = $cards ? billingCardFeeFor($session_client_id) : null;
-$card_fee = billingCardFeeCents((int) round($state['balance'] * 100), $fee_rates) / 100;
+$card_fee = billingCardFeeCents(intval(round($state['balance'] * 100)), $fee_rates) / 100;
 
 // The other invoices still owed, to pay with this one
 $others = array_filter(billingClientOpenInvoices($session_client_id), function ($row) use ($invoice_id) {

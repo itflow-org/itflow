@@ -37,7 +37,7 @@ if ($q !== '') {
     $where .= " AND (document_name LIKE '%$q_sql%' OR document_description LIKE '%$q_sql%' OR document_content_raw LIKE '%$q_sql%')";
 }
 $total = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM documents WHERE $where"))[0]);
-$pages = max(1, (int) ceil($total / $per_page));
+$pages = max(1, intval(ceil($total / $per_page)));
 $page = min(max(1, intval($_GET['page'] ?? 1)), $pages);
 $offset = ($page - 1) * $per_page;
 

@@ -39,7 +39,7 @@ function getSlaSettings($refresh = false)
 
     // ISO weekday numbers (1 = Monday .. 7 = Sunday)
     $business_days = [];
-    foreach (explode(',', strval($row['config_business_days'])) as $day) {
+    foreach (explode(',', (string) $row['config_business_days']) as $day) {
         $day = intval($day);
         if ($day >= 1 && $day <= 7) {
             $business_days[] = $day;
