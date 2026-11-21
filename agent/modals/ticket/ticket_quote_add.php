@@ -181,9 +181,9 @@ ob_start();
                                 <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
-                        <small class="form-text text-body-secondary">
+                        <div class="form-text">
                             <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= billingMoney($client_rate, $session_company_currency); ?></strong> an hour
-                        </small>
+                        </div>
                     </div>
                 </div>
             </div>

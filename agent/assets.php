@@ -449,7 +449,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                    <button class="dropdown-item text-danger fw-bold"
+                                    <button class="dropdown-item text-danger fw-bold confirm-link"
                                         type="submit" form="bulkActions" name="bulk_delete_assets">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </button>

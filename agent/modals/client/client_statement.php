@@ -110,7 +110,7 @@ ob_start();
                         <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="dtf" max="2999-12-31" data-statement-option>
                     </div>
-                    <small class="text-body-secondary">Leave blank for all history</small>
+                    <div class="form-text">Leave blank for all history</div>
                 </div>
                 <div class="col-sm-6 mb-3">
                     <label class="form-label">To</label>

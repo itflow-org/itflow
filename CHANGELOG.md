@@ -231,6 +231,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Wording: a ticket task's approval picker says agent rather than technician, with the same blank choice as other pickers - - Select one - and - Select an agent - rather than Select... and - Select a user -. Pickers that fill in as you go read like the rest: changing a ticket's client offers - Select a contact - (or - No contacts -), a project with no client offers - Nobody -, and an asset detail or statement line with nothing picked shows - None - or - Not for a client - rather than a bare dash. The Tickets list's Billing filter starts at - Any -, record pages say Upload Files rather than Upload File(s), and Maintenance > Cron's log counts 1 problem rather than 1 problem(s).
 - Screen readers: every window's close button is read out as Close, and the arrow beside a list's New button and the ⋮ menus on record pages as More actions, rather than as a button with no name or just More.
 - Counts: the counts in menus, tabs, list headers and under every list - Showing 1 to 25 of 1,834 records - have a thousands separator, as the dashboard, reports and audit log already did.
+- Confirmations: archiving a credential from an asset, contact, vendor, service or license page no longer asks first, as archiving anywhere else doesn't - the message's Undo puts it back. Taking a related ticket off a ticket, or a ticket off a service's page, asks first, as the ticket page's other × buttons do. Hints under a few fields - a statement's From, a cron job's schedule, a quote's price per hour - look like every other field's.
 
 ### Bug Fixes
 
@@ -294,6 +295,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - Audit Logs: income was filed as Income or Revenue, and transfers as Transfer or Account Transfer, depending on where they were made, so the Type filter listed each twice. Each now has one name, and licenses and license templates are License and License Template rather than Software. Entries already in the log are renamed when you update. Entries for RMM providers, collation repairs, the demo reset and Undo have their own icons.
 - Payments: editing a payment said "Payment edited to amount ... added" in your company's currency rather than the payment's, and its audit log entry didn't say who edited it or which client it was for.
 - Invoice links: asking to pay by card when card payments weren't set up went to a page that doesn't exist. It goes back to the invoice and says card payments are not set up.
+- Assets: Bulk Action > Delete deleted the ticked assets straight away, without asking first as every other list's Delete does.
 
 ### Developer Updates
 

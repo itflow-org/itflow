@@ -614,7 +614,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                     <span>Raised about the service:</span>
                                     <?php foreach ($linked_tickets as $row) { ?>
                                         <span class="itflow-contact-chip"><?= escapeHtml(ticketReference($row)) ?>
-                                            <a class="text-body-secondary ms-1" href="post.php?unlink_service_ticket=<?= intval($row['ticket_id']) ?>&service_id=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Not about this service"><i class="fas fa-times"></i></a>
+                                            <a class="text-body-secondary ms-1 confirm-link" href="post.php?unlink_service_ticket=<?= intval($row['ticket_id']) ?>&service_id=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Not about this service"><i class="fas fa-times"></i></a>
                                         </span>
                                     <?php } ?>
                                 </div>

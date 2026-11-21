@@ -44,7 +44,7 @@ ob_start();
                 <input type="checkbox" class="form-check-input" name="enabled" value="1" id="cronJobEnabledSwitch" <?= $cron_job_enabled == 1 ? 'checked' : '' ?>>
                 <label class="form-check-label" for="cronJobEnabledSwitch">Runs on its schedule</label>
             </div>
-            <small class="text-body-secondary">Switched off, it only runs when someone asks it to with Run now.</small>
+            <div class="form-text">Switched off, it only runs when someone asks it to with Run now.</div>
         </div>
 
         <div class="mb-3">
@@ -59,7 +59,7 @@ ob_start();
                 </select>
             </div>
             <?php if (!$cron_job_interval_safe) { ?>
-                <small class="text-body-secondary">It only runs once a day - run more often, its work would be done twice.</small>
+                <div class="form-text">It only runs once a day - run more often, its work would be done twice.</div>
             <?php } ?>
         </div>
 
@@ -70,7 +70,7 @@ ob_start();
                 <input type="number" class="form-control" name="interval_minutes" value="<?= $cron_job_interval_minutes ?>" min="1" max="1440">
                     <span class="input-group-text">minutes</span>
             </div>
-            <small class="text-body-secondary">Cron wakes once a minute, so 1 is as often as anything can run.</small>
+            <div class="form-text">Cron wakes once a minute, so 1 is as often as anything can run.</div>
         </div>
 
         <div class="mb-3" id="cronJobDailyGroup">
@@ -79,7 +79,7 @@ ob_start();
                     <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="time" class="form-control" name="daily_at" value="<?= $cron_job_daily_at ?>">
             </div>
-            <small class="text-body-secondary">In ITFlow's time zone<?= !empty($session_timezone) ? ', ' . escapeHtml($session_timezone) : '' ?>. A run missed because the server was off happens when it's back, not a day later.</small>
+            <div class="form-text">In ITFlow's time zone<?= !empty($session_timezone) ? ', ' . escapeHtml($session_timezone) : '' ?>. A run missed because the server was off happens when it's back, not a day later.</div>
         </div>
 
     </div>

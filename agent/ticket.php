@@ -1577,7 +1577,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="d-flex align-items-start gap-2">
                                         <div class="text-truncate flex-grow-1"><?= ticketLink($other) ?></div>
                                         <?php if ($can_edit_ticket && (!intval($other['ticket_client_id']) || hasClientAccess($other['ticket_client_id']))) { ?>
-                                            <a class="text-body-secondary" href="post.php?unlink_ticket=<?= $other_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" title="No longer related"><i class="fas fa-times"></i></a>
+                                            <a class="text-body-secondary confirm-link" href="post.php?unlink_ticket=<?= $other_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" title="No longer related"><i class="fas fa-times"></i></a>
                                         <?php } ?>
                                     </div>
                                     <div class="d-flex align-items-center gap-2 mt-1 text-body-secondary">

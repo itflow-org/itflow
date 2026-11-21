@@ -376,7 +376,7 @@ function credentialTableHtml(array $rows, array $options = []) {
             $actions .= '<a class="dropdown-item" href="' . escapeHtml($unlink_url) . '"><i class="fas fa-fw fa-unlink text-secondary me-2"></i>Unlink</a>';
         }
         if ($can_edit && !$archived) {
-            $actions .= '<a class="dropdown-item text-danger confirm-link" href="post.php?archive_credential=' . $id . '&amp;csrf_token=' . escapeHtml($csrf) . '"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>';
+            $actions .= '<a class="dropdown-item text-danger" href="post.php?archive_credential=' . $id . '&amp;csrf_token=' . escapeHtml($csrf) . '"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>';
         }
         $html .= '<td class="text-end"><div class="dropdown dropstart"><button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>'
             . '<div class="dropdown-menu">' . $actions . '</div></div></td></tr>';
