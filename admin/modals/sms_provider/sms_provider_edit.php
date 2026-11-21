@@ -38,7 +38,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-sms me-2"></i><?= $row ? 'Edit Texting Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($name) . '</span>' : 'New Texting Provider' ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-sms me-2"></i><?= $row ? 'Edit Texting Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($name) . '</span>' : 'New Texting Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-sms-provider-form>
@@ -55,7 +55,7 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label" for="smsProviderName">Provider <strong class="text-danger">*</strong></label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text"><i class="fa fa-fw fa-sms"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-sms"></i></span>
                     <select class="form-select select2" name="provider" id="smsProviderName">
                         <?php foreach ($kinds as $kind_name => $kind_info) { ?>
                             <option value="<?= escapeHtml($kind_name) ?>" <?= $kind_name === $name ? 'selected' : '' ?> <?= isset($taken[$kind_name]) ? 'disabled' : '' ?>><?= escapeHtml($kind_name) ?><?= isset($taken[$kind_name]) ? ' - set up already' : '' ?></option>
@@ -78,7 +78,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="smsProviderDescription">Description</label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" id="smsProviderDescription" maxlength="250" placeholder="What it is for, if you like" value="<?= escapeHtml($row['sms_provider_description'] ?? '') ?>">
             </div>
             <?= $error_for('description') ?>
@@ -87,7 +87,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="smsProviderNumber">Number texts go from <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                 <input type="tel" class="form-control" name="number" id="smsProviderNumber" maxlength="30" placeholder="+1 412 555 0100" value="<?= escapeHtml($number) ?>">
             </div>
             <?= $error_for('number') ?>
@@ -100,7 +100,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="smsProviderUsername"><?= escapeHtml($kind['username_label']) ?> <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-id-badge"></i></span>
                 <input type="text" class="form-control font-monospace" name="username" id="smsProviderUsername" maxlength="250" spellcheck="false" value="<?= escapeHtml($row['sms_provider_username'] ?? '') ?>">
             </div>
             <?= $error_for('username') ?>
@@ -109,7 +109,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="smsProviderSecret"><?= escapeHtml($kind['secret_label']) ?> <?= $row ? '' : '<strong class="text-danger">*</strong>' ?></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                 <input type="password" class="form-control font-monospace" name="secret" id="smsProviderSecret" maxlength="500" spellcheck="false" autocomplete="new-password"
                     placeholder="<?= $row && trim((string) $row['sms_provider_secret']) !== '' ? 'Saved - type a new one to replace it' : '' ?>">
             </div>
@@ -120,7 +120,7 @@ ob_start();
             <h6 class="fw-semibold mt-4 mb-1">Texts coming back</h6>
             <p class="small text-body-secondary mb-2">In <?= escapeHtml($name) ?>'s portal, open the number, then SMS: send texts to this Callback URL, by POST.</p>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                 <input type="text" class="form-control font-monospace" readonly id="smsProviderInbound" value="<?= escapeHtml(smsInboundUrl($row)) ?>" aria-label="Where texts come back to">
                 <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#smsProviderInbound" title="Copy"><i class="far fa-fw fa-copy"></i></button>
             </div>
@@ -130,10 +130,10 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $row ? 'edit_sms_provider' : 'add_sms_provider' ?>" class="btn btn-primary text-bold" data-sms-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
+        <button type="submit" name="<?= $row ? 'edit_sms_provider' : 'add_sms_provider' ?>" class="btn btn-primary fw-bold" data-sms-provider-save <?= !$row && !$free_kinds ? 'disabled' : '' ?>>
+            <i class="fas fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

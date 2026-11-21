@@ -41,13 +41,13 @@ if (!$contract || $contract['contract_status'] === 'Draft' || !$contract['contra
         </p>
         <label class="form-label">New last day</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
             <input type="date" class="form-control" name="end_date" value="<?= escapeHtml($new_end) ?>" min="<?= escapeHtml(date('Y-m-d')) ?>" required>
         </div>
         <small class="text-secondary">Another <?= escapeHtml(contractTermLabel($contract['contract_term_months'])) ?>. Its owner is reminded again before this one ends.</small>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="renew_contract" class="btn btn-primary text-bold"><i class="fas fa-sync-alt me-2"></i>Renew</button>
+        <button type="submit" name="renew_contract" class="btn btn-primary fw-bold"><i class="fas fa-sync-alt me-2"></i>Renew</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

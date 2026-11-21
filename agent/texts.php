@@ -97,7 +97,7 @@ $provider = smsProvider();
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search texts..." title="<?= $codes ? 'The number, or the name it was given' : 'The number, its name, or the words' ?>">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6 small text-body-secondary text-md-end">

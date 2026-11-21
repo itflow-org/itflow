@@ -31,14 +31,14 @@ $password_fields = function ($form) use ($password_min) {
         <div class="mb-2">
             <label class="form-label" for="<?= $form ?>Password">Password for the file</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="<?= $form ?>Password" name="password" minlength="<?= $password_min ?>" maxlength="200" autocomplete="new-password" disabled>
             </div>
         </div>
         <div class="mb-2">
             <label class="form-label" for="<?= $form ?>PasswordConfirm">Confirm password</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="<?= $form ?>PasswordConfirm" name="password_confirm" minlength="<?= $password_min ?>" maxlength="200" autocomplete="new-password" disabled>
             </div>
         </div>
@@ -105,7 +105,7 @@ ob_start();
                         <i class="fas fa-fw fa-share-alt me-2"></i>Share a Link
                     </button>
                 <?php } ?>
-                <button type="submit" name="export_client_pdf" value="1" class="btn btn-primary text-bold" data-client-export-submit>
+                <button type="submit" name="export_client_pdf" value="1" class="btn btn-primary fw-bold" data-client-export-submit>
                     <i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF
                 </button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
@@ -151,7 +151,7 @@ ob_start();
                 <?php } ?>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="export_client_archive" value="1" class="btn btn-primary text-bold" data-client-export-submit>
+                <button type="submit" name="export_client_archive" value="1" class="btn btn-primary fw-bold" data-client-export-submit>
                     <i class="fas fa-fw fa-file-archive me-2"></i>Download ZIP
                 </button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>

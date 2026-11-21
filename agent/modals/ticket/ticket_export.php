@@ -64,7 +64,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Number, subject, client, contact">
             </div>
         </div>
@@ -72,7 +72,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Status</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tasks"></i></span>
                 <select class="form-select select2" name="status[]" data-placeholder="- Open tickets -" multiple>
                     <?php
                     $sql_statuses_filter = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name, ticket_status_color FROM ticket_statuses ORDER BY ticket_status_name ASC");
@@ -86,13 +86,13 @@ ob_start();
                     ?>
                 </select>
             </div>
-            <small class="form-text text-muted">Leave empty for open tickets only.</small>
+            <small class="form-text text-body-secondary">Leave empty for open tickets only.</small>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Resolution</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-check"></i></span>
                 <select class="form-select select2" name="resolution">
                     <option <?php if ($state_filter === 'open') { echo "selected"; } ?> value="">Open</option>
                     <option <?php if ($state_filter === 'closed') { echo "selected"; } ?> value="Closed">Closed</option>
@@ -105,7 +105,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Billing</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                 <select class="form-select select2" name="billing">
                     <option value="">- Any -</option>
                     <option <?php if ($billing_filter === 'unbilled') { echo "selected"; } ?> value="unbilled">Billable, not invoiced</option>
@@ -120,7 +120,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
                     <option value="">- Any client -</option>
                     <?php
@@ -141,7 +141,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Category</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
                     <option value="">- Any category -</option>
                     <?= categoryFilterOptionsHtml('Ticket', $category_filter, "SELECT DISTINCT ticket_category FROM tickets WHERE ticket_category <> ''") ?>
@@ -152,7 +152,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Assigned to</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
                 <select class="form-select select2" name="assigned">
                     <option value="">- Anyone -</option>
                     <?php
@@ -172,7 +172,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">SLA</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
                 <select class="form-select select2" name="sla">
                     <option value="">- Any SLA state -</option>
                     <option <?php if ($sla_filter === 'breached') { echo "selected"; } ?> value="breached">Breached</option>
@@ -189,7 +189,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Opened from</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
             </div>
         </div>
@@ -197,7 +197,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Opened to</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
             </div>
         </div>

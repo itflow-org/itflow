@@ -231,7 +231,7 @@ $contact_roles = [
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock fa-fw"></i></span>
                         <input type="password" class="form-control" data-toggle="password" id="contactFormPassword" name="contact_password" placeholder="Password" autocomplete="new-password">
-                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         <button type="button" class="btn btn-outline-secondary" title="Generate a password" data-contact-form-generate>
                             <i class="fas fa-fw fa-magic"></i>
                         </button>

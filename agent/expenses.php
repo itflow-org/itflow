@@ -159,16 +159,16 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a><?php } ?>
+                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a><?php } ?>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/expense/expense_export.php', ['account', 'vendor', 'category', 'client', 'method', 'paid_by', 'recurring_expense_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
-                    <a class="dropdown-item" href="recurring_expenses.php"><i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
+                    <a class="dropdown-item" href="recurring_expenses.php"><i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
                     <?php if (reportCanOpen('expense_summary')) { ?>
-                        <a class="dropdown-item" href="reports/expense_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Expenses Report</a>
+                        <a class="dropdown-item" href="reports/expense_summary.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Expenses Report</a>
                     <?php } ?>
                 </div>
             </div>
@@ -189,7 +189,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search expenses..." title="Vendor, description, reference, amount, client, category">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#expenseMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -244,7 +244,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_reimburse.php" data-bulk="true"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Reimburse</a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                                        <a class="dropdown-item text-danger fw-bold ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -257,7 +257,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                     <?php if (moduleOn('bookkeeping')) { // the account filter - with Bookkeeping on ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                             <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Paid from">
                                 <option value="">- Any account -</option>
                                 <?php
@@ -272,7 +272,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                     <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
                                 <?php
@@ -426,7 +426,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

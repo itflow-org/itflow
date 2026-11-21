@@ -29,7 +29,7 @@ $license = softwareRow($software_id);
 
 if (!$license || ($client_url && intval($license['software_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -152,29 +152,29 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml($renewal_ticket_url) ?>">
-                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Renewal Ticket
+                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Renewal Ticket
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_key_add.php?software_id=<?= $software_id ?>">
-                                <i class="fa fa-fw fa-key text-secondary me-2"></i>Keys
+                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Keys
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&software_id=<?= $software_id ?>">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&software_id=<?= $software_id ?>">
-                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                             </a>
                         </div>
                     </div>
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <?= linkPickerButton('software', $software_id, 'asset', 'Device', 'dropdown-item', 'fa fa-fw fa-desktop text-secondary me-2') ?>
-                            <?= linkPickerButton('software', $software_id, 'contact', 'User', 'dropdown-item', 'fa fa-fw fa-user text-secondary me-2') ?>
+                            <?= linkPickerButton('software', $software_id, 'asset', 'Device', 'dropdown-item', 'fas fa-fw fa-desktop text-secondary me-2') ?>
+                            <?= linkPickerButton('software', $software_id, 'contact', 'User', 'dropdown-item', 'fas fa-fw fa-user text-secondary me-2') ?>
                             <?php if ($can_link_credentials) { ?>
-                                <?= linkPickerButton('software', $software_id, 'credential', 'Credential', 'dropdown-item', 'fa fa-fw fa-lock text-secondary me-2') ?>
+                                <?= linkPickerButton('software', $software_id, 'credential', 'Credential', 'dropdown-item', 'fas fa-fw fa-lock text-secondary me-2') ?>
                             <?php } ?>
-                            <?= linkPickerButton('software', $software_id, 'document', 'Document', 'dropdown-item', 'fa fa-fw fa-file-alt text-secondary me-2') ?>
-                            <?= linkPickerButton('software', $software_id, 'file', 'File', 'dropdown-item', 'fa fa-fw fa-paperclip text-secondary me-2') ?>
+                            <?= linkPickerButton('software', $software_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('software', $software_id, 'file', 'File', 'dropdown-item', 'fas fa-fw fa-paperclip text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
@@ -192,7 +192,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= $software_name ?> goes for good, with its seats and keys.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

@@ -76,7 +76,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-7">
         <label class="form-label">Vendor <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor" required data-expense-vendor>
                 <option value="">- Select a vendor -</option>
                 <?php foreach ($form_vendors as $vendor_id => $vendor) { ?>
@@ -91,7 +91,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-5">
         <label class="form-label">Amount each time <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required
                 value="<?= $form_edit ? number_format(floatval($form_row['recurring_expense_amount']), 2, '.', '') : '' ?>" data-recurring-amount>
             <span class="input-group-text"><?= escapeHtml($form_currency) ?></span>
@@ -110,7 +110,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-4">
         <label class="form-label">How often <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-sync-alt"></i></span>
             <select class="form-select select2" name="frequency" required data-recurring-frequency>
                 <?php foreach (recurringInvoiceFrequencies() as $key => $label) { ?>
                     <option value="<?= $key ?>" <?= $form_frequency === $key ? 'selected' : '' ?>><?= $label ?></option>
@@ -122,7 +122,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-4">
         <label class="form-label"><?= $form_edit ? 'Next one on' : 'First one on' ?> <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
             <input type="date" class="form-control" name="next_date" max="2999-12-31" value="<?= escapeHtml($form_next) ?>" required data-recurring-next>
         </div>
     </div>
@@ -130,7 +130,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-4">
         <label class="form-label">Ends</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-flag-checkered"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-flag-checkered"></i></span>
             <input type="date" class="form-control" name="end_date" max="2999-12-31" value="<?= escapeHtml($form_end) ?>" data-recurring-end>
         </div>
     </div>
@@ -142,7 +142,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-7">
         <label class="form-label">Category <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
             <select class="form-select select2" name="category" required data-expense-category>
                 <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Expense', $form_category) ?>
@@ -154,7 +154,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-5">
         <label class="form-label">Client</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
             <select class="form-select select2" name="client_id" data-recurring-client>
                 <option value="0">- Not for a client -</option>
                 <?php foreach ($form_clients as $client) { ?>
@@ -169,7 +169,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             <div class="col-md-5">
                 <label class="form-label small mb-1">For them</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                     <select class="form-select select2" name="billing" data-recurring-billing-mode>
                         <option value="" <?= $form_billing === '' ? 'selected' : '' ?>>Our cost - not billed on</option>
                         <option value="bill" <?= $form_billing === 'bill' ? 'selected' : '' ?>>Billed on to them each time</option>
@@ -180,14 +180,14 @@ while ($row = mysqli_fetch_assoc($sql)) {
             <div class="col-md-3" data-recurring-billing-for="bill">
                 <label class="form-label small mb-1">Markup</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                     <input type="text" class="form-control text-end" name="markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format($form_markup, 2, '.', ''), '0'), '.') ?>" aria-label="Markup">
                 </div>
             </div>
             <div class="col-md-7" data-recurring-billing-for="covered">
                 <label class="form-label small mb-1">Recurring invoice</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
                     <select class="form-select select2" name="recurring_invoice_id" data-recurring-cover data-selected="<?= $form_covered_by ?>"></select>
                 </div>
             </div>
@@ -201,7 +201,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-7">
         <label class="form-label">Paid from <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
             <select class="form-select select2" name="account" required data-expense-account>
                 <option value="">- Select an account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
@@ -216,7 +216,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-5">
         <label class="form-label">Paid by</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
             <select class="form-select select2" name="payment_method" data-expense-method>
                 <option value="">- Select a payment method -</option>
                 <?php foreach ($form_methods as $method) { ?>
@@ -229,7 +229,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-12">
         <label class="form-label">Reference</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
             <input type="text" class="form-control" name="reference" maxlength="255" placeholder="Account or contract number - it goes on each expense" value="<?= escapeHtml($form_value('recurring_expense_reference')) ?>">
         </div>
     </div>
@@ -237,7 +237,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-12">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
             <textarea class="form-control" rows="2" name="description" placeholder="What it is - office rent, colocation, M365 partner licensing"><?= escapeHtml($form_value('recurring_expense_description')) ?></textarea>
         </div>
     </div>

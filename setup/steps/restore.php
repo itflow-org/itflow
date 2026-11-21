@@ -47,7 +47,7 @@ $command_field = function ($id) use ($restore_command) {
                         <span class="small text-body-secondary" data-setup-drop-size>A .zip from Maintenance &gt; Backup - up to <?= escapeHtml(backupFormatBytes($setup_max_upload)) ?> here</span>
                     </label>
                     <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fa fa-fw fa-file-archive"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-file-archive"></i></span>
                         <input type="file" class="form-control" id="setupRestoreFile" name="backup_zip" accept=".zip,application/zip" required data-setup-max-bytes="<?= intval($setup_max_upload) ?>">
                     </div>
                 </div>
@@ -61,7 +61,7 @@ $command_field = function ($id) use ($restore_command) {
                 <div class="mb-3">
                     <label class="form-label" for="setupRestoreKey">Backup encryption key <strong class="text-danger">*</strong></label>
                     <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="text" class="form-control font-monospace" id="setupRestoreKey" name="backup_key" placeholder="The key from the install that made this backup" autocomplete="off" spellcheck="false" required>
                     </div>
                     <div class="form-text">Shown in Maintenance &gt; Backup on that install. The archive can't be opened without it.</div>

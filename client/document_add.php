@@ -39,7 +39,7 @@ $upload = !empty($_GET['upload']);
             <div class="mb-3">
                 <label class="form-label" for="documentName">Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-file-alt"></i></span>
                     <input type="text" class="form-control" id="documentName" name="document_name" placeholder="<?= $upload ? 'What the file is - &quot;Office floor plan&quot;' : 'In a few words - &quot;Setting up the printer&quot;' ?>" required maxlength="200" autofocus>
                 </div>
             </div>
@@ -47,7 +47,7 @@ $upload = !empty($_GET['upload']);
             <div class="mb-3">
                 <label class="form-label" for="documentDescription">Description</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                     <input type="text" class="form-control" id="documentDescription" name="document_description" placeholder="Optional - a line on what it is for" maxlength="255">
                 </div>
             </div>

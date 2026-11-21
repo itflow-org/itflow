@@ -47,7 +47,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-user-plus me-2"></i><?= $helper ? escapeHtml($helper['user_name']) . ' on' : 'Add an agent to' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(ticketReference($row)) ?></span>
+        <i class="fas fa-fw fa-user-plus me-2"></i><?= $helper ? escapeHtml($helper['user_name']) . ' on' : 'Add an agent to' ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(ticketReference($row)) ?></span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -64,7 +64,7 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label">Agent</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                     <select class="form-select select2" name="user_id" id="scheduleTech" required>
                         <?php foreach ($agents as $user_id => $agent) { ?>
                             <option value="<?= $user_id ?>" data-name="<?= escapeHtml($agent['name']) ?>"<?= selectOptionData($agent['avatar'] !== '' ? ['image' => $agent['avatar']] : ['initials' => $agent['initials'], 'shape' => 'circle', 'tone' => 'secondary']) ?>><?= escapeHtml($agent['name']) ?><?= $user_id === intval($session_user_id) ? ' (me)' : '' ?></option>
@@ -99,14 +99,14 @@ ob_start();
                     <div class="col-sm-7">
                         <label class="form-label">Date and time</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                             <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" value="<?= $own_start ? date('Y-m-d\TH:i', strtotime(timezoneToView($own_start))) : '' ?>">
                         </div>
                     </div>
                     <div class="col-sm-5">
                         <label class="form-label">How long</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                             <select class="form-select select2" name="schedule_minutes">
                                 <?php foreach (ticketScheduleLengths($own_minutes) as $minutes => $label) { ?>
                                     <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $own_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
@@ -137,13 +137,13 @@ ob_start();
             <a href="post.php?remove_ticket_helper=<?= $ticket_id ?>&user_id=<?= $edit_user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger confirm-link me-auto"
                 data-confirm-title="Take <?= escapeHtml($helper['user_name']) ?> off this ticket?" data-confirm-button="Take off"
                 data-confirm-text="<?= $helper['start'] !== '' ? 'Their booking is cancelled, and they are emailed the cancellation.' : 'It goes from their lists.' ?>">
-                <i class="fa fa-user-minus me-2"></i>Take Off
+                <i class="fas fa-user-minus me-2"></i>Take Off
             </a>
         <?php } ?>
         <?php if (($helper || $agents) && $is_open) { ?>
-            <button type="submit" name="save_ticket_helper" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i><?= $helper ? 'Save' : 'Add' ?></button>
+            <button type="submit" name="save_ticket_helper" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><?= $helper ? 'Save' : 'Add' ?></button>
         <?php } ?>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

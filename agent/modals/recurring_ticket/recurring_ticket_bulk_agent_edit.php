@@ -13,7 +13,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user-check me-2"></i>Assign Agent to <strong><?= $count ?></strong> Tickets</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-check me-2"></i>Assign Agent to <strong><?= $count ?></strong> Tickets</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -25,7 +25,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Agent</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                 <select class="form-select select2" name="assign_to">
                     <option value="0">- Unassigned -</option>
                     <?php
@@ -48,8 +48,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_assign_recurring_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Assign Agent</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="bulk_assign_recurring_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Assign Agent</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

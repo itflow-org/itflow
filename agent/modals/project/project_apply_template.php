@@ -53,7 +53,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="apply_project_template" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add Tickets</button>
+        <button type="submit" name="apply_project_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add Tickets</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

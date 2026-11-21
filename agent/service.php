@@ -31,7 +31,7 @@ $service = serviceRow($service_id);
 
 if (!$service || ($client_url && intval($service['service_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -190,16 +190,16 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <?= linkPickerButton('service', $service_id, 'asset', 'Asset it runs on', 'dropdown-item', 'fa fa-fw fa-desktop text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'asset', 'Asset it runs on', 'dropdown-item', 'fas fa-fw fa-desktop text-secondary me-2') ?>
                             <?php if ($can_link_credentials) { ?>
-                                <?= linkPickerButton('service', $service_id, 'credential', 'Login', 'dropdown-item', 'fa fa-fw fa-key text-secondary me-2') ?>
+                                <?= linkPickerButton('service', $service_id, 'credential', 'Login', 'dropdown-item', 'fas fa-fw fa-key text-secondary me-2') ?>
                             <?php } ?>
-                            <?= linkPickerButton('service', $service_id, 'domain', 'Domain', 'dropdown-item', 'fa fa-fw fa-globe text-secondary me-2') ?>
-                            <?= linkPickerButton('service', $service_id, 'certificate', 'Certificate', 'dropdown-item', 'fa fa-fw fa-lock text-secondary me-2') ?>
-                            <?= linkPickerButton('service', $service_id, 'contact', 'Person', 'dropdown-item', 'fa fa-fw fa-user text-secondary me-2') ?>
-                            <?= linkPickerButton('service', $service_id, 'vendor', 'Vendor', 'dropdown-item', 'fa fa-fw fa-building text-secondary me-2') ?>
-                            <?= linkPickerButton('service', $service_id, 'document', 'Document', 'dropdown-item', 'fa fa-fw fa-file-alt text-secondary me-2') ?>
-                            <?= linkPickerButton('service', $service_id, 'ticket', 'Ticket', 'dropdown-item', 'fa fa-fw fa-life-ring text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'domain', 'Domain', 'dropdown-item', 'fas fa-fw fa-globe text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'certificate', 'Certificate', 'dropdown-item', 'fas fa-fw fa-lock text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'contact', 'Person', 'dropdown-item', 'fas fa-fw fa-user text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'vendor', 'Vendor', 'dropdown-item', 'fas fa-fw fa-building text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('service', $service_id, 'ticket', 'Ticket', 'dropdown-item', 'fas fa-fw fa-life-ring text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/service/service_review.php?id=<?= $service_id ?>">
@@ -220,7 +220,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= $service_name ?> goes for good. What it linked to - assets, logins, documents - stays.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
@@ -327,8 +327,8 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                         <div class="dropdown">
                             <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-1"></i>Link</button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <?= linkPickerButton('service', $service_id, 'vendor', 'Vendor', 'dropdown-item', 'fa fa-fw fa-building text-secondary me-2') ?>
-                                <?= linkPickerButton('service', $service_id, 'contact', 'Person at the client', 'dropdown-item', 'fa fa-fw fa-user text-secondary me-2') ?>
+                                <?= linkPickerButton('service', $service_id, 'vendor', 'Vendor', 'dropdown-item', 'fas fa-fw fa-building text-secondary me-2') ?>
+                                <?= linkPickerButton('service', $service_id, 'contact', 'Person at the client', 'dropdown-item', 'fas fa-fw fa-user text-secondary me-2') ?>
                             </div>
                         </div>
                     <?php } ?>
@@ -528,8 +528,8 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                 <div class="dropdown">
                                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <?= linkPickerButton('service', $service_id, 'domain', 'Domain', 'dropdown-item', 'fa fa-fw fa-globe text-secondary me-2') ?>
-                                        <?= linkPickerButton('service', $service_id, 'certificate', 'Certificate', 'dropdown-item', 'fa fa-fw fa-lock text-secondary me-2') ?>
+                                        <?= linkPickerButton('service', $service_id, 'domain', 'Domain', 'dropdown-item', 'fas fa-fw fa-globe text-secondary me-2') ?>
+                                        <?= linkPickerButton('service', $service_id, 'certificate', 'Certificate', 'dropdown-item', 'fas fa-fw fa-lock text-secondary me-2') ?>
                                     </div>
                                 </div>
                             <?php } ?>

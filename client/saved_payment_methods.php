@@ -140,7 +140,7 @@ $fee_terms = $fee_rates ? ' Each card payment has a card fee added: ' . billingC
                                 <input type="hidden" name="set_recurring_payment" value="1">
                                 <input type="hidden" name="recurring_invoice_id" value="<?= $rid ?>">
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                                     <select class="form-select" name="saved_payment_id" aria-label="Autopay for this recurring invoice" data-autosubmit<?= !$usable && !$on ? ' disabled' : '' ?>>
                                         <option value="0">Off - I'll pay each invoice</option>
                                         <?php foreach ($cards as $card) {

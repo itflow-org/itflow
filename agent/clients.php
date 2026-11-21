@@ -340,7 +340,7 @@ $total_leads = intval($row['leads']);
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends me-2"></i>Clients
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-user-friends me-2"></i>Clients
             <small class="ms-3">
                 <a href="<?= clientsFilterUrl(['leads' => null, 'industry' => null, 'referral' => null]) ?>" class="badge rounded-pill p-1 <?= $leads_filter ? 'text-light' : 'bg-light text-dark' ?>"><strong><?= $total_clients ?></strong> Client<?= $total_clients === 1 ? '' : 's' ?></a> |
                 <a href="<?= clientsFilterUrl(['leads' => 1, 'industry' => null, 'referral' => null]) ?>" class="badge rounded-pill p-1 <?= $leads_filter ? 'bg-light text-dark' : 'text-light' ?>"><strong><?= $total_leads ?></strong> Lead<?= $total_leads === 1 ? '' : 's' ?></a>
@@ -356,16 +356,16 @@ $total_leads = intval($row['leads']);
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_onboard) { ?>
                             <a class="dropdown-item" href="<?= clientOnboardingUrl() ?>" data-onboard-new>
-                                <i class="fa fa-fw fa-route me-2"></i>Onboard a Client
+                                <i class="fas fa-fw fa-route me-2"></i>Onboard a Client
                             </a>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?kind=clients">
-                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                         <a class="dropdown-item ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/client/client_export.php', ['leads', 'tags', 'industry', 'referral', 'q', 'archived'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     </div>
                 </div>
@@ -387,7 +387,7 @@ $total_leads = intval($row['leads']);
                         <button class="btn btn-secondary<?= $hidden_filter_count ? ' itflow-filter-on' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="Filters">
                             <i class="fas fa-filter"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                         </button>
-                        <button class="btn btn-primary" title="Search" type="submit"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-primary" title="Search" type="submit"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
@@ -438,7 +438,7 @@ $total_leads = intval($row['leads']);
                             </div>
                         </div>
                         <a href="<?= clientsFilterUrl(['archived' => $archived ? null : 1]) ?>" class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active ' . ($leads_filter ? 'leads' : 'clients') : 'Show archived ' . ($leads_filter ? 'leads' : 'clients') ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-none d-xl-inline ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-none d-xl-inline ms-2">Archived</span>
                         </a>
                     </div>
                 </div>

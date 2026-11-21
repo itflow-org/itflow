@@ -80,7 +80,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search statuses..." title="Name or what it is for">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>

@@ -192,7 +192,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Invoices</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Invoices</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if ($can_edit) { ?>
@@ -204,22 +204,22 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/invoice/invoice_export.php', ['client_id', 'status', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <?php if ($client_url && $can_statement && $mail_ready) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_statement.php?client_id=<?= $client_id ?>">
-                            <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Send Statement
+                            <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Send Statement
                         </a>
                     <?php } ?>
                     <?php if ($client_url) { ?>
                         <a class="dropdown-item" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
-                            <i class="fa fa-fw fa-file-pdf text-secondary me-2"></i>Statement PDF
+                            <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Statement PDF
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_pay && $money['owed'] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_bulk_add.php?client_id=<?= $client_id ?>">
-                            <i class="fa fa-fw fa-layer-group text-secondary me-2"></i>Batch Payment
+                            <i class="fas fa-fw fa-layer-group text-secondary me-2"></i>Batch Payment
                         </a>
                     <?php } ?>
                 </div>
@@ -243,7 +243,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search number, scope, client, amount...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -458,7 +458,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                                     <?php } ?>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="<?= escapeHtml($row_number) ?> goes for good, with its lines, payments and history.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

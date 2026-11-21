@@ -38,7 +38,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-key me-2"></i>New Credential<?php if ($for_name) { ?> <small class="opacity-75 ms-1">for <?= escapeHtml($for_name) ?></small><?php } ?></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-key me-2"></i>New Credential<?php if ($for_name) { ?> <small class="opacity-75 ms-1">for <?= escapeHtml($for_name) ?></small><?php } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -55,8 +55,8 @@ ob_start();
         <?php require 'credential_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_credential" class="btn btn-primary fw-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

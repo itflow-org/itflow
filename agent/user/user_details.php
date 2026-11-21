@@ -52,7 +52,7 @@ $has_avatar = trim((string) $me['user_avatar']) !== '';
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                                     <input type="password" class="form-control" data-toggle="password" name="current_password" placeholder="To change the email you sign in with" autocomplete="current-password">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                                 </div>
                                 <div class="form-text">You'll sign in with the new email from now on - your old address gets a notice that it changed.</div>
                             </div>

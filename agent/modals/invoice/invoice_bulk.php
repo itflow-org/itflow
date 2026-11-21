@@ -89,7 +89,7 @@ ob_start();
                 <div class="col-12">
                     <label class="form-label">How were they sent? <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-paper-plane"></i></span>
                         <select class="form-select select2" name="sent_method" required>
                             <?php foreach (getSentMethods() as $sent_method) { ?>
                                 <option value="<?= escapeHtml($sent_method) ?>"><?= escapeHtml($sent_method) ?></option>
@@ -100,7 +100,7 @@ ob_start();
                 <div class="col-12">
                     <label class="form-label">Note</label>
                     <div class="input-group">
-                        <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-sticky-note"></i></span>
+                        <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-sticky-note"></i></span>
                         <textarea class="form-control" name="note" rows="2" maxlength="500" placeholder="Goes in each one's history"></textarea>
                     </div>
                 </div>
@@ -114,14 +114,14 @@ ob_start();
                 <div class="col-sm-6">
                     <label class="form-label">Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label">Method <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-money-check-alt"></i></span>
                         <select class="form-select select2" name="payment_method" required>
                             <option value="">- Select a payment method -</option>
                             <?php foreach ($pay_methods as $method) { ?>
@@ -133,7 +133,7 @@ ob_start();
                 <div class="col-sm-6">
                     <label class="form-label">Reference</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                         <input type="text" class="form-control" name="reference" placeholder="Check number, transaction ID" maxlength="200">
                     </div>
                 </div>
@@ -143,7 +143,7 @@ ob_start();
                 <div class="col-sm-6">
                     <label class="form-label">Into account <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account" required>
                             <option value="">- Select an account -</option>
                             <?php foreach ($pay_accounts as $account_id => $account) { ?>
@@ -167,7 +167,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($do) { ?>
-            <button type="submit" name="invoice_bulk" class="btn <?= $button ?> text-bold" data-invoice-bulk-submit><i class="fas <?= $icon ?> me-2"></i><?= escapeHtml($label) ?> <?= $do ?></button>
+            <button type="submit" name="invoice_bulk" class="btn <?= $button ?> fw-bold" data-invoice-bulk-submit><i class="fas <?= $icon ?> me-2"></i><?= escapeHtml($label) ?> <?= $do ?></button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $do && $action !== 'cancel' ? 'Cancel' : 'Close' ?></button>
     </div>

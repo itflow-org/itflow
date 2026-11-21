@@ -22,7 +22,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-pin me-2"></i>Edit IP Address <span class="fw-normal text-white-50 ms-1 font-monospace"><?= escapeHtml($form['ip_address']) ?></span></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-map-pin me-2"></i>Edit IP Address <span class="fw-normal text-white-50 ms-1 font-monospace"><?= escapeHtml($form['ip_address']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -35,8 +35,8 @@ ob_start();
     <div class="modal-footer">
         <a class="btn btn-outline-danger me-auto confirm-link" href="post.php?delete_network_ip=<?= $ip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml($form['ip_address']) ?> is no longer documented."><i class="fas fa-trash me-2"></i>Delete</a>
-        <button type="submit" name="edit_network_ip" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_network_ip" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -94,13 +94,13 @@ $approve_link = "guest_post.php?approve_ticket_task=$task_id&approval_id=$approv
         <div class="card-body text-center py-4">
 
             <?php if ($approval_status == 'pending') { ?>
-                <p class="text-muted mb-2">You have been asked to approve the following task</p>
+                <p class="text-body-secondary mb-2">You have been asked to approve the following task</p>
             <?php } ?>
 
             <h4 class="mb-3"><?= ucfirst($task_name) ?></h4>
 
-            <p class="text-muted mb-4">
-                Ticket <span class="text-bold"><?= $ticket_prefix, $ticket_number ?></span> &mdash; <?= $ticket_subject ?>
+            <p class="text-body-secondary mb-4">
+                Ticket <span class="fw-bold"><?= $ticket_prefix, $ticket_number ?></span> &mdash; <?= $ticket_subject ?>
             </p>
 
             <?php if ($approval_status == 'pending') { ?>
@@ -116,7 +116,7 @@ $approve_link = "guest_post.php?approve_ticket_task=$task_id&approval_id=$approv
                     </a>
                 </div>
 
-                <small class="text-muted d-block mt-3">Not expecting this? Get in touch using the details below.</small>
+                <small class="text-body-secondary d-block mt-3">Not expecting this? Get in touch using the details below.</small>
 
             <?php } elseif ($approval_status == 'approved') { ?>
 
@@ -124,13 +124,13 @@ $approve_link = "guest_post.php?approve_ticket_task=$task_id&approval_id=$approv
                          is the confirmation screen for every successful approval -
                          not just an already-done state */ ?>
                 <div class="alert alert-success d-inline-block mb-0">
-                    <i class="fas fa-fw fa-check-circle me-2"></i><span class="text-bold">Approved</span> &mdash; nothing further is needed.
+                    <i class="fas fa-fw fa-check-circle me-2"></i><span class="fw-bold">Approved</span> &mdash; nothing further is needed.
                 </div>
 
             <?php } else { ?>
 
                 <div class="alert alert-danger d-inline-block mb-0">
-                    <i class="fas fa-fw fa-times-circle me-2"></i><span class="text-bold">Declined</span> &mdash; this task was not approved.
+                    <i class="fas fa-fw fa-times-circle me-2"></i><span class="fw-bold">Declined</span> &mdash; this task was not approved.
                 </div>
 
             <?php } ?>
@@ -152,7 +152,7 @@ $approve_link = "guest_post.php?approve_ticket_task=$task_id&approval_id=$approv
         </div>
     </div>
 
-    <p class="text-center text-muted my-3">
+    <p class="text-center text-body-secondary my-3">
         <i class="fas fa-phone fa-fw me-2"></i><?= $company_phone ?>
         <span class="mx-2">|</span>
         <i class="fas fa-globe fa-fw me-2"></i><?= $company_website ?>

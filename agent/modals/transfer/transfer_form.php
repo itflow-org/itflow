@@ -77,7 +77,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     <div class="col-md-6">
         <label class="form-label">From <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-sign-out-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-sign-out-alt"></i></span>
             <select class="form-select select2" name="account_from" required data-transfer-from <?= $form_lock_out ? 'disabled' : '' ?>>
                 <option value="">- Select an account -</option>
                 <?= $form_account_options($form_from) ?>
@@ -93,7 +93,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
             <button type="button" class="btn btn-link btn-sm p-0 ms-auto text-decoration-none" data-transfer-swap title="Turn it round" <?= $form_lock ? 'hidden' : '' ?>><i class="fas fa-exchange-alt me-1"></i>Swap</button>
         </label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-sign-in-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-sign-in-alt"></i></span>
             <select class="form-select select2" name="account_to" required data-transfer-to <?= $form_lock_in ? 'disabled' : '' ?>>
                 <option value="">- Select an account -</option>
                 <?= $form_account_options($form_to) ?>
@@ -116,7 +116,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     <div class="col-md-6">
         <label class="form-label">Amount <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required
                 value="<?= $form_row ? number_format(floatval($form_row['transfer_amount']), 2, '.', '') : '' ?>" <?= $form_row ? '' : 'autofocus' ?> <?= $form_lock ? 'readonly' : '' ?>>
             <span class="input-group-text" data-transfer-currency><?= escapeHtml($form_currency) ?></span>
@@ -126,7 +126,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     <div class="col-md-6">
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_row ? $form_row['transfer_date'] : date('Y-m-d')) ?>" required <?= $form_lock ? 'readonly' : '' ?>>
         </div>
     </div>
@@ -134,7 +134,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     <div class="col-md-6">
         <label class="form-label">Moved by</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-money-check-alt"></i></span>
             <select class="form-select select2" name="transfer_method">
                 <option value="">- Select a method -</option>
                 <?php foreach ($form_methods as $method) { ?>
@@ -147,7 +147,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     <div class="col-12">
         <label class="form-label">Notes</label>
         <div class="input-group">
-            <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
             <textarea class="form-control" rows="3" name="notes" placeholder="What it was for - the card's October statement, the quarter's tax reserve, a Stripe payout"><?= escapeHtml($form_row['transfer_notes'] ?? '') ?></textarea>
         </div>
     </div>

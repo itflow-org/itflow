@@ -40,13 +40,13 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkPrivateCheckbox" name="bulk_private_note" value="1">
                 <label class="form-check-label" for="bulkPrivateCheckbox">Mark as internal</label>
-                <small class="form-text text-muted">Only agents see it, and the contact and watchers are not told the ticket was resolved.</small>
+                <small class="form-text text-body-secondary">Only agents see it, and the contact and watchers are not told the ticket was resolved.</small>
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_resolve_tickets" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Resolve Tickets</button>
+        <button type="submit" name="bulk_resolve_tickets" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Resolve Tickets</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

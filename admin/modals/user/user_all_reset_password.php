@@ -33,11 +33,11 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
             <input type="password" class="form-control" data-toggle="password" name="admin_password" placeholder="To confirm it's you" autocomplete="current-password" required autofocus>
-            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="ir_reset_user_password" class="btn btn-danger text-bold" <?= $agent_count ? '' : 'disabled' ?>><i class="fas fa-key me-2"></i>Reset <?= $agent_count ?> password<?= $agent_count === 1 ? '' : 's' ?></button>
+        <button type="submit" name="ir_reset_user_password" class="btn btn-danger fw-bold" <?= $agent_count ? '' : 'disabled' ?>><i class="fas fa-key me-2"></i>Reset <?= $agent_count ?> password<?= $agent_count === 1 ? '' : 's' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

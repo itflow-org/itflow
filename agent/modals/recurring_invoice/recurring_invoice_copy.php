@@ -53,7 +53,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="client_id" required>
                     <option value="">- Select a client -</option>
                     <?php foreach ($clients as $client) { ?>
@@ -64,13 +64,13 @@ ob_start();
         </div>
         <label class="form-label">First invoice <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="start_date" max="2999-12-31" value="<?= escapeHtml($start) ?>" required>
         </div>
         <div class="form-text">The day its first invoice is made - the runs after follow on from it.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="copy_recurring_invoice" class="btn btn-primary text-bold"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="submit" name="copy_recurring_invoice" class="btn btn-primary fw-bold"><i class="fas fa-copy me-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

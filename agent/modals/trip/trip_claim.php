@@ -73,7 +73,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Rate <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                         <input type="text" class="form-control text-end" name="rate" inputmode="decimal" value="<?= $rules['rate'] > 0 ? rtrim(rtrim(number_format($rules['rate'], 4, '.', ''), '0'), '.') : '' ?>" required data-claim-rate>
                         <span class="input-group-text">a <?= tripUnitOne() ?></span>
                     </div>
@@ -82,7 +82,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                     </div>
                     <div class="form-text">Of the mileage expense - when it counts as spent.</div>
@@ -99,7 +99,7 @@ ob_start();
                 <div class="col-md-7" data-claim-pay hidden>
                     <label class="form-label">Paid back from <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account">
                             <option value="">- Select an account -</option>
                             <?php foreach ($accounts as $account_id => $account) { ?>
@@ -113,7 +113,7 @@ ob_start();
                 <div class="col-md-5" data-claim-pay hidden>
                     <label class="form-label">How</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                         <select class="form-select select2" name="payment_method">
                             <option value="">- Select a payment method -</option>
                             <?php foreach ($methods as $method) { ?>
@@ -125,7 +125,7 @@ ob_start();
                 <div class="col-12" data-claim-pay hidden>
                     <label class="form-label">Reference</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                         <input type="text" class="form-control" name="reference" maxlength="200" placeholder="Check or transfer number">
                     </div>
                 </div>
@@ -134,7 +134,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <span class="me-auto small text-body-secondary" data-claim-summary></span>
-        <button type="submit" name="trip_claim" class="btn btn-primary text-bold" data-claim-submit><i class="fas fa-check me-2"></i><span data-claim-submit-label>Pay Mileage</span></button>
+        <button type="submit" name="trip_claim" class="btn btn-primary fw-bold" data-claim-submit><i class="fas fa-check me-2"></i><span data-claim-submit-label>Pay Mileage</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

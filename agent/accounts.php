@@ -107,14 +107,14 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                 <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
-                    <a class="dropdown-item" href="transactions.php"><i class="fa fa-fw fa-list-alt text-secondary me-2"></i>Every Account's Transactions</a>
-                    <a class="dropdown-item" href="transactions.php?show=transfers"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>Transfers</a>
+                    <a class="dropdown-item" href="transactions.php"><i class="fas fa-fw fa-list-alt text-secondary me-2"></i>Every Account's Transactions</a>
+                    <a class="dropdown-item" href="transactions.php?show=transfers"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>Transfers</a>
                 </div>
             </div>
         </div>
@@ -126,7 +126,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                 <?php if ($show) { ?><input type="hidden" name="show" value="<?= $show ?>"><?php } ?>
                 <div class="input-group">
                     <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_text) ?>" placeholder="Search accounts...">
-                    <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                    <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                 </div>
             </form>
             <nav class="nav nav-pills itflow-asset-tabs flex-nowrap">
@@ -232,7 +232,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                                     <a class="dropdown-item" href="post.php?restore_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore</a>
                                 <?php } ?>
                                 <?php if ($can_delete && !$in_use && !accountInUse($account_id)) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_account=<?= $account_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml($account['account_name']) ?> has never been used, so it goes for good."><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                 <?php } ?>
                             </div>

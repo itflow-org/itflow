@@ -65,7 +65,7 @@ echo settingsPageStart('company');
             <?= settingsSectionStart('contact', 'Contact', 'How clients reach you - on invoices and quotes, and in the client portal.') ?>
                 <?php
                 $phone_control = '<div class="input-group">'
-                    . '<span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>'
+                    . '<span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>'
                     . '<input type="hidden" name="company_phone_country_code" value="' . escapeHtml($phone_code) . '">'
                     . '<input type="tel" class="form-control" id="settings_company_phone" name="company_phone" value="' . escapeHtml($phone) . '" placeholder="Phone number" maxlength="200" autocomplete="tel-national" data-itflow-phone="company_phone_country_code" data-itflow-phone-country-select="company_country">'
                     . '</div>';

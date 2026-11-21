@@ -137,7 +137,7 @@ $reply_times = portalReplyTimes();
                     <div class="mb-3">
                         <label class="form-label">Which device?</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                             <select class="form-select select2" name="asset">
                                 <option value="0">None, or not sure</option>
                                 <?php foreach ($assets as $asset) { ?>
@@ -152,7 +152,7 @@ $reply_times = portalReplyTimes();
                 <div class="mb-3">
                     <label class="form-label" for="requestNotes">Anything else we should know?</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                         <textarea class="form-control" id="requestNotes" name="notes" rows="4" maxlength="5000" placeholder="Optional"></textarea>
                     </div>
                 </div>
@@ -192,7 +192,7 @@ $reply_times = portalReplyTimes();
             <div class="mb-3">
                 <label class="form-label" for="ticketSubject">Subject <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <input type="text" class="form-control" id="ticketSubject" name="subject" placeholder="In a few words - &quot;Outlook keeps asking for my password&quot;" maxlength="500" required autofocus value="<?= escapeHtml(mb_substr(trim((string) ($_GET['subject'] ?? '')), 0, 500)) ?>">
                 </div>
                 <?php if (kbClientHas($session_client_id)) { ?>
@@ -214,7 +214,7 @@ $reply_times = portalReplyTimes();
                 <div class="col-md-6 mb-3">
                     <label class="form-label">How much is it getting in the way?</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="priority" required>
                             <?php foreach ($priorities as $priority => [$color, $hint]) { ?>
                                 <option value="<?= $priority ?>" data-color="<?= $color ?>" data-description="<?= escapeHtml($hint . (isset($reply_times[$priority]) ? ' - a reply ' . $reply_times[$priority] : '')) ?>"<?= $priority === 'Medium' ? ' selected' : '' ?>><?= $priority ?></option>
@@ -225,7 +225,7 @@ $reply_times = portalReplyTimes();
                 <div class="col-md-6 mb-3">
                     <label class="form-label">What is it about?</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="category">
                             <option value="0">Not sure</option>
                             <?php while ($row = mysqli_fetch_assoc($categories)) { ?>
@@ -240,7 +240,7 @@ $reply_times = portalReplyTimes();
                 <div class="mb-3">
                     <label class="form-label">Which device?</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset">
                             <option value="0">None, or not sure</option>
                             <?php foreach ($assets as $asset) { ?>

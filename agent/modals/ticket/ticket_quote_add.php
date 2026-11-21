@@ -83,7 +83,7 @@ ob_start();
 ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Create Quote from Ticket</h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-comment-dollar me-2"></i>Create Quote from Ticket</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
 
@@ -99,7 +99,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Scope</label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                             <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
                         </div>
                     </div>
@@ -109,7 +109,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Quote category <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
 
                             <select class="form-select select2" name="category" required>
                                 <option value="">- Select a category -</option>
@@ -128,7 +128,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Quote date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
                         </div>
                     </div>
@@ -138,7 +138,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Expire <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                             <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
                         </div>
                     </div>
@@ -149,7 +149,7 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label">Item <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
                     <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" required>
                 </div>
             </div>
@@ -168,7 +168,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">QTY <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" required>
                         </div>
                     </div>
@@ -178,10 +178,10 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Price <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
-                        <small class="form-text text-muted">
+                        <small class="form-text text-body-secondary">
                             <?= escapeHtml(ucfirst($client_rate_info['note'])) ?> is <strong><?= billingMoney($client_rate, $session_company_currency); ?></strong> an hour
                         </small>
                     </div>
@@ -191,7 +191,7 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label">Tax <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="tax_id" required>
                         <?= taxSelectOptions(taxDefaultFor($client_id, 'time')) ?>
                     </select>
@@ -201,11 +201,11 @@ ob_start();
         </div>
 
         <div class="modal-footer">
-            <button type="submit" name="add_quote_from_ticket" class="btn btn-primary text-bold">
-                <i class="fa fa-check me-2"></i>Quote
+            <button type="submit" name="add_quote_from_ticket" class="btn btn-primary fw-bold">
+                <i class="fas fa-check me-2"></i>Quote
             </button>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                <i class="fa fa-times me-2"></i>Cancel
+                <i class="fas fa-times me-2"></i>Cancel
             </button>
         </div>
     </form>

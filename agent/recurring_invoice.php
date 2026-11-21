@@ -188,7 +188,7 @@ echo agentBannersHtml($client_id);
                     <?php } ?>
                     <?php if ($can_delete) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_invoice=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
+                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_invoice=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, autopay and history. The invoices it made stay.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>

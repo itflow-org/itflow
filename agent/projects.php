@@ -154,11 +154,11 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/project/project_export.php', ['client_id', 'client', 'manager', 'show', 'q']) ?>">
-                        <i class="fa fa-fw fa-download me-2"></i>Export
+                        <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                     <?php if ($session_is_admin) { ?>
                         <a class="dropdown-item" href="/admin/project_templates.php">
-                            <i class="fa fa-fw fa-cubes me-2"></i>Project Templates
+                            <i class="fas fa-fw fa-cubes me-2"></i>Project Templates
                         </a>
                     <?php } ?>
                 </div>
@@ -179,7 +179,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                         <button class="btn btn-outline-secondary<?= $hidden_filter_count ? ' itflow-filter-on' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="More filters" aria-expanded="<?= $hidden_filter_count ? 'true' : 'false' ?>">
                             <i class="fas fa-sliders-h"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                         </button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-3' : 'col-lg-2' ?> col-md-6">
@@ -244,7 +244,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_projects"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_projects"
                                             data-confirm-text="The projects go for good. Their tickets stay, no longer part of a project.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -446,7 +446,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                                             </a>
                                         <?php } ?>
                                         <?php if ($can_delete) { ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                 data-confirm-text="<?= $reference ?> goes for good. Its tickets stay, no longer part of a project.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>

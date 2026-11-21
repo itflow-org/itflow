@@ -51,7 +51,7 @@ ob_start();
     <div class="modal-body">
         <label class="form-label"><?= $fields[$field]['label'] ?><?= in_array($field, ['category', 'account'], true) ? ' <strong class="text-danger">*</strong>' : '' ?></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Select a category -</option>
@@ -92,7 +92,7 @@ ob_start();
             <div class="mt-3" data-bulk-markup>
                 <label class="form-label">Markup</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                     <input type="text" class="form-control" name="markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format(expenseMarkupDefault(), 2, '.', ''), '0'), '.') ?>" aria-label="Markup">
                 </div>
             </div>
@@ -113,7 +113,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_expenses" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
+        <button type="submit" name="bulk_edit_expenses" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

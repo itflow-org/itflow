@@ -82,7 +82,7 @@ $used_text = function (array $u) {
                         <div class="col-md-7">
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search taxes..." title="Name, description or registration number">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -164,7 +164,7 @@ $used_text = function (array $u) {
                                         <?php } ?>
                                         <?php if ($unused) { ?>
                                             <?php if ($rate['tax_archived_at']) { ?><div class="dropdown-divider"></div><?php } ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -200,7 +200,7 @@ $used_text = function (array $u) {
                     <div class="mb-3">
                         <label class="form-label">Default rate</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-star"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-star"></i></span>
                             <select class="form-select" name="default_tax_id">
                                 <option value="0">- No default -</option>
                                 <?php foreach ($active_taxes as $id => $tax) { ?>
@@ -233,7 +233,7 @@ $used_text = function (array $u) {
                     <small class="text-secondary d-block">Tax is worked out on what the client pays after the discount, shared across the lines. Off, tax is on the full price. Paid, cancelled and answered invoices and quotes never change; the rest follow the next time they are edited.</small>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" name="edit_tax_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+                    <button type="submit" name="edit_tax_settings" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
                 </div>
             </form>
         </div>

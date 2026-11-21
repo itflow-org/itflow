@@ -95,7 +95,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <div class="col-md-7">
                                 <label class="form-label">It is the statement of <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                                     <select class="form-select select2" name="account" required>
                                         <option value="">- Select an account -</option>
                                         <?php foreach ($accounts as $account_id => $row) { ?>
@@ -108,7 +108,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <div class="col-md-5">
                                 <label class="form-label">Paid by</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                                     <select class="form-select select2" name="payment_method">
                                         <option value="">- Select a payment method -</option>
                                         <?php foreach ($methods as $method) { ?>
@@ -120,7 +120,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                             <div class="col-12">
                                 <label class="form-label">Statement <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-file-csv"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-file-csv"></i></span>
                                     <input type="file" class="form-control" name="file" accept=".csv,.txt,.tsv,text/csv" required>
                                 </div>
                                 <div class="form-text">The CSV your bank or card's website exports - often under Download, Export or Activity. Up to <?= EXPENSE_IMPORT_MAX_LINES ?> lines.</div>
@@ -128,7 +128,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" name="expense_import_upload" class="btn btn-primary text-bold"><i class="fas fa-upload me-2"></i>Read Statement</button>
+                        <button type="submit" name="expense_import_upload" class="btn btn-primary fw-bold"><i class="fas fa-upload me-2"></i>Read Statement</button>
                         <a class="btn btn-light ms-1" href="expenses.php"><i class="fas fa-times me-2"></i>Cancel</a>
                     </div>
                 </form>
@@ -242,14 +242,14 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
             <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
                 <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-tasks text-secondary me-2"></i>The lines</h3>
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                     <select class="form-select" data-import-bulk-category aria-label="Category for the ticked lines">
                         <option value="">- Category for the ticked -</option>
                         <?= $category_options ?>
                     </select>
                 </div>
                 <div class="input-group input-group-sm" style="width: auto;">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select" data-import-bulk-client aria-label="Client for the ticked lines">
                         <option value="">- Client for the ticked -</option>
                         <option value="0">Not for a client</option>
@@ -348,7 +348,7 @@ $steps = ['upload' => 'Statement', 'columns' => 'Columns', 'review' => 'Review']
             <div class="card-footer d-flex flex-wrap align-items-center gap-2 itflow-import-footer">
                 <span class="me-auto small text-body-secondary" data-import-summary></span>
                 <a class="btn btn-light" href="expense_import.php?step=columns"><i class="fas fa-arrow-left me-2"></i>Columns</a>
-                <button type="submit" name="expense_import_save" value="1" class="btn btn-primary text-bold" data-import-submit><i class="fas fa-file-import me-2"></i><span data-import-submit-label>Import</span></button>
+                <button type="submit" name="expense_import_save" value="1" class="btn btn-primary fw-bold" data-import-submit><i class="fas fa-file-import me-2"></i><span data-import-submit-label>Import</span></button>
             </div>
         </div>
     </form>

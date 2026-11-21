@@ -136,7 +136,7 @@ $ms_text = function ($ms) {
                 <div class="col-lg-4 col-md-12">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search AI usage..." title="Model, provider, feature, who, client or what went wrong">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">

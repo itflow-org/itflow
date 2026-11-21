@@ -281,7 +281,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" class="btn btn-primary text-bold" data-share-make><i class="fas fa-<?= $type === 'Request' ? 'paper-plane' : 'link' ?> me-2"></i><?= $type === 'Request' ? 'Make the request' : 'Make the link' ?></button>
+        <button type="submit" class="btn btn-primary fw-bold" data-share-make><i class="fas fa-<?= $type === 'Request' ? 'paper-plane' : 'link' ?> me-2"></i><?= $type === 'Request' ? 'Make the request' : 'Make the link' ?></button>
         <button type="button" class="btn btn-outline-secondary" data-share-again hidden><i class="fas fa-redo me-2"></i>Make Another</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><span data-share-close>Cancel</span></button>
     </div>

@@ -32,11 +32,11 @@ ob_start();
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
             <input type="password" class="form-control" data-toggle="password" name="password" id="backupMasterKeyPassword" placeholder="To confirm it's you" autocomplete="current-password" required autofocus>
-            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="backup_master_key" class="btn btn-primary text-bold"><i class="fas fa-fw fa-key me-2"></i>Show the Master Key</button>
+        <button type="submit" name="backup_master_key" class="btn btn-primary fw-bold"><i class="fas fa-fw fa-key me-2"></i>Show the Master Key</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

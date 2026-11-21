@@ -53,7 +53,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
         <div class="col-md-7">
             <label class="form-label">Name or port <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-ethernet"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="eth0, Gi1/0/1, WAN, LAN 3" maxlength="200" value="<?= escapeHtml($form['interface_name'] ?? '') ?>" required <?= $is_new ? 'autofocus' : '' ?>>
                 <label class="input-group-text gap-2 mb-0" title="The address it is reached at - shown on lists and the asset">
                     <input class="form-check-input mt-0" type="checkbox" name="primary_interface" value="1" <?= intval($form['interface_primary'] ?? 0) ? 'checked' : '' ?>>
@@ -64,7 +64,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
         <div class="col-md-5">
             <label class="form-label">Type</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-plug"></i></span>
                 <select class="form-select select2" name="type">
                     <option value="">- No type -</option>
                     <?= categoryOptionsHtml('network_interface', $form_type) ?>
@@ -75,14 +75,14 @@ $form_type = (string) ($form['interface_type'] ?? '');
         <div class="col-md-7">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Uplink to firewall, Reception PC" maxlength="200" value="<?= escapeHtml($form['interface_description'] ?? '') ?>">
             </div>
         </div>
         <div class="col-md-5">
             <label class="form-label">VLANs</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <input type="text" class="form-control" name="vlans" placeholder="20, or Trunk 1, 10-20" maxlength="200" value="<?= escapeHtml($form['interface_vlans'] ?? '') ?>">
             </div>
         </div>
@@ -94,7 +94,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
     <div class="mb-3">
         <label class="form-label">Network</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-network-wired"></i></span>
             <select class="form-select select2" name="network_id" data-interface-network>
                 <option value="0">- No network -</option>
                 <?php foreach ($networks as $network) { ?>
@@ -117,7 +117,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
         </div>
         <div data-interface-static <?= $form_ip_mode === 'static' ? '' : 'hidden' ?>>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-map-pin"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-map-pin"></i></span>
                 <input type="text" class="form-control font-monospace" name="ip" placeholder="192.168.1.10" maxlength="200" value="<?= $form_ip_mode === 'static' ? escapeHtml($form_ip) : '' ?>" data-interface-ip>
                 <button type="button" class="btn btn-outline-secondary" data-interface-next title="The first address on the network nothing has, outside the DHCP range" <?= $form_network_id ? '' : 'disabled' ?>><i class="fas fa-magic me-1"></i>Next Free</button>
             </div>
@@ -130,21 +130,21 @@ $form_type = (string) ($form['interface_type'] ?? '');
         <div class="col-md-6">
             <label class="form-label">MAC address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-fingerprint"></i></span>
                 <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= escapeHtml($form['interface_mac'] ?? '') ?>" data-interface-mac>
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">NAT address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
                 <input type="text" class="form-control font-monospace" name="nat_ip" placeholder="203.0.113.10" maxlength="200" value="<?= escapeHtml($form['interface_nat_ip'] ?? '') ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">IPv6 address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
                 <input type="text" class="form-control font-monospace" name="ipv6" placeholder="2001:db8::10" maxlength="200" value="<?= escapeHtml($form['interface_ipv6'] ?? '') ?>">
             </div>
         </div>
@@ -155,7 +155,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
 <div class="tab-pane fade" id="<?= $form_id ?>Connection">
     <label class="form-label">Connected to</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-plug"></i></span>
         <select class="form-select select2" name="connected_to">
             <option value="0">- Not connected -</option>
             <?php foreach ($connections as $group) { ?>

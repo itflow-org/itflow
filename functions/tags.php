@@ -285,7 +285,7 @@ function tagSearchSql($entity, $like, $column = null) {
 function tagFormFieldHtml($entity, array $selected, $placeholder = '', $label = 'Tags', $attributes = '') {
     global $session_is_admin;
     return '<label class="form-label">' . $label . '</label><input type="hidden" name="tags_form" value="1">'
-        . '<div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
+        . '<div class="input-group"><span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>'
         . '<select class="form-select select2" name="tags[]" data-placeholder="' . escapeHtml($placeholder) . '" multiple' . (!empty($session_is_admin) ? ' data-tags="true"' : '') . ($attributes !== '' ? ' ' . $attributes : '') . '>'
         . tagOptionsHtml($entity, $selected) . '</select></div>';
 }
@@ -321,7 +321,7 @@ function tagIdsForRecord($entity, $record_id) {
 /* An export window's Tags field - any of them, the tags offered as in a record form. */
 function tagExportFieldHtml($entity, array $selected) {
     return '<div class="mb-3"><label>Tags</label><div class="input-group">'
-        . '<span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
+        . '<span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>'
         . '<select class="form-select select2" name="tags[]" data-placeholder="- Any -" multiple>' . tagOptionsHtml($entity, $selected) . '</select>'
         . '</div></div>';
 }

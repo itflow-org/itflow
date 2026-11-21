@@ -144,7 +144,7 @@ $value = function ($key) use ($form) {
                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="<?= $is_new ? 'password' : 'new_password' ?>" id="<?= $form_id ?>Password"
                     placeholder="<?= $is_new ? 'At least ' . USER_PASSWORD_MIN . ' characters' : 'Leave blank to keep their password' ?>" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" <?= $is_new && !$form_invites ? 'required' : '' ?><?= $form_invites ? ' disabled' : '' ?> data-user-password>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" type="button" title="Copy password" data-clipboard-target="#<?= $form_id ?>Password"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary" type="button" title="Make one up - words that are easy to read out" data-user-generate><i class="fas fa-fw fa-magic"></i></button>
             </div>

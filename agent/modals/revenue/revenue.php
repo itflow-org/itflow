@@ -121,7 +121,7 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $revenue_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $revenue_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $revenue_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
     <?php } ?>
     <?php if ($can_delete && $cleared) { ?>
@@ -130,7 +130,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_revenue=<?= $revenue_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(incomeRevenueLabel($row)) ?> goes for good."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

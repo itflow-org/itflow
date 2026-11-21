@@ -27,7 +27,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
+        <i class="fas fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -39,7 +39,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Date and time</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                 <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= substr(timezoneNow(), 0, 16) ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
             </div>
             <?= timezoneFormHint() ?>
@@ -49,7 +49,7 @@ ob_start();
             <div class="col-sm-7">
                 <label class="form-label">Agent</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                     <select class="form-select select2" name="schedule_tech" id="scheduleTech">
                         <?php if (!$schedule_tech || !isset($schedule_agents[$schedule_tech])) { ?>
                             <option value="<?= $schedule_tech ?>"><?= $schedule_tech ? escapeHtml($row['user_name']) : '- Unassigned -' ?></option>
@@ -63,7 +63,7 @@ ob_start();
             <div class="col-sm-5">
                 <label class="form-label">How long</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                     <select class="form-select select2" name="schedule_minutes" id="scheduleMinutes">
                         <?php foreach (ticketScheduleLengths($schedule_minutes) as $minutes => $label) { ?>
                             <option value="<?= intval($minutes) ?>" <?= intval($minutes) === $schedule_minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
@@ -76,7 +76,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Visit</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="onsite" required>
                     <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>Remote</option>
                     <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Onsite</option>
@@ -99,11 +99,11 @@ ob_start();
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
         <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger confirm-link me-auto" data-confirm-title="Remove from the schedule?" data-confirm-text="A cancellation email goes to the assigned agent, and to the contact and watchers if client notifications are on." data-confirm-button="Remove from schedule">
-            <i class="fa fa-calendar-times me-2"></i>Remove from Schedule
+            <i class="fas fa-calendar-times me-2"></i>Remove from Schedule
         </a>
     <?php } ?>
-        <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_schedule" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

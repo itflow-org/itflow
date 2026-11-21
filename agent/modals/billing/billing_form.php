@@ -62,7 +62,7 @@ $form_scope_placeholder = [
         <div class="col-12">
             <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="client_id" required data-billing-client>
                     <option value="">- Select a client -</option>
                     <?php foreach ($form_clients as $form_client) { ?>
@@ -80,7 +80,7 @@ $form_scope_placeholder = [
     <div class="col-12">
         <label class="form-label">Scope</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
             <input type="text" class="form-control" name="scope" maxlength="255" placeholder="<?= escapeHtml($form_scope_placeholder) ?>" value="<?= escapeHtml($form_value('scope')) ?>" <?= $form_edit ? '' : 'autofocus' ?>>
         </div>
         <div class="form-text">
@@ -94,7 +94,7 @@ $form_scope_placeholder = [
     <div class="col-12">
         <label class="form-label">Category <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="category" required>
                 <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income', $form_category_id, ['since' => $form_edit ? $form_value('created_at') : null]) ?>
@@ -107,14 +107,14 @@ $form_scope_placeholder = [
         <div class="col-sm-6">
             <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_value('date', date('Y-m-d'))) ?>" required data-billing-date>
             </div>
         </div>
         <div class="col-sm-6">
             <label class="form-label">Due <?= $form_edit ? '<strong class="text-danger">*</strong>' : '' ?></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                 <?php if ($form_edit) { ?>
                     <input type="date" class="form-control" name="due" max="2999-12-31" value="<?= escapeHtml($form_value('due')) ?>" required data-billing-due>
                 <?php } else { ?>
@@ -129,14 +129,14 @@ $form_scope_placeholder = [
         <div class="col-sm-6">
             <label class="form-label">Quote date <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_value('date', date('Y-m-d'))) ?>" required data-billing-date>
             </div>
         </div>
         <div class="col-sm-6">
             <label class="form-label">Valid until <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                 <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= escapeHtml($form_value('expire', date('Y-m-d', strtotime('+30 days')))) ?>" required data-billing-expire>
             </div>
             <div class="form-text">
@@ -149,7 +149,7 @@ $form_scope_placeholder = [
         <div class="col-sm-6">
             <label class="form-label">Billed <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-sync-alt"></i></span>
                 <select class="form-select select2" name="frequency" required>
                     <?php foreach (recurringInvoiceFrequencies() as $frequency => $label) { ?>
                         <option value="<?= $frequency ?>" <?= $form_value('frequency', 'month') === $frequency ? 'selected' : '' ?>><?= $label ?></option>
@@ -160,7 +160,7 @@ $form_scope_placeholder = [
         <div class="col-sm-6">
             <label class="form-label"><?= $form_edit ? 'Next invoice' : 'First invoice' ?> <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                 <input type="date" class="form-control" name="<?= $form_edit ? 'next_date' : 'start_date' ?>" max="2999-12-31"
                     value="<?= escapeHtml($form_edit ? $form_value('next_date') : date('Y-m-01', strtotime('first day of next month'))) ?>" required>
             </div>
@@ -171,7 +171,7 @@ $form_scope_placeholder = [
     <div class="col-sm-6">
         <label class="form-label">Discount</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
             <input type="text" class="form-control text-end" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}"
                 name="<?= ['invoice' => 'invoice_discount', 'quote' => 'quote_discount', 'recurring' => 'recurring_invoice_discount'][$form_type] ?>"
                 placeholder="0.00" value="<?= $form_discount != 0 ? number_format($form_discount, 2, '.', '') : '' ?>">
@@ -184,7 +184,7 @@ $form_scope_placeholder = [
         <div class="col-sm-6">
             <label class="form-label">When it is made</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-paper-plane"></i></span>
                 <select class="form-select select2" name="auto_send">
                     <option value="1" <?= $form_value('auto_send', '1') === '1' ? 'selected' : '' ?>>Send it automatically</option>
                     <option value="0" <?= $form_value('auto_send', '1') === '0' ? 'selected' : '' ?>>Leave a draft to check</option>
@@ -202,7 +202,7 @@ $form_scope_placeholder = [
             <div class="col-sm-6">
                 <label class="form-label">Make it ahead</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-minus"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-minus"></i></span>
                     <input type="number" class="form-control" name="lead_days" min="0" max="90" value="<?= intval($form_value('lead_days', '0')) ?>">
                     <span class="input-group-text">days before</span>
                 </div>
@@ -211,7 +211,7 @@ $form_scope_placeholder = [
             <div class="col-sm-6">
                 <label class="form-label">Due, when made ahead</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                     <select class="form-select select2" name="due_mode">
                         <option value="terms" <?= $form_value('due_mode', 'terms') !== 'next' ? 'selected' : '' ?>>Its date, plus <?= escapeHtml($form_ahead_terms_label) ?></option>
                         <option value="next" <?= $form_value('due_mode', 'terms') === 'next' ? 'selected' : '' ?>>On its date</option>

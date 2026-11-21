@@ -210,7 +210,7 @@ ob_start();
 
     <div class="modal-footer">
         <span class="small text-body-secondary me-auto d-none d-sm-inline">Enter in a serial moves to the next one</span>
-        <button type="submit" name="invoice_assets_save" class="btn btn-primary text-bold" data-hw-save><i class="fas fa-check me-2"></i><span data-hw-save-label>Add <?= $total ?> to Assets</span></button>
+        <button type="submit" name="invoice_assets_save" class="btn btn-primary fw-bold" data-hw-save><i class="fas fa-check me-2"></i><span data-hw-save-label>Add <?= $total ?> to Assets</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -70,16 +70,16 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-recurring-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-recurring-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-schedule"><i class="fa fa-fw fa-calendar-alt me-2"></i>Schedule</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-schedule"><i class="fas fa-fw fa-calendar-alt me-2"></i>Schedule</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-related"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-related"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-recurring-tasks"><i class="fas fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
         </ul>
 
@@ -90,7 +90,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">For</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="contact_id">
                             <option value="0">- No contact -</option>
                             <?php
@@ -119,7 +119,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($recurring['recurring_ticket_subject']) ?>" required>
                     </div>
                 </div>
@@ -133,7 +133,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <?php foreach (['Low' => 'var(--bs-info)', 'Medium' => 'var(--bs-warning)', 'High' => 'var(--bs-danger)', 'Urgent' => 'var(--bs-emphasis-color)'] as $priority => $color) { ?>
                                         <option <?= $recurring['recurring_ticket_priority'] === $priority ? 'selected' : '' ?> data-color="<?= $color ?>"><?= $priority ?></option>
@@ -146,7 +146,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $category_id) ?>
@@ -160,7 +160,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Assign to</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                             <option value="0">- Unassigned -</option>
                             <?php
@@ -190,7 +190,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">How often <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
                                 <select class="form-select select2" name="frequency" required>
                                     <?php foreach (RECURRING_TICKET_FREQUENCIES as $option => $step) { ?>
                                         <option <?= $frequency === $option ? 'selected' : '' ?>><?= $option ?></option>
@@ -203,7 +203,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Next run <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                                 <input class="form-control" type="date" name="next_date" min="<?= min($next_run, date('Y-m-d')) ?>" max="2999-12-31" value="<?= escapeHtml($next_run) ?>" required>
                             </div>
                         </div>
@@ -229,7 +229,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Asset</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id">
                             <option value="0">- None -</option>
                             <?php
@@ -252,7 +252,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Other assets</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                             <?php foreach ($assets as $row) {
                                 $asset_id_select = intval($row['asset_id']); ?>
@@ -274,7 +274,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

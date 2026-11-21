@@ -24,7 +24,7 @@ $kb_article_id = intval($_GET['kb_article_id'] ?? 0);
 $row = kbArticleRow($kb_article_id);
 
 if (!$row) {
-    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='kb.php'><i class='fa fa-fw fa-arrow-left me-2'></i>Back to the Knowledge Base</a></div>";
+    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='kb.php'><i class='fas fa-fw fa-arrow-left me-2'></i>Back to the Knowledge Base</a></div>";
     require_once "../includes/footer.php";
     exit();
 }

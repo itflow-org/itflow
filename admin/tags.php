@@ -113,7 +113,7 @@ $csrf = $_SESSION['csrf_token'];
                         <div class="col-lg-6 col-md-8">
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $kind_word ?> tags..." title="Name or description">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-4">
@@ -238,7 +238,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <?php if ($lines) { ?>
                                                 <span class="dropdown-item disabled" title="Recurring invoice lines count by it - archive it, or merge it into another tag"><i class="fas fa-fw fa-trash me-2"></i>Delete</span>
                                             <?php } else { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_tag=<?= $tag_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= escapeHtml($delete_text) ?>" data-confirm-button="Delete"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                                             <?php } ?>
                                         </div>

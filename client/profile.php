@@ -132,7 +132,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                     <div class="col-sm-8 mb-3">
                         <label class="form-label" for="contactPhone">Phone</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                             <input type="hidden" name="phone_country_code" value="<?= escapeHtml($me['contact_phone_country_code'] ?? '') ?>">
                             <input type="tel" class="form-control" id="contactPhone" name="phone" maxlength="200" value="<?= escapeHtml($phone_input) ?>" data-itflow-phone="phone_country_code">
                         </div>
@@ -140,7 +140,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                     <div class="col-sm-4 mb-3">
                         <label class="form-label" for="contactExtension">Extension</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                             <input type="text" class="form-control" id="contactExtension" name="extension" inputmode="numeric" maxlength="20" value="<?= escapeHtml($me['contact_extension'] ?? '') ?>">
                         </div>
                     </div>
@@ -148,7 +148,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                 <div class="mb-3">
                     <label class="form-label" for="contactMobile">Mobile</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-mobile-alt"></i></span>
                         <input type="hidden" name="mobile_country_code" value="<?= escapeHtml($me['contact_mobile_country_code'] ?? '') ?>">
                         <input type="tel" class="form-control" id="contactMobile" name="mobile" maxlength="200" value="<?= escapeHtml($mobile_input) ?>" data-itflow-phone="mobile_country_code">
                     </div>
@@ -252,21 +252,21 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                     <div class="mb-3">
                         <label class="form-label" for="currentPassword">Your current password</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control" id="currentPassword" name="current_password" autocomplete="current-password" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="newPassword">New password</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control" id="newPassword" name="new_password" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="confirmPassword">The same again</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-check-double"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-check-double"></i></span>
                             <input type="password" class="form-control" id="confirmPassword" name="confirm_password" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" required>
                         </div>
                     </div>
@@ -324,7 +324,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                         <div class="mb-3">
                             <label class="form-label" for="mfaOffPassword">Your current password</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                                 <input type="password" class="form-control" id="mfaOffPassword" name="current_password" autocomplete="current-password" required>
                             </div>
                         </div>
@@ -360,7 +360,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                     <div class="mb-3">
                         <label class="form-label" for="pinCurrentPassword">Your current password</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control" id="pinCurrentPassword" name="current_password" autocomplete="current-password" required>
                         </div>
                     </div>
@@ -368,7 +368,7 @@ $csrf = escapeHtml($_SESSION['csrf_token']);
                 <div class="mb-3">
                     <label class="form-label" for="contactPin"><?= empty($me['contact_pin']) ? 'New PIN' : 'Replace it with' ?></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                         <input type="text" class="form-control" id="contactPin" name="pin" minlength="4" maxlength="255" placeholder="At least 4 characters" autocomplete="off" required>
                     </div>
                 </div>

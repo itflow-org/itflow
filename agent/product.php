@@ -165,7 +165,7 @@ if (!$product) {
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-text="<?= escapeHtml($product['product_name']) ?> goes for good, with its stock. Lines it is on keep their text and amounts.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

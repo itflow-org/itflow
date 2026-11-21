@@ -135,7 +135,7 @@ $csrf = $_SESSION['csrf_token'];
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-signature me-2"></i>Purchase Orders</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-signature me-2"></i>Purchase Orders</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/purchasing/po_new.php"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Purchase Order</span></button>
@@ -150,7 +150,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-8 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q)) ?>" placeholder="Search purchase orders..." title="Number, vendor, their order number, note, item, part or client">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">

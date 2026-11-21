@@ -97,7 +97,7 @@ $ready = smsReady();
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search text messages..." title="The number, the words, the contact or client, the ticket, or why it failed">
                         <button class="btn btn-secondary" title="When" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-calendar-alt"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6">

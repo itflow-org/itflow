@@ -230,7 +230,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-address-book me-2"></i>Contacts</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-address-book me-2"></i>Contacts</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
             <div class="btn-group">
@@ -242,19 +242,19 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                     <?php if ($client_url && $invites_on) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="modals/contact/contact_invite.php?<?= $client_url ?>">
-                        <i class="fa fa-fw fa-user-plus me-2"></i>Invite to the Portal
+                        <i class="fas fa-fw fa-user-plus me-2"></i>Invite to the Portal
                     </a>
                     <?php } ?>
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=contacts">
-                        <i class="fa fa-fw fa-upload me-2"></i>Import
+                        <i class="fas fa-fw fa-upload me-2"></i>Import
                     </a>
                     <div class="dropdown-divider"></div>
                     <?php } ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/contact/contact_export.php', ['client_id', 'client', 'location', 'tags', 'archived', 'q']) ?>">
-                        <i class="fa fa-fw fa-download me-2"></i>Export
+                        <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
             </div>
@@ -326,7 +326,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="<?= $search_placeholder ?>" title="<?= $search_title ?>">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
@@ -396,7 +396,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active contacts' : 'Show archived contacts' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-xl-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-xl-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -443,7 +443,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link"
                                             type="submit" form="bulkActions" name="bulk_delete_contacts">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -706,7 +706,7 @@ $search_title = $invites_view ? 'Email, name or client' : 'Name, title, email, p
                                                 <?php } ?>
                                             <?php } ?>
                                             <?php if ($can_delete && $config_destructive_deletes_enable) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>

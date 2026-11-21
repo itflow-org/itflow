@@ -789,7 +789,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
         <?php if (!empty($company_logo)) { ?>
             <img alt="<?=escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "uploads/settings/$company_logo" ?>">
         <?php } else { ?>
-            <span class="text-primary text-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
+            <span class="text-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
         <?php } ?>
     </div>
 
@@ -937,7 +937,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
 <?php
 if (!$config_whitelabel_enabled) {
-    echo '<small class="text-muted">Powered by ITFlow</small>';
+    echo '<small class="text-body-secondary">Powered by ITFlow</small>';
 }
 ?>
 

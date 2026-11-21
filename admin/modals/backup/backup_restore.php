@@ -69,7 +69,7 @@ ob_start();
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="password" class="form-control" data-toggle="password" name="restore_key" id="restoreKey" placeholder="From Backup on the ITFlow that made it" autocomplete="off" required>
-                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                     </div>
                     <div class="form-text mb-3">This ITFlow's key doesn't open it - it was made on another ITFlow, whose Maintenance &gt; Backup has its key. <span class="text-body-secondary">(<?= escapeHtml($restore_problem) ?>)</span></div>
                 <?php } ?>
@@ -78,7 +78,7 @@ ob_start();
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                     <input type="password" class="form-control" data-toggle="password" name="password" id="restorePassword" placeholder="To confirm it's you" autocomplete="current-password" required>
-                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 </div>
 
                 <label class="form-label" for="restoreConfirm">Type <strong>RESTORE</strong> to confirm <strong class="text-danger">*</strong></label>
@@ -91,7 +91,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($restore_can) { ?>
-            <button type="submit" name="restore_backup" class="btn btn-danger text-bold"><i class="fas fa-fw fa-undo me-2"></i>Restore</button>
+            <button type="submit" name="restore_backup" class="btn btn-danger fw-bold"><i class="fas fa-fw fa-undo me-2"></i>Restore</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

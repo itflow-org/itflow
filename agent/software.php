@@ -202,14 +202,14 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     </a>
                     <?php if ($client_url) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=licenses">
-                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/software/software_export.php', ['client_id', 'client', 'status', 'software_type', 'license_type', 'tags', 'expire_days', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -265,7 +265,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                 <div class="<?= $client_url ? 'col-xl-3 col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search licenses, keys, vendors, tags...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if (!$client_url) { ?>
@@ -332,7 +332,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active licenses' : 'Show archived licenses' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -356,7 +356,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_software"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_software"
                                             data-confirm-text="The licenses go for good, with their seats and keys.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -550,7 +550,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                                             <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                         </a>
                                         <?php if ($can_delete) { ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                 data-confirm-text="<?= $software_name ?> goes for good, with its seats and keys.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>

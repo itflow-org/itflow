@@ -114,7 +114,7 @@ $filters_url = function ($modal) use ($dtf, $dtt, $view, $category_filter) {
                 <div class="col-lg-5 col-md-12">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the app logs..." title="The category or what it says">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">

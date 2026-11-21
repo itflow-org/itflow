@@ -22,7 +22,7 @@ $a_local = function ($value) {
 <div class="mb-3">
     <label class="form-label">Title <strong class="text-danger">*</strong></label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-bullhorn"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-bullhorn"></i></span>
         <input type="text" class="form-control" name="title" maxlength="200" placeholder="<?= $a_agents ? 'On credit hold - no work without approval' : 'Planned maintenance Saturday night' ?>" value="<?= escapeHtml($a['announcement_title'] ?? '') ?>" required autofocus>
     </div>
 </div>
@@ -36,7 +36,7 @@ $a_local = function ($value) {
     <div class="col-md-6 mb-3">
         <label class="form-label">Shown as</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-flag"></i></span>
             <select class="form-select" name="tone">
                 <?php foreach (PORTAL_ANNOUNCEMENT_TONES as $key => $tone) { ?>
                     <option value="<?= $key ?>"<?= $a_tone === $key ? ' selected' : '' ?>><?= escapeHtml($tone['label']) ?></option>
@@ -50,7 +50,7 @@ $a_local = function ($value) {
     <div class="col-md-6 mb-3">
         <label class="form-label">For</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
             <?php if (isset($announcement_client_fixed)) {
                 $a_client_name = mysqli_fetch_row(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $a_client"))[0] ?? ''; ?>
                 <input type="hidden" name="client_id" value="<?= $a_client ?>">
@@ -76,7 +76,7 @@ $a_local = function ($value) {
     <div class="col-md-6 mb-3">
         <label class="form-label">Show from</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-plus"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-plus"></i></span>
             <input type="datetime-local" class="form-control" name="starts_at" value="<?= escapeHtml($a_local($a['announcement_starts_at'] ?? '')) ?>">
         </div>
         <small class="text-secondary">Empty is straight away</small>
@@ -84,7 +84,7 @@ $a_local = function ($value) {
     <div class="col-md-6 mb-3">
         <label class="form-label">Until</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
             <input type="datetime-local" class="form-control" name="ends_at" value="<?= escapeHtml($a_local($a['announcement_ends_at'] ?? '')) ?>">
         </div>
         <small class="text-secondary">Empty is until you archive it</small>

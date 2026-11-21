@@ -178,18 +178,18 @@ ob_start();
 
             <?php if ($invoice_status !== 'Draft') { ?>
                 <p class="text-body-secondary small mb-0">
-                    <i class="fa fa-fw fa-info-circle me-1"></i>This invoice is
+                    <i class="fas fa-fw fa-info-circle me-1"></i>This invoice is
                     <strong><?= $invoice_status ?></strong>, so sending it will not change its status.
                 </p>
             <?php } ?>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="email_invoice" class="btn btn-primary text-bold">
-            <i class="fa fa-fw fa-paper-plane me-2"></i>Send
+        <button type="submit" name="email_invoice" class="btn btn-primary fw-bold">
+            <i class="fas fa-fw fa-paper-plane me-2"></i>Send
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            <i class="fa fa-fw fa-times me-2"></i>Cancel
+            <i class="fas fa-fw fa-times me-2"></i>Cancel
         </button>
     </div>
 </form>

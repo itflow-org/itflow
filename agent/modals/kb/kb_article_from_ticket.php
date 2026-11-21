@@ -55,7 +55,7 @@ ob_start();
         <?php require __DIR__ . '/kb_article_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_kb_article" class="btn btn-primary text-bold" data-kb-from-ticket-save<?= $kb_use_ai ? ' disabled' : '' ?>><i class="fas fa-check me-2"></i>Create Article</button>
+        <button type="submit" name="add_kb_article" class="btn btn-primary fw-bold" data-kb-from-ticket-save<?= $kb_use_ai ? ' disabled' : '' ?>><i class="fas fa-check me-2"></i>Create Article</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

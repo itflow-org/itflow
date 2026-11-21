@@ -17,7 +17,7 @@ ob_start();
 
 if (!$template || $template['document_template_archived_at']) { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-copy me-2"></i>New Documents</h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-copy me-2"></i>New Documents</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-center text-secondary py-5">That document template is gone or archived.</div>
@@ -34,7 +34,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
     ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-copy me-2"></i>New documents from <strong><?= escapeHtml($template['document_template_name']) ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-copy me-2"></i>New documents from <strong><?= escapeHtml($template['document_template_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -45,7 +45,7 @@ if (!$template || $template['document_template_archived_at']) { ?>
         <div class="mb-3">
             <label class="form-label">Clients <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="client_ids[]" multiple required data-placeholder="- Select clients -">
                     <?php
                     $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_lead FROM clients WHERE client_archived_at IS NULL" . clientNotLeadSql($picked) . " ORDER BY client_name ASC");
@@ -87,8 +87,8 @@ if (!$template || $template['document_template_archived_at']) { ?>
         <small class="text-secondary">Each goes in its client's Files at the top level, named and summed up as the template is.</small>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="make_documents_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="make_documents_from_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -12,7 +12,7 @@ if (!$announcement) { ?>
     <div class="modal-body text-center text-secondary py-5">That announcement is gone.</div>
 <?php } else { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-bullhorn me-2"></i>Edit Announcement <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-bullhorn me-2"></i>Edit Announcement <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <form action="post.php" method="post" autocomplete="off">
@@ -23,8 +23,8 @@ if (!$announcement) { ?>
             <?php require __DIR__ . '/../../../includes/announcement_form.php'; ?>
         </div>
         <div class="modal-footer">
-            <button type="submit" name="edit_portal_announcement" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+            <button type="submit" name="edit_portal_announcement" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>
     </form>
 <?php }

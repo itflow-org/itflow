@@ -99,7 +99,7 @@ $filtered_dates = isset($_GET['dtf']) && $_GET['dtf'] !== '' && $_GET['dtf'] !==
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the mail queue..." title="Who it is to or from, the subject, why it failed, or its number">
                         <button class="btn btn-secondary" title="When it was queued" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-calendar-alt"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6">

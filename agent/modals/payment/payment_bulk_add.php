@@ -75,7 +75,7 @@ ob_start();
         <?php require __DIR__ . '/payment_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_bulk_payment" class="btn btn-success text-bold"><i class="fas fa-check me-2"></i>Add Payment</button>
+        <button type="submit" name="add_bulk_payment" class="btn btn-success fw-bold"><i class="fas fa-check me-2"></i>Add Payment</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

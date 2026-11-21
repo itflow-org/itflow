@@ -509,7 +509,7 @@ $hours_text = function ($hours) {
                                 <div class="col-12">
                                     <label class="form-label">Invoice</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                                         <select class="form-select" name="invoice_id" data-unbilled-target>
                                             <option value="0">A new draft invoice</option>
                                             <?php foreach ($this_client['drafts'] as $draft_id => $draft) { ?>
@@ -522,7 +522,7 @@ $hours_text = function ($hours) {
                                 <div class="col-12">
                                     <label class="form-label">Invoices</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                                         <select class="form-select" name="target" data-unbilled-target>
                                             <option value="new">A new draft for each client</option>
                                             <option value="draft">Each client's newest draft, or a new one</option>
@@ -533,14 +533,14 @@ $hours_text = function ($hours) {
                             <div class="col-sm-6 col-xl-12" data-unbilled-new>
                                 <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                                 </div>
                             </div>
                             <div class="col-sm-6 col-xl-12" data-unbilled-new>
                                 <label class="form-label">Category <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                                     <select class="form-select" name="category" required>
                                         <option value="">- Select a category -</option>
                                         <?= categoryOptionsHtml('Income') ?>
@@ -551,7 +551,7 @@ $hours_text = function ($hours) {
                             <div class="col-12" data-unbilled-new>
                                 <label class="form-label">Scope</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                                     <input type="text" class="form-control" name="scope" maxlength="255" value="<?= escapeHtml($scope_options[0]) ?>" list="unbilledScopes">
                                     <datalist id="unbilledScopes">
                                         <?php foreach ($scope_options as $scope_option) { ?>
@@ -564,7 +564,7 @@ $hours_text = function ($hours) {
                             <div class="col-12">
                                 <label class="form-label">Line</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                                     <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($rules['item_name']) ?>" required>
                                 </div>
                             </div>
@@ -573,7 +573,7 @@ $hours_text = function ($hours) {
                                 <div class="col-sm-6 col-xl-12">
                                     <label class="form-label">Rate<?= $one_rate ? ' <strong class="text-danger">*</strong>' : '' ?></label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                                         <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $one_rate ? number_format($this_client['rate'], 2, '.', '') : '' ?>" placeholder="Each ticket's own"<?= $one_rate ? ' required' : '' ?> data-unbilled-rate>
                                     </div>
                                     <div class="form-text"><?= !$one_rate ? "Each ticket at its own rate - a contract's sets some. Type one to bill them all at it." : 'An hour - ' . ($this_client['default_rate'] ? 'the default, the client has no rate' : escapeHtml($this_client['rate_note'] ?: "the client's rate")) ?></div>
@@ -582,7 +582,7 @@ $hours_text = function ($hours) {
                             <div class="<?= $client_view ? 'col-sm-6 col-xl-12' : 'col-12' ?>">
                                 <label class="form-label">Tax</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                                     <select class="form-select" name="tax_id" data-unbilled-tax>
                                         <?= taxOptionsHtml($taxes, TAX_USUAL, $client_view ? "Each line's usual rate" : "Each client's usual rates", $client_view ? floatval(taxRow(taxDefaultFor($client_id, 'time'))['tax_percent'] ?? 0) : 0) ?>
                                     </select>
@@ -592,7 +592,7 @@ $hours_text = function ($hours) {
                             <div class="col-12">
                                 <label class="form-label">Lines</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                                     <select class="form-select" name="lines">
                                         <option value="each">A line for each ticket</option>
                                         <option value="one">One line for all of them</option>
@@ -611,7 +611,7 @@ $hours_text = function ($hours) {
                             <div class="fs-4 fw-semibold itflow-money" data-unbilled-total></div>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" name="<?= $client_view ? 'unbilled_invoice' : 'unbilled_invoice_clients' ?>" value="1" class="btn btn-primary text-bold flex-grow-1" data-unbilled-submit>
+                            <button type="submit" name="<?= $client_view ? 'unbilled_invoice' : 'unbilled_invoice_clients' ?>" value="1" class="btn btn-primary fw-bold flex-grow-1" data-unbilled-submit>
                                 <i class="fas fa-check me-2"></i><span data-unbilled-submit-label><?= $client_view ? 'Make Invoice' : 'Make Invoices' ?></span>
                             </button>
                             <?php if ($client_view) { ?>

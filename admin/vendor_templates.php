@@ -154,7 +154,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search vendor templates..." title="Name, what they are, support line, email, site, status page, portal, hours, SLA, account manager or notes">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -291,7 +291,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_vendor_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="The vendors made from it stay as they are." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

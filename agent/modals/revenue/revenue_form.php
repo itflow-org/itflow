@@ -61,7 +61,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-md-7">
         <label class="form-label">Category <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="category" required>
                 <option value="">- Select a category -</option>
                 <?= categoryOptionsHtml('Income', $form_category, ['exclude' => ['Account Transfer']]) ?>
@@ -73,7 +73,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-md-5">
         <label class="form-label">Amount <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required
                 value="<?= $form_amount === null ? '' : number_format($form_amount, 2, '.', '') ?>" <?= $form_mode === 'new' ? 'autofocus' : '' ?> <?= $form_lock ? 'readonly' : '' ?>>
             <span class="input-group-text" data-revenue-currency><?= escapeHtml($form_currency) ?></span>
@@ -89,7 +89,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-md-7">
         <label class="form-label">Paid into <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
             <select class="form-select select2" name="account" required data-revenue-account <?= $form_lock ? 'disabled' : '' ?>>
                 <option value="">- Select an account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
@@ -107,7 +107,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-md-5">
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required <?= $form_lock ? 'readonly' : '' ?>>
         </div>
     </div>
@@ -115,7 +115,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-12">
         <label class="form-label">From client</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
             <select class="form-select select2" name="client_id">
                 <option value="0">- Not from a client -</option>
                 <?php foreach ($form_clients as $client) { ?>
@@ -129,7 +129,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-md-5">
         <label class="form-label">Paid by</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
             <select class="form-select select2" name="payment_method">
                 <option value="">- Select a payment method -</option>
                 <?php foreach ($form_methods as $method) { ?>
@@ -142,7 +142,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-md-7">
         <label class="form-label">Reference</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
             <input type="text" class="form-control" name="reference" maxlength="200" placeholder="Check number, deposit or transaction number" value="<?= escapeHtml($form_reference) ?>">
         </div>
     </div>
@@ -150,7 +150,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
     <div class="col-12">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
             <textarea class="form-control" rows="3" name="description" placeholder="What it was - Pax8 partner rebate for Q3, referral fee from Ravenwood, interest"><?= escapeHtml($form_description) ?></textarea>
         </div>
         <div class="form-text">The first line shows in the list.</div>

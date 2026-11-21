@@ -46,7 +46,7 @@ ob_start();
 
         <label class="form-label">ITFlow client <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
             <select class="form-select select2" name="client_id" required>
                 <option value="">- Select a client -</option>
                 <?php while ($client = mysqli_fetch_assoc($clients)) {
@@ -58,8 +58,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="link_rmm_client" class="btn btn-primary text-bold"><i class="fa fa-link me-2"></i>Link</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="link_rmm_client" class="btn btn-primary fw-bold"><i class="fas fa-link me-2"></i>Link</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 <?php

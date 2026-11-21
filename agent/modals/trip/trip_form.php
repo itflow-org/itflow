@@ -105,7 +105,7 @@ $unit = tripUnit();
     <div class="col-md-4">
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required>
         </div>
     </div>
@@ -113,7 +113,7 @@ $unit = tripUnit();
     <div class="col-md-8">
         <label class="form-label">Driver <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
             <select class="form-select select2" name="driver" required data-trip-driver <?= $form_claimed ? 'disabled' : '' ?>>
                 <?php foreach ($form_drivers as $driver_id => $driver) { ?>
                     <option value="<?= $driver_id ?>" <?= $driver_id === $form_driver ? 'selected' : '' ?><?= selectOptionUser($driver_id, $driver['user_name'], $driver['user_avatar'] ?? '') ?>><?= escapeHtml($driver['user_name']) ?><?= $driver_id === intval($session_user_id) ? ' (me)' : '' ?></option>
@@ -128,7 +128,7 @@ $unit = tripUnit();
     <div class="col-md-6">
         <label class="form-label">Client</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
             <select class="form-select select2" name="client_id" data-trip-client <?= $form_billed ? 'disabled' : '' ?>>
                 <option value="0">- Our own - not for a client -</option>
                 <?php foreach ($form_clients as $client) { ?>
@@ -141,7 +141,7 @@ $unit = tripUnit();
     <div class="col-md-6" data-trip-ticket-box hidden>
         <label class="form-label">For the ticket</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-life-ring"></i></span>
             <select class="form-select select2" name="ticket_id" data-trip-ticket data-selected="<?= $form_ticket ?>">
                 <option value="0">- No ticket -</option>
             </select>
@@ -151,7 +151,7 @@ $unit = tripUnit();
     <div class="col-md-6">
         <label class="form-label">From <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-dot-circle"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-dot-circle"></i></span>
             <input type="text" class="form-control" name="source" maxlength="200" value="<?= escapeHtml($form_source) ?>" list="<?= $form_id ?>Places" placeholder="Where you started - the office, home" required data-trip-from>
             <datalist id="<?= $form_id ?>Places">
                 <?php foreach ($form_places as $place) { ?>
@@ -164,7 +164,7 @@ $unit = tripUnit();
     <div class="col-md-6" data-trip-site-box hidden>
         <label class="form-label">Their site</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
             <select class="form-select select2" name="location_id" data-trip-site data-selected="<?= $form_location ?>">
                 <option value="0">- Somewhere else -</option>
             </select>
@@ -174,7 +174,7 @@ $unit = tripUnit();
     <div class="col-12">
         <label class="form-label">To <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt text-danger"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt text-danger"></i></span>
             <input type="text" class="form-control" name="destination" maxlength="200" value="<?= escapeHtml($form_destination) ?>" placeholder="The address, or the place" required data-trip-to>
         </div>
     </div>
@@ -182,7 +182,7 @@ $unit = tripUnit();
     <div class="col-md-4">
         <label class="form-label"><?= ucfirst($unit) ?> one way <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-road"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-road"></i></span>
             <input type="text" class="form-control text-end" name="miles" inputmode="decimal" placeholder="0.0" value="<?= $form_miles === null ? '' : number_format($form_miles, 1, '.', '') ?>" required data-trip-miles <?= $form_mode === 'new' && !$form_location ? 'autofocus' : '' ?> <?= $form_locked ? 'disabled' : '' ?>>
             <span class="input-group-text"><?= tripUnit(true) ?></span>
         </div>
@@ -223,14 +223,14 @@ $unit = tripUnit();
                 <div class="col-md-6">
                     <label class="form-label">At the start</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tachometer-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tachometer-alt"></i></span>
                         <input type="text" class="form-control text-end" name="odometer_start" inputmode="numeric" value="<?= $form_odo_start === null ? '' : intval($form_odo_start) ?>" data-trip-odo-start <?= $form_locked ? 'disabled' : '' ?>>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">At the end</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-flag-checkered"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-flag-checkered"></i></span>
                         <input type="text" class="form-control text-end" name="odometer_end" inputmode="numeric" value="<?= $form_odo_end === null ? '' : intval($form_odo_end) ?>" data-trip-odo-end <?= $form_locked ? 'disabled' : '' ?>>
                     </div>
                 </div>
@@ -242,7 +242,7 @@ $unit = tripUnit();
     <div class="col-12">
         <label class="form-label">What for <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
             <textarea class="form-control" rows="2" name="purpose" maxlength="200" placeholder="Onsite - replace the front office switch" required data-trip-purpose><?= escapeHtml($form_purpose) ?></textarea>
         </div>
     </div>

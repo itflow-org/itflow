@@ -233,9 +233,9 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <a class="btn btn-outline-secondary me-auto" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Look Up Now</a>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?id=<?= $domain_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

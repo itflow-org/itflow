@@ -167,7 +167,7 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($has_invoice && $can_sales) { ?>
-        <a class="btn btn-primary text-bold" href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
+        <a class="btn btn-primary fw-bold" href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
     <?php } ?>
     <?php if ($can_receipt) { ?>
         <a class="btn btn-outline-secondary confirm-link <?= $receipt_to ? '' : 'disabled' ?>" href="post.php?payment_send_receipt=<?= $payment_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
@@ -185,7 +185,7 @@ ob_start();
                 data-confirm-text="The payment of <?= $money($amount) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
         <?php } ?>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

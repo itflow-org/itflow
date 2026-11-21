@@ -19,7 +19,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_visible,
     document_name, document_archived_at FROM documents WHERE document_client_id = $client_id AND document_id = $document_id LIMIT 1"));
 
 if (!$row || !empty($row['document_archived_at'])) {
-    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to edit here</h1><a class='btn btn-lg btn-secondary mt-3' href='files.php?client_id=$client_id'><i class='fa fa-fw fa-arrow-left me-2'></i>Back to files</a></div>";
+    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to edit here</h1><a class='btn btn-lg btn-secondary mt-3' href='files.php?client_id=$client_id'><i class='fas fa-fw fa-arrow-left me-2'></i>Back to files</a></div>";
     require_once "../includes/footer.php";
     exit();
 }
@@ -56,8 +56,8 @@ $page_title = 'Editing ' . $row['document_name'];
     <div class="card mb-3">
         <div class="card-header d-flex flex-wrap align-items-center gap-2">
             <h3 class="card-title mb-0 me-auto text-truncate"><i class="fas fa-fw fa-edit me-2"></i>Editing <strong><?= $document_name ?></strong></h3>
-            <button type="submit" name="edit_document" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-            <a class="btn btn-light border" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><i class="fa fa-times me-2"></i>Cancel</a>
+            <button type="submit" name="edit_document" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+            <a class="btn btn-light border" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><i class="fas fa-times me-2"></i>Cancel</a>
         </div>
         <div class="card-body itflow-document-page-form">
             <?php

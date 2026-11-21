@@ -106,7 +106,7 @@ $locations_counts = locationCounts(array_keys($locations));
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Locations</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-map-marker-alt me-2"></i>Locations</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
             <div class="btn-group">
@@ -118,14 +118,14 @@ $locations_counts = locationCounts(array_keys($locations));
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=locations">
-                        <i class="fa fa-fw fa-upload me-2"></i>Import
+                        <i class="fas fa-fw fa-upload me-2"></i>Import
                     </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <?php if ($client_url) { ?><div class="dropdown-divider"></div><?php } ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/location/location_export.php', ['client_id', 'client', 'tags', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -143,7 +143,7 @@ $locations_counts = locationCounts(array_keys($locations));
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search name, address, phone, notes...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if (!$client_url) { ?>
@@ -190,7 +190,7 @@ $locations_counts = locationCounts(array_keys($locations));
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active locations' : 'Show archived locations' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -207,7 +207,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_locations"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_locations"
                                             data-confirm-text="The locations go for good. Their people, assets, networks, racks and tickets stay, with no location.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -380,7 +380,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                                 </a>
                                                 <?php if ($can_delete) { ?>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                         data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, with no location.">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>

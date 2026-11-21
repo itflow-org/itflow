@@ -34,7 +34,7 @@ $contract = contractRow($contract_id);
 
 if (!$contract || ($client_url && intval($contract['contract_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -162,7 +162,7 @@ if (!$contract || ($client_url && intval($contract['contract_client_id']) !== in
                                 <?php if ($delete_blocked !== '') { ?>
                                     <div class="dropdown-item-text small text-body-secondary text-wrap" style="max-width: 18rem;" data-delete-blocked><i class="fas fa-fw fa-lock me-1"></i>Can't be deleted. <?= escapeHtml($delete_blocked) ?></div>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= escapeHtml(contractDeleteWarning($contract)) ?>" data-confirm-button="Delete">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

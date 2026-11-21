@@ -136,7 +136,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-globe me-2"></i>Domains</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-globe me-2"></i>Domains</h3>
         <div class="card-tools">
             <?php if ($can_edit || $num_rows[0]) { ?>
             <div class="btn-group">
@@ -150,13 +150,13 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_edit && $client_url) { ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=domains">
-                                <i class="fa fa-fw fa-upload me-2"></i>Import
+                                <i class="fas fa-fw fa-upload me-2"></i>Import
                             </a>
                         <?php } ?>
                         <?php if ($num_rows[0] > 0) { ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#"
                                 data-modal-url="<?= buildExportModalUrl('modals/domain/domain_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q', 'tags', 'vendor']) ?>">
-                                <i class="fa fa-fw fa-download me-2"></i>Export
+                                <i class="fas fa-fw fa-download me-2"></i>Export
                             </a>
                         <?php } ?>
                     </div>
@@ -177,7 +177,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search domain, registrar, host, notes...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -233,7 +233,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                     <div class="d-flex justify-content-end gap-2">
                         <a href="<?= escapeHtml($filter_url(['archived' => $archived ? '' : 1])) ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active domains' : 'Show archived domains' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -264,7 +264,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_domains"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_domains"
                                             data-confirm-text="The domains go for good, with their history. Services and certificates stop pointing at them.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -412,7 +412,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $domain_name ?> goes for good, with its history. Services and certificates stop pointing at it.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
@@ -478,8 +478,8 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                 <div class="form-text"><?= $client_url ? "The client's vendors, and ours." : 'Across clients only our own vendors can be set - open a client to use theirs.' ?></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" form="bulkActions" name="bulk_set_domain_vendor" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Set It</button>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+                <button type="submit" form="bulkActions" name="bulk_set_domain_vendor" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set It</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </div>
     </div>

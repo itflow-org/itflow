@@ -25,7 +25,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-ban me-2"></i>Opted Out and Blocked</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-ban me-2"></i>Opted Out and Blocked</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body p-0">
@@ -83,7 +83,7 @@ ob_start();
     <?php } ?>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 <?php
 require_once '../../../includes/modal_footer.php';

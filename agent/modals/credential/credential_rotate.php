@@ -28,7 +28,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-sync-alt me-2"></i>Change Password <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($credential['credential_name']) ?></span></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-sync-alt me-2"></i>Change Password <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($credential['credential_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" data-credential-rotate>
@@ -46,7 +46,7 @@ ob_start();
         </div>
         <label class="form-label">New password <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
             <input type="text" class="form-control font-monospace" name="password" maxlength="350" required autocomplete="new-password" data-rotate-password>
             <button class="btn btn-outline-secondary" type="button" title="Copy" data-rotate-copy><i class="far fa-fw fa-copy"></i></button>
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Make one up"><i class="fas fa-fw fa-magic"></i></button>
@@ -59,8 +59,8 @@ ob_start();
         <div class="form-text">Set it on the device or site first, then save it here.<?= credentialPasswordHistoryReady() ? ' The old one is kept under Earlier passwords on its quick look, in case something still uses it.' : ' The old one is gone once you do.' ?></div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="rotate_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Save New Password</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="rotate_credential" class="btn btn-primary fw-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Save New Password</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

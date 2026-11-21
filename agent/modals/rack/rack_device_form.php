@@ -136,7 +136,7 @@ $item_types = rackItemTypes();
     <div class="col-sm-5">
         <label class="form-label">Power draw</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-bolt"></i></span>
             <input type="number" class="form-control" name="power_watts" min="0" max="100000" placeholder="350" value="<?= $unit_power_watts ?: '' ?>">
             <span class="input-group-text">W</span>
         </div>

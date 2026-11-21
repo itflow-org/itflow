@@ -29,7 +29,7 @@ $vendor_client_id = $vendor ? intval($vendor['vendor_client_id']) : 0;
 
 if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($client_id)) || !vendorCan($vendor_client_id, 1)) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -286,35 +286,35 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($is_ours) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?vendor_id=<?= $vendor_id ?>">
-                                    <i class="fa fa-fw fa-receipt text-secondary me-2"></i>Expense
+                                    <i class="fas fa-fw fa-receipt text-secondary me-2"></i>Expense
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_add.php?vendor_id=<?= $vendor_id ?>">
-                                    <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expense
+                                    <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expense
                                 </a>
                             <?php } else { ?>
                                 <?php if ($can_support_edit) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $new_case_url ?>">
-                                        <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Case with Them
+                                        <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Case with Them
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-cube text-secondary me-2"></i>License from Them
+                                        <i class="fas fa-fw fa-cube text-secondary me-2"></i>License from Them
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset Bought from Them
+                                        <i class="fas fa-fw fa-desktop text-secondary me-2"></i>Asset Bought from Them
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_credentials_edit) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-key text-secondary me-2"></i>Portal Login
+                                        <i class="fas fa-fw fa-key text-secondary me-2"></i>Portal Login
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_support_edit) { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                        <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
-                                        <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                        <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                                     </a>
                                 <?php } ?>
                             <?php } ?>
@@ -353,7 +353,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, with no vendor.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

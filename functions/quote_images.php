@@ -422,7 +422,7 @@ function quoteImageField($name, $current, $help = '') {
             <div class="flex-grow-1 min-w-0">
                 <div class="small text-body-secondary mb-2">Click it to add or change it - a JPG, PNG, GIF or WebP, cropped to just the product.</div>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                     <input type="url" class="form-control" name="<?= escapeHtml($name) ?>_url" maxlength="2000" placeholder="Or paste a link - a picture, or the product's web page" data-quote-image-url>
                 </div>
                 <div class="form-text"><?= $help !== '' ? escapeHtml($help) . ' ' : '' ?>From a web page it takes the page's main picture. ITFlow keeps its own copy.</div>

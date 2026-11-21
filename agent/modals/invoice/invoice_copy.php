@@ -39,13 +39,13 @@ ob_start();
         <p class="text-body-secondary small">A new draft for <?= escapeHtml($doc['client_name']) ?> with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?>.<?= $card_fees > 0 ? ' The card fee it was paid with is left off.' : '' ?></p>
         <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
         </div>
         <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - <?= escapeHtml($terms_from) ?> terms.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_invoice_copy" class="btn btn-primary text-bold"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="submit" name="add_invoice_copy" class="btn btn-primary fw-bold"><i class="fas fa-copy me-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -149,7 +149,7 @@ $asset_form_icons = [
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
@@ -201,14 +201,14 @@ $asset_form_icons = [
         <div class="col-md-7">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Domain controller for HQ" maxlength="255" value="<?= $asset_description ?>">
             </div>
         </div>
         <div class="col-md-5">
             <label class="form-label">Tags</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('asset', $asset_tag_id_array) ?>
                 </select>
@@ -235,7 +235,7 @@ $asset_form_icons = [
         <div class="col-md-5" data-asset-field="serial">
             <label class="form-label">Serial number</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-barcode"></i></span>
                 <input type="text" class="form-control font-monospace" name="serial" placeholder="ABC1234XYZ" maxlength="200" value="<?= $asset_serial ?>" data-asset-duplicate="serial">
             </div>
             <div class="form-text text-warning-emphasis" data-asset-duplicate-note="serial"></div>
@@ -385,7 +385,7 @@ $asset_form_icons = [
             <div class="col-md-6" data-asset-field="network">
                 <label class="form-label">Network</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-network-wired"></i></span>
                     <select class="form-select select2" name="network">
                         <option value="">- Select a network -</option>
                         <?php foreach ($network_options as $network_option) {
@@ -412,7 +412,7 @@ $asset_form_icons = [
         <div class="col-md-6" data-asset-field="network">
             <label class="form-label">MAC address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-ethernet"></i></span>
                 <input type="text" class="form-control font-monospace" name="mac" placeholder="00:1A:2B:3C:4D:5E" maxlength="200" value="<?= $asset_mac ?>" data-inputmask="'alias': 'mac'" data-mask data-asset-duplicate="mac">
             </div>
             <div class="form-text text-warning-emphasis" data-asset-duplicate-note="mac"></div>
@@ -420,7 +420,7 @@ $asset_form_icons = [
         <div class="col-md-6" data-asset-field="nat">
             <label class="form-label">NAT address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
                 <input type="text" class="form-control font-monospace" name="nat_ip" placeholder="203.0.113.10" maxlength="200" value="<?= $asset_nat_ip ?>" data-inputmask="'alias': 'ip'" data-mask>
             </div>
         </div>
@@ -469,7 +469,7 @@ $asset_form_icons = [
             <div class="col-md-6" data-asset-field="purchase">
                 <label class="form-label">Vendor</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="vendor">
                         <option value="">- Select a vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
@@ -484,7 +484,7 @@ $asset_form_icons = [
         <div class="col-md-6" data-asset-field="purchase">
             <label class="form-label">Order / invoice reference</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-receipt"></i></span>
                 <input type="text" class="form-control" name="purchase_reference" placeholder="INV-1045, PO-7782" maxlength="200" value="<?= $asset_purchase_reference ?>">
             </div>
         </div>
@@ -520,14 +520,14 @@ $asset_form_icons = [
             <div class="col-md-6">
                 <label class="form-label">Username</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <input type="text" class="form-control" name="username" placeholder="admin" maxlength="350" autocomplete="off">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Password</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                     <input type="text" class="form-control" name="password" placeholder="Leave empty to skip" maxlength="350" autocomplete="off">
                 </div>
             </div>

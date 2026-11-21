@@ -16,7 +16,7 @@ $filter_categories = appLogCategories();
 <div class="mb-3">
     <label class="form-label">Search</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
         <input type="text" class="form-control" name="q" value="<?= escapeHtml($q_filter) ?>" placeholder="The category or what it says">
     </div>
 </div>
@@ -25,7 +25,7 @@ $filter_categories = appLogCategories();
     <div class="col-md-6">
         <label class="form-label">Level</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-signal"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-signal"></i></span>
             <select class="form-select select2" name="view">
                 <?php foreach ($views as $key => $definition) { ?>
                     <option value="<?= $key ?>" <?= $view_filter === $key ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . $definition['icon'], 'description' => $definition['title']]) ?>><?= $key === '' ? 'Every level' : escapeHtml($definition['label']) ?></option>
@@ -36,7 +36,7 @@ $filter_categories = appLogCategories();
     <div class="col-md-6">
         <label class="form-label">Category</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
             <select class="form-select select2" name="category">
                 <option value="">- Any category -</option>
                 <?php foreach ($filter_categories as $category => $count) { ?>
@@ -48,14 +48,14 @@ $filter_categories = appLogCategories();
     <div class="col-md-6">
         <label class="form-label">From</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
         </div>
     </div>
     <div class="col-md-6">
         <label class="form-label">To</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
         </div>
     </div>

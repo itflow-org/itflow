@@ -114,7 +114,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Invoice</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                     <select class="form-select select2" name="invoice_id" data-ticket-invoice-target>
                         <option value="0">A new draft invoice</option>
                         <?php foreach ($drafts as $draft_id => $draft) { ?>
@@ -126,14 +126,14 @@ ob_start();
             <div class="col-sm-6" data-ticket-invoice-new>
                 <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                 </div>
             </div>
             <div class="col-sm-6" data-ticket-invoice-new>
                 <label class="form-label">Category <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <select class="form-select select2" name="category" required>
                         <option value="">- Select a category -</option>
                         <?= categoryOptionsHtml('Income') ?>
@@ -144,7 +144,7 @@ ob_start();
             <div class="col-12" data-ticket-invoice-new>
                 <label class="form-label">Scope</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                     <input type="text" class="form-control" name="scope" maxlength="255" value="<?= escapeHtml($scopes[0]) ?>" list="ticketInvoiceScopes">
                     <datalist id="ticketInvoiceScopes">
                         <?php foreach ($scopes as $scope) { ?>
@@ -156,14 +156,14 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Line <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                     <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($rules['item_name']) ?>" required>
                 </div>
             </div>
             <div class="col-12">
                 <label class="form-label">Description</label>
                 <div class="input-group">
-                    <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+                    <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
                     <textarea class="form-control" name="item_description" rows="<?= $ai_describe ? 3 : 2 ?>" data-ticket-invoice-description><?= escapeHtml(billingTimeDescription($row)) ?></textarea>
                     <?php if ($ai_describe) { ?>
                         <button type="button" class="btn btn-outline-secondary" data-ticket-invoice-ai title="Say what was done, from the replies and notes - for the client"><i class="fas fa-fw fa-magic"></i><span class="d-none d-sm-inline ms-1">Write It</span></button>
@@ -176,7 +176,7 @@ ob_start();
             <div class="col-sm-4">
                 <label class="form-label">Hours <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                     <input type="text" class="form-control text-end" name="qty" inputmode="decimal" value="<?= billingQuantity($row['hours']) ?>" required data-ticket-invoice-hours>
                 </div>
                 <div class="form-text">Rounded <?= escapeHtml(billingTimeRulesText($rules)) ?>.</div>
@@ -184,7 +184,7 @@ ob_start();
             <div class="col-sm-4">
                 <label class="form-label">Rate <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= number_format($row['rate'], 2, '.', '') ?>" required data-ticket-invoice-rate>
                 </div>
                 <div class="form-text" data-ticket-invoice-rate-note><?= $row['rate'] > 0 || !$row['default_rate'] ? ($row['default_rate'] ? 'The default rate - no contract in force sets one.' : escapeHtml(ucfirst($row['rate_note'])) . '.') : 'No rate - no contract in force sets one, and there is no default.' ?></div>
@@ -192,7 +192,7 @@ ob_start();
             <div class="col-sm-4">
                 <label class="form-label">Tax</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                     <select class="form-select select2" name="tax_id" data-ticket-invoice-tax>
                         <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'time')) ?>
                     </select>
@@ -205,7 +205,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><span data-ticket-invoice-label>Make Invoice</span></button>
+        <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><span data-ticket-invoice-label>Make Invoice</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

@@ -46,7 +46,7 @@ if (!$tax || $tax['tax_archived_at']) { ?>
                 <div class="mb-2">
                     <label class="form-label">Move them to</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
                         <select class="form-select select2" name="move_to">
                             <option value="0">Leave them where they are</option>
                             <?php foreach ($others as $id => $other) { ?>
@@ -59,7 +59,7 @@ if (!$tax || $tax['tax_archived_at']) { ?>
             <?php } ?>
         </div>
         <div class="modal-footer">
-            <button type="submit" name="archive_tax" class="btn btn-danger text-bold"><i class="fas fa-archive me-2"></i>Archive</button>
+            <button type="submit" name="archive_tax" class="btn btn-danger fw-bold"><i class="fas fa-archive me-2"></i>Archive</button>
             <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>
     </form>

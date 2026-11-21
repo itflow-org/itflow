@@ -189,7 +189,7 @@ $page_title = 'Update Prices';
         <?php if ($groups && $can_edit) { ?>
             <div class="card-footer d-flex flex-wrap gap-2 align-items-center itflow-reprice-footer">
                 <span class="small text-body-secondary me-auto" data-reprice-summary>Nothing picked</span>
-                <button type="submit" name="products_reprice_save" class="btn btn-primary text-bold" data-reprice-save disabled
+                <button type="submit" name="products_reprice_save" class="btn btn-primary fw-bold" data-reprice-save disabled
                     ><i class="fas fa-check me-2"></i><span data-reprice-save-label>Update Prices</span></button>
             </div>
         <?php } ?>

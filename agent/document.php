@@ -32,7 +32,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_archived_at, do
     LIMIT 1"));
 
 if (!$row) {
-    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='files.php?client_id=$client_id'><i class='fa fa-fw fa-arrow-left me-2'></i>Back to files</a></div>";
+    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='files.php?client_id=$client_id'><i class='fas fa-fw fa-arrow-left me-2'></i>Back to files</a></div>";
     require_once "../includes/footer.php";
     exit();
 }

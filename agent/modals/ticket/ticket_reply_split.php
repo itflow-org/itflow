@@ -48,7 +48,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="subject" maxlength="500" required autofocus value="<?= escapeHtml($suggested) ?>">
             </div>
         </div>
@@ -58,7 +58,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Priority</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="priority">
                             <?php foreach (TICKET_PRIORITIES as $priority) { ?>
                                 <option <?= $priority === $row['ticket_priority'] ? 'selected' : '' ?> data-color="var(--bs-<?= ticketPriorityColor($priority) ?>)"><?= $priority ?></option>
@@ -71,7 +71,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Assign to</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to">
                             <option value="0">- Unassigned -</option>
                             <?php
@@ -92,8 +92,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="split_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-code-branch me-2"></i>Make the New Ticket</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="split_ticket_reply" class="btn btn-primary fw-bold"><i class="fas fa-code-branch me-2"></i>Make the New Ticket</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>

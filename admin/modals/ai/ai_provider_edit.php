@@ -43,7 +43,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-robot me-2"></i><?= $row ? 'Edit AI Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($row['ai_provider_name']) . '</span>' : 'New AI Provider' ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-robot me-2"></i><?= $row ? 'Edit AI Provider <span class="fw-normal text-white-50 ms-1">' . escapeHtml($row['ai_provider_name']) . '</span>' : 'New AI Provider' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-ai-provider-form data-kinds="<?= escapeHtml(json_encode($kinds_js)) ?>" data-has-key="<?= $has_key ? '1' : '0' ?>">
@@ -56,7 +56,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiProviderKind">Kind <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                 <select class="form-select select2" name="kind" id="aiProviderKind" data-ai-kind>
                     <?php foreach ($kinds as $key => $info) { ?>
                         <option value="<?= $key ?>" <?= $key === $kind_key ? 'selected' : '' ?><?= selectOptionData(['icon' => aiProviderIcon($key), 'description' => $info['local'] ? 'Runs on your own network - nothing leaves it' : ($key === 'custom' ? 'Any other service that speaks the OpenAI API' : (string) parse_url($info['url'], PHP_URL_HOST))]) ?>><?= escapeHtml($info['name']) ?></option>
@@ -69,7 +69,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiProviderName">Name <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="name" id="aiProviderName" maxlength="200" value="<?= escapeHtml($row ? $row['ai_provider_name'] : $kind['name']) ?>" placeholder="What you call it">
             </div>
             <?= $error_for('name') ?>
@@ -78,7 +78,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiProviderUrl">Address <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
                 <input type="url" class="form-control font-monospace small" name="url" id="aiProviderUrl" maxlength="500" spellcheck="false" value="<?= escapeHtml($row ? $row['ai_provider_api_url'] : $kind['url']) ?>" placeholder="https://.../v1/chat/completions">
             </div>
             <?= $error_for('url') ?>
@@ -88,7 +88,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiProviderKey">API key <strong class="text-danger <?= $kind['key'] && !$has_key ? '' : 'd-none' ?>" data-ai-key-required>*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                 <input type="password" class="form-control font-monospace" name="api_key" id="aiProviderKey" maxlength="500" spellcheck="false" autocomplete="new-password"
                     placeholder="<?= $has_key ? 'Saved - type a new one to replace it' : 'Paste its API key' ?>">
             </div>
@@ -114,7 +114,7 @@ ob_start();
             <div class="mb-3">
                 <label class="form-label" for="aiProviderFirstModel">Model to use</label>
                 <div class="input-group has-validation">
-                    <span class="input-group-text"><i class="fa fa-fw fa-brain"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-brain"></i></span>
                     <input type="text" class="form-control font-monospace" name="first_model" id="aiProviderFirstModel" maxlength="200" spellcheck="false" list="aiProviderModelList" placeholder="<?= escapeHtml($kind['example']) ?>" data-ai-first-model>
                 </div>
                 <?= $error_for('first_model') ?>
@@ -130,10 +130,10 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $row ? 'edit_ai_provider' : 'add_ai_provider' ?>" class="btn btn-primary text-bold" data-ai-save>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
+        <button type="submit" name="<?= $row ? 'edit_ai_provider' : 'add_ai_provider' ?>" class="btn btn-primary fw-bold" data-ai-save>
+            <i class="fas fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
@@ -324,7 +324,7 @@ ob_start();
                 // Only that it didn't answer - it can be saved anyway
                 if (answer.soft) {
                     saveAnyway.value = '1';
-                    save.innerHTML = '<i class="fa fa-check me-2"></i>Save anyway';
+                    save.innerHTML = '<i class="fas fa-check me-2"></i>Save anyway';
                     save.classList.remove('btn-primary');
                     save.classList.add('btn-warning');
                 }

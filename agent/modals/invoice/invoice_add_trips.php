@@ -59,7 +59,7 @@ ob_start();
                         </label>
                         <div class="flex-shrink-0" style="width: 8rem;">
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                                 <input type="text" class="form-control text-end" name="trip_price[<?= $trip_id ?>]" value="<?= number_format($trip['price'], 2, '.', '') ?>" inputmode="decimal" aria-label="Price to bill" data-add-trip-price>
                             </div>
                         </div>
@@ -71,7 +71,7 @@ ob_start();
                     <div class="col-sm-6">
                         <label class="form-label">Tax</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                             <select class="form-select select2" name="tax_id" data-add-trip-tax>
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'trip')) ?>
                             </select>
@@ -90,7 +90,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($trips) { ?>
             <span class="me-auto small text-body-secondary" data-add-trip-summary></span>
-            <button type="submit" name="invoice_add_trips" class="btn btn-primary text-bold" data-add-trip-submit><i class="fas fa-check me-2"></i>Add</button>
+            <button type="submit" name="invoice_add_trips" class="btn btn-primary fw-bold" data-add-trip-submit><i class="fas fa-check me-2"></i>Add</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $trips ? 'Cancel' : 'Close' ?></button>
     </div>

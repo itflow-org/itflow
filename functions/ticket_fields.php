@@ -251,7 +251,7 @@ function ticketPriorityHtml($priority, $style = 'list') {
 
 function ticketBillableHtml($billable, $style = 'list') {
     if ($style === 'detail') {
-        return $billable ? '<span>Billable</span>' : "<span class='text-muted'>Not billable</span>";
+        return $billable ? '<span>Billable</span>' : "<span class='text-body-secondary'>Not billable</span>";
     }
     return $billable
         ? '<span class="badge rounded-pill bg-success p-2"><i class="fas fa-fw fa-dollar-sign"></i></span>'

@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-archive me-2"></i>Archive Contact <span class="fw-normal text-white-50 ms-1"><?= $contact_name ?></span></h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-archive me-2"></i>Archive Contact <span class="fw-normal text-white-50 ms-1"><?= $contact_name ?></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
@@ -46,8 +46,8 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check me-2"></i>Archive</button>
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+                    <button type="submit" name="archive_contact" class="btn btn-danger fw-bold"><i class="fas fa-check me-2"></i>Archive</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

@@ -37,7 +37,7 @@ ob_start();
         <p class="text-body-secondary small">Bill <?= escapeHtml($doc['client_name']) ?> for the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?> - <?= escapeHtml(billingMoney(floatval($doc['invoice_amount']) - $card_fees, $doc['invoice_currency_code'])) ?> - again and again<?= $card_fees > 0 ? ', without the card fee it was paid with' : '' ?>. The first one is made a period after <?= escapeHtml($doc_number) ?>'s date, <?= formatDate($doc['invoice_date']) ?>; change that and the lines on the recurring invoice after.</p>
         <label class="form-label">Billed <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-sync-alt"></i></span>
             <select class="form-select select2" name="frequency" required>
                 <?php foreach (recurringInvoiceFrequencies() as $frequency => $label) { ?>
                     <option value="<?= $frequency ?>"><?= $label ?> - first on <?= escapeHtml(recurringInvoiceStep($doc['invoice_date'], $frequency)) ?></option>
@@ -46,7 +46,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_invoice_recurring" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Make Recurring</button>
+        <button type="submit" name="add_invoice_recurring" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Make Recurring</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

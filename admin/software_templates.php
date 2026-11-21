@@ -138,7 +138,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search license templates..." title="Name, version, summary, type, license type, notes, vendor or product">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -259,7 +259,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_software_template=<?= $template_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="Licenses made from it stay as they are." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

@@ -26,7 +26,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-comment-dots me-2"></i>Save Your Reply as a Canned Response</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-comment-dots me-2"></i>Save Your Reply as a Canned Response</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="/agent/user/post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-canned-save
@@ -58,8 +58,8 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save Canned Response</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save Canned Response</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 <script src="<?= staticFileUrl('/agent/js/canned_response_save.js') ?>"></script>

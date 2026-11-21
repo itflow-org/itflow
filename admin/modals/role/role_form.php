@@ -22,7 +22,7 @@ $r_admin_locked = ($role_admin_blocker ?? '') !== '';
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user-tag"></i></span>
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="Help Desk, Billing, Field Tech" value="<?= escapeHtml($r['role_name'] ?? '') ?>" required autofocus>
         </div>
     </div>
@@ -30,7 +30,7 @@ $r_admin_locked = ($role_admin_blocker ?? '') !== '';
     <div class="mb-3">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="200" placeholder="Who it is for" value="<?= escapeHtml($r['role_description'] ?? '') ?>">
         </div>
     </div>

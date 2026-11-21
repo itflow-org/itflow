@@ -40,14 +40,14 @@ if (!in_array($t_icon, $t_icons, true)) {
         <div class="col-sm-7 mb-3">
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="name" maxlength="200" placeholder="VIP, Managed, Retiring soon..." value="<?= escapeHtml($t['tag_name'] ?? '') ?>" required<?= $t ? '' : ' autofocus' ?> data-tag-name>
             </div>
         </div>
         <div class="col-sm-5 mb-3">
             <label class="form-label">For <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="type"<?= $t_kind_locked ? ' disabled' : '' ?> required>
                     <?php foreach (tagKinds() as $kind_type => $kind_entity) {
                         $kind_config = tagEntity($kind_entity); ?>
@@ -64,7 +64,7 @@ if (!in_array($t_icon, $t_icons, true)) {
     <div class="mb-3">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="255" placeholder="What it means, and when to use it" value="<?= escapeHtml($t['tag_description'] ?? '') ?>">
         </div>
         <small class="text-secondary">Shown on the tag and in the tag picker</small>
@@ -79,7 +79,7 @@ if (!in_array($t_icon, $t_icons, true)) {
                 <?php } ?>
             </div>
             <div class="input-group input-group-sm w-auto" title="Any other color">
-                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-paint-brush"></i></span>
                 <input type="color" class="form-control form-control-color" name="color" value="<?= $t_color ?>" aria-label="Custom color" data-tag-color>
                 <input type="text" class="form-control font-monospace" style="width: 6rem" maxlength="7" value="<?= $t_color ?>" pattern="#?[0-9a-fA-F]{6}" aria-label="Color as hex" data-tag-color-hex>
             </div>
@@ -90,7 +90,7 @@ if (!in_array($t_icon, $t_icons, true)) {
         <label class="form-label">Icon</label>
         <input type="hidden" name="icon" value="<?= $t_icon ?>" data-tag-icon>
         <div class="input-group mb-2">
-            <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
             <input type="search" class="form-control" placeholder="Search icons - or type any Font Awesome icon's name" aria-label="Search icons" data-tag-icon-search>
         </div>
         <div class="itflow-tag-icons border rounded p-1" role="group" aria-label="Icons" data-tag-icons>

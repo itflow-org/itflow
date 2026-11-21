@@ -235,9 +235,9 @@ ob_start();
         <?php if ($host) { ?>
             <a class="btn btn-outline-secondary me-auto" href="post.php?check_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-sync-alt me-2"></i>Check Now</a>
         <?php } ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/certificate/certificate_edit.php?id=<?= $certificate_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/certificate/certificate_edit.php?id=<?= $certificate_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

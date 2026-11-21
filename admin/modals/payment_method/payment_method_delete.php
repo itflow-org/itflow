@@ -42,7 +42,7 @@ if (!$payment_method) { ?>
             <div class="mb-3">
                 <label class="form-label">Change them to <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-random"></i></span>
                     <select class="form-select select2" name="move_to" required>
                         <option value="">- Select a payment method -</option>
                         <?php foreach ($others as $other_id => $other) { ?>
@@ -60,7 +60,7 @@ if (!$payment_method) { ?>
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="delete_payment_method" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i><?= $usage['total'] ? 'Merge and delete' : 'Delete' ?></button>
+        <button type="submit" name="delete_payment_method" class="btn btn-danger fw-bold"><i class="fas fa-trash me-2"></i><?= $usage['total'] ? 'Merge and delete' : 'Delete' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

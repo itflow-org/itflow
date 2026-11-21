@@ -36,7 +36,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">How was it sent? <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-paper-plane"></i></span>
                     <select class="form-select select2" name="sent_method" required>
                         <?php foreach (getSentMethods() as $sent_method) { ?>
                             <option value="<?= escapeHtml($sent_method) ?>"><?= escapeHtml($sent_method) ?></option>
@@ -47,14 +47,14 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Note</label>
                 <div class="input-group">
-                    <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-sticky-note"></i></span>
+                    <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-sticky-note"></i></span>
                     <textarea class="form-control" name="note" rows="3" maxlength="500" placeholder="Tracking number, who it went to, anything worth keeping"></textarea>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="mark_invoice_sent" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Mark Sent</button>
+        <button type="submit" name="mark_invoice_sent" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Mark Sent</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

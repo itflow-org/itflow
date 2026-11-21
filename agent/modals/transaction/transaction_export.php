@@ -62,7 +62,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Account</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="account">
                         <option value="">- Any account -</option>
                         <?php foreach (accountsList(null) as $id => $account) { ?>
@@ -75,14 +75,14 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Search</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                     <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Who or what, reference, amount, category, client">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Showing</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-filter"></i></span>
                     <select class="form-select select2" name="show">
                         <?php foreach (accountLedgerShows() as $key => $s) { ?>
                             <option value="<?= escapeHtml($key) ?>" <?= $show_filter === $key ? 'selected' : '' ?>><?= escapeHtml($key === '' ? 'Everything' : $s['label']) ?></option>
@@ -93,7 +93,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Kind</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                     <select class="form-select select2" name="kind">
                         <option value="">- Any kind -</option>
                         <?php foreach (accountLedgerKinds() as $key => $info) { ?>
@@ -105,7 +105,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Category</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <select class="form-select select2" name="category">
                         <option value="">- Any category -</option>
                         <?php
@@ -122,7 +122,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Client</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="client">
                         <option value="">- Any client -</option>
                         <?php
@@ -137,7 +137,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Paid by</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                     <select class="form-select select2" name="method">
                         <option value="">- Any payment method -</option>
                         <?php foreach (paymentMethods('', true) as $method) { ?>
@@ -149,7 +149,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Amount</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least">
                     <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most">
                 </div>
@@ -157,14 +157,14 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Dated from</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Dated to</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
                 </div>
             </div>

@@ -423,10 +423,10 @@ a:focus {
    header, most card headers), so without this the header text is dark on
    dark and effectively invisible. Contrast choices below mirror Bootstrap's
    own .text-bg-* decisions. */
-.bg-dark, .bg-primary, .bg-secondary, .bg-success, .bg-danger, .bg-purple {
+.bg-dark, .bg-primary, .bg-secondary, .bg-success, .bg-danger {
     color: #fff;
 }
-.bg-info, .bg-warning, .bg-light, .bg-olive, .bg-pink {
+.bg-info, .bg-warning, .bg-light {
     color: #000;
 }
 .card.bg-dark .card-body {
@@ -437,75 +437,6 @@ a:focus {
     filter: var(--bs-btn-close-white-filter, invert(1) grayscale(100%) brightness(200%));
 }
 
-/* --- dashboard small-box ------------------------------------------------
-   AdminLTE 4 dropped v3's watermark icon. 4.8.5 restored it, but under a new
-   class name (.small-box-icon) that ITFlow's markup does not use - the boxes
-   still carry v3's <div class="icon"> wrapper - so these rules stay.
-   The inner padding and the p > small rule ARE back upstream at identical
-   values and have been dropped from here. */
-.small-box .icon {
-    color: rgba(0, 0, 0, .15);
-    z-index: 0;
-}
-.small-box .icon > i,
-.small-box .icon > svg {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 90px;
-    transition: transform .3s linear;
-}
-.small-box:hover .icon > i,
-.small-box:hover .icon > svg {
-    transform: scale(1.1);
-}
-/* Upstream sets z-index:5 on these but no `position`, which leaves it inert -
-   the icon is absolutely positioned at z-index 0, so the text needs a
-   stacking context of its own to stay above it. */
-.small-box h3,
-.small-box .h3,
-.small-box p {
-    position: relative;
-}
-/* 4.8.5 sets this same 1rem, but also shrinks it to 12px below 576px. This
-   file loads last at equal specificity, so keeping the line deliberately
-   holds the desktop size on phones too; delete it to take their mobile
-   treatment instead. */
-.small-box p {
-    font-size: 1rem;
-}
-.small-box hr {
-    opacity: .25;
-}
-.small-box > .small-box-footer {
-    color: rgba(255, 255, 255, .8);
-}
-.small-box > .small-box-footer:hover {
-    color: #fff;
-}
-
-/* --- utility classes AdminLTE 4 dropped -------------------------------- */
-.text-bold, .text-bold.table td, .text-bold.table th {
-    font-weight: 700;
-}
-.text-xs {
-    font-size: .75rem !important;
-}
-.btn-default {
-    color: #6c757d;
-    background-color: #f8f9fa;
-    border-color: #ced4da;
-}
-.btn-default:hover {
-    color: #495057;
-    background-color: #e2e6ea;
-    border-color: #adb5bd;
-}
-.btn-flat {
-    border-radius: 0;
-    border-width: 1px;
-    box-shadow: none;
-}
 /* sidebar count badges - v3 positioned these absolutely */
 .sidebar-menu .nav-link > .right,
 .sidebar-menu .nav-link > p > .right {
@@ -513,14 +444,6 @@ a:focus {
     right: 1rem;
     top: .7rem;
 }
-/* v3's softened box colours, kept for the three small-boxes that still use
-   them on the dashboard. The other fourteen were dropped - nothing in the
-   tree carries those classes, and the only class names PHP interpolates are
-   Bootstrap's seven contextual ones, so they were unreachable. adminlte-
-   colors-v3 defines all of them anyway if a page ever wants one back. */
-.bg-olive { background-color: rgba(116,200,163,.9) !important; }
-.bg-pink { background-color: rgba(232,62,140,.9) !important; }
-.bg-purple { background-color: rgba(111,66,193,.9) !important; }
 
 /* --- Flatpickr date-filter preset panel ---------------------------------
    Flatpickr has no preset-ranges feature; js/date_filter.js injects this
@@ -1006,19 +929,6 @@ a:focus {
     --bs-btn-hover-bg: #6c757d;
     --bs-btn-hover-border-color: #6c757d;
 }
-/* .btn-default is my own AdminLTE 3 shim and hardcodes a light grey, so it
-   glares in dark mode like the Bootstrap greys above. */
-[data-bs-theme=dark] .btn-default {
-    color: #dee2e6;
-    background-color: #343a40;
-    border-color: #454d55;
-}
-[data-bs-theme=dark] .btn-default:hover {
-    color: #fff;
-    background-color: #454d55;
-    border-color: #565e64;
-}
-
 /* --- TinyMCE chrome ------------------------------------------------------
    TinyMCE's oxide skins ship their own palette - a blue-slate #222f3e with
    #161f29 borders in dark - which sits next to the app's neutral #212529 and
@@ -2083,8 +1993,8 @@ select.select2[multiple]:not(.itflow-select-native) {
     }
 
     /* Bootstrap 4 dropped every shadow when printing; they render as grey
-       smudges on paper. Same rule it used, which also covers the dashboard
-       small-boxes rather than cards alone. */
+       smudges on paper. Same rule it used, which covers everything
+       rather than cards alone. */
     *,
     *::before,
     *::after {

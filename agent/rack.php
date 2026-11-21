@@ -34,7 +34,7 @@ $sql = mysqli_query(
 
 if (mysqli_num_rows($sql) == 0) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='racks.php?client_id=$client_id'><i class='fa fa-fw fa-arrow-left'></i> Back to racks</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='racks.php?client_id=$client_id'><i class='fas fa-fw fa-arrow-left'></i> Back to racks</a></center>";
 
 } else {
 
@@ -156,7 +156,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php } ?>
                             <?php if ($can_delete) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             <?php } ?>

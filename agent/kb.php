@@ -158,7 +158,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search the Knowledge Base..." title="Title, summary, the words in it and its tags">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -209,7 +209,7 @@ $csrf = $_SESSION['csrf_token'];
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_kb_articles"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_kb_articles"
                                             data-confirm-text="The articles go for good, with their versions.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -349,7 +349,7 @@ $csrf = $_SESSION['csrf_token'];
                                             </a>
                                         <?php } ?>
                                         <?php if ($can_delete) { ?>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_kb_article=<?= $kb_article_id ?>&csrf_token=<?= $csrf ?>"
                                                 data-confirm-title="Delete <?= $title ?>?" data-confirm-text="It goes for good, with its versions." data-confirm-button="Delete">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>

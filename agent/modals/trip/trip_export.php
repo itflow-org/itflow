@@ -68,7 +68,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Purpose, from, to, client, site, driver, ticket">
             </div>
         </div>
@@ -78,7 +78,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Driver</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="driver">
                             <option value="">- Anyone -</option>
                             <?php
@@ -95,7 +95,7 @@ ob_start();
                 <div class="col-md-6">
                     <label class="form-label">Client</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                         <select class="form-select select2" name="client">
                             <option value="">- Any client -</option>
                             <?php
@@ -111,7 +111,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Showing</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-filter"></i></span>
                     <select class="form-select select2" name="show">
                         <?php foreach ($shows as $key => $s) { ?>
                             <option <?= $show_filter === $key ? 'selected' : '' ?> value="<?= escapeHtml($key) ?>"><?= escapeHtml($key === '' ? 'All trips' : $s['label']) ?></option>
@@ -122,14 +122,14 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Dated from</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Dated to</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
                 </div>
             </div>

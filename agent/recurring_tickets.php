@@ -144,7 +144,7 @@ $filter_url = function ($changes) {
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="tickets.php<?= $client_url ? '?' . rtrim($client_url, '&') : '' ?>">
-                        <i class="fa fa-fw fa-life-ring me-2"></i>Tickets
+                        <i class="fas fa-fw fa-life-ring me-2"></i>Tickets
                     </a>
                 </div>
             </div>
@@ -161,7 +161,7 @@ $filter_url = function ($changes) {
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search recurring tickets...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -235,7 +235,7 @@ $filter_url = function ($changes) {
                                     </a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_recurring_tickets"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_recurring_tickets"
                                             data-confirm-text="The schedules go for good. Tickets they already raised stay.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -382,7 +382,7 @@ $filter_url = function ($changes) {
                                         <?php } ?>
                                         <?php if ($can_delete) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                 data-confirm-text="The schedule goes for good. Tickets it already raised stay.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>

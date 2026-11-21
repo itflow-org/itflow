@@ -68,7 +68,7 @@ ob_start();
     <?php } ?>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 <?php
 require_once '../../../includes/modal_footer.php';

@@ -58,13 +58,13 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($can_edit) { ?>
-            <button type="submit" name="set_kb_article_summary" class="btn btn-primary text-bold d-none" data-ai-review-use-summary><i class="fas fa-fw fa-align-left me-2"></i>Use as Its Summary</button>
+            <button type="submit" name="set_kb_article_summary" class="btn btn-primary fw-bold d-none" data-ai-review-use-summary><i class="fas fa-fw fa-align-left me-2"></i>Use as Its Summary</button>
             <?php if ($reviewed_on_schedule) { ?>
                 <a class="btn btn-light border d-none" href="post.php?mark_kb_article_reviewed=<?= $kb_article_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-ai-review-mark><i class="fas fa-fw fa-check me-2"></i>Mark Reviewed</a>
             <?php } ?>
         <?php } ?>
         <button type="button" class="btn btn-light border" data-ai-review-again disabled><i class="fas fa-fw fa-redo me-2"></i>Again</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
     </div>
 </form>
 

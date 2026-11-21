@@ -20,7 +20,7 @@
                             <p>
                                 Get Started
                                 <?php if (!$nav_getting_started['finished']) { ?>
-                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Steps done or skipped"><?= $nav_getting_started['done'] ?>/<?= $nav_getting_started['total'] ?></span>
+                                    <span class="right badge text-light" title="Steps done or skipped"><?= $nav_getting_started['done'] ?>/<?= $nav_getting_started['total'] ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -158,7 +158,7 @@
                                 Managed Instances
                                 <?php $nav_managed_offline = managedOfflineCount(); ?>
                                 <?php if ($nav_managed_offline) { ?>
-                                    <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Not checking in" data-nav-managed-offline><?= $nav_managed_offline ?></span>
+                                    <span class="right badge text-bg-danger" title="Not checking in" data-nav-managed-offline><?= $nav_managed_offline ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -188,7 +188,7 @@
                             Mail Queue
                             <?php $nav_mail_failed = mailQueueSummary()['failed_week']; ?>
                             <?php if ($nav_mail_failed) { ?>
-                                <span class="right badge text-bg-danger" data-bs-toggle="tooltip" title="Failed to send in the last week" data-nav-mail-failed><?= $nav_mail_failed ?></span>
+                                <span class="right badge text-bg-danger" title="Failed to send in the last week" data-nav-mail-failed><?= $nav_mail_failed ?></span>
                             <?php } ?>
                         </p>
                     </a>

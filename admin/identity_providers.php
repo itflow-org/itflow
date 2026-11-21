@@ -34,9 +34,9 @@ echo settingsPageStart('identity');
                 <div class="itflow-settings-field" data-setting="redirect_uri">
                     <label class="form-label" for="settingsRedirectUri">Redirect address</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                         <input type="text" class="form-control font-monospace" id="settingsRedirectUri" value="<?= escapeHtml($redirect_uri) ?>" readonly data-sso-redirect>
-                        <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#settingsRedirectUri" title="Copy"><i class="fa fa-fw fa-copy"></i></button>
+                        <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#settingsRedirectUri" title="Copy"><i class="fas fa-fw fa-copy"></i></button>
                     </div>
                     <div class="form-text">Under Authentication in the app registration, as a Web platform.</div>
                 </div>

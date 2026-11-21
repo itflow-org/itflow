@@ -53,7 +53,7 @@ ob_start();
             <?php if ($pause_ends) { ?>
                 <label class="form-label">Until</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                     <input type="date" class="form-control" name="paused_until" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="2999-12-31">
                 </div>
                 <div class="form-text">
@@ -64,14 +64,14 @@ ob_start();
         <?php } elseif ($action === 'next_date') { ?>
             <label class="form-label">Next date <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="next_date" max="2999-12-31" required value="<?= $one ? escapeHtml($one['recurring_invoice_next_date']) : '' ?>">
             </div>
             <div class="form-text">The day the next invoice is made. The runs after it follow on from it, on the same day of the month.</div>
         <?php } else { ?>
             <label class="form-label">Billed <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-sync-alt"></i></span>
                 <select class="form-select select2" name="frequency" required>
                     <?php foreach (recurringInvoiceFrequencies() as $frequency => $label) { ?>
                         <option value="<?= $frequency ?>" <?= $one && $one['recurring_invoice_frequency'] === $frequency ? 'selected' : '' ?>><?= $label ?></option>
@@ -88,7 +88,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_recurring_invoices" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $action === 'pause' ? 'Pause' : 'Save' ?></button>
+        <button type="submit" name="bulk_recurring_invoices" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><?= $action === 'pause' ? 'Pause' : 'Save' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

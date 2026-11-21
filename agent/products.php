@@ -240,7 +240,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search name, code, part number, vendor...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -264,7 +264,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                 <div class="col-lg-2 col-md-6">
                     <div class="d-flex justify-content-lg-end gap-2">
                         <a href="<?= escapeHtml($filter_url(['archived' => $archived ? '' : 1])) ?>" class="btn btn-<?= $archived ? 'primary' : 'outline-secondary' ?>" title="<?= $archived ? 'Showing archived - show current' : 'Show archived' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none d-xl-inline ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none d-xl-inline ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                             <div class="dropdown" id="bulkActionButton" hidden>
@@ -281,7 +281,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                             <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </button>
                                         <?php if ($can_delete) { ?>
-                                            <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_products">
+                                            <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_products">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </button>
                                         <?php } ?>
@@ -427,7 +427,7 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= escapeHtml($row['product_name']) ?> goes for good, with its stock. Lines it is on keep their text and amounts.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>

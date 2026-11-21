@@ -41,7 +41,7 @@ class ReportPdfWriter {
         'text-success-emphasis' => '#0a3622', 'text-danger-emphasis' => '#58151c', 'text-warning-emphasis' => '#664d03',
         'text-info-emphasis' => '#055160', 'text-primary-emphasis' => '#052c65', 'text-secondary-emphasis' => '#2b2f32',
         'text-success' => '#198754', 'text-danger' => '#dc3545', 'text-warning' => '#cc9a06', 'text-info' => '#0aa2c0',
-        'text-primary' => '#0d6efd', 'text-body-secondary' => '#6c757d', 'text-secondary' => '#6c757d', 'text-muted' => '#6c757d',
+        'text-primary' => '#0d6efd', 'text-body-secondary' => '#6c757d', 'text-secondary' => '#6c757d', 'text-body-secondary' => '#6c757d',
         'text-body-tertiary' => '#999da1', 'itflow-report-zero' => '#999da1', 'text-body-emphasis' => '#000000',
     ];
 

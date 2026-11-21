@@ -40,7 +40,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="What the menu says - RMM, Documentation, Book a call" value="<?= escapeHtml($l_name) ?>" required<?= $l ? '' : ' autofocus' ?> data-custom-link-name>
         </div>
     </div>
@@ -48,7 +48,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
     <div class="mb-3">
         <label class="form-label">Goes to <strong class="text-danger">*</strong></label>
         <div class="input-group has-validation">
-            <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
             <input type="text" class="form-control" name="uri" maxlength="500" placeholder="https://..., /agent/page.php, mailto: or tel:" value="<?= escapeHtml($l['custom_link_uri'] ?? '') ?>" required data-custom-link-uri>
             <div class="invalid-feedback" data-custom-link-uri-problem></div>
         </div>
@@ -61,7 +61,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
     <div class="mb-3">
         <label class="form-label">Shows in <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-bars"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-bars"></i></span>
             <select class="form-select select2" name="location" required data-custom-link-location>
                 <?php foreach ($l_locations as $location => $location_config) { ?>
                     <option value="<?= $location ?>"<?= $location === $l_location ? ' selected' : '' ?> data-about="<?= escapeHtml($location_config['about']) ?>"><?= escapeHtml($location_config['label']) ?></option>
@@ -77,7 +77,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
     <div class="mb-3">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="500" placeholder="Shown when the link is hovered - what it's for" value="<?= escapeHtml($l_description) ?>" data-custom-link-description>
         </div>
     </div>
@@ -86,7 +86,7 @@ $l_description = (string) ($l['custom_link_description'] ?? '');
         <label class="form-label">Icon</label>
         <input type="hidden" name="icon" value="<?= escapeHtml($l_icon) ?>" data-custom-link-icon>
         <div class="input-group mb-2">
-            <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
             <input type="search" class="form-control" placeholder="Search icons - or type any Font Awesome icon's name" aria-label="Search icons" data-custom-link-icon-search>
         </div>
         <div class="itflow-tag-icons border rounded p-1" role="group" aria-label="Icons">

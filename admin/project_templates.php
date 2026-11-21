@@ -62,7 +62,7 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(project_te
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search project templates...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@ $counts = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(project_te
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                     data-confirm-text="The template goes for good. Its ticket templates stay, and so do projects started from it.">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

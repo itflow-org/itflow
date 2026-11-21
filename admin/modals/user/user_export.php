@@ -30,7 +30,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= escapeHtml($q_filter) ?>" placeholder="Name, email or role">
             </div>
         </div>
@@ -38,7 +38,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Role</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
                 <select class="form-select select2" name="role">
                     <option value="">- Any role -</option>
                     <?php foreach ($roles as $role_id => $role) { ?>
@@ -51,7 +51,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Archived</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Not archived</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

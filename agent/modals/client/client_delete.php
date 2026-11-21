@@ -22,8 +22,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="btn btn-danger text-bold disabled" id="clientDeleteButton<?= $client_id ?>" href="post.php?delete_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-trash me-2"></i>Delete</a>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+                <a class="btn btn-danger fw-bold disabled" id="clientDeleteButton<?= $client_id ?>" href="post.php?delete_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-trash me-2"></i>Delete</a>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </div>
     </div>

@@ -27,7 +27,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-7">
                 <label class="form-label">Name <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                     <input type="text" class="form-control" name="name" placeholder="MDF-RACK-01" maxlength="200" value="<?= $rack_name ?>" required autofocus>
                 </div>
             </div>
@@ -71,7 +71,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-7">
                 <label class="form-label">Model</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                     <input type="text" class="form-control" name="model" placeholder="APC NetShelter SX 42U" maxlength="200" value="<?= $rack_model ?>">
                 </div>
             </div>
@@ -79,7 +79,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-5">
                 <label class="form-label">Depth</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-ruler"></i></span>
                     <input type="text" class="form-control" name="depth" placeholder="1070 mm" maxlength="50" value="<?= $rack_depth ?>">
                 </div>
             </div>
@@ -105,7 +105,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-6">
                 <label class="form-label">Where in the building</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-door-closed"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-door-closed"></i></span>
                     <input type="text" class="form-control" name="physical_location" placeholder="2nd floor, comms closet B" maxlength="200" value="<?= $rack_physical_location ?>">
                 </div>
             </div>
@@ -113,7 +113,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-6">
                 <label class="form-label">Power budget</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-bolt"></i></span>
                     <input type="number" class="form-control" name="power_capacity" placeholder="1440" min="0" max="1000000" value="<?= $rack_power_capacity ?: '' ?>">
                     <span class="input-group-text">W</span>
                 </div>
@@ -123,7 +123,7 @@ isset($mysqli) || die("Direct file access is not allowed");
             <div class="col-md-6">
                 <label class="form-label">Description</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                     <input type="text" class="form-control" name="description" placeholder="Main comms rack" maxlength="500" value="<?= $rack_description ?>">
                 </div>
             </div>

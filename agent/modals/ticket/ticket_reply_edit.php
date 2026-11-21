@@ -45,7 +45,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-edit me-2"></i>Edit Reply</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Edit Reply</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -61,7 +61,7 @@ ob_start();
                 <input class="btn-check" id="ticket_reply_type_opt1" type="radio" name="ticket_reply_type" value="Public" <?php if ($ticket_reply_type == 'Public') { echo "checked"; } ?>>
                 <label class="btn btn-outline-secondary" for="ticket_reply_type_opt1"><i class="fas fa-fw fa-eye me-1"></i>Public</label>
             </div>
-            <small class="text-muted">Public replies show in the client portal. Saving here never sends an email.</small>
+            <small class="text-body-secondary">Public replies show in the client portal. Saving here never sends an email.</small>
         </div>
 
         <?php if ($emailed_to !== '') { ?>
@@ -100,7 +100,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">When it was worked</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                                 <input type="date" class="form-control" name="work_date" max="2999-12-31" style="min-width: 9.5rem" value="<?= escapeHtml(substr($work_start, 0, 10)) ?>" aria-label="Date worked">
                                 <input type="time" class="form-control" name="work_start" step="60" style="min-width: 7.5rem" value="<?= escapeHtml(substr($work_start, 11, 5)) ?>" aria-label="Start">
                                 <span class="input-group-text px-2">-</span>
@@ -115,8 +115,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_reply" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_reply" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

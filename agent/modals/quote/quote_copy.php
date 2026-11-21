@@ -43,7 +43,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">For <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <?php foreach ($clients as $client_option) { ?>
                             <option value="<?= intval($client_option['client_id']) ?>" <?= intval($client_option['client_id']) === $client_id ? 'selected' : '' ?><?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?><?= intval($client_option['client_lead']) ? selectOptionData(['description' => 'Lead']) : '' ?>><?= escapeHtml($client_option['client_name']) ?></option>
@@ -54,21 +54,21 @@ ob_start();
             <div class="col-sm-6">
                 <label class="form-label">Quote date <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                 </div>
             </div>
             <div class="col-sm-6">
                 <label class="form-label">Valid until <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                     <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d') ?>" max="2999-12-31" value="<?= date('Y-m-d', strtotime('+30 days')) ?>" required>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_quote_copy" class="btn btn-primary text-bold"><i class="fas fa-copy me-2"></i>Copy</button>
+        <button type="submit" name="add_quote_copy" class="btn btn-primary fw-bold"><i class="fas fa-copy me-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

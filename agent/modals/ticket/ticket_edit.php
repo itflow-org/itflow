@@ -48,7 +48,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Edit Ticket <span class="fw-normal text-white-50 ms-1 font-monospace"><?= escapeHtml(ticketReference($ticket)) ?></span></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>Edit Ticket <span class="fw-normal text-white-50 ms-1 font-monospace"><?= escapeHtml(ticketReference($ticket)) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -59,10 +59,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-edit-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-edit-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-related"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-related"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
         </ul>
 
@@ -74,7 +74,7 @@ ob_start();
                     <label class="form-label">For</label>
                     <?php if ($client_id) { ?>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <select class="form-select select2" name="contact_id">
                                 <option value="0">- No contact -</option>
                                 <?php
@@ -103,7 +103,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" name="subject" maxlength="500" value="<?= escapeHtml($ticket['ticket_subject']) ?>" placeholder="Subject" required>
                     </div>
                 </div>
@@ -117,7 +117,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" required>
                                     <?php foreach (['Low' => 'var(--bs-info)', 'Medium' => 'var(--bs-warning)', 'High' => 'var(--bs-danger)', 'Urgent' => 'var(--bs-emphasis-color)'] as $priority => $color) { ?>
                                         <option <?= $ticket['ticket_priority'] === $priority ? 'selected' : '' ?> data-color="<?= $color ?>"><?= $priority ?></option>
@@ -130,7 +130,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $ticket_category) ?>
@@ -146,7 +146,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Assigned to</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                                 <select class="form-select select2" name="assigned_to">
                                     <option value="0">- Unassigned -</option>
                                     <?php
@@ -164,7 +164,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Due</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                                 <input type="datetime-local" class="form-control" name="due" value="<?= escapeHtml($ticket_due_at) ?>">
                             </div>
                         </div>
@@ -194,7 +194,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Asset</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                             <select class="form-select select2" name="asset_id">
                                 <option value="0">- None -</option>
                                 <?php
@@ -217,7 +217,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Other assets</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                             <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                                 <?php foreach ($assets as $row) {
                                     $asset_id_select = intval($row['asset_id']); ?>
@@ -230,7 +230,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Site</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                             <select class="form-select select2" name="location_id">
                                 <option value="0">- None -</option>
                                 <?php
@@ -252,7 +252,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Vendor</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                                 <select class="form-select select2" name="vendor_id">
                                     <option value="0">- None -</option>
                                     <?php
@@ -272,7 +272,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Their reference</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="The vendor's case number" maxlength="255" value="<?= escapeHtml($ticket['ticket_vendor_ticket_number']) ?>">
                             </div>
                         </div>
@@ -282,7 +282,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Project</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
                         <select class="form-select select2" name="project_id">
                             <option value="0">- None -</option>
                             <?php
@@ -305,8 +305,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

@@ -167,7 +167,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <input type="hidden" id="url_key" value="<?= $invoice_url_key ?>">
                         <div id="payment-element"></div>
                         <br>
-                        <button type="submit" id="submit" class="btn btn-primary btn-lg w-100 text-bold" hidden="hidden">
+                        <button type="submit" id="submit" class="btn btn-primary btn-lg w-100 fw-bold" hidden="hidden">
                             <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status"></span>
                             <span id="button-text"><i class="fas fa-check me-2"></i>Pay Invoice</span>
                         </button>

@@ -89,7 +89,7 @@ $empty_state_skip = true;
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= escapeHtml(stripslashes($q)) ?>" placeholder="Search notifications...">
-                        <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-primary" title="Search"><i class="fas fa-search"></i></button>
                         <button class="btn btn-secondary" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>

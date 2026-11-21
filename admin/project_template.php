@@ -16,7 +16,7 @@ $template = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT project_template_na
 if (!$template) { ?>
     <div class="text-center mt-5">
         <h1 class="h3 text-secondary">Nothing to see here</h1>
-        <a class="btn btn-secondary mt-3" href="project_templates.php"><i class="fa fa-fw fa-arrow-left me-2"></i>Project Templates</a>
+        <a class="btn btn-secondary mt-3" href="project_templates.php"><i class="fas fa-fw fa-arrow-left me-2"></i>Project Templates</a>
     </div>
     <?php
     require_once "../includes/footer.php";
@@ -92,7 +92,7 @@ $archived = !empty($template['project_template_archived_at']);
                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                         </a>
                     <?php } ?>
-                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                         data-confirm-text="The template goes for good. Its ticket templates stay, and so do projects started from it.">
                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                     </a>

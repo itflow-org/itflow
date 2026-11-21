@@ -118,7 +118,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-building me-2"></i><?= $view === 'clients' ? 'Client Vendors' : 'Vendors' ?></h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-building me-2"></i><?= $view === 'clients' ? 'Client Vendors' : 'Vendors' ?></h3>
         <div class="card-tools d-flex align-items-center gap-2">
             <?php if ($view !== 'client' && lookupUserPermission('module_client') >= 1) { ?>
                 <!-- Ours, or every client's -->
@@ -138,24 +138,24 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit && $has_templates) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= $add_url ?>&from_template=1">
-                            <i class="fa fa-fw fa-puzzle-piece me-2"></i>New from Template
+                            <i class="fas fa-fw fa-puzzle-piece me-2"></i>New from Template
                         </a>
                         <?php if ($view !== 'ours') { ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/vendor/vendor_template_clients.php">
-                                <i class="fa fa-fw fa-users me-2"></i>Add a Template to Clients
+                                <i class="fas fa-fw fa-users me-2"></i>Add a Template to Clients
                             </a>
                         <?php } ?>
                     <?php } ?>
                     <?php if ($can_edit && $view !== 'clients') { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=vendors">
-                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
                         <?php if ($can_edit && ($has_templates || $view !== 'clients')) { ?><div class="dropdown-divider"></div><?php } ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/vendor/vendor_export.php', ['client_id', 'view', 'client', 'tags', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -175,7 +175,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search name, account, phone, contact...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($view === 'clients') { ?>
@@ -228,7 +228,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                         <?php } ?>
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active vendors' : 'Show archived vendors' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -245,7 +245,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_vendors"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_vendors"
                                             data-confirm-text="The vendors go for good. Their cases, licenses, assets and domains stay, with no vendor. Vendors with expenses are kept.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
@@ -440,7 +440,7 @@ $missing_templates = $view === 'client' && !$archived ? vendorTemplatesMissingFo
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, with no vendor.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>

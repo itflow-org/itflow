@@ -152,10 +152,10 @@
                 <!-- Menu Footer-->
                 <li class="user-footer bg-light">
                     <?php if ($session_is_admin) { ?>
-                        <a href="/admin" class="btn btn-default w-100 btn-flat mb-2"><i class="fas fa-user-shield me-2"></i>Administration</a>
+                        <a href="/admin" class="btn btn-light border w-100 mb-2"><i class="fas fa-user-shield me-2"></i>Administration</a>
                     <?php } ?>
-                    <a href="/agent/user/user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog me-2"></i>Account</a>
-                    <a href="/agent/post.php?logout" class="btn btn-default btn-flat float-end"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                    <a href="/agent/user/user_details.php" class="btn btn-light border"><i class="fas fa-user-cog me-2"></i>Account</a>
+                    <a href="/agent/post.php?logout" class="btn btn-light border float-end"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                 </li>
             </ul>
         </li>

@@ -167,7 +167,7 @@ function apiKeyAgentFieldHtml($selected = 0) {
     <div class="mb-3" data-api-key-agent>
         <label>Acts as <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
             <select class="form-select select2" name="run_as_user" required>
                 <option value="">- Select an agent -</option>
                 <?php foreach ($agents as $user_id => $agent) { ?>

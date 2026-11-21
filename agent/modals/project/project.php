@@ -106,7 +106,7 @@ ob_start();
     <?php if ($can_edit && !$project['project_archived_at']) { ?>
         <button type="button" class="btn btn-light ajax-modal" data-modal-size="lg" data-modal-url="modals/project/project_edit.php?id=<?= $project_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-project-diagram me-2"></i>Open Project</a>
+    <a class="btn btn-primary fw-bold" href="<?= $url ?>"><i class="fas fa-project-diagram me-2"></i>Open Project</a>
 </div>
 
 <?php

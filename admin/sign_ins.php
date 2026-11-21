@@ -178,7 +178,7 @@ $audit_url = function (array $query) use ($dates_query) {
                 <div class="col-lg-6 col-md-7">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search sign-ins..." title="Name, email or IP address">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-5">

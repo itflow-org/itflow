@@ -70,7 +70,7 @@ $csrf = $_SESSION['csrf_token'];
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-contract me-2"></i>Contract Templates</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-contract me-2"></i>Contract Templates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contract_template/contract_template_add.php" data-modal-size="lg">
                 <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Template</span>
@@ -84,7 +84,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search templates..." title="Name, description or support hours">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -178,7 +178,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php } else { ?>
                                     <a class="dropdown-item text-danger" href="post.php?archive_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>" title="Kept, but not offered on a new contract"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contract_template=<?= $id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="<?= intval($row['n_contracts']) ? 'The ' . intval($row['n_contracts']) . ' contract' . (intval($row['n_contracts']) === 1 ? '' : 's') . ' started from it keep their terms.' : 'Nothing was started from it.' ?>" data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

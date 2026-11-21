@@ -60,7 +60,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
@@ -92,7 +92,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Head office and comms room" value="<?= $location_description ?>">
             </div>
         </div>
@@ -100,7 +100,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <label class="form-label">Tags</label>
             <input type="hidden" name="tags_form" value="1">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('location', $location_tag_ids) ?>
                 </select>
@@ -126,35 +126,35 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         <div class="col-12">
             <label class="form-label">Street address</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                 <input type="text" class="form-control" name="address" placeholder="1140 Ridge Avenue, Suite 200" maxlength="200" value="<?= $location_address ?>">
             </div>
         </div>
         <div class="col-md-5">
             <label class="form-label">City</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-city"></i></span>
                 <input type="text" class="form-control" name="city" placeholder="City" maxlength="200" value="<?= $location_city ?>">
             </div>
         </div>
         <div class="col-md-4">
             <label class="form-label">State / province</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-flag"></i></span>
                 <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200" value="<?= $location_state ?>">
             </div>
         </div>
         <div class="col-md-3">
             <label class="form-label">Postal code</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-mail-bulk"></i></span>
                 <input type="text" class="form-control" name="zip" placeholder="Zip" maxlength="200" value="<?= $location_zip ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Country</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-globe-americas"></i></span>
                 <select class="form-select select2" name="country">
                     <option value="">- Select a country -</option>
                     <?php foreach ($countries_array as $country_name) { ?>
@@ -173,7 +173,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <div class="col-12">
                 <label class="form-label">On-site contact</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="contact">
                         <option value="">- Nobody -</option>
                         <?php foreach ($contact_options as $contact_option) {
@@ -187,7 +187,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         <div class="col-md-8">
             <label class="form-label">Phone</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                 <input type="hidden" name="phone_country_code" value="<?= $location_phone_country_code ?>">
                 <input type="tel" class="form-control" name="phone" value="<?= $location_phone ?>" placeholder="Phone number" maxlength="200" data-itflow-phone="phone_country_code" data-itflow-phone-country-select="country">
             </div>
@@ -202,7 +202,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         <div class="col-md-8">
             <label class="form-label">Fax</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-fax"></i></span>
                 <input type="hidden" name="fax_country_code" value="<?= $location_fax_country_code ?>">
                 <input type="tel" class="form-control" name="fax" value="<?= $location_fax ?>" placeholder="Fax number" maxlength="200" data-itflow-phone="fax_country_code" data-itflow-phone-country-select="country">
             </div>
@@ -210,7 +210,7 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         <div class="col-12">
             <label class="form-label">Hours</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="text" class="form-control" name="hours" placeholder="Mon-Fri 8:00 - 17:00, closed for lunch 12-1" maxlength="200" value="<?= $location_hours ?>">
             </div>
         </div>

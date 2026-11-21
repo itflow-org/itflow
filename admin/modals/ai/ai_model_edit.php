@@ -55,7 +55,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-brain me-2"></i><?= $row ? 'Edit AI Model <span class="fw-normal text-white-50 ms-1">' . escapeHtml($row['ai_model_name']) . '</span>' : 'New AI Model' ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-brain me-2"></i><?= $row ? 'Edit AI Model <span class="fw-normal text-white-50 ms-1">' . escapeHtml($row['ai_model_name']) . '</span>' : 'New AI Model' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-ai-model-form data-taken="<?= escapeHtml(json_encode($taken)) ?>" data-csrf="<?= $_SESSION['csrf_token'] ?>">
@@ -71,7 +71,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiModelProvider">Provider <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-robot"></i></span>
                 <select class="form-select select2" name="provider" id="aiModelProvider" data-ai-model-provider>
                     <option value="">- Select a provider -</option>
                     <?php foreach ($providers as $id => $provider) { ?>
@@ -85,7 +85,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiModelName">Model <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-brain"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-brain"></i></span>
                 <input type="text" class="form-control font-monospace" name="model" id="aiModelName" maxlength="200" spellcheck="false" list="aiModelList" value="<?= escapeHtml($row['ai_model_name'] ?? '') ?>" placeholder="As the provider names it" data-ai-model-name>
             </div>
             <?= $error_for('model') ?>
@@ -96,7 +96,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiModelUseCase">For <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-th-list"></i></span>
                 <select class="form-select select2" name="use_case" id="aiModelUseCase" data-ai-model-use-case>
                     <?php foreach ($use_cases as $case => $about) { ?>
                         <option value="<?= escapeHtml($case) ?>" <?= $case === $use_case ? 'selected' : '' ?><?= selectOptionData(['description' => $about]) ?>><?= escapeHtml($case) ?></option>
@@ -120,7 +120,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="aiModelTemperature">Temperature</label>
             <div class="input-group has-validation" style="max-width: 16rem;">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                 <input type="text" class="form-control" name="temperature" id="aiModelTemperature" inputmode="decimal" maxlength="5" value="<?= escapeHtml($temperature) ?>" placeholder="The model's own">
             </div>
             <?= $error_for('temperature') ?>
@@ -134,10 +134,10 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $row ? 'edit_ai_model' : 'add_ai_model' ?>" class="btn btn-primary text-bold" data-ai-save <?= $providers ? '' : 'disabled' ?>>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
+        <button type="submit" name="<?= $row ? 'edit_ai_model' : 'add_ai_model' ?>" class="btn btn-primary fw-bold" data-ai-save <?= $providers ? '' : 'disabled' ?>>
+            <i class="fas fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

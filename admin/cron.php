@@ -536,7 +536,7 @@ $status_looks = [
                     </div>
                     <label class="form-label" for="cronAlertTo">Send to</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                         <input type="text" class="form-control" id="cronAlertTo" name="cron_alert_to" maxlength="500" placeholder="Every active admin" value="<?= escapeHtml($alert_to) ?>">
                     </div>
                     <div class="form-text">

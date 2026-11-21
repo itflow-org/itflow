@@ -53,7 +53,7 @@ ob_start();
     <div class="modal-body">
         <label class="form-label"><?= $fields[$field]['label'] ?><?= $field === 'driver' ? ' <strong class="text-danger">*</strong>' : '' ?></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'driver') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Select a driver -</option>
@@ -91,7 +91,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_trips" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
+        <button type="submit" name="bulk_edit_trips" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

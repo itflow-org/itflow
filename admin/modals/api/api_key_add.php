@@ -40,7 +40,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="What uses it - the RMM, a PSA sync" maxlength="255" required autofocus>
                     </div>
                 </div>
@@ -48,7 +48,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Expires <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="2999-12-31" value="<?= date('Y-m-d', strtotime('+1 year')) ?>" required>
                     </div>
                     <div class="form-text">It works until the start of that day.</div>
@@ -62,7 +62,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">API key</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="text" class="form-control font-monospace" value="<?= $key ?>" readonly>
                         <button class="btn btn-outline-secondary clipboardjs" title="Copy API key" type="button" data-clipboard-text="<?= $key ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
@@ -72,7 +72,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Credential decryption password</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-unlock-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-unlock-alt"></i></span>
                         <input type="text" class="form-control font-monospace" value="<?= $decryptPW ?>" readonly>
                         <button class="btn btn-outline-secondary clipboardjs" title="Copy decryption password" type="button" data-clipboard-text="<?= $decryptPW ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
@@ -89,7 +89,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_api_key" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
     <script>

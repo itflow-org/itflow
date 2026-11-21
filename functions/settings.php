@@ -176,7 +176,7 @@ function adminNavGroupItemHtml($key) {
     }
     return '<li class="nav-item"><a href="/admin/' . escapeHtml($group['pages'][0]['file']) . '" class="nav-link' . ($active ? ' active' : '') . '">'
         . '<i class="nav-icon fas ' . escapeHtml($group['icon']) . '"></i><p>' . escapeHtml($group['label'])
-        . ($count ? ' <span class="right badge ' . escapeHtml($tone) . '" data-bs-toggle="tooltip" title="' . escapeHtml(implode(' - ', array_filter($titles))) . '">' . $count . '</span>' : '')
+        . ($count ? ' <span class="right badge ' . escapeHtml($tone) . '" title="' . escapeHtml(implode(' - ', array_filter($titles))) . '">' . $count . '</span>' : '')
         . '</p></a></li>';
 }
 
@@ -654,7 +654,7 @@ function settingsInput($name, $saved, array $options = []) {
     $invalid = settingsError($name) !== '' ? ' is-invalid' : '';
     $value = settingsValue($name, $saved);
     $control = '<div class="input-group has-validation">'
-        . '<span class="input-group-text"><i class="fa fa-fw ' . escapeHtml($options['icon'] ?? 'fa-pen') . '"></i></span>'
+        . '<span class="input-group-text"><i class="fas fa-fw ' . escapeHtml($options['icon'] ?? 'fa-pen') . '"></i></span>'
         . '<input type="' . escapeHtml($options['type'] ?? 'text') . '" class="form-control' . $invalid . (isset($options['class']) ? ' ' . escapeHtml($options['class']) : '') . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '" value="' . escapeHtml((string) $value) . '"' . settingsAttributes($options) . '>'
         . (isset($options['suffix']) ? '<span class="input-group-text">' . $options['suffix'] . '</span>' : '')
         . '</div>';
@@ -689,7 +689,7 @@ function settingsSelect($name, $saved, array $choices, array $options = []) {
     }
     $select2 = ($options['search'] ?? count($choices) > 12) ? ' select2' : '';
     $control = '<div class="input-group has-validation">'
-        . '<span class="input-group-text"><i class="fa fa-fw ' . escapeHtml($options['icon'] ?? 'fa-list') . '"></i></span>'
+        . '<span class="input-group-text"><i class="fas fa-fw ' . escapeHtml($options['icon'] ?? 'fa-list') . '"></i></span>'
         . '<select class="form-select' . $select2 . $invalid . '" id="' . escapeHtml($id) . '" name="' . escapeHtml($name) . '"' . settingsAttributes($options) . '>' . $html . '</select>'
         . ($options['append'] ?? '')
         . '</div>';

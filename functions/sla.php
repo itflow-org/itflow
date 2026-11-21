@@ -353,12 +353,12 @@ function slaPercentDisplay($percent)
         return "<span class='text-secondary'>-</span>";
     }
     if ($percent >= 95) {
-        return "<span class='text-success text-bold'>$percent%</span>";
+        return "<span class='text-success fw-bold'>$percent%</span>";
     }
     if ($percent >= 80) {
-        return "<span class='text-warning text-bold'>$percent%</span>";
+        return "<span class='text-warning fw-bold'>$percent%</span>";
     }
-    return "<span class='text-danger text-bold'>$percent%</span>";
+    return "<span class='text-danger fw-bold'>$percent%</span>";
 }
 
 // Reconcile a ticket's resolution clock with its current status. Safe to call

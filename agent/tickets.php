@@ -290,7 +290,7 @@ $export_extra = [
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring me-2"></i>Tickets</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Tickets</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if ($can_edit) { ?>
@@ -301,11 +301,11 @@ $export_extra = [
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="recurring_tickets.php<?= $client_url ? '?' . rtrim($client_url, '&') : '' ?>">
-                        <i class="fa fa-fw fa-redo-alt me-2"></i>Recurring Tickets
+                        <i class="fas fa-fw fa-redo-alt me-2"></i>Recurring Tickets
                     </a>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'client', 'status', 'billing', 'category', 'priority', 'assigned', 'sla', 'project', 'tags', 'q'], $export_extra) ?>">
-                        <i class="fa fa-fw fa-download me-2"></i>Export
+                        <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
             </div>
@@ -333,7 +333,7 @@ $export_extra = [
                         <button class="btn btn-outline-secondary<?= $hidden_filter_count ? ' itflow-filter-on' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="More filters" aria-expanded="<?= $hidden_filter_count ? 'true' : 'false' ?>">
                             <i class="fas fa-sliders-h"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                         </button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-3' : 'col-lg-2' ?> col-md-6">
@@ -409,7 +409,7 @@ $export_extra = [
                                     </a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets"
+                                        <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets"
                                             data-confirm-text="The tickets go for good, with their replies, tasks and attachments. Closed tickets are kept.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>

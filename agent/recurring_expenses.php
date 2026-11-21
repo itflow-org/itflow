@@ -144,9 +144,9 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="expenses.php"><i class="fa fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses</a>
+                    <a class="dropdown-item" href="expenses.php"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses</a>
                     <?php if (reportCanOpen('expense_by_vendor')) { ?>
-                        <a class="dropdown-item" href="reports/expense_by_vendor.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Spend by Vendor</a>
+                        <a class="dropdown-item" href="reports/expense_by_vendor.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Spend by Vendor</a>
                     <?php } ?>
                 </div>
             </div>
@@ -160,7 +160,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search recurring expenses..." title="Vendor, description, reference, amount, client, category">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -299,7 +299,7 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="<?= $row_post('delete_recurring_expense') ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="<?= $row_post('delete_recurring_expense') ?>"
                                         data-confirm-text="<?= escapeHtml(recurringExpenseLabel($row)) ?> goes for good. The expenses it recorded stay.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

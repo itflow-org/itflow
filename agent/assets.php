@@ -234,7 +234,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=assets">
-                        <i class="fa fa-fw fa-upload me-2"></i>Import
+                        <i class="fas fa-fw fa-upload me-2"></i>Import
                     </a>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
@@ -243,7 +243,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php } ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/asset/asset_export.php', ['client_id', 'type', 'client', 'location', 'status', 'tags', 'expire_days', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -282,7 +282,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <div class="<?= $rmm_set_up ? 'col-xl-2' : 'col-xl-3' ?> col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= strtolower($search_noun) ?>, IPs, serials...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($client_url) { ?>
@@ -388,7 +388,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
                             class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active assets' : 'Show archived assets' ?>">
-                            <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
+                            <i class="fas fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <?php if ($can_edit) { // every bulk action changes them ?>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -449,7 +449,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                         <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php if ($can_delete) { ?>
-                                    <button class="dropdown-item text-danger text-bold"
+                                    <button class="dropdown-item text-danger fw-bold"
                                         type="submit" form="bulkActions" name="bulk_delete_assets">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </button>
@@ -749,7 +749,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>

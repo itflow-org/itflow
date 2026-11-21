@@ -32,7 +32,7 @@ $remember_days = max(1, intval($config_login_remember_me_expire));
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control" data-toggle="password" name="current_password" autocomplete="current-password" required>
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -40,7 +40,7 @@ $remember_days = max(1, intval($config_login_remember_me_expire));
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                             <input type="password" class="form-control" data-toggle="password" name="new_password" placeholder="At least <?= USER_PASSWORD_MIN ?> characters" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" required data-password-new>
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         </div>
                     </div>
                     <div>
@@ -88,7 +88,7 @@ $remember_days = max(1, intval($config_login_remember_me_expire));
                             <div class="input-group mb-2">
                                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                                 <input type="password" class="form-control" data-toggle="password" name="current_password" placeholder="To turn MFA off" autocomplete="current-password" required>
-                                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                             </div>
                             <button type="submit" name="disable_your_mfa" class="btn btn-danger btn-sm"><i class="fas fa-unlock me-2"></i>Turn MFA Off</button>
                         </form>

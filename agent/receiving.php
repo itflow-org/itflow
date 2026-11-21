@@ -34,7 +34,7 @@ $line_count = array_sum(array_map('count', $by_po));
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-truck-loading me-2"></i>Receiving</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-truck-loading me-2"></i>Receiving</h3>
         <div class="card-tools">
             <a class="btn btn-outline-light" href="purchase_orders.php?show=ordered"><i class="fas fa-file-signature"></i><span class="d-none d-lg-inline ms-2">Ordered POs</span></a>
         </div>
@@ -160,7 +160,7 @@ $line_count = array_sum(array_map('count', $by_po));
             <?php if ($can_edit) { ?>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
                     <span class="small text-body-secondary me-auto">Only the lines with a number are received - the rest wait for next time.</span>
-                    <button type="submit" name="po_receive" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Receive</button>
+                    <button type="submit" name="po_receive" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Receive</button>
                 </div>
             <?php } ?>
         </form>

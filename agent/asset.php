@@ -55,7 +55,7 @@ $sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_c
 
 if (mysqli_num_rows($sql) == 0) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -332,27 +332,27 @@ if (mysqli_num_rows($sql) == 0) {
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket
+                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Ticket
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
+                                <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
                             <?php if ($can_credentials_edit) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
-                                    <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
+                                    <i class="fas fa-fw fa-key text-secondary me-2"></i>Credential
                                 </a>
                             <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-ethernet text-secondary me-2"></i>Interface
+                                <i class="fas fa-fw fa-ethernet text-secondary me-2"></i>Interface
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                                <i class="fas fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="xl">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
-                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
                                 <i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Note
@@ -362,13 +362,13 @@ if (mysqli_num_rows($sql) == 0) {
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <?= linkPickerButton('asset', $asset_id, 'software', 'License', 'dropdown-item', 'fa fa-fw fa-cube text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'software', 'License', 'dropdown-item', 'fas fa-fw fa-cube text-secondary me-2') ?>
                             <?php if ($can_credentials_edit) { ?>
-                                <?= linkPickerButton('asset', $asset_id, 'credential', 'Credential', 'dropdown-item', 'fa fa-fw fa-key text-secondary me-2') ?>
+                                <?= linkPickerButton('asset', $asset_id, 'credential', 'Credential', 'dropdown-item', 'fas fa-fw fa-key text-secondary me-2') ?>
                             <?php } ?>
-                            <?= linkPickerButton('asset', $asset_id, 'service', 'Service', 'dropdown-item', 'fa fa-fw fa-stream text-secondary me-2') ?>
-                            <?= linkPickerButton('asset', $asset_id, 'document', 'Document', 'dropdown-item', 'fa fa-fw fa-file-alt text-secondary me-2') ?>
-                            <?= linkPickerButton('asset', $asset_id, 'file', 'File', 'dropdown-item', 'fa fa-fw fa-paperclip text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'service', 'Service', 'dropdown-item', 'fas fa-fw fa-stream text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                            <?= linkPickerButton('asset', $asset_id, 'file', 'File', 'dropdown-item', 'fas fa-fw fa-paperclip text-secondary me-2') ?>
                         </div>
                     </div>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
@@ -388,7 +388,7 @@ if (mysqli_num_rows($sql) == 0) {
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>
@@ -700,7 +700,7 @@ if (mysqli_num_rows($sql) == 0) {
                                             </button>
                                             <?php if ($can_delete) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces"
+                                                <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces"
                                                     data-confirm-text="The interfaces go for good, and their connections with them.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </button>
@@ -714,14 +714,14 @@ if (mysqli_num_rows($sql) == 0) {
                                         <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_multiple_add.php?asset_id=<?= $asset_id ?>">
-                                                <i class="fa fa-fw fa-th me-2"></i>Add a Run of Ports
+                                                <i class="fas fa-fw fa-th me-2"></i>Add a Run of Ports
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_import.php?asset_id=<?= $asset_id ?>">
-                                                <i class="fa fa-fw fa-upload me-2"></i>Import
+                                                <i class="fas fa-fw fa-upload me-2"></i>Import
                                             </a>
                                             <?php if ($interface_count) { ?>
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_export.php?asset_id=<?= $asset_id ?>">
-                                                    <i class="fa fa-fw fa-download me-2"></i>Export
+                                                    <i class="fas fa-fw fa-download me-2"></i>Export
                                                 </a>
                                             <?php } ?>
                                         </div>
@@ -870,7 +870,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                             <?php } ?>
                                                             <?php if ($can_delete && !$interface_primary) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                                     data-confirm-text="<?= escapeHtml($row['interface_name']) ?> goes for good<?= $link ? ', and its connection with it' : '' ?>.">
                                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
@@ -987,11 +987,11 @@ if (mysqli_num_rows($sql) == 0) {
                                                             </a>
                                                             <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                                 data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
-                                                                <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
+                                                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise Now
                                                             </a>
                                                             <?php if ($can_delete) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
                                                             <?php } ?>
@@ -1210,7 +1210,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
                                                     <?php if ($can_delete) { ?>
-                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>

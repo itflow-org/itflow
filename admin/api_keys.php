@@ -97,7 +97,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search API keys..." title="Key name or the agent it acts as">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-md-7">
@@ -107,7 +107,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_api_keys"
+                                <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_api_keys"
                                     data-confirm-title="Delete these keys?" data-confirm-text="Anything using them stops working." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </button>
@@ -221,7 +221,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <i class="fas fa-fw fa-ban me-2"></i>Revoke
                                         </a>
                                     <?php } else { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_api_key=<?= $api_key_id ?>&csrf_token=<?= $csrf ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_api_key=<?= $api_key_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It has expired, so nothing can be using it." data-confirm-button="Delete">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

@@ -256,7 +256,7 @@ ob_start();
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-light ajax-modal" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <a class="btn btn-primary text-bold" href="<?= $url ?>"><i class="fas fa-life-ring me-2"></i>Open Ticket</a>
+    <a class="btn btn-primary fw-bold" href="<?= $url ?>"><i class="fas fa-life-ring me-2"></i>Open Ticket</a>
 </div>
 
 <?php

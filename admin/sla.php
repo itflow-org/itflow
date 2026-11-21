@@ -273,7 +273,7 @@ $pill_url = function ($view) use ($on_days) {
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>"
                                     placeholder="<?= $on_days ? 'Search closure days...' : 'Search SLAs...' ?>" title="<?= $on_days ? 'Name, date, month or day of the week' : 'Name or description' ?>">
-                                <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -500,7 +500,7 @@ $pill_url = function ($view) use ($on_days) {
                         // The priority's own colour, as its badge has in the ticket lists
                         $flag_tone = ticketPriorityColor($priority) === 'dark' ? 'body' : ticketPriorityColor($priority); ?>
                         <div class="input-group mb-2">
-                            <span class="input-group-text" style="width: 7rem;"><i class="fa fa-fw fa-flag me-2 text-<?= $flag_tone ?>"></i><?= $priority ?></span>
+                            <span class="input-group-text" style="width: 7rem;"><i class="fas fa-fw fa-flag me-2 text-<?= $flag_tone ?>"></i><?= $priority ?></span>
                             <select class="form-select select2" name="global_sla_<?= strtolower($priority) ?>" aria-label="Default SLA for <?= $priority ?> tickets" data-sla-default="<?= $priority ?>">
                                 <option value="0">- No SLA -</option>
                                 <?php foreach ($sla_choices as $choice_id => $choice) { ?>
@@ -515,7 +515,7 @@ $pill_url = function ($view) use ($on_days) {
                     </small>
                 </div>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
-                    <button type="submit" name="save_sla_assignments" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+                    <button type="submit" name="save_sla_assignments" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
                     <span class="small text-secondary">Every ticket not yet closed is looked at again.</span>
                 </div>
             </form>
@@ -540,7 +540,7 @@ $pill_url = function ($view) use ($on_days) {
                     <div class="mb-3">
                         <label class="form-label">Business hours</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                             <input type="time" class="form-control" name="business_hours_start" value="<?= escapeHtml($business_hours_start) ?>" required aria-label="The business day starts">
                             <span class="input-group-text">to</span>
                             <input type="time" class="form-control" name="business_hours_end" value="<?= escapeHtml($business_hours_end) ?>" required aria-label="The business day ends">
@@ -558,7 +558,7 @@ $pill_url = function ($view) use ($on_days) {
                     <div class="mb-3">
                         <label class="form-label">Warn at</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
                             <input type="number" class="form-control" name="warning_percent" min="1" max="99" step="1" value="<?= $warning_percent ?>" required>
                             <span class="input-group-text">% of the target</span>
                         </div>
@@ -568,7 +568,7 @@ $pill_url = function ($view) use ($on_days) {
                     <div class="mb-1">
                         <label class="form-label">Also email</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                             <input type="email" class="form-control" name="notification_email" maxlength="200" placeholder="dispatch@example.com" value="<?= escapeHtml($notification_email) ?>">
                         </div>
                         <small class="text-secondary">A shared address that gets every warning and missed target too. Leave it empty for none.</small>
@@ -581,7 +581,7 @@ $pill_url = function ($view) use ($on_days) {
                     <?php } ?>
                 </div>
                 <div class="card-footer d-flex flex-wrap align-items-center gap-2">
-                    <button type="submit" name="edit_sla_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+                    <button type="submit" name="edit_sla_settings" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
                     <span class="small text-secondary">Targets on tickets not yet closed are worked out again.</span>
                 </div>
             </form>

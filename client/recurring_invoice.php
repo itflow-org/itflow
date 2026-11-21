@@ -80,7 +80,7 @@ $paper = [
                         <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_id ?>">
                         <label class="form-label fw-semibold" for="autopayCard">Autopay</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select" id="autopayCard" name="saved_payment_id" data-autosubmit<?= !$usable && !$autopay ? ' disabled' : '' ?>>
                                 <option value="0">Off - I'll pay each invoice</option>
                                 <?php foreach ($cards as $card) {

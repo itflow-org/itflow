@@ -38,8 +38,8 @@ ob_start();
         <div class="form-text ms-5">Only the client's contacts with the Technical role can see documents there, and only to read.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="toggle_document_visibility" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="toggle_document_visibility" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

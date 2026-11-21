@@ -39,7 +39,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt me-2"></i>Upload Files</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-cloud-upload-alt me-2"></i>Upload Files</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off" data-upload-form>
@@ -93,8 +93,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="upload_files" class="btn btn-primary text-bold" data-upload-submit disabled><i class="fa fa-upload me-2"></i>Upload</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="upload_files" class="btn btn-primary fw-bold" data-upload-submit disabled><i class="fas fa-upload me-2"></i>Upload</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

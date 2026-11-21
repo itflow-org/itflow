@@ -29,7 +29,7 @@ $location = locationRow($location_id);
 
 if (!$location || ($client_url && intval($location['location_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -188,7 +188,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($can_support_edit) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket Here
+                                    <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Ticket Here
                                 </a>
                             <?php } ?>
                             <?php if ($can_edit) { ?>
@@ -198,31 +198,31 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                 </a>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-user text-secondary me-2"></i>Contact
+                                    <i class="fas fa-fw fa-user text-secondary me-2"></i>Contact
                                 </a>
                             <?php } ?>
                             <?php if ($can_support_edit) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset
+                                    <i class="fas fa-fw fa-desktop text-secondary me-2"></i>Asset
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-network-wired text-secondary me-2"></i>Network
+                                    <i class="fas fa-fw fa-network-wired text-secondary me-2"></i>Network
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-server text-secondary me-2"></i>Rack
+                                    <i class="fas fa-fw fa-server text-secondary me-2"></i>Rack
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                    <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                    <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                                 </a>
                             <?php } ?>
                             <?php if (moduleOn('trips')) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
-                                    <i class="fa fa-fw fa-route text-secondary me-2"></i>Trip Here
+                                    <i class="fas fa-fw fa-route text-secondary me-2"></i>Trip Here
                                 </a>
                             <?php } ?>
                         </div>
@@ -236,11 +236,11 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                 if (lookupUserPermission($k['module']) < 2) {
                                     continue;
                                 } ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $move_url . $kind ?>"><i class="fa fa-fw <?= $k['icon'] ?> text-secondary me-2"></i><?= $k['plural'] ?></a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $move_url . $kind ?>"><i class="fas fa-fw <?= $k['icon'] ?> text-secondary me-2"></i><?= $k['plural'] ?></a>
                             <?php } ?>
                             <?php if ($can_support_edit) { ?>
                                 <div class="dropdown-divider"></div>
-                                <?= linkPickerButton('location', $location_id, '', 'Link a document or file', 'dropdown-item', 'fa fa-fw fa-link text-secondary me-2') ?>
+                                <?= linkPickerButton('location', $location_id, '', 'Link a document or file', 'dropdown-item', 'fas fa-fw fa-link text-secondary me-2') ?>
                             <?php } ?>
                         </div>
                     </div>
@@ -269,7 +269,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                         <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                     </a>
                                     <?php if ($can_delete) { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, with no location.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

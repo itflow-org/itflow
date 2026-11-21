@@ -41,7 +41,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-edit me-2"></i>Edit Rack Item <span class="fw-normal text-white-50 ms-1"><?= $unit_name ?> in <?= $rack_name ?></span></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-edit me-2"></i>Edit Rack Item <span class="fw-normal text-white-50 ms-1"><?= $unit_name ?> in <?= $rack_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -56,8 +56,8 @@ ob_start();
         <a class="btn btn-link text-danger me-auto confirm-link" href="post.php?remove_rack_unit=<?= $unit_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
             <i class="fas fa-fw fa-minus-circle me-1"></i>Remove from rack
         </a>
-        <button type="submit" name="edit_rack_unit" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_rack_unit" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

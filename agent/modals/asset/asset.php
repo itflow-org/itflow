@@ -450,11 +450,11 @@ ob_start();
 
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-secondary clipboardjs me-auto" data-clipboard-text="<?= escapeHtml(assetDetailsText($asset_id)) ?>" title="Copy its make, serial, OS, address, warranty and where it is as text - for a vendor's support case or an email"><i class="far fa-clipboard me-2"></i>Copy Details</button>
-    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>" class="btn btn-primary text-bold"><i class="fas fa-arrow-right me-2"></i>Open Asset</a>
+    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>" class="btn btn-primary fw-bold"><i class="fas fa-arrow-right me-2"></i>Open Asset</a>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script>

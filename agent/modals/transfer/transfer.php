@@ -113,7 +113,7 @@ ob_start();
 
 <div class="modal-footer">
     <?php if (lookupUserPermission('module_financial') >= 2) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
     <?php if (lookupUserPermission('module_financial') >= 3) { ?>
         <?php if ($cleared_out || $cleared_in) { ?>
@@ -123,7 +123,7 @@ ob_start();
                 data-confirm-text="<?= escapeHtml(transferLabel($row)) ?> - both sides go, and the balances go back to before it."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
         <?php } ?>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

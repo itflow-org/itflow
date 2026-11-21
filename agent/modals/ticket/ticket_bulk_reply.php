@@ -37,7 +37,7 @@ ob_start();
 
     <div class="modal-body">
         <div class="input-group mb-3">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
 
             <select class="form-select select2" name="bulk_status" required>
 
@@ -75,13 +75,13 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkPrivateReplyCheckbox" name="bulk_private_reply" value="1">
                 <label class="form-check-label" for="bulkPrivateReplyCheckbox">Mark as internal</label>
-                <small class="form-text text-muted">Only agents see it.</small>
+                <small class="form-text text-body-secondary">Only agents see it.</small>
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Update & Reply</button>
+        <button type="submit" name="bulk_ticket_reply" class="btn btn-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>Update & Reply</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

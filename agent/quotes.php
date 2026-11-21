@@ -157,7 +157,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-comment-dollar me-2"></i>Quotes</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-comment-dollar me-2"></i>Quotes</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if ($can_edit) { ?>
@@ -167,7 +167,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/quote/quote_export.php', ['client_id', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt, 'client_id' => $client ?: '']) ?>">
-                            <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                            <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                         </a>
                     </div>
                 <?php } ?>
@@ -185,7 +185,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search number, scope, client, amount...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -306,7 +306,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml($row_number) ?> goes for good, with its lines and history.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

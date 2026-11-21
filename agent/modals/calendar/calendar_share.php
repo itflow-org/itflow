@@ -99,9 +99,9 @@ ob_start();
                         data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop Sharing</a>
                 </div>
             </div>
-            <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+            <button type="submit" name="share_calendar" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <?php } else { ?>
-            <button type="submit" name="share_calendar" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make the Link</button>
+            <button type="submit" name="share_calendar" class="btn btn-primary fw-bold"><i class="fas fa-link me-2"></i>Make the Link</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

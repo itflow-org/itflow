@@ -105,7 +105,7 @@ $page_title = 'Saved Cards';
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search saved cards..." title="Client, card, provider, or the provider's customer or payment method ID">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($provider_count > 1 || $provider_filter) { ?>

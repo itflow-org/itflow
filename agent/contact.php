@@ -43,7 +43,7 @@ $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_archived_at
 ");
 
 if (mysqli_num_rows($sql) == 0) {
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
     require_once "../includes/footer.php";
     exit();
 }
@@ -255,10 +255,10 @@ if (!$can_support) {
                     <div class="dropdown-menu dropdown-menu-end">
                         <?php if ($can_support_edit) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-life-ring text-secondary me-2"></i>Ticket
+                                <i class="fas fa-fw fa-life-ring text-secondary me-2"></i>Ticket
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
-                                <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
+                                <i class="fas fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
                             <?php if (moduleOn('calendar')) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/calendar/calendar_event_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>&lock_client=1" data-modal-size="lg">
@@ -266,23 +266,23 @@ if (!$can_support) {
                             </a>
                             <?php } ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset
+                                <i class="fas fa-fw fa-desktop text-secondary me-2"></i>Asset
                             </a>
                         <?php } ?>
                         <?php if ($can_credentials_edit) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
+                                <i class="fas fa-fw fa-key text-secondary me-2"></i>Credential
                             </a>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="xl">
-                                <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
+                                <i class="fas fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
+                                <i class="fas fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
-                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                                <i class="fas fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
                         <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
@@ -293,18 +293,18 @@ if (!$can_support) {
                 <div class="dropdown">
                     <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <?= linkPickerButton('contact', $contact_id, 'asset', 'Asset', 'dropdown-item', 'fa fa-fw fa-desktop text-secondary me-2') ?>
+                        <?= linkPickerButton('contact', $contact_id, 'asset', 'Asset', 'dropdown-item', 'fas fa-fw fa-desktop text-secondary me-2') ?>
                         <?php if ($can_credentials_edit) { ?>
-                            <?= linkPickerButton('contact', $contact_id, 'credential', 'Credential', 'dropdown-item', 'fa fa-fw fa-key text-secondary me-2') ?>
+                            <?= linkPickerButton('contact', $contact_id, 'credential', 'Credential', 'dropdown-item', 'fas fa-fw fa-key text-secondary me-2') ?>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <?= linkPickerButton('contact', $contact_id, 'software', 'License', 'dropdown-item', 'fa fa-fw fa-cube text-secondary me-2') ?>
+                            <?= linkPickerButton('contact', $contact_id, 'software', 'License', 'dropdown-item', 'fas fa-fw fa-cube text-secondary me-2') ?>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <?= linkPickerButton('contact', $contact_id, 'service', 'Service', 'dropdown-item', 'fa fa-fw fa-stream text-secondary me-2') ?>
+                            <?= linkPickerButton('contact', $contact_id, 'service', 'Service', 'dropdown-item', 'fas fa-fw fa-stream text-secondary me-2') ?>
                         <?php } ?>
-                        <?= linkPickerButton('contact', $contact_id, 'document', 'Document', 'dropdown-item', 'fa fa-fw fa-file-alt text-secondary me-2') ?>
-                        <?= linkPickerButton('contact', $contact_id, 'file', 'File', 'dropdown-item', 'fa fa-fw fa-paperclip text-secondary me-2') ?>
+                        <?= linkPickerButton('contact', $contact_id, 'document', 'Document', 'dropdown-item', 'fas fa-fw fa-file-alt text-secondary me-2') ?>
+                        <?= linkPickerButton('contact', $contact_id, 'file', 'File', 'dropdown-item', 'fas fa-fw fa-paperclip text-secondary me-2') ?>
                     </div>
                 </div>
                 <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
@@ -332,7 +332,7 @@ if (!$can_support) {
                             <?php } ?>
                             <?php if ($can_delete && $config_destructive_deletes_enable) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             <?php } ?>
@@ -661,7 +661,7 @@ if (!$can_support) {
                                                         </a>
                                                         <?php if (lookupUserPermission('module_support') >= 3) { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                             </a>
                                                         <?php } ?>
@@ -839,7 +839,7 @@ if (!$can_support) {
                                                     <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                                 <?php if ($can_delete) { ?>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact_note=<?= $contact_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contact_note=<?= $contact_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>

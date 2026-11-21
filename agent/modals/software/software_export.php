@@ -52,7 +52,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, type, key, vendor">
             </div>
         </div>
@@ -61,7 +61,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
                     <option value="">- Any client -</option>
                     <?php
@@ -82,7 +82,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Expiring in</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
                     <option value="">- Any -</option>
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
@@ -96,7 +96,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Showing</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-filter"></i></span>
                 <select class="form-select select2" name="status">
                     <option value="">- Any -</option>
                     <?php foreach ($status_filters as $status_key => $status_option) { ?>
@@ -109,7 +109,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Software type</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="software_type">
                     <option value="">- Any -</option>
                     <?= categoryFilterOptionsHtml('software_type', $software_type_filter, "SELECT DISTINCT software_type FROM software WHERE software_type IS NOT NULL AND software_type <> ''" . ($client_id ? " AND software_client_id = $client_id" : '') . clientScopeSql('software_client_id')) ?>
@@ -120,7 +120,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">License type</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-certificate"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-certificate"></i></span>
                 <select class="form-select select2" name="license_type">
                     <option value="">- Any -</option>
                     <?php foreach (array_unique(array_merge(array_keys(SOFTWARE_LICENSE_TYPES), $license_type_filter !== '' ? [$license_type_filter] : [])) as $license_type_option) { ?>
@@ -135,7 +135,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Archived</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

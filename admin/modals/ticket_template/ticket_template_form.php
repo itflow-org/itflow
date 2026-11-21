@@ -51,21 +51,21 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">Template name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-life-ring"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="New Hire Onboarding" maxlength="200" value="<?= escapeHtml($t['ticket_template_name'] ?? '') ?>" required autofocus>
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">What it is for</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-info-circle"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Shown when it is picked" maxlength="500" value="<?= escapeHtml($t['ticket_template_description'] ?? '') ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Subject</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="subject" placeholder="New hire onboarding - [Employee Name]" maxlength="500" value="<?= escapeHtml($t['ticket_template_subject'] ?? '') ?>">
             </div>
         </div>
@@ -81,7 +81,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
             <div class="col-12">
                 <label class="form-label">Add it to a project template</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
                     <select class="form-select select2" name="project_template">
                         <option value="0">- No -</option>
                         <?php
@@ -103,7 +103,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">Category</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="category_id">
                     <option value="0">- Leave as it is -</option>
                     <?= categoryOptionsHtml('Ticket', intval($t['ticket_template_category_id'] ?? 0) ?: null) ?>
@@ -113,7 +113,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">Priority</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                 <select class="form-select select2" name="priority">
                     <option value="">- Leave as it is -</option>
                     <?php foreach (['Low' => 'var(--bs-info)', 'Medium' => 'var(--bs-warning)', 'High' => 'var(--bs-danger)', 'Urgent' => 'var(--bs-emphasis-color)'] as $level => $color) { ?>
@@ -125,7 +125,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">Assign to</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                 <select class="form-select select2" name="assigned_to">
                     <option value="0">- Leave as it is -</option>
                     <?php
@@ -139,7 +139,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">Due</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                 <input type="number" class="form-control" name="due_amount" min="0" max="8784" placeholder="No due date" value="<?= $due_amount ?>">
                 <select class="form-select select2" name="due_unit" style="max-width: 9rem;" aria-label="Hours or days">
                     <option value="days" <?= $due_in_days ? 'selected' : '' ?>>days after</option>
@@ -152,7 +152,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
             <div class="col-md-6">
                 <label class="form-label">Billable</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <select class="form-select select2" name="billable">
                         <option value="" <?= $billable === '' ? 'selected' : '' ?>>- Leave as it is -</option>
                         <option value="1" <?= $billable === '1' ? 'selected' : '' ?>>Billable</option>
@@ -179,7 +179,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">What clients see it as</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-heading"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-heading"></i></span>
                 <input type="text" class="form-control" name="portal_title" maxlength="200" placeholder="<?= escapeHtml(($t['ticket_template_name'] ?? '') !== '' ? $t['ticket_template_name'] : 'Onboard a new employee') ?>" value="<?= escapeHtml($t['ticket_template_portal_title'] ?? '') ?>">
             </div>
             <div class="form-text">Its name, unless this says otherwise.</div>
@@ -187,7 +187,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">Icon</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-icons"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-icons"></i></span>
                 <select class="form-select select2" name="portal_icon">
                     <?php foreach (TICKET_TEMPLATE_PORTAL_ICONS as $icon => $suits) { ?>
                         <option value="<?= $icon ?>" data-icon="fas fa-<?= $icon ?>" <?= $portal_icon === $icon ? 'selected' : '' ?>><?= escapeHtml($suits) ?></option>
@@ -198,14 +198,14 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-12">
             <label class="form-label">What it is for, for the client</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-info-circle"></i></span>
                 <input type="text" class="form-control" name="portal_description" maxlength="500" placeholder="Tell us about someone joining and we will have them ready for their first day" value="<?= escapeHtml($t['ticket_template_portal_description'] ?? '') ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Who can use it</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user-shield"></i></span>
                 <select class="form-select select2" name="portal_who">
                     <?php foreach (TICKET_TEMPLATE_PORTAL_WHO as $who => $label) { ?>
                         <option value="<?= $who ?>" <?= $portal_who === $who ? 'selected' : '' ?>><?= $label ?></option>
@@ -216,7 +216,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-md-6">
             <label class="form-label">At which clients</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                 <select class="form-select select2" name="portal_all_clients" id="ticketTemplatePortalAll">
                     <option value="1" <?= $portal_all_clients ? 'selected' : '' ?>>Every client</option>
                     <option value="0" <?= $portal_all_clients ? '' : 'selected' ?>>Only the clients picked</option>
@@ -226,7 +226,7 @@ $portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClie
         <div class="col-12" id="ticketTemplatePortalClients" <?= $portal_all_clients ? 'hidden' : '' ?>>
             <label class="form-label">The clients</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="portal_clients[]" multiple data-placeholder="- Select the clients that see it -">
                     <?php
                     $sql_portal_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL AND client_lead = 0) OR client_id IN (" . ($portal_client_ids ? implode(',', $portal_client_ids) : '0') . ") ORDER BY client_name ASC");

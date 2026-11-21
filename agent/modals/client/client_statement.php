@@ -76,7 +76,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-white">
-        <i class="fa fa-fw fa-file-alt me-2"></i>Send Account Statement
+        <i class="fas fa-fw fa-file-alt me-2"></i>Send Account Statement
         <span class="fw-normal text-white-50 ms-1"><?= $client_name ?></span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -89,7 +89,7 @@ ob_start();
 
         <?php if ($contact_count == 0) { ?>
 
-            <p class="text-muted mb-0">
+            <p class="text-body-secondary mb-0">
                 This client has no primary or billing contact with an email address, so there is
                 nobody to send a statement to. Flag a contact as billing first.
             </p>
@@ -97,25 +97,25 @@ ob_start();
         <?php } else { ?>
 
             <div class="alert alert-secondary">
-                <i class="fa fa-fw fa-balance-scale me-2"></i>Current outstanding balance:
+                <i class="fas fa-fw fa-balance-scale me-2"></i>Current outstanding balance:
                 <strong><?= billingMoney($outstanding_balance, $client_currency_code) ?></strong>
             </div>
 
-            <h6 class="text-bold">Statement Options</h6>
+            <h6 class="fw-bold">Statement Options</h6>
 
             <div class="row g-2">
                 <div class="col-sm-6 mb-3">
                     <label class="form-label">From</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="dtf" max="2999-12-31" data-statement-option>
                     </div>
-                    <small class="text-muted">Leave blank for all history</small>
+                    <small class="text-body-secondary">Leave blank for all history</small>
                 </div>
                 <div class="col-sm-6 mb-3">
                     <label class="form-label">To</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                         <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?= date("Y-m-d") ?>" data-statement-option>
                     </div>
                 </div>
@@ -126,7 +126,7 @@ ob_start();
                     <input type="checkbox" class="form-check-input" id="statementIncludePaid" name="include_paid" value="1" data-statement-option>
                     <label class="form-check-label" for="statementIncludePaid">
                         Include paid invoices
-                        <span class="text-muted">- off means outstanding items only</span>
+                        <span class="text-body-secondary">- off means outstanding items only</span>
                     </label>
                 </div>
             </div>
@@ -137,7 +137,7 @@ ob_start();
 
             <hr>
 
-            <h6 class="text-bold">Email Options</h6>
+            <h6 class="fw-bold">Email Options</h6>
 
             <label class="mb-2">Send to <strong class="text-danger">*</strong></label>
 
@@ -194,12 +194,12 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($contact_count > 0) { ?>
-            <button type="submit" name="send_statement" class="btn btn-primary text-bold">
-                <i class="fa fa-fw fa-paper-plane me-2"></i>Send Statement
+            <button type="submit" name="send_statement" class="btn btn-primary fw-bold">
+                <i class="fas fa-fw fa-paper-plane me-2"></i>Send Statement
             </button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            <i class="fa fa-fw fa-times me-2"></i>Cancel
+            <i class="fas fa-fw fa-times me-2"></i>Cancel
         </button>
     </div>
 </form>

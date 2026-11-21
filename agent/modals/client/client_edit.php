@@ -42,7 +42,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-user-edit me-2'></i>Edit Client <span class="fw-normal text-white-50 ms-1"><?= $client_name ?></span></h5>
+    <h5 class="modal-title"><i class='fas fa-fw fa-user-edit me-2'></i>Edit Client <span class="fw-normal text-white-50 ms-1"><?= $client_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -73,7 +73,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200"
                                value="<?= $client_name ?>" required>
                             <div class="input-group-text">
@@ -90,7 +90,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Shortened name</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" value="<?= $client_abbreviation ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                     </div>
                 </div>
@@ -98,7 +98,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Industry</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-briefcase"></i></span>
                         <input type="text" class="form-control" name="type" placeholder="Healthcare, Legal, Construction" maxlength="200"
                                value="<?= $client_type ?>">
                     </div>
@@ -107,7 +107,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Referral</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select a referral -</option>
                             <?= categoryOptionsHtml('Referral', $row_referral) ?>
@@ -119,7 +119,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Website</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
                         <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200"
                                value="<?= $client_website ?>">
                     </div>
@@ -128,7 +128,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Tags</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                         <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                             <?= tagOptionsHtml('client', $client_tag_id_array) ?>
                         </select>
@@ -148,7 +148,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Tax ID</label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" name="tax_id_number" maxlength="255"
                                    placeholder="Tax ID Number" value="<?= $client_tax_id_number ?>">
                         </div>
@@ -190,8 +190,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_client" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_client" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

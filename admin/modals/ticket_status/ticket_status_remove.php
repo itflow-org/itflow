@@ -55,7 +55,7 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
             <div class="mb-3">
                 <label class="form-label">Move <?= $tickets === 1 ? 'it' : 'them' ?> to <?php if ($delete) { ?><strong class="text-danger">*</strong><?php } ?></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
                     <select class="form-select select2" name="move_to"<?= $delete ? ' required' : '' ?>>
                         <?php if (!$delete) { ?>
                             <option value="0">Leave them in <?= $name ?></option>
@@ -80,9 +80,9 @@ if (!$ticket_status || ticketStatusIsBuiltIn($ticket_status['ticket_status_id'])
     </div>
     <div class="modal-footer">
         <?php if ($delete) { ?>
-            <button type="submit" name="delete_ticket_status" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i>Delete</button>
+            <button type="submit" name="delete_ticket_status" class="btn btn-danger fw-bold"><i class="fas fa-trash me-2"></i>Delete</button>
         <?php } else { ?>
-            <button type="submit" name="switch_off_ticket_status" class="btn btn-primary text-bold"><i class="fas fa-power-off me-2"></i>Switch Off</button>
+            <button type="submit" name="switch_off_ticket_status" class="btn btn-primary fw-bold"><i class="fas fa-power-off me-2"></i>Switch Off</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

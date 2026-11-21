@@ -63,7 +63,7 @@ $co_portal_mail = $co_portal && portalMailReady();
             <div class="itflow-settings-field">
                 <label class="form-label" for="coPersonPhone">Phone</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                     <input type="hidden" name="phone_country_code" value="<?= escapeHtml((string) settingsValue('phone_country_code', '')) ?>">
                     <input type="tel" class="form-control" id="coPersonPhone" name="phone" value="<?= escapeHtml((string) settingsValue('phone', '')) ?>" maxlength="200" data-itflow-phone="phone_country_code">
                 </div>
@@ -73,7 +73,7 @@ $co_portal_mail = $co_portal && portalMailReady();
             <div class="itflow-settings-field">
                 <label class="form-label" for="coPersonMobile">Mobile</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-mobile-alt"></i></span>
                     <input type="hidden" name="mobile_country_code" value="<?= escapeHtml((string) settingsValue('mobile_country_code', '')) ?>">
                     <input type="tel" class="form-control" id="coPersonMobile" name="mobile" value="<?= escapeHtml((string) settingsValue('mobile', '')) ?>" maxlength="200" data-itflow-phone="mobile_country_code">
                 </div>

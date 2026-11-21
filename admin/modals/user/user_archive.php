@@ -72,7 +72,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($user_id !== intval($session_user_id) && !$is_last_admin) { ?>
-            <button type="submit" name="archive_user" class="btn btn-danger text-bold"><i class="fas fa-archive me-2"></i>Archive</button>
+            <button type="submit" name="archive_user" class="btn btn-danger fw-bold"><i class="fas fa-archive me-2"></i>Archive</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

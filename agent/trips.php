@@ -178,17 +178,17 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/trip/trip_export.php', ['client_id', 'client', 'driver', 'location_id', 'ticket_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <?php if ($pay_back && $can_manage) { ?>
-                        <a class="dropdown-item" href="<?= escapeHtml($filter_url(['show' => 'to_pay'])) ?>"><i class="fa fa-fw fa-hand-holding-usd text-secondary me-2"></i>Pay Mileage</a>
+                        <a class="dropdown-item" href="<?= escapeHtml($filter_url(['show' => 'to_pay'])) ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Pay Mileage</a>
                     <?php } ?>
                     <?php if (reportCanOpen('mileage')) { ?>
-                        <a class="dropdown-item" href="reports/mileage.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Mileage Report</a>
+                        <a class="dropdown-item" href="reports/mileage.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Mileage Report</a>
                     <?php } ?>
                     <?php if ($session_is_admin) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/admin/settings_invoice.php#mileage"><i class="fa fa-fw fa-cog text-secondary me-2"></i>Mileage Rates</a>
+                        <a class="dropdown-item" href="/admin/settings_invoice.php#mileage"><i class="fas fa-fw fa-cog text-secondary me-2"></i>Mileage Rates</a>
                     <?php } ?>
                 </div>
             </div>
@@ -210,7 +210,7 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search trips..." title="Purpose, from, to, client, site, driver, ticket">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -403,7 +403,7 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                                 <?php } ?>
                                 <?php if (tripCanDelete($row) && !intval($row['trip_expense_id']) && $row['invoice_number'] === null) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml(tripLabel($row)) ?> goes for good.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

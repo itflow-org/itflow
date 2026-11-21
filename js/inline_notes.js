@@ -46,7 +46,7 @@ function itflowInlineNotes(textarea) {
         payload[textarea.dataset.endpoint] = 'TRUE';
         payload[textarea.dataset.idField] = textarea.dataset.id;
 
-        setStatus('Saving...', 'text-muted');
+        setStatus('Saving...', 'text-body-secondary');
 
         itflowPost('ajax.php', payload, function () {
             lastSaved = textarea.value;

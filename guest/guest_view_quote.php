@@ -162,7 +162,7 @@ $paper = [
                         <div class="form-text">The signed quote, a purchase order - goes straight to us with <?= escapeHtml($number) ?>.</div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" name="guest_quote_upload_file" class="btn btn-primary text-bold"><i class="fas fa-upload me-2"></i>Send</button>
+                        <button type="submit" name="guest_quote_upload_file" class="btn btn-primary fw-bold"><i class="fas fa-upload me-2"></i>Send</button>
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
                     </div>
                 </form>

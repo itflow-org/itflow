@@ -45,7 +45,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= escapeHtml($q_filter) ?>" placeholder="What was done, who, the client, the IP address or the browser">
             </div>
         </div>
@@ -53,7 +53,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Showing</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                 <select class="form-select select2" name="view">
                     <?php foreach ($views as $key => $definition) { ?>
                         <option value="<?= $key ?>" <?= $view_filter === $key ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas ' . $definition['icon'], 'description' => $definition['title']]) ?>><?= $key === '' ? 'Everything' : escapeHtml($definition['label']) ?></option>
@@ -66,7 +66,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Who</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="user">
                         <option value="">- Anyone -</option>
                         <option value="system" <?= $user_filter === 'system' ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas fa-cog']) ?>>ITFlow itself</option>
@@ -82,7 +82,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Client</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="client">
                         <option value="">- Any client -</option>
                         <?php
@@ -97,7 +97,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Type</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                     <select class="form-select select2" name="type">
                         <option value="">- Any type -</option>
                         <?php
@@ -111,7 +111,7 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">Action</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-bolt"></i></span>
                     <select class="form-select select2" name="action">
                         <option value="">- Any action -</option>
                         <?php
@@ -125,14 +125,14 @@ ob_start();
             <div class="col-md-6">
                 <label class="form-label">From</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">To</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
                 </div>
             </div>

@@ -51,7 +51,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="po_decide" class="btn <?= $approve ? 'btn-success' : 'btn-secondary' ?> text-bold"><i class="fas <?= $approve ? 'fa-thumbs-up' : 'fa-undo' ?> me-2"></i><?= $approve ? 'Approve' : 'Send Back' ?></button>
+        <button type="submit" name="po_decide" class="btn <?= $approve ? 'btn-success' : 'btn-secondary' ?> fw-bold"><i class="fas <?= $approve ? 'fa-thumbs-up' : 'fa-undo' ?> me-2"></i><?= $approve ? 'Approve' : 'Send Back' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

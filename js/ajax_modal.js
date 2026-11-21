@@ -69,7 +69,7 @@ document.addEventListener('click', function (e) {
     const spinner = document.createElement('div');
     spinner.id = 'modal-loading-spinner';
     spinner.className = 'text-center p-5';
-    spinner.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x text-muted"></i>';
+    spinner.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x text-body-secondary"></i>';
     host.appendChild(spinner);
 
     function clearSpinner() {

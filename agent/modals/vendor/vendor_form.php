@@ -65,7 +65,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             <div class="col-12">
                 <label class="form-label">Start from a template</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
                     <select class="form-select select2" name="vendor_template_id" data-vendor-template <?= !empty($vendor_template_focus) ? 'autofocus' : '' ?>>
                         <option value="0">- Blank vendor -</option>
                         <?php foreach ($template_options as $template_option) {
@@ -81,7 +81,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
@@ -108,7 +108,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Primary internet circuit, practice management software" maxlength="200" value="<?= $vendor_description ?>">
             </div>
         </div>
@@ -116,7 +116,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             <label class="form-label">Tags</label>
             <input type="hidden" name="tags_form" value="1">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="ISP, Telecom, Software, Hardware" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('vendor', $vendor_tag_ids) ?>
                 </select>
@@ -126,7 +126,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             <div class="col-12">
                 <label class="form-label">Based on template</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
                     <select class="form-select select2" name="vendor_template_id">
                         <option value="0">- None -</option>
                         <?php foreach ($template_options as $template_option) {
@@ -151,7 +151,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         <div class="col-md-8">
             <label class="form-label">Support phone</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                 <input type="hidden" name="phone_country_code" value="<?= $vendor_phone_country_code ?>">
                 <input type="tel" class="form-control" name="phone" value="<?= $vendor_phone ?>" placeholder="Phone number" maxlength="200" data-itflow-phone="phone_country_code">
             </div>
@@ -166,42 +166,42 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         <div class="col-md-6">
             <label class="form-label">Support hours</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="text" class="form-control" name="hours" placeholder="24/7, Mon-Fri 8-6 ET" maxlength="200" value="<?= $vendor_hours ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">SLA</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-handshake"></i></span>
                 <input type="text" class="form-control" name="sla" placeholder="4 hour response, next business day" maxlength="200" value="<?= $vendor_sla ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Support email</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                 <input type="email" class="form-control" name="email" placeholder="support@vendor.com" maxlength="200" value="<?= $vendor_email ?>">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Support site</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
                 <input type="text" class="form-control" name="website" placeholder="support.vendor.com" maxlength="200" value="<?= $vendor_website ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Status page</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-heartbeat"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-heartbeat"></i></span>
                 <input type="text" class="form-control" name="status_page" placeholder="status.vendor.com" maxlength="200" value="<?= $vendor_status_page ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Support portal</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-door-open"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-door-open"></i></span>
                 <input type="text" class="form-control" name="portal" placeholder="Where cases are opened" maxlength="200" value="<?= $vendor_portal ?>">
             </div>
         </div>
@@ -217,14 +217,14 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         <div class="col-md-7">
             <label class="form-label">Account number</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-fingerprint"></i></span>
                 <input type="text" class="form-control" name="account_number" placeholder="Account or customer number" maxlength="200" value="<?= $vendor_account_number ?>">
             </div>
         </div>
         <div class="col-md-5">
             <label class="form-label">PIN / passcode</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                 <input type="text" class="form-control" name="code" placeholder="Verbal PIN or code" maxlength="200" value="<?= $vendor_code ?>" autocomplete="off">
             </div>
         </div>
@@ -234,14 +234,14 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         <div class="col-12">
             <label class="form-label">Account manager</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
                 <input type="text" class="form-control" name="contact_name" placeholder="Name" maxlength="200" value="<?= $vendor_contact_name ?>">
             </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Their direct line</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                 <input type="hidden" name="contact_phone_country_code" value="<?= $vendor_contact_phone_country_code ?>">
                 <input type="tel" class="form-control" name="contact_phone" value="<?= $vendor_contact_phone ?>" placeholder="Phone number" maxlength="200" data-itflow-phone="contact_phone_country_code">
             </div>
@@ -249,7 +249,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         <div class="col-md-6">
             <label class="form-label">Their email</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                 <input type="email" class="form-control" name="contact_email" placeholder="name@vendor.com" maxlength="200" value="<?= $vendor_contact_email ?>">
             </div>
         </div>

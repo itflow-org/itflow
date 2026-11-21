@@ -139,11 +139,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit && $client_url) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=services">
-                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
-                        <i class="fa fa-fw fa-download me-2"></i>Export
+                        <i class="fas fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
             </div>
@@ -160,7 +160,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search services..." title="Name, description, category, notes, client, tags">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -231,7 +231,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                             <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </button>
                                         <?php if ($can_delete) { ?>
-                                            <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_services"
+                                            <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_services"
                                                 data-confirm-text="The services go for good. What they linked to - assets, logins, documents - stays.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </button>
@@ -408,7 +408,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                                     data-confirm-text="<?= $name ?> goes for good. What it linked to - assets, logins, documents - stays.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>

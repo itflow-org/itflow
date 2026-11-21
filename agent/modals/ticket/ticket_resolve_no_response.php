@@ -42,7 +42,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-comment-slash me-2"></i>Resolve - No Response <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small>
+        <i class="fas fa-fw fa-comment-slash me-2"></i>Resolve - No Response <small class="ms-1 opacity-75"><?= escapeHtml(ticketReference($row)) ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -62,7 +62,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="resolve_ticket_no_response" class="btn btn-success text-bold"><i class="fas fa-check me-2"></i><?= $why_not === '' ? 'Send and resolve' : 'Resolve' ?></button>
+        <button type="submit" name="resolve_ticket_no_response" class="btn btn-success fw-bold"><i class="fas fa-check me-2"></i><?= $why_not === '' ? 'Send and resolve' : 'Resolve' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

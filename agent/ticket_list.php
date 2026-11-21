@@ -314,7 +314,7 @@ $show_due = $sla_in_use || mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM 
                                     <?php } ?>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="<?= $reference ?> goes for good, with its replies, tasks and attachments.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

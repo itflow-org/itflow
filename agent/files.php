@@ -342,7 +342,7 @@ $preview = []; // the grid's previewer payload
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder me-2"></i>Files</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-folder me-2"></i>Files</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
                 <div class="btn-group">
@@ -414,7 +414,7 @@ $preview = []; // the grid's previewer payload
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= escapeHtml($search) ?>" placeholder="Search <?= $search_label === 'all folders' ? 'all folders' : 'in ' . $search_label ?>..." title="Names and document text">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -428,7 +428,7 @@ $preview = []; // the grid's previewer payload
                         <a href="<?= escapeHtml(filesUrl(['view' => 1])) ?>" class="btn <?= $view === 1 ? 'btn-dark' : 'btn-outline-dark' ?>" title="Grid with previews"><i class="fas fa-th-large"></i></a>
                     </div>
                     <a href="<?= escapeHtml(filesUrl(['archived' => $archived ? 0 : 1])) ?>" class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Showing archived - back to current' : 'Show archived' ?>">
-                        <i class="fa fa-fw fa-archive"></i><span class="d-none d-xl-inline ms-2">Archived</span>
+                        <i class="fas fa-fw fa-archive"></i><span class="d-none d-xl-inline ms-2">Archived</span>
                     </a>
                     <?php if ($can_edit) { ?>
                         <div class="dropdown" id="bulkActionButton" hidden>

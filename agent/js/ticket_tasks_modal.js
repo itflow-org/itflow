@@ -66,7 +66,7 @@
         removeButton.type = "button";
         removeButton.className = "btn btn-secondary w-100 ticket-task-remove";
         removeButton.title = "Remove task";
-        removeButton.innerHTML = '<i class="fa fa-fw fa-trash"></i>';
+        removeButton.innerHTML = '<i class="fas fa-fw fa-trash"></i>';
         removeColumn.appendChild(removeButton);
 
         row.appendChild(nameColumn);

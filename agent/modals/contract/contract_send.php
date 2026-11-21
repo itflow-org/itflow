@@ -69,7 +69,7 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
 
         <label class="form-label">Who signs for <?= escapeHtml($contract['client_name']) ?></label>
         <div class="input-group mb-2">
-            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
             <select class="form-select select2" name="contact_id">
                 <?php foreach ($contacts as $id => $row) {
                     $has_email = filter_var((string) $row['contact_email'], FILTER_VALIDATE_EMAIL);
@@ -83,13 +83,13 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
         <div class="row g-2 mb-3">
             <div class="col-sm-5">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-plus"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-plus"></i></span>
                     <input type="text" class="form-control" name="to_name" maxlength="200" placeholder="Or a name" aria-label="Name of someone else">
                 </div>
             </div>
             <div class="col-sm-7">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                     <input type="email" class="form-control" name="to_email" maxlength="255" placeholder="and their email" aria-label="Email of someone else">
                 </div>
             </div>
@@ -97,7 +97,7 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
 
         <label class="form-label">A note for them</label>
         <div class="input-group mb-3">
-            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
             <textarea class="form-control" name="note" rows="3" maxlength="2000" placeholder="Optional - goes in the email above the link"></textarea>
         </div>
 
@@ -109,7 +109,7 @@ if (!$contract || !contractSignaturesReady() || in_array($contract['contract_sta
     </div>
     <div class="modal-footer">
         <a class="btn btn-link me-auto" href="contract_document.php?client_id=<?= $client_id ?>&contract_id=<?= intval($contract['contract_id']) ?>" target="_blank"><i class="fas fa-eye me-2"></i>Preview</a>
-        <button type="submit" name="send_contract_signature" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Send</button>
+        <button type="submit" name="send_contract_signature" class="btn btn-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>Send</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

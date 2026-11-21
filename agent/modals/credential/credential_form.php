@@ -68,7 +68,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
@@ -96,16 +96,16 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-12">
             <label class="form-label">Username / ID</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <input type="text" class="form-control" name="username" placeholder="Username, email or ID" maxlength="350" value="<?= $credential_username ?>" autocomplete="off">
             </div>
         </div>
         <div class="col-12">
             <label class="form-label">Password / key</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="password" placeholder="Password, key or PSK" maxlength="350" value="<?= $credential_password ?>" autocomplete="new-password" data-credential-password>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy password" type="button" data-clipboard-target="input[name=password]"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Make one up"><i class="fas fa-fw fa-magic"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
@@ -122,16 +122,16 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-12">
             <label class="form-label">2FA secret</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="otp_secret" placeholder="The key behind the QR code, or the otpauth:// link" maxlength="200" value="<?= $credential_otp_secret ?>" autocomplete="off" data-credential-otp-input>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
             </div>
             <div class="form-text" data-credential-otp-check>Every agent who can see this credential gets the current code, so nobody needs the phone.</div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Opens at</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                 <input type="text" class="form-control" name="uri" placeholder="https://192.168.1.1, rdp://server" maxlength="500" value="<?= $credential_uri ?>">
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy URI" type="button" data-clipboard-target="input[name=uri]"><i class="far fa-fw fa-copy"></i></button>
             </div>
@@ -139,7 +139,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-md-6">
             <label class="form-label">Also at</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                 <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
                 <button class="btn btn-outline-secondary clipboardjs" title="Copy URI 2" type="button" data-clipboard-target="input[name=uri_2]"><i class="far fa-fw fa-copy"></i></button>
             </div>
@@ -154,7 +154,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <div class="col-12">
                 <label class="form-label">Asset</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                     <select class="form-select select2" name="asset">
                         <option value="0">- No asset -</option>
                         <?php foreach ($asset_options as $asset_option) {
@@ -167,7 +167,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <div class="col-12">
                 <label class="form-label">Contact</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="contact">
                         <option value="0">- Nobody -</option>
                         <?php foreach ($contact_options as $contact_option) {
@@ -193,7 +193,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="What it opens, and who uses it" maxlength="500" value="<?= $credential_description ?>">
             </div>
         </div>
@@ -201,7 +201,7 @@ $form_id = 'credentialForm' . ($credential_form_mode === 'edit' ? $credential_id
             <label class="form-label">Tags</label>
             <input type="hidden" name="tags_form" value="1">
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="Domain Admin, Break Glass, Vendor Portal" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                     <?= tagOptionsHtml('credential', $credential_tag_ids) ?>
                 </select>

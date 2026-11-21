@@ -30,7 +30,7 @@ $f_day_minutes = slaBusinessDayMinutes();
 <div class="mb-3">
     <label class="form-label">Name <strong class="text-danger">*</strong></label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
         <input type="text" class="form-control" name="name" maxlength="200" placeholder="Standard Support, Priority Support, Critical Response" value="<?= escapeHtml($f_name) ?>" required<?= $sla ? '' : ' autofocus' ?>>
     </div>
 </div>
@@ -38,7 +38,7 @@ $f_day_minutes = slaBusinessDayMinutes();
 <div class="mb-3">
     <label class="form-label">Description</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
         <input type="text" class="form-control" name="description" maxlength="500" placeholder="What it covers, and who gets it" value="<?= escapeHtml($f_description) ?>">
     </div>
 </div>
@@ -46,7 +46,7 @@ $f_day_minutes = slaBusinessDayMinutes();
 <div class="mb-3">
     <label class="form-label">Response target <strong class="text-danger">*</strong></label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-reply"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-reply"></i></span>
         <input type="number" class="form-control" name="response_hours" min="0" max="8760" step="1" placeholder="0" value="<?= $f_hours($f_response) ?>" aria-label="Response target, hours">
         <span class="input-group-text">hours</span>
         <input type="number" class="form-control" name="response_minutes" min="0" max="59" step="1" placeholder="0" value="<?= $f_minutes($f_response) ?>" aria-label="Response target, minutes">
@@ -58,7 +58,7 @@ $f_day_minutes = slaBusinessDayMinutes();
 <div class="mb-3">
     <label class="form-label">Resolution target</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-flag-checkered"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-flag-checkered"></i></span>
         <input type="number" class="form-control" name="resolution_hours" min="0" max="8760" step="1" placeholder="0" value="<?= $f_hours($f_resolution) ?>" aria-label="Resolution target, hours">
         <span class="input-group-text">hours</span>
         <input type="number" class="form-control" name="resolution_minutes" min="0" max="59" step="1" placeholder="0" value="<?= $f_minutes($f_resolution) ?>" aria-label="Resolution target, minutes">

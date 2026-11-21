@@ -104,9 +104,9 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($templates) { ?>
-            <button type="submit" name="add_document_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+            <button type="submit" name="add_document_from_template" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <?php } ?>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $templates ? 'Cancel' : 'Close' ?></button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $templates ? 'Cancel' : 'Close' ?></button>
     </div>
 </form>
 

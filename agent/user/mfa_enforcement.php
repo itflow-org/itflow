@@ -58,7 +58,7 @@ $mfa_secret = $_SESSION['mfa_token'];
             <?php if (!empty($company_logo)) { ?>
                 <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "../../uploads/settings/$company_logo" ?>">
             <?php } else { ?>
-                <span class="text-primary text-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
+                <span class="text-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
             <?php } ?>
         </div>
 
@@ -75,7 +75,7 @@ $mfa_secret = $_SESSION['mfa_token'];
                     <?php require __DIR__ . '/includes/mfa_setup.php'; ?>
 
                     <div class="mb-3"></div>
-                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fa fa-check me-2"></i>Turn On MFA</button>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fas fa-check me-2"></i>Turn On MFA</button>
                     <a class="small text-body-secondary" href="post.php?logout">Sign out</a>
                 </form>
 

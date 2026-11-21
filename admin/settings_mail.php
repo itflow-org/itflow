@@ -16,7 +16,7 @@ require_once "includes/inc_all_admin.php";
 function renderMailStatusDot($on) {
     return $on
         ? '<i class="fas fa-circle text-success ms-2" style="font-size:.5rem;vertical-align:middle;" title="Configured"></i>'
-        : '<i class="far fa-circle text-muted ms-2" style="font-size:.5rem;vertical-align:middle;" title="Not configured"></i>';
+        : '<i class="far fa-circle text-body-secondary ms-2" style="font-size:.5rem;vertical-align:middle;" title="Not configured"></i>';
 }
 
 $smtp_on = !empty($config_smtp_provider);
@@ -312,9 +312,9 @@ if (!$config_module_enable_ticketing) {
                             <?php } ?>
                             <label class="form-label" for="mailOauthRedirect">Redirect address</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                                 <input type="text" class="form-control font-monospace" id="mailOauthRedirect" value="<?= escapeHtml($mail_oauth_callback_uri) ?>" readonly>
-                                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#mailOauthRedirect" title="Copy"><i class="fa fa-fw fa-copy"></i></button>
+                                <button type="button" class="btn btn-outline-secondary clipboardjs" data-clipboard-target="#mailOauthRedirect" title="Copy"><i class="fas fa-fw fa-copy"></i></button>
                             </div>
                             <div class="form-text">Under Authentication in the app registration, as a Web platform.</div>
                             <button type="submit" name="oauth_connect_microsoft_mail" class="btn btn-outline-primary mt-3">
@@ -373,7 +373,7 @@ if (!$config_module_enable_ticketing) {
 
                 <?php if ($send_ready) { ?>
                 <div class="mb-4">
-                    <h6 class="text-bold"><i class="fas fa-fw fa-paper-plane me-2"></i>Send a Test Email</h6>
+                    <h6 class="fw-bold"><i class="fas fa-fw fa-paper-plane me-2"></i>Send a Test Email</h6>
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
@@ -394,7 +394,7 @@ if (!$config_module_enable_ticketing) {
 
                 <?php if ($imap_ready) { ?>
                 <div class="mb-4">
-                    <h6 class="text-bold"><i class="fas fa-fw fa-plug me-2"></i>Test IMAP Connection</h6>
+                    <h6 class="fw-bold"><i class="fas fa-fw fa-plug me-2"></i>Test IMAP Connection</h6>
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
@@ -405,12 +405,12 @@ if (!$config_module_enable_ticketing) {
 
                 <?php if ($oauth_has_required_fields) { ?>
                 <div>
-                    <h6 class="text-bold"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</h6>
+                    <h6 class="fw-bold"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</h6>
                     <form action="post.php" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
                         <input type="hidden" name="oauth_provider" value="<?= escapeHtml($oauth_provider_for_test) ?>">
-                        <p class="text-muted mb-2">Validates the refresh token and stores a new access token for <?= $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace' ?>.</p>
+                        <p class="text-body-secondary mb-2">Validates the refresh token and stores a new access token for <?= $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace' ?>.</p>
                         <button type="submit" name="test_oauth_token_refresh" class="btn btn-success"><i class="fas fa-fw fa-sync-alt me-2"></i>Test OAuth Token Refresh</button>
                     </form>
                 </div>

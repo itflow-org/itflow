@@ -28,7 +28,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-wallet me-2"></i>Apply Credit <span class="fw-normal text-white-50 ms-1"><?= "$invoice_prefix$invoice_number" ?> &middot; <?= billingMoney($credit_balance, $session_company_currency) ?> to use</span></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-wallet me-2"></i>Apply Credit <span class="fw-normal text-white-50 ms-1"><?= "$invoice_prefix$invoice_number" ?> &middot; <?= billingMoney($credit_balance, $session_company_currency) ?> to use</span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -39,7 +39,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Credit amount <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-wallet"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-wallet"></i></span>
                 <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount_credit_applied" value="<?= number_format($credit_balance, 2, '.', '') ?>" placeholder="0.00" required>
             </div>
         </div>
@@ -47,7 +47,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="apply_credit" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Apply Credit</button>
+        <button type="submit" name="apply_credit" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Apply Credit</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

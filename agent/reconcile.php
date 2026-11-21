@@ -113,14 +113,14 @@ $statement_form = function ($row) use ($mysqli, $account, $is_card, $suggest, $l
             <div class="col-md-4">
                 <label class="form-label">Statement starts <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                     <input type="date" class="form-control" name="start_date" max="<?= date('Y-m-d') ?>" value="<?= escapeHtml($start) ?>" required <?= $from_statement ? '' : 'disabled' ?>>
                 </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label"><?= $is_card ? 'Owed when it starts' : 'Starting balance' ?> <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="start_balance" placeholder="0.00" required <?= $from_statement ? '' : 'disabled' ?>>
                     <span class="input-group-text"><?= escapeHtml($account['account_currency_code']) ?></span>
                 </div>
@@ -151,14 +151,14 @@ $statement_form = function ($row) use ($mysqli, $account, $is_card, $suggest, $l
         <div class="col-md-4">
             <label class="form-label">Statement ends <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                 <input type="date" class="form-control" name="statement_date" max="<?= date('Y-m-d') ?>" <?= $last ? 'min="' . escapeHtml(date('Y-m-d', strtotime($last['reconciliation_statement_date'] . ' +1 day'))) . '"' : '' ?> value="<?= escapeHtml($date) ?>" required>
             </div>
         </div>
         <div class="col-md-4">
             <label class="form-label"><?= $is_card ? 'Owed on the statement' : 'Ending balance' ?> <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                 <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="ending_balance" placeholder="0.00" required
                     value="<?= $ending === null ? '' : escapeHtml(number_format($ending, 2, '.', '')) ?>">
                 <span class="input-group-text"><?= escapeHtml($account['account_currency_code']) ?></span>
@@ -168,7 +168,7 @@ $statement_form = function ($row) use ($mysqli, $account, $is_card, $suggest, $l
         <div class="col-md-4">
             <label class="form-label">Notes</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
                 <input type="text" class="form-control" name="notes" maxlength="250" placeholder="The statement's number, or anything to remember" value="<?= escapeHtml($row['reconciliation_notes'] ?? '') ?>">
             </div>
         </div>
@@ -274,17 +274,17 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
                             title="Once the difference is nothing"><i class="fas fa-check me-2"></i>Finish</button>
                         <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#reconcileStatement" data-bs-toggle="collapse"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Change the Statement</a>
+                            <a class="dropdown-item" href="#reconcileStatement" data-bs-toggle="collapse"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Change the Statement</a>
                             <div class="dropdown-divider"></div>
                             <h6 class="dropdown-header">Add what the statement has</h6>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?account_id=<?= $account_id ?>"><i class="fa fa-fw fa-cart-plus text-secondary me-2"></i>New Expense</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_add.php?account_id=<?= $account_id ?>"><i class="fa fa-fw fa-hand-holding-usd text-secondary me-2"></i>New Income</a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?<?= $is_card ? 'to' : 'from' ?>=<?= $account_id ?>"><i class="fa fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?account_id=<?= $account_id ?>"><i class="fas fa-fw fa-cart-plus text-secondary me-2"></i>New Expense</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/revenue/revenue_add.php?account_id=<?= $account_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>New Income</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php?<?= $is_card ? 'to' : 'from' ?>=<?= $account_id ?>"><i class="fas fa-fw fa-exchange-alt text-secondary me-2"></i>New Transfer</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>"><i class="fa fa-fw fa-list-alt text-secondary me-2"></i>Transactions</a>
+                            <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-list-alt text-secondary me-2"></i>Transactions</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger confirm-link" href="post.php?reconcile_discard=<?= intval($open['reconciliation_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                data-confirm-title="Discard this reconciliation?" data-confirm-text="What is ticked comes off, and nothing is marked cleared." data-confirm-button="Discard"><i class="fa fa-fw fa-trash me-2"></i>Discard</a>
+                                data-confirm-title="Discard this reconciliation?" data-confirm-text="What is ticked comes off, and nothing is marked cleared." data-confirm-button="Discard"><i class="fas fa-fw fa-trash me-2"></i>Discard</a>
                         </div>
                     </div>
                 </form>
@@ -310,7 +310,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
         <div class="row g-2 align-items-center">
             <div class="col-lg-4 col-md-6">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                     <input type="search" class="form-control" placeholder="Find a line - who, reference or amount" data-reconcile-search aria-label="Find a line">
                 </div>
             </div>
@@ -450,7 +450,7 @@ $gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account
         <div class="row g-2">
             <div class="col-lg-4 col-md-6">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" aria-label="Account" onchange="window.location.href = 'reconcile.php?account=' + this.value">
                         <?php foreach ($open_accounts + ($account['account_archived_at'] ? [$account_id => $account] : []) as $id => $option) { ?>
                             <option value="<?= $id ?>" <?= $account_id === $id ? 'selected' : '' ?> data-icon="fas <?= $types[$option['type']]['icon'] ?>"

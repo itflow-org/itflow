@@ -31,7 +31,7 @@
     <?php
         echo escapeHtml($session_company_name);
         if (!$config_whitelabel_enabled) {
-            echo '<br><small class="text-muted">Powered by ITFlow</small>';
+            echo '<br><small class="text-body-secondary">Powered by ITFlow</small>';
         }
     ?>
 </footer>

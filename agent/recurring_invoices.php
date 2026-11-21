@@ -152,7 +152,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-redo-alt me-2"></i>Recurring Invoices</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-redo-alt me-2"></i>Recurring Invoices</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if ($can_edit) { ?>
@@ -162,7 +162,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                     <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/recurring_invoice/recurring_invoice_export.php', ['client_id', 'category', 'q'], ['status' => in_array($status, ['active', 'inactive'], true) ? $status : '', 'client_id' => $client ?: '']) ?>">
-                            <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                            <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                         </a>
                     </div>
                 <?php } ?>
@@ -180,7 +180,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                 <div class="<?= $client_url ? 'col-lg-8' : 'col-lg-6' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search number, scope, client, category...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
@@ -339,7 +339,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
                                 <?php } ?>
                                 <?php if ($can_delete) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_invoice=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_recurring_invoice=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml($row_number) ?> goes for good, with its lines, autopay and history. The invoices it made stay.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

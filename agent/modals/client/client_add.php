@@ -10,7 +10,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user-plus me-2"></i>New <?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>New <?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -45,7 +45,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="name" id="client_name" placeholder="Name or Company" maxlength="200" onfocusout="checkClientDuplicate()" required autofocus>
                             <div class="input-group-text">
                                 <input class="form-check-input" type="checkbox" name="lead" value="1" <?php if($leads_filter == 1){ echo "checked"; } ?>>
@@ -59,7 +59,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Shortened name</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Up to 6 characters, such as RDG" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                     </div>
                 </div>
@@ -67,7 +67,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Industry</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-briefcase"></i></span>
                         <input type="text" class="form-control" name="type" placeholder="Healthcare, Legal, Construction" maxlength="200">
                     </div>
                 </div>
@@ -75,7 +75,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Referral</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                         <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select a referral -</option>
                             <?= categoryOptionsHtml('Referral') ?>
@@ -87,7 +87,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Website</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-globe"></i></span>
                         <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200">
                     </div>
                 </div>
@@ -95,7 +95,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Tags</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                         <select class="form-select select2" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                             <?= tagOptionsHtml('client', []) ?>
                         </select>
@@ -109,7 +109,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Address</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                         <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200">
                     </div>
                 </div>
@@ -117,7 +117,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">City</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-city"></i></span>
                         <input type="text" class="form-control" name="city" placeholder="City" maxlength="200">
                     </div>
                 </div>
@@ -125,7 +125,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">State / province</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-flag"></i></span>
                         <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200">
                     </div>
                 </div>
@@ -141,7 +141,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Country</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-globe-americas"></i></span>
                         <select class="form-select select2" name="country">
                             <option value="">- Select a country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
@@ -157,7 +157,7 @@ ob_start();
                     <div class="col-9">
                         <div class="mb-3">
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                                 <input type="hidden" name="location_phone_country_code">
                                 <input type="tel" class="form-control" name="location_phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="location_phone_country_code" data-itflow-phone-country-select="country">
                             </div>
@@ -178,7 +178,7 @@ ob_start();
                     <div class="col-9">
                         <div class="mb-3">
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-fax"></i></span>
                                 <input type="hidden" name="location_fax_country_code">
                                 <input type="tel" class="form-control" name="location_fax" placeholder="Fax Number" maxlength="200" data-itflow-phone="location_fax_country_code" data-itflow-phone-country-select="country">
                             </div>
@@ -193,7 +193,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Primary contact <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <input type="text" class="form-control" id="primaryContact" name="contact" placeholder="Primary Contact Person" maxlength="200" required autofocus>
                     </div>
                 </div>
@@ -201,7 +201,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Title</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-id-badge"></i></span>
                         <input type="text" class="form-control" name="title" placeholder="Title" maxlength="200">
                     </div>
                 </div>
@@ -211,7 +211,7 @@ ob_start();
                     <div class="col-9">
                         <div class="mb-3">
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                                 <input type="hidden" name="contact_phone_country_code">
                                 <input type="tel" class="form-control" name="contact_phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="contact_phone_country_code">
                             </div>
@@ -232,7 +232,7 @@ ob_start();
                     <div class="col-9">
                         <div class="mb-3">
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-mobile-alt"></i></span>
                                 <input type="hidden" name="contact_mobile_country_code">
                                 <input type="tel" class="form-control" name="contact_mobile" placeholder="Mobile Phone Number" maxlength="200" data-itflow-phone="contact_mobile_country_code">
                             </div>
@@ -243,7 +243,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Contact email</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                         <input type="email" class="form-control" name="contact_email" placeholder="Contact's Email Address" maxlength="200">
                     </div>
                 </div>
@@ -261,7 +261,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Tax ID</label>
                         <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
                             <input type="text" class="form-control" name="tax_id_number" placeholder="Tax ID Number" maxlength="255">
                         </div>
                     </div>
@@ -302,8 +302,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_client" class="btn btn-primary fw-bold" onclick="promptPrimaryContact()"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -29,7 +29,7 @@ if (!$announcement) { ?>
     <div class="modal-body text-center text-secondary py-5">That banner is gone.</div>
 <?php } else { ?>
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-bullhorn me-2"></i>Edit Banner <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
+        <h5 class="modal-title"><i class="fas fa-fw fa-bullhorn me-2"></i>Edit Banner <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($announcement['announcement_title']) ?></span></h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <form action="/agent/post.php" method="post" autocomplete="off">
@@ -49,8 +49,8 @@ if (!$announcement) { ?>
                 <a class="btn btn-light text-danger confirm-link" href="/agent/post.php?delete_agent_banner=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                     data-confirm-title="Delete this banner?" data-confirm-text="It goes for good." data-confirm-button="Delete"><i class="fas fa-trash me-2"></i>Delete</a>
             </div>
-            <button type="submit" name="edit_agent_banner" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+            <button type="submit" name="edit_agent_banner" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
         </div>
     </form>
 <?php }

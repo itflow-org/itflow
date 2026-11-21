@@ -196,7 +196,7 @@
                             <p>
                                 Projects
                                 <?php if ($num_active_projects) { ?>
-                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Open Projects"><?= $num_active_projects ?></span>
+                                    <span class="right badge text-light" title="Open Projects"><?= $num_active_projects ?></span>
                                 <?php } ?>
                             </p>
                         </a>

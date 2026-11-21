@@ -85,7 +85,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search links..." title="Name, address or description">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -193,7 +193,7 @@ $csrf = $_SESSION['csrf_token'];
                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>"
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= $name ?>?" data-confirm-text="It goes from the <?= escapeHtml($location_config['label']) ?> for good. Archive it instead to keep it." data-confirm-button="Delete">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>

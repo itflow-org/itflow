@@ -47,28 +47,28 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-8">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
             <input type="text" class="form-control" name="name" placeholder="Microsoft 365 Business Premium" maxlength="200" value="<?= escapeHtml($t['software_template_name'] ?? '') ?>" required autofocus>
         </div>
     </div>
     <div class="col-md-4">
         <label class="form-label">Version</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-code-branch"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-code-branch"></i></span>
             <input type="text" class="form-control" name="version" placeholder="2024" maxlength="200" value="<?= escapeHtml($t['software_template_version'] ?? '') ?>">
         </div>
     </div>
     <div class="col-12">
         <label class="form-label">Summary</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" placeholder="One line on what it is - shown when an agent picks a template" maxlength="500" value="<?= escapeHtml($t['software_template_description'] ?? '') ?>">
         </div>
     </div>
     <div class="col-md-6">
         <label class="form-label">Type <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <select class="form-select select2" name="type" required>
                 <option value="">- Select a type -</option>
                 <?= categoryOptionsHtml('software_type', $type) ?>
@@ -79,7 +79,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-6">
         <label class="form-label">License type</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-certificate"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-certificate"></i></span>
             <select class="form-select select2" name="license_type">
                 <option value="">- None -</option>
                 <?php foreach ($license_types as $option) { ?>
@@ -91,7 +91,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-6">
         <label class="form-label">Seats</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
             <input type="number" class="form-control" name="seats" min="0" max="1000000" step="1" placeholder="No limit" value="<?= $seats === null ? '' : intval($seats) ?>">
         </div>
         <div class="form-text">What a license starts with - change it for each client.</div>
@@ -99,7 +99,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-6">
         <label class="form-label">Renews every</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
             <select class="form-select select2" name="term">
                 <option value="">- Doesn't renew -</option>
                 <?php foreach (SOFTWARE_RENEWAL_TERMS as $value => $label) { ?>
@@ -112,7 +112,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-6">
         <label class="form-label">Vendor</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
             <select class="form-select select2" name="vendor_template_id">
                 <option value="0">- None -</option>
                 <?php foreach ($vendor_templates as $row) { ?>
@@ -125,7 +125,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-md-6">
         <label class="form-label">Sold as</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-box-open"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-box-open"></i></span>
             <select class="form-select select2" name="product_id">
                 <option value="0">- None -</option>
                 <?php foreach ($products as $row) {
@@ -140,7 +140,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     <div class="col-12">
         <label class="form-label">Notes</label>
         <div class="input-group">
-            <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-sticky-note"></i></span>
+            <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-sticky-note"></i></span>
             <textarea class="form-control" name="notes" rows="6" placeholder="What every license from it should say - where to download it, how it is installed, who to call"><?= escapeHtml($t['software_template_notes'] ?? '') ?></textarea>
         </div>
         <div class="form-text">A license made from it starts with all of this - change anything there after.</div>

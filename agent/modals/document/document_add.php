@@ -51,9 +51,9 @@ ob_start();
             <div class="mb-3 p-3 border rounded bg-body-tertiary" data-ai-document-draft data-client-id="<?= $client_id ?>">
                 <label class="form-label" for="aiDocumentPrompt">Draft it with AI</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-magic"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-magic"></i></span>
                     <input type="text" class="form-control" id="aiDocumentPrompt" maxlength="500" placeholder="What it is for - a disaster recovery plan for the main office" data-ai-document-prompt>
-                    <button class="btn btn-info" type="button" data-ai-document-go><i class="fa fa-fw fa-magic me-1"></i>Draft</button>
+                    <button class="btn btn-info" type="button" data-ai-document-go><i class="fas fa-fw fa-magic me-1"></i>Draft</button>
                 </div>
                 <div class="form-check mt-2 mb-0">
                     <input class="form-check-input" type="checkbox" id="aiDocumentUseClient" checked data-ai-document-use-client>
@@ -65,8 +65,8 @@ ob_start();
         <?php require 'document_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_document" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_document" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
@@ -97,7 +97,7 @@ ob_start();
         }
         var label = go.innerHTML;
         go.disabled = true;
-        go.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Drafting';
+        go.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Drafting';
         say('body', 'AI is writing it - this can take a minute.');
         fetch('/agent/ajax.php?ai_document_draft', {
             method: 'POST',

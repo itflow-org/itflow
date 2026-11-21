@@ -239,7 +239,7 @@ function quotePricingFields(array $item, $currency) {
                 <div class="col-sm-4">
                     <label class="form-label">Cost each</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-receipt"></i></span>
                         <input type="text" class="form-control text-end" name="cost" inputmode="decimal" placeholder="0.00"
                             value="<?= $has_cost ? number_format(floatval($cost), 2, '.', '') : '' ?>" data-pricing-cost>
                     </div>
@@ -247,7 +247,7 @@ function quotePricingFields(array $item, $currency) {
                 <div class="col-sm-4">
                     <label class="form-label">Price by</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calculator"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calculator"></i></span>
                         <select class="form-select select2" name="price_method" data-pricing-method>
                             <?php foreach (QUOTE_PRICE_METHODS as $value => $label) { ?>
                                 <option value="<?= $value ?>"<?= $value === $method ? ' selected' : '' ?>><?= $label ?></option>
@@ -258,7 +258,7 @@ function quotePricingFields(array $item, $currency) {
                 <div class="col-sm-4" data-pricing-percent-wrap<?= $method === 'price' ? ' hidden' : '' ?>>
                     <label class="form-label">Percent</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                         <input type="text" class="form-control text-end" name="price_percent" inputmode="decimal" value="<?= escapeHtml($percent) ?>" data-pricing-percent>
                     </div>
                 </div>

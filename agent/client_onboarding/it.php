@@ -107,7 +107,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
             <div class="itflow-settings-field mb-4">
                 <label class="form-label" for="coVendorOthers"><?= $co_listed ? 'And others' : 'From your templates' ?></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" id="coVendorOthers" name="vendor_templates[]" multiple data-placeholder="Their ISP, software makers, suppliers...">
                         <?php foreach ($co_others as $co_id => $co_template) { ?>
                             <option value="<?= $co_id ?>"<?= $co_ticked('vendor_templates', $co_id, false) ? ' selected' : '' ?><?= selectOptionVendor($co_template['vendor_template_name'], (string) $co_template['vendor_template_description']) ?>><?= escapeHtml($co_template['vendor_template_name']) ?></option>
@@ -152,7 +152,7 @@ $co_ticked = function ($name, $id, $should) use ($settings_kept) {
                 <div class="itflow-settings-field mb-2">
                     <label class="form-label" for="coLicenseOthers"><?= $co_listed ? 'And others' : 'From your templates' ?></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <select class="form-select select2" id="coLicenseOthers" name="license_templates[]" multiple data-placeholder="Microsoft 365, antivirus, backup...">
                             <?php foreach ($co_others as $co_id => $co_template) { ?>
                                 <option value="<?= $co_id ?>"<?= $co_ticked('license_templates', $co_id, false) ? ' selected' : '' ?>><?= escapeHtml($co_template['software_template_name']) ?></option>

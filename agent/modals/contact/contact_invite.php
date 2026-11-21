@@ -57,7 +57,7 @@ if ($refuse !== '') { ?>
         <div class="mb-3">
             <label class="form-label" for="<?= $field ?>Emails">Email addresses <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-envelope"></i></span>
+                <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-envelope"></i></span>
                 <textarea class="form-control" id="<?= $field ?>Emails" name="emails" rows="4" maxlength="20000" placeholder="jamie@example.com&#10;Sam Lee &lt;sam@example.com&gt;" required autofocus></textarea>
             </div>
             <div class="form-text">One to a line, or separated by commas - up to <?= PORTAL_INVITE_MAX ?>. A name in front is optional. Someone who is already a contact here is given access when they accept.</div>
@@ -84,7 +84,7 @@ if ($refuse !== '') { ?>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="send_portal_invites" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Send Invites</button>
+        <button type="submit" name="send_portal_invites" class="btn btn-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>Send Invites</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

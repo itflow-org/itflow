@@ -30,7 +30,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Subject <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="bulk_subject" data-template-field="subject" placeholder="Asset Name will be prepended to Subject" maxlength="500" required>
             </div>
         </div>
@@ -45,7 +45,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="bulk_priority" data-template-field="priority" required>
                             <option data-color="var(--bs-info)">Low</option>
                             <option selected data-color="var(--bs-warning)">Medium</option>
@@ -60,7 +60,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Category</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="bulk_category" data-template-field="category">
                             <option value="0">- Not categorized -</option>
                             <?= categoryOptionsHtml('Ticket') ?>
@@ -75,7 +75,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Assign to</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                 <select class="form-select select2" name="bulk_assigned_to" data-template-field="assigned">
                     <option value="0">- Unassigned -</option>
                     <?php
@@ -97,7 +97,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Project</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
                 <select class="form-select select2" name="bulk_project">
                     <option value="0">- None -</option>
                     <?php
@@ -132,7 +132,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_add_asset_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create Tickets</button>
+        <button type="submit" name="bulk_add_asset_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create Tickets</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

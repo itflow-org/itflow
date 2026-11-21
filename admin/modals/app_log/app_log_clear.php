@@ -67,7 +67,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($total) { ?>
-            <button type="submit" name="clear_app_logs" class="btn btn-danger text-bold"><i class="fas fa-trash me-2"></i>Clear</button>
+            <button type="submit" name="clear_app_logs" class="btn btn-danger fw-bold"><i class="fas fa-trash me-2"></i>Clear</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

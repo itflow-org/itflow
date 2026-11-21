@@ -16,7 +16,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-download me-2"></i>Export Document Templates</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Document Templates</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -28,7 +28,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Document templates</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-file-alt"></i></span>
                 <select class="form-select select2" name="document_template_ids[]" multiple data-placeholder="Every current one">
                     <?php while ($row = mysqli_fetch_assoc($sql)) { ?>
                         <option value="<?= intval($row['document_template_id']) ?>"><?= escapeHtml($row['document_template_name']) ?><?= $row['document_template_archived_at'] ? ' (archived)' : '' ?></option>
@@ -45,8 +45,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="export_document_templates" class="btn btn-primary text-bold"><i class="fa fa-download me-2"></i>Download</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="export_document_templates" class="btn btn-primary fw-bold"><i class="fas fa-download me-2"></i>Download</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

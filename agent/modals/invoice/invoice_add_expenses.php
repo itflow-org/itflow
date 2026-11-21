@@ -60,7 +60,7 @@ ob_start();
                         </label>
                         <div class="text-end flex-shrink-0" style="width: 8rem;">
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                                 <input type="text" class="form-control text-end" name="expense_price[<?= $expense_id ?>]" value="<?= number_format($expense['price'], 2, '.', '') ?>" inputmode="decimal" aria-label="Price to bill" data-add-expense-price>
                             </div>
                             <div class="small text-body-secondary mt-1" data-add-expense-margin></div>
@@ -73,7 +73,7 @@ ob_start();
                     <div class="col-sm-6">
                         <label class="form-label">Tax</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                             <select class="form-select select2" name="tax_id" data-add-expense-tax>
                                 <?= taxOptionsHtml($taxes, taxDefaultFor($client_id, 'expense')) ?>
                             </select>
@@ -92,7 +92,7 @@ ob_start();
     <div class="modal-footer">
         <?php if ($expenses) { ?>
             <span class="me-auto small text-body-secondary" data-add-expense-summary></span>
-            <button type="submit" name="invoice_add_expenses" class="btn btn-primary text-bold" data-add-expense-submit><i class="fas fa-check me-2"></i>Add</button>
+            <button type="submit" name="invoice_add_expenses" class="btn btn-primary fw-bold" data-add-expense-submit><i class="fas fa-check me-2"></i>Add</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i><?= $expenses ? 'Cancel' : 'Close' ?></button>
     </div>

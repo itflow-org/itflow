@@ -76,9 +76,9 @@ $item_id = intval($_GET['id'] ?? 0);
             <div class="input-group mb-3">
                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control" id="sharePassphrase" name="passphrase" maxlength="200" required autocomplete="off" spellcheck="false" data-toggle="password">
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
             </div>
-            <button type="submit" class="btn btn-primary w-100 text-bold"><i class="fas fa-unlock me-2"></i>Continue</button>
+            <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fas fa-unlock me-2"></i>Continue</button>
         </form>
 
         <!-- A code by email first -->
@@ -89,10 +89,10 @@ $item_id = intval($_GET['id'] ?? 0);
             <p class="text-body-secondary text-center small">We will email a 6-digit code to <strong data-share-masked-email></strong>.</p>
             <div class="alert alert-danger py-2 small" role="alert" data-share-error hidden></div>
             <div class="alert alert-success py-2 small" role="status" data-share-code-sent hidden>Code sent - it can take a minute to arrive, and works for <?= SHARE_CODE_MINUTES ?> minutes.</div>
-            <button type="button" class="btn btn-primary w-100 text-bold mb-3" data-share-send-code><i class="fas fa-paper-plane me-2"></i>Email me a code</button>
+            <button type="button" class="btn btn-primary w-100 fw-bold mb-3" data-share-send-code><i class="fas fa-paper-plane me-2"></i>Email me a code</button>
             <div data-share-code-entry hidden>
                 <?= otpCodeInput('code', ['id' => 'shareCode', 'label' => 'The 6-digit code from the email', 'class' => 'mb-3', 'submit' => true]) ?>
-                <button type="submit" class="btn btn-primary w-100 text-bold"><i class="fas fa-unlock me-2"></i>Continue</button>
+                <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fas fa-unlock me-2"></i>Continue</button>
                 <button type="button" class="btn btn-link w-100 btn-sm mt-2" data-share-resend>Send another code</button>
             </div>
         </form>
@@ -105,7 +105,7 @@ $item_id = intval($_GET['id'] ?? 0);
             <div class="itflow-share-note text-start mb-3" data-share-note hidden></div>
             <div class="small text-body-secondary mb-3" data-share-limits></div>
             <div class="alert alert-danger py-2 small text-start" role="alert" data-share-error hidden></div>
-            <button type="button" class="btn btn-primary btn-lg text-bold px-4" data-share-reveal><i class="fas fa-eye me-2"></i><span data-share-reveal-label>Reveal</span></button>
+            <button type="button" class="btn btn-primary btn-lg fw-bold px-4" data-share-reveal><i class="fas fa-eye me-2"></i><span data-share-reveal-label>Reveal</span></button>
             <div class="small text-body-secondary mt-3" data-share-reveal-hint></div>
         </div>
 
@@ -137,7 +137,7 @@ $item_id = intval($_GET['id'] ?? 0);
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                     <input type="password" class="form-control font-monospace" readonly data-share-password data-toggle="password" aria-label="Password">
-                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                     <button type="button" class="btn btn-outline-secondary" title="Copy" data-share-copy="password"><i class="far fa-fw fa-copy"></i></button>
                 </div>
             </div>
@@ -216,7 +216,7 @@ $item_id = intval($_GET['id'] ?? 0);
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                     <input type="password" class="form-control font-monospace" id="shareRequestPassword" name="password" maxlength="350" autocomplete="new-password" spellcheck="false" data-toggle="password">
-                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 </div>
             </div>
             <div class="mb-3">
@@ -224,14 +224,14 @@ $item_id = intval($_GET['id'] ?? 0);
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                     <input type="password" class="form-control font-monospace" id="shareRequestOtp" name="otp" maxlength="200" autocomplete="off" spellcheck="false" data-toggle="password" placeholder="The key under &quot;can't scan the code&quot;">
-                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="shareRequestNote">Anything we should know</label>
                 <textarea class="form-control" id="shareRequestNote" name="note" rows="2" maxlength="2000"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary w-100 text-bold"><i class="fas fa-lock me-2"></i>Send securely</button>
+            <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fas fa-lock me-2"></i>Send securely</button>
             <div class="small text-body-secondary text-center mt-3">Encrypted on the way and when stored. It goes to <?= $company_name ?> only, and this link then stops working.</div>
         </form>
 

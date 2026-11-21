@@ -69,7 +69,7 @@ ob_start();
     </div>
     <div class="modal-footer">
         <?php if ($ready) { ?>
-            <button type="submit" name="invite_users_bulk" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Send Invites</button>
+            <button type="submit" name="invite_users_bulk" class="btn btn-primary fw-bold"><i class="fas fa-paper-plane me-2"></i>Send Invites</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

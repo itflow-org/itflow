@@ -29,7 +29,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user-secret me-2"></i>Redact Reply</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-secret me-2"></i>Redact Reply</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -39,7 +39,7 @@ ob_start();
     <div class="modal-body">
 
         <!-- The editor blocks typing and only has a REDACT button - nothing on screen said so -->
-        <p class="small text-muted mb-2">
+        <p class="small text-body-secondary mb-2">
             Select the text to hide, such as a password, then press <strong>REDACT</strong>. Typing is switched off here.
             Saving replaces the original text for good.
         </p>
@@ -50,8 +50,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="redact_ticket_reply" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save Redaction</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="redact_ticket_reply" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save Redaction</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

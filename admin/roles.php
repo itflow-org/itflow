@@ -73,7 +73,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-md-5">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search roles..." title="Name or description">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -173,7 +173,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php if ($delete_blocker !== '') { ?>
                                     <span class="dropdown-item disabled" title="<?= escapeHtml($delete_blocker) ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</span>
                                 <?php } else { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_role=<?= $role_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_role=<?= $role_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-title="Delete <?= $name ?>?" data-confirm-text="Nobody has it, so no agent changes." data-confirm-button="Delete">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

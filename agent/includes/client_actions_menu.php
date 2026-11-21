@@ -86,7 +86,7 @@
 
     <?php if (lookupUserPermission("module_client") >= 3 && $client_archived_at) { ?>
     <div class="dropdown-divider"></div>
-    <a class="dropdown-item text-danger text-bold" href="#" data-bs-toggle="modal" data-bs-target="#deleteClientModal<?= $client_id ?>">
+    <a class="dropdown-item text-danger fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#deleteClientModal<?= $client_id ?>">
         <i class="fas fa-fw fa-trash me-2"></i>Delete Client
     </a>
     <?php } ?>

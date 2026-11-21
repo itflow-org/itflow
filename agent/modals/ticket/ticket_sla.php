@@ -20,7 +20,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-stopwatch me-2"></i>Change SLA Plan <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-stopwatch me-2"></i>Change SLA Plan <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -32,7 +32,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">SLA plan</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
                 <select class="form-select select2" name="sla_id" required>
                     <option value="0" <?php if ($ticket_sla_id == 0) { echo "selected"; } ?>>- No SLA -</option>
                     <?php while ($sla_row = mysqli_fetch_assoc($sql_slas)) { ?>
@@ -40,14 +40,14 @@ ob_start();
                     <?php } ?>
                 </select>
             </div>
-            <small class="text-muted">The response and resolution deadlines are worked out again from when the ticket was opened.</small>
+            <small class="text-body-secondary">The response and resolution deadlines are worked out again from when the ticket was opened.</small>
         </div>
 
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_sla" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_sla" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

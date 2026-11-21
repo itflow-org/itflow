@@ -30,7 +30,7 @@ $form_types = accountTypes();
     <div class="col-md-7">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="Operating Checking, Business Visa, Stripe" value="<?= escapeHtml($form_row['account_name'] ?? '') ?>" required <?= $form_row ? '' : 'autofocus' ?>>
         </div>
     </div>
@@ -38,7 +38,7 @@ $form_types = accountTypes();
     <div class="col-md-5">
         <label class="form-label">Kind <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
             <select class="form-select select2" name="type" required data-account-type>
                 <?php foreach ($form_types as $type => $info) { ?>
                     <option value="<?= $type ?>" <?= $form_type === $type ? 'selected' : '' ?> data-icon="fas <?= $info['icon'] ?>"><?= escapeHtml($info['label']) ?></option>
@@ -50,7 +50,7 @@ $form_types = accountTypes();
     <div class="col-md-7">
         <label class="form-label">Currency <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-money-bill"></i></span>
             <select class="form-select select2" name="currency_code" required <?= $form_locked ? 'disabled' : '' ?>>
                 <option value="">- Select a currency -</option>
                 <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
@@ -69,7 +69,7 @@ $form_types = accountTypes();
     <div class="col-md-5">
         <label class="form-label">Opening balance <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="opening_balance" placeholder="0.00" required
                 value="<?= $form_row ? number_format(floatval($form_row['opening_balance']), 2, '.', '') : '0.00' ?>" <?= $form_reconciled ? 'readonly' : '' ?>>
         </div>
@@ -79,7 +79,7 @@ $form_types = accountTypes();
     <div class="col-12">
         <label class="form-label">What it is for</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-info-circle"></i></span>
             <input type="text" class="form-control" name="description" maxlength="250" placeholder="Day to day banking - client payments in, bills out" value="<?= escapeHtml($form_row['account_description'] ?? '') ?>">
         </div>
     </div>
@@ -87,7 +87,7 @@ $form_types = accountTypes();
     <div class="col-12">
         <label class="form-label">Notes</label>
         <div class="input-group">
-            <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-sticky-note"></i></span>
+            <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-sticky-note"></i></span>
             <textarea class="form-control" rows="3" name="notes" placeholder="The bank, the last four digits, who can sign"><?= escapeHtml($form_row['account_notes'] ?? '') ?></textarea>
         </div>
     </div>

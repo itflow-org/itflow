@@ -49,7 +49,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Domain, registrar, host, notes, tag">
             </div>
         </div>
@@ -58,7 +58,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
                     <option value="">- Any client -</option>
                     <?php
@@ -79,7 +79,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Expiring in</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
                     <option value="">- Any -</option>
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
@@ -93,7 +93,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Tags</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- Any -" multiple>
                     <?= tagOptionsHtml('domain', $tags_filter) ?>
                 </select>
@@ -108,7 +108,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Archived</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

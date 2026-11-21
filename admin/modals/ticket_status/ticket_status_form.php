@@ -46,7 +46,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
     <div class="mb-3">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
             <input type="text" class="form-control" name="name" maxlength="200" placeholder="Waiting on Vendor, Scheduled, Parts Ordered" value="<?= escapeHtml($s_name) ?>" required<?= $s_builtin ? ' readonly' : ($s ? '' : ' autofocus') ?> data-ticket-status-name>
         </div>
         <?php if ($s_builtin) { ?>
@@ -57,7 +57,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
     <div class="mb-3">
         <label class="form-label">Description</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
             <input type="text" class="form-control" name="description" maxlength="255" placeholder="<?= escapeHtml($s_builtin ? $s_builtin['about'] : 'What it means, and when to use it') ?>" value="<?= escapeHtml($s_description) ?>">
         </div>
         <small class="text-secondary">Shown when the status is hovered - in the pickers, on the board and on tickets.</small>
@@ -73,7 +73,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
                 <?php } ?>
             </div>
             <div class="input-group input-group-sm w-auto" title="Any other color">
-                <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-paint-brush"></i></span>
                 <input type="color" class="form-control form-control-color" value="<?= $s_color ?>" aria-label="Custom color" data-ticket-status-color-pick>
                 <input type="text" class="form-control font-monospace" style="width: 6rem" maxlength="7" value="<?= $s_color ?>" pattern="#?[0-9a-fA-F]{6}" aria-label="Color as hex" data-ticket-status-color-hex>
             </div>
@@ -83,7 +83,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
     <div class="mb-3">
         <label class="form-label">SLA resolution clock</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
             <?php if ($s_builtin) { ?>
                 <input type="text" class="form-control" value="<?= $s_id === TICKET_STATUS_CLOSED ? 'Stopped - the ticket is finished' : ($s_paused ? 'Paused while a ticket is in it' : 'Keeps running') ?>" readonly>
             <?php } else { ?>
@@ -102,7 +102,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
     <div class="<?= $s_id && !ticketStatusCanBeFirstResponse($s_id) ? 'mb-1' : 'mb-3' ?>">
         <label class="form-label">When the client replies</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-reply"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-reply"></i></span>
             <?php if ($s_id === TICKET_STATUS_CLOSED || ($s_builtin && !ticketStatusReplyReady())) { ?>
                 <input type="text" class="form-control" value="<?= [TICKET_STATUS_OPEN => 'It stays Open', TICKET_STATUS_RESOLVED => 'It is reopened - back to Open', TICKET_STATUS_CLOSED => 'They can\'t - they are told to raise a new ticket'][$s_id] ?? 'It moves back to Open' ?>" readonly>
             <?php } else { ?>
@@ -126,7 +126,7 @@ $s_reply_value = $s_reply_to && isset($s_reply_choices["to-$s_reply_to"]) ? "to-
         <div class="mb-1">
             <label class="form-label">Counts as the first response</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-comment-dots"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-comment-dots"></i></span>
                 <select class="form-select select2" name="first_response">
                     <?php foreach (TICKET_STATUS_FIRST_RESPONSE as $value => $first_response) { ?>
                         <option value="<?= $value ?>"<?= $value === $s_first_response ? ' selected' : '' ?>><?= escapeHtml($first_response['label']) ?></option>

@@ -32,7 +32,7 @@ $network = networkRow($network_id);
 
 if (!$network || ($client_url && intval($network['network_client_id']) !== intval($client_id))) {
 
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fas fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
 } else {
 
@@ -181,7 +181,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                     <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                 </a>
                                 <?php if ($can_delete) { ?>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
+                                    <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
                                         data-confirm-text="<?= $network_name ?> and the addresses documented on it go for good. The devices on it are left with no network.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>

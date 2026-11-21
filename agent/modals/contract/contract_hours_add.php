@@ -39,7 +39,7 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
             <div class="col-sm-6">
                 <label class="form-label">Hours <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                     <input type="text" inputmode="decimal" class="form-control" name="hours" placeholder="20" required autofocus>
                     <span class="input-group-text">hours</span>
                 </div>
@@ -47,7 +47,7 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
             <div class="col-sm-6">
                 <label class="form-label">Price</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <input type="text" inputmode="decimal" class="form-control" name="price" placeholder="None" data-contract-hours-price>
                 </div>
             </div>
@@ -56,14 +56,14 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
             <div class="col-sm-6">
                 <label class="form-label">Bought <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-plus"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-plus"></i></span>
                     <input type="date" class="form-control" name="bought" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                 </div>
             </div>
             <div class="col-sm-6">
                 <label class="form-label">Run out</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
                     <input type="date" class="form-control" name="expires" max="2999-12-31" value="<?= escapeHtml((string) ($contract['contract_end_date'] ?? '')) ?>">
                 </div>
             </div>
@@ -72,7 +72,7 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
         <div class="mb-3">
             <label class="form-label">Note</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
                 <input type="text" class="form-control" name="note" maxlength="255" placeholder="Block of 20 hours, PO 4512">
             </div>
         </div>
@@ -82,7 +82,7 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
                 <label class="form-check-label" for="contractHoursInvoice">Make a draft invoice for them, at the price</label>
             </div>
             <div class="input-group mb-1">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <select class="form-select select2" name="category" aria-label="Invoice category">
                     <option value="0">- Invoice category -</option>
                     <?= categoryOptionsHtml('Income') ?>
@@ -92,7 +92,7 @@ if (!$contract || !contractHoursReady() || !($contract['contract_status'] === 'D
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_contract_hours" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Add Hours</button>
+        <button type="submit" name="add_contract_hours" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add Hours</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

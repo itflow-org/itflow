@@ -51,7 +51,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client_id" id="quickTicketClient" required>
                     <option value="">- Select a client -</option>
                     <?php
@@ -67,7 +67,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Contact</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="contact_id" id="quickTicketContact" data-placeholder="- Select the client first -" disabled>
                     <option value="0">- Nobody -</option>
                 </select>
@@ -81,7 +81,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">What is the issue? <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="subject" id="quickTicketSubject" maxlength="500" placeholder="Outlook keeps asking for a password" required>
             </div>
         </div>
@@ -96,7 +96,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Priority</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="priority">
                             <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $priority) { ?>
                                 <option<?= $priority === $quick['priority'] ? ' selected' : '' ?><?= selectOptionPriority($priority) ?>><?= $priority ?></option>
@@ -122,7 +122,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 

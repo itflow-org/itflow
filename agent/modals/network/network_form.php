@@ -68,7 +68,7 @@ $value = function ($key) use ($form) {
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>

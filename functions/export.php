@@ -664,7 +664,7 @@ function renderExportColumnPicker($export_type) {
                 <?php } ?>
             </div>
         </div>
-        <small class="form-text text-muted export-columns-count"></small>
+        <small class="form-text text-body-secondary export-columns-count"></small>
     </div>
 
     <script>
@@ -877,8 +877,8 @@ function exportTabsColumns($export_type) {
  */
 function renderExportButtons($trigger) {
     ?>
-    <button type="submit" name="<?= $trigger ?>" value="csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-file-csv me-2"></i>Download CSV</button>
-    <button type="submit" name="<?= $trigger ?>" value="pdf" class="btn btn-secondary text-bold"><i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF</button>
+    <button type="submit" name="<?= $trigger ?>" value="csv" class="btn btn-primary fw-bold"><i class="fas fa-fw fa-file-csv me-2"></i>Download CSV</button>
+    <button type="submit" name="<?= $trigger ?>" value="pdf" class="btn btn-secondary fw-bold"><i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF</button>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     <?php
 }

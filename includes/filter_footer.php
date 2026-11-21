@@ -36,7 +36,7 @@ if ($total_found_rows > 5) {
                         <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
                         <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
                     </select>
-                    <span class="text-muted small ms-2 d-none d-sm-inline">per page</span>
+                    <span class="text-body-secondary small ms-2 d-none d-sm-inline">per page</span>
                 </div>
             </form>
         </div>

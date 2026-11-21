@@ -270,7 +270,7 @@ echo agentBannersHtml($client_id);
                         <?php } ?>
                     <?php } ?>
                     <?php if ($can_delete) { ?>
-                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>"
+                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>"
                             data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, payments and history. Its tickets become unbilled again, and its expenses and trips are to bill again.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>

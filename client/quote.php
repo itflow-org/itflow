@@ -218,14 +218,14 @@ $paper = [
                     <div class="mb-3">
                         <label class="form-label" for="acceptName">Your name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-signature"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-signature"></i></span>
                             <input type="text" class="form-control" id="acceptName" name="name" value="<?= escapeHtml($contact_name) ?>" maxlength="200" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="acceptNote">A note for us</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                             <textarea class="form-control" id="acceptNote" name="note" rows="3" maxlength="2000" placeholder="Optional - a PO number, when to start, who to talk to"></textarea>
                         </div>
                     </div>
@@ -257,14 +257,14 @@ $paper = [
                     <div class="mb-3">
                         <label class="form-label" for="declineName">Your name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <input type="text" class="form-control" id="declineName" name="name" value="<?= escapeHtml($contact_name) ?>" maxlength="200" required>
                         </div>
                     </div>
                     <div>
                         <label class="form-label" for="declineNote">What would change your mind?</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-comment"></i></span>
                             <textarea class="form-control" id="declineNote" name="note" rows="3" maxlength="2000" placeholder="Optional - the price, the timing, what is missing"></textarea>
                         </div>
                     </div>

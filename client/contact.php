@@ -173,7 +173,7 @@ $value = function ($field, $fallback = '') use ($form, $contact) {
                                     <div class="mb-3">
                                         <label class="form-label" for="accessMethod">They sign in</label>
                                         <div class="input-group">
-                                            <span class="input-group-text"><i class="fa fa-fw fa-sign-in-alt"></i></span>
+                                            <span class="input-group-text"><i class="fas fa-fw fa-sign-in-alt"></i></span>
                                             <select class="form-select" id="accessMethod" name="method">
                                                 <?php foreach ($methods as $key => $label) { ?>
                                                     <option value="<?= $key ?>"><?= escapeHtml($label) ?></option>

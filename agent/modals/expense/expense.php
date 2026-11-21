@@ -272,7 +272,7 @@ ob_start();
         <a class="btn btn-outline-secondary" href="<?= $receipt_url ?>"><i class="fas fa-download me-2"></i>Receipt</a>
     <?php } ?>
     <?php if ($can_edit && !$is_transfer) { ?>
-        <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+        <button type="button" class="btn btn-primary fw-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
         <div class="btn-group">
             <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
             <?php if ($amount > 0) { ?>
@@ -293,7 +293,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.<?= $billed_on && $row['invoice_status'] !== null ? ' Its line stays on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '.' : '' ?><?= $mileage_trips ? ' Its ' . ($mileage_trips === 1 ? 'trip is' : $mileage_trips . ' trips are') . ' to pay back for again.' : '' ?>"><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

@@ -86,7 +86,7 @@ ob_start();
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?expense_reimbursement_delete=<?= $reimbursement_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="The <?= escapeHtml(billingMoney($row['reimbursement_amount'], $currency)) ?> comes back off <?= escapeHtml($row['account_name'] ?: 'the account') ?>, and its expenses are to reimburse again."><i class="fas fa-undo-alt me-2"></i>Undo</a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

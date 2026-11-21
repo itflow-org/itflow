@@ -120,13 +120,13 @@ ob_start();
         <!-- Nav -->
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-relationships"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-relationships"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fas fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
         </ul>
 
@@ -155,7 +155,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Client <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
                                     <option value="">- Select a client -</option>
                                     <?php
@@ -178,7 +178,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Contact </label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
                                     <option value="0">- Nobody -</option>
                                 </select>
@@ -196,7 +196,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($prefill_subject) ?>" data-template-field="subject" required>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <option <?= $prefill_priority === 'Low' ? 'selected' : '' ?> data-color="var(--bs-info)">Low</option>
                                     <option <?= $prefill_priority === 'Medium' || !in_array($prefill_priority, TICKET_PRIORITIES, true) ? 'selected' : '' ?> data-color="var(--bs-warning)">Medium</option>
@@ -226,7 +226,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket', $prefill_category_id ?: null) ?>
@@ -243,7 +243,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Assign to</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                                 <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                                     <option value="0">- Unassigned -</option>
                                     <?php
@@ -266,7 +266,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Due</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
                                 <input type="datetime-local" class="form-control" name="due" data-template-field="due">
                             </div>
                         </div>
@@ -279,7 +279,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-info-circle"></i></span>
                                 <select class="form-select select2" name="status">
                                     <option value="0" data-color="var(--bs-secondary-color)">- New, or Open once assigned -</option>
                                     <?php foreach (ticketPickableStatuses() as $status_id => $status) { ?>
@@ -300,7 +300,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Schedule</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                         <input type="datetime-local" class="form-control" name="schedule" min="<?= date('Y-m-d\TH:i') ?>" value="<?= escapeHtml($prefill_schedule) ?>" aria-label="Date and time of the work">
                         <select class="form-select select2 flex-grow-0 w-auto" name="schedule_minutes" aria-label="How long">
                             <?php foreach (ticketScheduleLengths($prefill_schedule_minutes) as $minutes => $label) { ?>
@@ -337,7 +337,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Project</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-project-diagram"></i></span>
                         <select class="form-select select2" name="project_id" id="projectSelect" data-selected="<?= $project_id ?>">
                         </select>
                     </div>
@@ -346,7 +346,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Asset</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
                         </select>
                     </div>
@@ -355,7 +355,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Other assets</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select additional assets -" multiple>
                         </select>
                     </div>
@@ -364,7 +364,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Site</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="location_id" id="locationSelect" data-selected="<?= $location_id ?>">
                         </select>
                         <?= quickAddButton('location', 0) ?>
@@ -377,7 +377,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Vendor</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                                 <select class="form-select select2" name="vendor_id" id="vendorSelect" data-selected="<?= $vendor_id ?>">
                                 </select>
                                 <?= quickAddButton('vendor', 0) ?>
@@ -389,7 +389,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Their reference</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="The vendor's case number" maxlength="255">
                             </div>
                         </div>
@@ -400,14 +400,14 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Watchers</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                         <select class="form-select select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
                         </select>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label"><i class="fa fa-fw fa-paperclip me-1"></i>Attachments</label>
+                    <label class="form-label"><i class="fas fa-fw fa-paperclip me-1"></i>Attachments</label>
                     <input type="file" class="form-control" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
                 </div>
 
@@ -418,7 +418,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 

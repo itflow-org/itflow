@@ -24,7 +24,7 @@ if (!$row) { ?>
 <?php } else { ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-tasks me-2"></i>Task</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-tasks me-2"></i>Task</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -36,7 +36,7 @@ if (!$row) { ?>
         <div class="mb-3">
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tasks"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="200" value="<?= escapeHtml($row['task_template_name']) ?>" required autofocus>
             </div>
         </div>
@@ -54,7 +54,7 @@ if (!$row) { ?>
             <label class="form-label">For</label>
             <?php if ($when_html !== '') { ?>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-code-branch"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-code-branch"></i></span>
                     <?= $when_html ?>
                 </div>
                 <div class="form-text">A task for one answer only is left off tickets given another. Until it is answered, the task is added.</div>
@@ -66,8 +66,8 @@ if (!$row) { ?>
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_template_task" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_template_task" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

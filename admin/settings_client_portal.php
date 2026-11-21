@@ -131,7 +131,7 @@ $signup_clients = $signup_ready ? portalSignupClients() : [];
                                     <a class="dropdown-item text-danger" href="post.php?archive_portal_announcement=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
                                 <?php } ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_portal_announcement=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_portal_announcement=<?= $announcement_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
                             </div>
                         </div>
                     </td>

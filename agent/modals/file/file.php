@@ -129,7 +129,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a class="btn btn-primary text-bold" href="file.php?file_id=<?= $file_id ?>"><i class="fas fa-download me-2"></i>Download</a>
+    <a class="btn btn-primary fw-bold" href="file.php?file_id=<?= $file_id ?>"><i class="fas fa-download me-2"></i>Download</a>
     <?php if (!$file_archived && shareCanMake('File')) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/share/share_add.php?type=File&amp;id=<?= $file_id ?>"><i class="fas fa-share-alt me-2"></i>Share</button>
     <?php } ?>
@@ -137,7 +137,7 @@ ob_start();
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/file/file_rename.php?id=<?= $file_id ?>"><i class="fas fa-pen me-2"></i>Rename</button>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/file/file_move.php?id=<?= $file_id ?>"><i class="fas fa-folder-open me-2"></i>Move</button>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

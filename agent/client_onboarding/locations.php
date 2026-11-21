@@ -65,7 +65,7 @@ $co_country = (string) settingsValue('country', $session_company_country);
             <div class="itflow-settings-field">
                 <label class="form-label" for="coLocCountry">Country</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-globe-americas"></i></span>
                     <select class="form-select select2" id="coLocCountry" name="country">
                         <option value="">- Select a country -</option>
                         <?php foreach ($countries_array as $co_country_name) { ?>
@@ -79,7 +79,7 @@ $co_country = (string) settingsValue('country', $session_company_country);
             <div class="itflow-settings-field">
                 <label class="form-label" for="coLocPhone">Phone</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
                     <input type="hidden" name="phone_country_code" value="<?= escapeHtml((string) settingsValue('phone_country_code', '')) ?>">
                     <input type="tel" class="form-control" id="coLocPhone" name="phone" value="<?= escapeHtml((string) settingsValue('phone', '')) ?>" maxlength="200" data-itflow-phone="phone_country_code" data-itflow-phone-country-select="country">
                 </div>

@@ -106,7 +106,7 @@ $filter_url = function ($changes) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-share-alt me-2"></i>Shared Links</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-share-alt me-2"></i>Shared Links</h3>
         <div class="card-tools">
             <?php if ($can_note || $can_request || $can_export || ($client_url && $can_end && $counts[''])) { ?>
             <div class="btn-group">
@@ -119,12 +119,12 @@ $filter_url = function ($changes) {
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_export) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/share/share_add.php?type=Export&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-book me-2"></i>Share the IT Documentation
+                            <i class="fas fa-fw fa-book me-2"></i>Share the IT Documentation
                         </a>
                     <?php } ?>
                     <?php if ($can_request) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
-                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the Client for a Login
+                            <i class="fas fa-fw fa-inbox me-2"></i>Ask the Client for a Login
                         </a>
                     <?php } ?>
                     <?php if ($client_url && $can_end && $counts['']) { ?>
@@ -134,7 +134,7 @@ $filter_url = function ($changes) {
                             <input type="hidden" name="client_id" value="<?= intval($client_id) ?>">
                             <button type="submit" name="share_revoke_all" value="1" class="dropdown-item text-danger confirm-link"
                                 data-confirm-text="Every open link for <?= $client_name ?> stops working straight away - <?= $counts[''] ?> of them. Requests not answered yet are cancelled too.">
-                                <i class="fa fa-fw fa-unlink me-2"></i>Turn Off Every Open Link
+                                <i class="fas fa-fw fa-unlink me-2"></i>Turn Off Every Open Link
                             </button>
                         </form>
                     <?php } ?>
@@ -154,7 +154,7 @@ $filter_url = function ($changes) {
                 <div class="<?= $client_url ? 'col-lg-5' : 'col-lg-4' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search what, who it went to, who made it...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">

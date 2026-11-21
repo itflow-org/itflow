@@ -99,7 +99,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
                         </div>
 
                         <div class="mb-3">
-                            <small class="text-muted d-block mt-2">Stripe processes your information in accordance with its Privacy Policy and Terms.</small>
+                            <small class="text-body-secondary d-block mt-2">Stripe processes your information in accordance with its Privacy Policy and Terms.</small>
                         </div>
 
                         <div class="mb-3">

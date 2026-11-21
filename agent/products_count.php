@@ -113,7 +113,7 @@ $page_title = 'Count Stock';
                     <input type="text" class="form-control" name="note" maxlength="200" placeholder="Note on every move - year end count, who counted">
                 </div>
                 <span class="small text-body-secondary ms-auto" data-count-summary>Nothing counted yet</span>
-                <button type="submit" name="product_stock_count" class="btn btn-primary text-bold" data-count-save disabled><i class="fas fa-check me-2"></i>Save Count</button>
+                <button type="submit" name="product_stock_count" class="btn btn-primary fw-bold" data-count-save disabled><i class="fas fa-check me-2"></i>Save Count</button>
             </div>
         <?php } ?>
     </div>

@@ -48,7 +48,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, host, names covered, issuer, fingerprint">
             </div>
         </div>
@@ -57,7 +57,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="client">
                     <option value="">- Any client -</option>
                     <?php
@@ -78,7 +78,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Expiring in</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                 <select class="form-select select2" name="expire_days">
                     <option value="">- Any -</option>
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
@@ -92,7 +92,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Last check</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-shield-alt"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-shield-alt"></i></span>
                 <select class="form-select select2" name="problems">
                     <option <?php if (!$problems_filter) { echo "selected"; } ?> value="0">- Any -</option>
                     <option <?php if ($problems_filter) { echo "selected"; } ?> value="1">Problems found - mismatch, untrusted, expired or unreachable</option>
@@ -103,7 +103,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Archived</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-archive"></i></span>
                 <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

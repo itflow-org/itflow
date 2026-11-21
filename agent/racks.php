@@ -125,7 +125,7 @@ foreach ($racks as $rack_id => $row) {
                 <div class="col-lg-3 col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks..." title="Racks and what's in them">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
 
@@ -181,7 +181,7 @@ foreach ($racks as $rack_id => $row) {
                         </span>
                     <?php } ?>
                     <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>" class="btn btn-<?= $archived ? 'primary' : 'default' ?> text-nowrap">
-                        <i class="fa fa-fw fa-archive me-2"></i>Archived
+                        <i class="fas fa-fw fa-archive me-2"></i>Archived
                     </a>
                 </div>
 
@@ -278,7 +278,7 @@ foreach ($racks as $rack_id => $row) {
                                                         </a>
                                                     <?php } ?>
                                                     <?php if ($can_delete) { ?>
-                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>

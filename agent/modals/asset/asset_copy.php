@@ -70,7 +70,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-truncate"><i class='fa fa-fw fa-<?= $device_icon ?> me-2'></i>Copy Asset <span class="fw-normal text-white-50 ms-1"><?= $asset_name ?></span></h5>
+    <h5 class="modal-title text-truncate"><i class='fas fa-fw fa-<?= $device_icon ?> me-2'></i>Copy Asset <span class="fw-normal text-white-50 ms-1"><?= $asset_name ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -82,8 +82,8 @@ ob_start();
         <?php require 'asset_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create Copy</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_asset" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create Copy</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

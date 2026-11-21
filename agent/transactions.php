@@ -245,21 +245,21 @@ $is_card = $account && $account['type'] === 3;
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'reconciliation', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <?php if ($account) { ?>
-                        <a class="dropdown-item" href="reconcile.php?account=<?= $account_filter ?>"><i class="fa fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
+                        <a class="dropdown-item" href="reconcile.php?account=<?= $account_filter ?>"><i class="fas fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
                     <?php } ?>
                     <?php if ($account && $can_edit) { ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_filter ?>"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Edit Account</a>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_filter ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit Account</a>
                     <?php } ?>
                     <?php if ($can_edit) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
-                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Statement - Expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - Income</a>
                     <?php } ?>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="accounts.php"><i class="fa fa-fw fa-piggy-bank text-secondary me-2"></i>Accounts</a>
+                    <a class="dropdown-item" href="accounts.php"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Accounts</a>
                 </div>
             </div>
         </div>
@@ -274,7 +274,7 @@ $is_card = $account && $account['type'] === 3;
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                         <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Account">
                             <option value="">- Any account -</option>
                             <?php foreach ($open_accounts + ($account && $account['account_archived_at'] ? [$account_filter => $account] : []) as $id => $option) { ?>
@@ -287,7 +287,7 @@ $is_card = $account && $account['type'] === 3;
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search transactions..." title="Who or what, description, reference, amount, category, client, account">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#ledgerMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4">
@@ -326,7 +326,7 @@ $is_card = $account && $account['type'] === 3;
                 <div class="row g-2 mt-0">
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                             <select class="form-select select2" name="kind" onchange="this.form.submit()" aria-label="Kind">
                                 <option value="">- Any kind -</option>
                                 <?php foreach ($kinds as $key => $info) { ?>
@@ -337,7 +337,7 @@ $is_card = $account && $account['type'] === 3;
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
                                 <?php foreach (array_unique(array_filter(array_merge(paymentMethods('', true), [$method_filter]))) as $method) { ?>
@@ -348,7 +348,7 @@ $is_card = $account && $account['type'] === 3;
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                             <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least" aria-label="At least" onchange="this.form.submit()">
                             <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most" aria-label="At most" onchange="this.form.submit()">
                         </div>

@@ -249,18 +249,18 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if (userInvitesReady() && !$agent_user_limit_reached) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/user/user_invite_bulk.php?role=<?= $role_filter ?>">
-                            <i class="fa fa-fw fa-users text-secondary me-2"></i>Invite Several
+                            <i class="fas fa-fw fa-users text-secondary me-2"></i>Invite Several
                         </a>
                         <div class="dropdown-divider"></div>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/user/user_export.php', ['q', 'role'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <a class="dropdown-item" href="roles.php">
-                        <i class="fa fa-fw fa-user-tag text-secondary me-2"></i>Roles
+                        <i class="fas fa-fw fa-user-tag text-secondary me-2"></i>Roles
                     </a>
                     <a class="dropdown-item" href="settings_security.php">
-                        <i class="fa fa-fw fa-shield-alt text-secondary me-2"></i>Security Settings
+                        <i class="fas fa-fw fa-shield-alt text-secondary me-2"></i>Security Settings
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/user/user_all_reset_password.php">
@@ -278,7 +278,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= escapeHtml($_GET['q'] ?? '') ?>" placeholder="<?= $show === 'portal' ? 'Search portal users...' : 'Search users...' ?>" title="<?= $show === 'portal' ? 'Name, email or client' : 'Name, email or role' ?>">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($show === 'portal') { ?>

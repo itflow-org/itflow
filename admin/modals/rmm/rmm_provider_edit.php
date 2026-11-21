@@ -68,7 +68,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="rmmProviderKind">RMM <?= $row ? '' : '<strong class="text-danger">*</strong>' ?></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                 <select class="form-select select2" name="kind" id="rmmProviderKind" data-rmm-kind <?= $row ? 'disabled' : '' ?>>
                     <?php foreach ($kinds as $key => $info) { ?>
                         <option value="<?= escapeHtml($key) ?>" <?= $key === $kind_key ? 'selected' : '' ?><?= selectOptionData(['icon' => $info['icon'], 'description' => $info['about']]) ?>><?= escapeHtml($info['name']) ?></option>
@@ -82,7 +82,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label" for="rmmProviderName">Name <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="name" id="rmmProviderName" maxlength="100" value="<?= escapeHtml($row ? $row['rmm_provider_name'] : $kind['name']) ?>" placeholder="What you call it">
             </div>
             <?= $error_for('name') ?>
@@ -104,7 +104,7 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label" for="<?= $id ?>"><?= escapeHtml($about['label']) ?> <?= !empty($about['required']) && !($secret && $saved !== '') ? '<strong class="text-danger">*</strong>' : '' ?></label>
                         <div class="input-group has-validation">
-                            <span class="input-group-text"><i class="fa fa-fw <?= escapeHtml($about['icon']) ?>"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw <?= escapeHtml($about['icon']) ?>"></i></span>
                             <?php if ($secret) { ?>
                                 <input type="password" class="form-control font-monospace" name="<?= $field ?>" id="<?= $id ?>" maxlength="500" spellcheck="false" autocomplete="new-password" placeholder="<?= escapeHtml($placeholder) ?>" <?= $shown ? '' : 'disabled' ?>>
                             <?php } else { ?>
@@ -125,7 +125,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label" for="rmmProviderAlertLevel">Alerts open tickets</label>
                     <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
                         <select class="form-select select2" name="alert_level" id="rmmProviderAlertLevel" data-rmm-alert-level>
                             <?php foreach (rmmAlertLevels() as $level_key => $level_label) { ?>
                                 <option value="<?= $level_key ?>" <?= $level_key === $alert_level ? 'selected' : '' ?>><?= escapeHtml($level_label) ?></option>
@@ -139,7 +139,7 @@ ob_start();
                 <div class="mb-3 <?= $alert_level === '' ? 'd-none' : '' ?>" data-rmm-alert-more>
                     <label class="form-label" for="rmmProviderAlertCategory">Ticket category</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                         <select class="form-select select2" name="alert_category_id" id="rmmProviderAlertCategory">
                             <option value="0">- Not categorized -</option>
                             <?= categoryOptionsHtml('Ticket', $alert_category_id ?: null) ?>
@@ -152,10 +152,10 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="<?= $row ? 'edit_rmm_provider' : 'add_rmm_provider' ?>" class="btn btn-primary text-bold" data-rmm-provider-save>
-            <i class="fa fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
+        <button type="submit" name="<?= $row ? 'edit_rmm_provider' : 'add_rmm_provider' ?>" class="btn btn-primary fw-bold" data-rmm-provider-save>
+            <i class="fas fa-check me-2"></i><?= $row ? 'Save' : 'Create' ?>
         </button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

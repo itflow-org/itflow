@@ -50,7 +50,7 @@ unset($_SESSION['co_kept_tags']);
             <div class="itflow-settings-field">
                 <label class="form-label" for="coTags">Tags</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tags"></i></span>
                     <select class="form-select select2" id="coTags" name="tags[]" data-placeholder="- Select tags -" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
                         <?= tagOptionsHtml('client', $co_tags) ?>
                     </select>

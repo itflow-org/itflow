@@ -20,7 +20,7 @@ $m_usage = $m ? paymentMethodUsageFor($m_name) : ['total' => 0];
 <div class="mb-3">
     <label class="form-label">Name <strong class="text-danger">*</strong></label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
         <input type="text" class="form-control" name="name" maxlength="200" placeholder="Check, ACH, Cash, Company Amex" value="<?= escapeHtml($m_name) ?>" required<?= $m_online ? ' readonly' : ($m ? '' : ' autofocus') ?>>
     </div>
     <?php if ($m_online) { ?>
@@ -33,7 +33,7 @@ $m_usage = $m ? paymentMethodUsageFor($m_name) : ['total' => 0];
 <div class="mb-3">
     <label class="form-label">Description</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
         <input type="text" class="form-control" name="description" maxlength="250" placeholder="Which account, card or bank - what it's for" value="<?= escapeHtml($m['payment_method_description'] ?? '') ?>">
     </div>
 </div>
@@ -41,7 +41,7 @@ $m_usage = $m ? paymentMethodUsageFor($m_name) : ['total' => 0];
 <div class="mb-1">
     <label class="form-label">Offered for</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-exchange-alt"></i></span>
         <select class="form-select select2" name="use">
             <?php foreach (PAYMENT_METHOD_USES as $value => $use) { ?>
                 <option value="<?= $value ?>"<?= $value === $m_use ? ' selected' : '' ?>><?= escapeHtml($use['label']) ?></option>

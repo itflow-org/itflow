@@ -71,30 +71,30 @@ $error_html = $database_error !== '' ? '<div class="alert alert-danger d-flex ga
                     <div class="col-md-6">
                         <label class="form-label" for="setupDatabaseName">Database name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-database"></i></span>
                             <input type="text" class="form-control" id="setupDatabaseName" name="database" value="<?= escapeHtml($database_form['database']) ?>" placeholder="itflow" maxlength="64" required <?= $database_error === '' ? 'autofocus' : '' ?>>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="setupDatabaseHost">Host <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
                             <input type="text" class="form-control" id="setupDatabaseHost" name="host" value="<?= escapeHtml($database_form['host']) ?>" placeholder="localhost" maxlength="255" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="setupDatabaseUser">User <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                             <input type="text" class="form-control" id="setupDatabaseUser" name="username" value="<?= escapeHtml($database_form['username']) ?>" placeholder="itflow" maxlength="80" required autocomplete="off">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="setupDatabasePassword">Password</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                             <input type="password" class="form-control" id="setupDatabasePassword" data-toggle="password" name="password" placeholder="The user's password" autocomplete="new-password" <?= $database_error !== '' ? 'autofocus' : '' ?>>
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         </div>
                     </div>
                 </div>

@@ -45,7 +45,7 @@ if ($not_here) { ?>
             <!-- The right project, the wrong client in the address -->
             <a class="btn btn-primary mt-3" href="<?= escapeHtml(projectUrl($project['project_id'], $project['project_client_id'])) ?>"><i class="fas fa-fw fa-project-diagram me-2"></i>Open <?= escapeHtml(projectReference($project)) ?></a>
         <?php } ?>
-        <a class="btn btn-secondary mt-3" href="projects.php<?= $client_url ? "?client_id=$page_client_id" : '' ?>"><i class="fa fa-fw fa-arrow-left me-2"></i>Projects</a>
+        <a class="btn btn-secondary mt-3" href="projects.php<?= $client_url ? "?client_id=$page_client_id" : '' ?>"><i class="fas fa-fw fa-arrow-left me-2"></i>Projects</a>
     </div>
     <?php
     require_once "../includes/footer.php";
@@ -236,7 +236,7 @@ echo agentBannersHtml($project_client_id);
                             </a>
                         <?php } ?>
                         <?php if ($can_delete) { ?>
-                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                            <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                 data-confirm-text="<?= $reference ?> goes for good. Its tickets stay, no longer part of a project.">
                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                             </a>

@@ -72,7 +72,7 @@ while ($row = mysqli_fetch_assoc($sql_clients)) {
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-archive me-2"></i>Archived</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-archive me-2"></i>Archived</h3>
     </div>
     <div class="card-header py-3">
         <form autocomplete="off">
@@ -80,7 +80,7 @@ while ($row = mysqli_fetch_assoc($sql_clients)) {
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q)) ?>" placeholder="Search by name...">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">

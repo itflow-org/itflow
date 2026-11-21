@@ -61,7 +61,7 @@ ob_start();
         </div>
         <label class="form-label">Card <strong class="text-danger">*</strong></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
             <select class="form-select select2" name="saved_payment_id" required>
                 <?php foreach ($cards as $card) { ?>
                     <option value="<?= intval($card['saved_payment_id']) ?>"><?= escapeHtml($card['saved_payment_description']) ?> (<?= escapeHtml($card['payment_provider_name']) ?>)</option>
@@ -71,7 +71,7 @@ ob_start();
         <div class="form-text">Charged straight away - the payment is recorded on the invoice and a receipt goes to the client.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_payment_stripe" class="btn btn-success text-bold confirm-link" data-confirm-title="Charge the card?"
+        <button type="submit" name="add_payment_stripe" class="btn btn-success fw-bold confirm-link" data-confirm-title="Charge the card?"
             data-confirm-text="<?= escapeHtml(billingMoney($charge, $currency)) ?> is taken from the card now<?= $fee > 0 ? ', with its ' . escapeHtml(billingMoney($fee, $currency)) . ' card fee' : '' ?>." data-confirm-button="Charge">
             <i class="fas fa-bolt me-2"></i>Charge
         </button>

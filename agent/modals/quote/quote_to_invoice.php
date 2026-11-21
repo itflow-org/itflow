@@ -77,7 +77,7 @@ ob_start();
             </h6>
             <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
             </div>
             <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - <?= escapeHtml($terms_from) ?> terms.</div>
@@ -99,7 +99,7 @@ ob_start();
                     <div class="col-12">
                         <label class="form-label">Bill it on</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
                             <select class="form-select select2" name="recurring[<?= $frequency ?>][to]" data-quote-recurring-to>
                                 <option value="0">A new recurring invoice, billed <?= strtolower($frequencies[$frequency]) ?></option>
                                 <?php foreach ($options as $recurring_id => $option) { ?>
@@ -111,14 +111,14 @@ ob_start();
                     <div class="col-sm-6" data-quote-recurring-new>
                         <label class="form-label">First invoice <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                             <input type="date" class="form-control" name="recurring[<?= $frequency ?>][start]" max="2999-12-31" value="<?= quoteRecurringStart() ?>" required>
                         </div>
                     </div>
                     <div class="col-sm-6" data-quote-recurring-new>
                         <label class="form-label">Its invoices</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-paper-plane"></i></span>
                             <select class="form-select select2" name="recurring[<?= $frequency ?>][auto_send]">
                                 <option value="1">Emailed as they are made</option>
                                 <option value="0">Left as drafts to check</option>
@@ -138,7 +138,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_quote_to_invoice" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><?= $recurring ? 'Start Billing' : 'Make Invoice' ?></button>
+        <button type="submit" name="add_quote_to_invoice" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i><?= $recurring ? 'Start Billing' : 'Make Invoice' ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

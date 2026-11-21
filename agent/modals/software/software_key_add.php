@@ -35,8 +35,8 @@ ob_start();
         <div class="form-text">Paste straight from the vendor's portal or the order email - one per line. Keys it already has are skipped.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_software_keys" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_software_keys" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Add</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

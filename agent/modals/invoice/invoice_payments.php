@@ -71,7 +71,7 @@ ob_start();
     <?php if ($can_pay) { ?>
         <button type="button" class="btn btn-success ajax-modal me-auto" data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>"><i class="fas fa-plus me-2"></i>Add Payment</button>
     <?php } ?>
-    <a href="invoice.php?invoice_id=<?= $invoice_id ?>" class="btn btn-primary text-bold"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
+    <a href="invoice.php?invoice_id=<?= $invoice_id ?>" class="btn btn-primary fw-bold"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 

@@ -117,7 +117,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                     <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a client -</option>
                         <?php foreach ($client_options as $client_option) { ?>
@@ -179,7 +179,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
             <div class="col-md-6">
                 <label class="form-label">Vendor</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
                     <select class="form-select select2" name="vendor" data-software-vendor<?= $vendor_can_make ? ' data-vendor-can-make' : '' ?>>
                         <option value="">- Select a vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
@@ -193,7 +193,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
         <div class="col-12">
             <label class="form-label">Description</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Email, Office apps and Intune for the whole office" value="<?= $software_description ?>">
             </div>
         </div>
@@ -248,7 +248,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
         <div class="col-md-6">
             <label class="form-label">Order / invoice reference</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-receipt"></i></span>
                 <input type="text" class="form-control" name="purchase_reference" placeholder="INV-1045, PO-7782, contract number" maxlength="200" value="<?= $software_purchase_reference ?>">
             </div>
         </div>

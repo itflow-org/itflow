@@ -70,7 +70,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Item <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                     <input type="text" class="form-control" name="name" maxlength="200" value="<?= escapeHtml($item['item_name']) ?>" required data-line-name>
                 </div>
                 <?php if ($product_name !== '' && $product_name !== null) { ?>
@@ -80,7 +80,7 @@ ob_start();
             <div class="col-12">
                 <label class="form-label">Description</label>
                 <div class="input-group">
-                    <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+                    <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-align-left"></i></span>
                     <textarea class="form-control" name="description" rows="3" placeholder="<?= $type === 'recurring' ? 'What it covers - {month}, {quarter}, {year} or {period} become the period each invoice covers' : 'What it is, the period it covers, serial numbers - shown under the item' ?>" data-line-description><?= escapeHtml($item['item_description']) ?></textarea>
                 </div>
             </div>
@@ -89,7 +89,7 @@ ob_start();
                 <div class="col-12">
                     <label class="form-label">Billed</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-redo-alt"></i></span>
                         <select class="form-select select2" name="frequency">
                             <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
                                 <option value="<?= $frequency_value ?>" <?= $line_frequency === $frequency_value ? 'selected' : '' ?>><?= $frequency_label ?></option>
@@ -120,7 +120,7 @@ ob_start();
                 <div class="col-12">
                     <label class="form-label">Quantity from</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                         <select class="form-select select2" name="seat_source" data-seat-source>
                             <option value="">Typed in - the same every time</option>
                             <option value="contacts" <?= $seat_source === 'contacts' ? 'selected' : '' ?>>Users - the client's contacts (<?= intval($seat_options['contacts']) ?> now)</option>
@@ -136,7 +136,7 @@ ob_start();
                 <div class="col-12" data-seat-for="contacts" hidden>
                     <label class="form-label">Which contacts</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <select class="form-select select2" name="seat_tag" data-seat-input>
                             <option value="0">All of them</option>
                             <?php foreach ($seat_options['contact_tags'] as $tag_id => $tag) { ?>
@@ -160,7 +160,7 @@ ob_start();
                         <?php } ?>
                     </div>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <select class="form-select select2" name="seat_tag" data-seat-input>
                             <option value="0">Any tag</option>
                             <?php foreach ($seat_options['asset_tags'] as $tag_id => $tag) { ?>
@@ -187,7 +187,7 @@ ob_start();
                         <div class="row g-2">
                             <div class="<?= $seat_rmm_pick ? 'col-sm-6' : 'col-12' ?>">
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                                     <select class="form-select select2" name="seat_tag" data-seat-input>
                                         <option value="0">Any tag</option>
                                         <?php foreach ($seat_options['managed_tags'] as $tag_id => $tag) { ?>
@@ -199,7 +199,7 @@ ob_start();
                             <?php if ($seat_rmm_pick) { ?>
                                 <div class="col-sm-6">
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-laptop-medical"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-fw fa-laptop-medical"></i></span>
                                         <select class="form-select select2" name="seat_rmm" data-seat-input>
                                             <?php if ($seat_rmm_gone) { ?>
                                                 <option value="<?= $seat_rmm ?>" selected>The RMM provider it counted is gone - pick another</option>
@@ -221,7 +221,7 @@ ob_start();
                         <div class="col-sm-8">
                             <label class="form-label">License</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
                                 <select class="form-select select2" name="seat_software_id" data-seat-input>
                                     <?php if ($seat_source === 'license' && !isset($seat_options['licenses'][intval($seat_filter['software_id'] ?? 0)])) { ?>
                                         <option value="0" selected disabled>The license it counted is gone - pick another</option>
@@ -235,7 +235,7 @@ ob_start();
                         <div class="col-sm-4">
                             <label class="form-label">Count</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-calculator"></i></span>
+                                <span class="input-group-text"><i class="fas fa-fw fa-calculator"></i></span>
                                 <select class="form-select select2" name="seat_count" data-seat-input>
                                     <option value="used">Seats in use</option>
                                     <option value="total" <?= ($seat_filter['count'] ?? '') === 'total' ? 'selected' : '' ?>>Seats bought</option>
@@ -247,7 +247,7 @@ ob_start();
                 <div class="col-sm-4" data-seat-for="any" hidden>
                     <label class="form-label">At least</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-arrow-down"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-arrow-down"></i></span>
                         <input type="text" class="form-control text-end" name="seat_minimum" inputmode="decimal" value="<?= $seat_minimum ? billingQuantity($seat_minimum) : '' ?>" placeholder="0" data-seat-input>
                     </div>
                     <div class="form-text">A contract's minimum.</div>
@@ -265,14 +265,14 @@ ob_start();
             <div class="col-sm-4">
                 <label class="form-label">Quantity <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
                     <input type="text" class="form-control text-end" name="qty" inputmode="decimal" value="<?= $quantity ?>" required data-line-qty>
                 </div>
             </div>
             <div class="col-sm-4">
                 <label class="form-label">Price <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>
                     <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= $price ?>" required data-line-price>
                 </div>
                 <div class="form-text">Each, in <?= escapeHtml($currency) ?>. A credit can be negative.</div>
@@ -280,7 +280,7 @@ ob_start();
             <div class="col-sm-4">
                 <label class="form-label">Tax</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
                     <select class="form-select select2" name="tax_id" data-line-tax>
                         <?= taxOptionsHtml($taxes, $item['item_tax_id']) ?>
                     </select>
@@ -293,7 +293,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

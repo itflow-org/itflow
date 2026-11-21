@@ -574,7 +574,7 @@ $status_looks = [
                     <div class="input-group mb-2">
                         <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="password" class="form-control font-monospace" data-toggle="password" value="<?= escapeHtml($backup_key) ?>" readonly autocomplete="off" aria-label="Backup encryption key" data-backup-key>
-                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                         <button class="btn btn-light border clipboardjs" type="button" title="Copy the key" data-clipboard-text="<?= escapeHtml($backup_key) ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 <?php } else { ?>
@@ -614,7 +614,7 @@ $status_looks = [
                         </div>
                         <label class="form-label" for="devMailTo">Test inbox</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
                             <input type="email" class="form-control" id="devMailTo" name="dev_mail_to" maxlength="200" placeholder="dev@yourcompany.com" value="<?= escapeHtml($dev_mail_to) ?>">
                         </div>
                         <div class="form-text">Every email goes here, with who it was for at the front of its subject.</div>
@@ -645,7 +645,7 @@ $config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-fw fa-key"></i></span>
                         <input type="password" class="form-control" data-toggle="password" name="restore_key" placeholder="Its key, if from another ITFlow" autocomplete="off" aria-label="Its encryption key">
-                        <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                     </div>
                     <div class="form-text">Up to <?= escapeHtml(backupFormatBytes(BACKUP_RESTORE_MAX_BYTES)) ?>. It joins the list as Uploaded, and its Restore window opens. A restore needs free space of about three times the backup's size.</div>
                     <button type="submit" name="backup_upload" class="btn btn-sm btn-light border mt-2" data-backup-upload-button><i class="fas fa-fw fa-upload me-1"></i>Upload</button>

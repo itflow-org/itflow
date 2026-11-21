@@ -161,16 +161,16 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                 <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-v"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($can_edit) { ?>
-                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a><?php } ?>
+                        <?php if (moduleOn('bookkeeping')) { ?><a class="dropdown-item" href="income_import.php"><i class="fas fa-fw fa-file-import text-secondary me-2"></i>Import Deposits</a><?php } ?>
                     <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
                         data-modal-url="<?= buildExportModalUrl('modals/income/income_export.php', ['client_id', 'client', 'category', 'account', 'method', 'show', 'type', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                        <i class="fas fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <?php if (reportCanOpen('income_summary')) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="reports/income_summary.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Income Summary</a>
-                        <a class="dropdown-item" href="reports/income_by_client.php<?= $client_page ? "?client_id=$client_id" : '' ?>"><i class="fa fa-fw fa-users text-secondary me-2"></i>Income by Client</a>
+                        <a class="dropdown-item" href="reports/income_summary.php"><i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>Income Summary</a>
+                        <a class="dropdown-item" href="reports/income_by_client.php<?= $client_page ? "?client_id=$client_id" : '' ?>"><i class="fas fa-fw fa-users text-secondary me-2"></i>Income by Client</a>
                     <?php } ?>
                 </div>
             </div>
@@ -188,7 +188,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search income..." title="What for, invoice number, reference, amount, client, category, account">
                         <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#incomeMoreFilters"><i class="fas fa-filter"></i></button>
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -238,7 +238,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                     <?php if (moduleOn('bookkeeping')) { // the account filter and Paid into - with Bookkeeping on ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
                             <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Paid into">
                                 <option value="">- Any account -</option>
                                 <?php foreach (paymentAccounts($account_filter) as $option_id => $account) { ?>
@@ -250,7 +250,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                     <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-credit-card"></i></span>
                             <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
                                 <option value="">- Any payment method -</option>
                                 <?php
@@ -379,7 +379,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= $income_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                     <?php } ?>
                                     <?php if ($can_delete_payments && $row['invoice_number'] !== null) { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_payment=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_payment=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="The payment of <?= $money($row_amount, $row_currency) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
@@ -392,7 +392,7 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
                                     <?php } ?>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_revenue=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_revenue=<?= $income_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                             data-confirm-text="<?= escapeHtml(($first_line !== '' ? $first_line : 'This income') . ' - ' . billingMoney($row_amount, $row_currency)) ?> goes for good.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

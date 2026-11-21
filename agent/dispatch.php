@@ -150,7 +150,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
     <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content" autocomplete="off" data-dispatch-schedule>
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75" data-dispatch-schedule-ref></small></h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75" data-dispatch-schedule-ref></small></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -160,7 +160,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 <div class="mb-3">
                     <label class="form-label">Agent</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="agent_id" required>
                             <?php foreach ($agents as $agent) { ?>
                                 <option value="<?= intval($agent['id']) ?>"<?= selectOptionColor($agent['color']) ?>><?= escapeHtml($agent['name']) ?></option>
@@ -172,14 +172,14 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                     <div class="col-sm-7">
                         <label class="form-label">Date and time</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                             <input type="datetime-local" class="form-control" name="start" required>
                         </div>
                     </div>
                     <div class="col-sm-5">
                         <label class="form-label">How long</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-hourglass-half"></i></span>
                             <select class="form-select select2" name="minutes"></select>
                         </div>
                     </div>
@@ -188,7 +188,7 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 <div class="mb-3">
                     <label class="form-label">Visit</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                        <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="onsite">
                             <option value="0">Remote</option>
                             <option value="1">Onsite</option>
@@ -205,8 +205,8 @@ $tell_client = intval($config_ticket_client_general_notifications) === 1;
                 <div class="alert alert-danger small mt-3 mb-0" data-dispatch-schedule-error hidden></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Schedule It</button>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+                <button type="submit" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Schedule It</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
             </div>
         </form>
     </div>

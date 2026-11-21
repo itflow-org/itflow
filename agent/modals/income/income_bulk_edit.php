@@ -76,7 +76,7 @@ ob_start();
     <div class="modal-body">
         <label class="form-label"><?= $fields[$field]['label'] ?><?= $field !== 'client' ? ' <strong class="text-danger">*</strong>' : '' ?></label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw <?= $fields[$field]['icon'] ?>"></i></span>
             <?php if ($field === 'category') { ?>
                 <select class="form-select select2" name="value" required>
                     <option value="">- Select a category -</option>
@@ -113,7 +113,7 @@ ob_start();
         <?php } ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_income" class="btn btn-primary text-bold" <?= $changes ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Set on <?= $changes ?></button>
+        <button type="submit" name="bulk_edit_income" class="btn btn-primary fw-bold" <?= $changes ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Set on <?= $changes ?></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

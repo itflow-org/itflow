@@ -47,7 +47,7 @@ ob_start();
                 <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
                 <input type="password" class="form-control font-monospace" data-toggle="password" name="new_password" id="userRestorePassword<?= $user_id ?>"
                     placeholder="At least <?= USER_PASSWORD_MIN ?> characters" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" required>
-                <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
                 <button class="btn btn-outline-secondary clipboardjs" type="button" title="Copy password" data-clipboard-target="#userRestorePassword<?= $user_id ?>"><i class="far fa-fw fa-copy"></i></button>
                 <button class="btn btn-outline-secondary" type="button" title="Make one up - words that are easy to read out" data-user-restore-generate><i class="fas fa-fw fa-magic"></i></button>
             </div>
@@ -70,7 +70,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="restore_user" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Restore</button>
+        <button type="submit" name="restore_user" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Restore</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

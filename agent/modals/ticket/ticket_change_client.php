@@ -18,7 +18,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-people-carry me-2"></i>Move to Another Client <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
+        <i class="fas fa-fw fa-people-carry me-2"></i>Move to Another Client <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -37,7 +37,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="new_client_id" id="client_select" required>
                     <?php
                     $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -56,7 +56,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Contact</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="new_contact_id" id="contact_select">
                     <option value="">- Select a contact -</option>
                 </select>
@@ -65,11 +65,11 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="change_client_ticket" class="btn btn-primary text-bold">
-            <i class="fa fa-check me-2"></i>Move Ticket
+        <button type="submit" name="change_client_ticket" class="btn btn-primary fw-bold">
+            <i class="fas fa-check me-2"></i>Move Ticket
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            <i class="fa fa-times me-2"></i>Cancel
+            <i class="fas fa-times me-2"></i>Cancel
         </button>
     </div>
 </form>

@@ -87,7 +87,7 @@ ob_start();
     <?php if ($version_id) { ?>
         <a class="btn btn-outline-secondary me-auto ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_version_view.php?id=<?= $version_id ?>"><i class="fas fa-history me-2"></i>See This Version</a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

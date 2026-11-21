@@ -38,7 +38,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-tasks me-2"></i>Edit Task</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-tasks me-2"></i>Edit Task</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -50,7 +50,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Task <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                 <input type="text" class="form-control" name="name" placeholder="What needs doing" maxlength="255" value="<?= $task_name ?>" required autofocus>
             </div>
         </div>
@@ -58,7 +58,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Time estimate <span class="text-secondary">(minutes)</span></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                 <input type="number" class="form-control" name="completion_estimate" placeholder="e.g. 30" value="<?= $task_completion_estimate ?>">
             </div>
         </div>
@@ -123,8 +123,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket_task" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_task" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

@@ -32,7 +32,7 @@ if (!$contract || $contract['contract_status'] !== 'Draft') { ?>
     <div class="modal-body">
         <label class="form-label">In force from</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
             <input type="date" class="form-control" name="start_date" value="<?= escapeHtml($start) ?>" required>
         </div>
         <small class="text-secondary">
@@ -41,7 +41,7 @@ if (!$contract || $contract['contract_status'] !== 'Draft') { ?>
         </small>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="activate_contract" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Make Active</button>
+        <button type="submit" name="activate_contract" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Make Active</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

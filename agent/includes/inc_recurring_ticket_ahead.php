@@ -24,7 +24,7 @@ if (recurringAheadReady()) {
             <div class="mb-3">
                 <label class="form-label">Book the work for</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
                     <input type="time" class="form-control" name="schedule_time" step="900" value="<?= escapeHtml($ahead_time) ?>">
                     <?php if (ticketScheduleEndReady()) { ?>
                         <select class="form-select select2" name="schedule_minutes" aria-label="How long">
@@ -45,7 +45,7 @@ if (recurringAheadReady()) {
             <div class="mb-3">
                 <label class="form-label">Make it ahead</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar-minus"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-minus"></i></span>
                     <input type="number" class="form-control" name="lead_days" min="0" max="90" value="<?= $ahead_days ?>" style="max-width: 5.5rem">
                     <select class="form-select select2" name="lead_mode">
                         <option value="days" <?= $ahead_mode === 'days' ? 'selected' : '' ?>>days before its run day</option>

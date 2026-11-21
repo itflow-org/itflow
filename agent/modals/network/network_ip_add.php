@@ -28,7 +28,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-pin me-2"></i>Document an Address</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-map-pin me-2"></i>Document an Address</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -39,8 +39,8 @@ ob_start();
         <?php require 'network_ip_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_network_ip" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_network_ip" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

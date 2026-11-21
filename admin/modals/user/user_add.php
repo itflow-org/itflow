@@ -32,7 +32,7 @@ ob_start();
         <?php require 'user_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_user" class="btn btn-primary text-bold" data-user-submit data-label-create="Create"
+        <button type="submit" name="add_user" class="btn btn-primary fw-bold" data-user-submit data-label-create="Create"
             data-label-invite="<?= userInvitesReady() && !userInviteMailReady() ? 'Make the invite link' : 'Send invite' ?>"><i class="fas fa-check me-2"></i><span data-user-submit-label>Create</span></button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>

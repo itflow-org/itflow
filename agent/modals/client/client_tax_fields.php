@@ -22,7 +22,7 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
 <div class="mb-3">
     <label class="form-label">Tax rate</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-percent"></i></span>
         <select class="form-select select2" name="default_tax_id">
             <option value="0"><?= $ct_company_default ? 'The default - ' . escapeHtml(taxLabel($ct_company_default)) : 'The default - none set' ?></option>
             <?php
@@ -50,14 +50,14 @@ $ct_expires = (string) ($ct['client_tax_exempt_expires'] ?? '');
     <div class="col-md-7 mb-3">
         <label class="form-label">Exemption certificate</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-file-contract"></i></span>
             <input type="text" class="form-control" name="tax_exempt_number" maxlength="200" placeholder="Certificate number" value="<?= escapeHtml($ct['client_tax_exempt_number'] ?? '') ?>">
         </div>
     </div>
     <div class="col-md-5 mb-3">
         <label class="form-label">Expires</label>
         <div class="input-group">
-            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-times"></i></span>
             <input type="date" class="form-control" name="tax_exempt_expires" max="2999-12-31" value="<?= escapeHtml($ct_expires) ?>">
         </div>
     </div>

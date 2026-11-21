@@ -86,8 +86,8 @@ ob_start();
         <?php require 'calendar_event_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_event" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_event" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

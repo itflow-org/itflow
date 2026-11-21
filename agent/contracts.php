@@ -155,7 +155,7 @@ $csrf = $_SESSION['csrf_token'];
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-contract me-2"></i>Contracts</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-contract me-2"></i>Contracts</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= escapeHtml($add_url) ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Contract</span></button>
@@ -173,7 +173,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="<?= $client_url ? 'col-lg-8' : 'col-lg-6' ?> col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search contracts..." title="Name, client, support hours or notes">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
@@ -293,7 +293,7 @@ $csrf = $_SESSION['csrf_token'];
                                     <?php if (isset($delete_blocked[$contract_id])) { ?>
                                         <div class="dropdown-item-text small text-body-secondary text-wrap" style="max-width: 18rem;" data-delete-blocked><i class="fas fa-fw fa-lock me-1"></i>Can't be deleted. <?= escapeHtml($delete_blocked[$contract_id]) ?></div>
                                     <?php } else { ?>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $csrf ?>"
+                                        <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_contract=<?= $contract_id ?>&csrf_token=<?= $csrf ?>"
                                             data-confirm-title="Delete <?= escapeHtml($row['contract_name']) ?>?" data-confirm-text="<?= escapeHtml(contractDeleteWarning($row)) ?>" data-confirm-button="Delete">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>

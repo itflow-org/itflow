@@ -36,7 +36,7 @@ ob_start();
         <div class="form-text">The only active admin keeps an admin role, so there is always someone to run ITFlow.</div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_role_users" class="btn btn-primary text-bold" <?= $count ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Set Role</button>
+        <button type="submit" name="bulk_role_users" class="btn btn-primary fw-bold" <?= $count ? '' : 'disabled' ?>><i class="fas fa-check me-2"></i>Set Role</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

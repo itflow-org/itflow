@@ -22,7 +22,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check me-2"></i>New Recurring Ticket</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check me-2"></i>New Recurring Ticket</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -36,16 +36,16 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fas fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-schedule"><i class="fa fa-fw fa-calendar-alt me-2"></i>Schedule</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-schedule"><i class="fas fa-fw fa-calendar-alt me-2"></i>Schedule</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-assets"><i class="fa fa-fw fa-link me-2"></i>Related</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-assets"><i class="fas fa-fw fa-link me-2"></i>Related</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fas fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
         </ul>
 
@@ -61,7 +61,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Client <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
                                     <option value="">- Select a client -</option>
                                     <?php
@@ -82,7 +82,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Contact </label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
                                 <select class="form-select select2" name="contact_id" id="contactSelect">
                                 </select>
                             </div>
@@ -100,7 +100,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
                         <input type="text" class="form-control" id="subjectInput" name="subject" data-template-field="subject" placeholder="Subject" maxlength="500" required>
                     </div>
                 </div>
@@ -115,7 +115,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" data-template-field="priority" required>
                                     <option data-color="var(--bs-info)">Low</option>
                                     <option selected data-color="var(--bs-warning)">Medium</option>
@@ -130,7 +130,7 @@ ob_start();
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
                                 <select class="form-select select2" name="category_id" data-template-field="category">
                                     <option value="0">- Not categorized -</option>
                                     <?= categoryOptionsHtml('Ticket') ?>
@@ -145,7 +145,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Assign to</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-user-check"></i></span>
                         <select class="form-select select2" name="assigned_to" data-template-field="assigned">
                             <option value="0">- Unassigned -</option>
                             <?php
@@ -186,7 +186,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Frequency <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-recycle"></i></span>
                         <select class="form-select select2" name="frequency" required>
                             <option value="">- Select a frequency -</option>
                             <optgroup label="Days">
@@ -207,7 +207,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">First run <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
                         <input class="form-control" type="date" name="start_date" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime('+1 day')) ?>" required>
                     </div>
                     <div class="form-text">The nightly cron raises a ticket on this day, then again each time it comes round. Monthly ones keep to this day of the month - the last day, in a shorter month.</div>
@@ -224,7 +224,7 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Asset</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
                         </select>
                     </div>
@@ -233,14 +233,14 @@ ob_start();
                 <div class="mb-3">
                     <label class="form-label">Other assets</label>
                     <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Any other assets involved -" multiple>
                         </select>
                     </div>
                 </div>
 
                 <?php if (!$client_id) { ?>
-                <small class="form-text text-muted">Select a client on the Details tab to load its assets.</small>
+                <small class="form-text text-body-secondary">Select a client on the Details tab to load its assets.</small>
                 <?php } ?>
 
             </div>
@@ -249,7 +249,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_recurring_ticket" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

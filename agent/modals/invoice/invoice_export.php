@@ -46,7 +46,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Number, scope, client, amount">
             </div>
         </div>
@@ -54,7 +54,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Status</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-file-invoice-dollar"></i></span>
                 <select class="form-select select2" name="status">
                     <option value="">- Any status -</option>
                     <option <?php if ($status_filter === 'Draft') { echo "selected"; } ?> value="Draft">Draft</option>
@@ -69,7 +69,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Category</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-list"></i></span>
                 <select class="form-select select2" name="category">
                     <option value="">- Any category -</option>
                     <?= categoryFilterOptionsHtml('Income', $category_filter, "SELECT DISTINCT invoice_category_id FROM invoices") ?>
@@ -80,7 +80,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Issued from</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
             </div>
         </div>
@@ -88,7 +88,7 @@ ob_start();
         <div class="mb-3">
             <label class="form-label">Issued to</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
             </div>
         </div>

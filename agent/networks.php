@@ -163,12 +163,12 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($num_rows[0] > 0) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'tags', 'q'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
+                            <i class="fas fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                     <?php if ($can_edit && $client_url) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/import/import.php?<?= $client_url ?>kind=networks">
-                            <i class="fa fa-fw fa-upload me-2"></i>Import
+                            <i class="fas fa-fw fa-upload me-2"></i>Import
                         </a>
                     <?php } ?>
                 </div>
@@ -187,7 +187,7 @@ $csrf = $_SESSION['csrf_token'];
                 <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= escapeHtml($q_raw) ?>" placeholder="Search networks or an address..." title="Name, subnet, VLAN, gateway, DNS, site, provider - or an IP address, to find the network it is in">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <?php if ($client_url) { ?>
@@ -251,7 +251,7 @@ $csrf = $_SESSION['csrf_token'];
                                             <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </button>
                                         <?php if ($can_delete) { ?>
-                                            <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_networks"
+                                            <button class="dropdown-item text-danger fw-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_networks"
                                                 data-confirm-text="The networks and the addresses documented on them go for good. The devices on them are left with no network.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </button>
@@ -419,7 +419,7 @@ $csrf = $_SESSION['csrf_token'];
                                                 <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
                                             </a>
                                             <?php if ($can_delete) { ?>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
+                                                <a class="dropdown-item text-danger fw-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
                                                     data-confirm-text="<?= $name ?> and the addresses documented on it go for good. The devices on it are left with no network.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>

@@ -88,7 +88,7 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-cart-plus me-2"></i>To Order</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-cart-plus me-2"></i>To Order</h3>
         <div class="card-tools">
             <?php if ($can_edit) { ?>
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/purchasing/order_item.php"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Item</span></button>
@@ -104,7 +104,7 @@ $drafts = poReady() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUN
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q)) ?>" placeholder="Search what's waiting..." title="Item, description, note, vendor, client or product">
-                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">

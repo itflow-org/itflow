@@ -60,12 +60,12 @@ ob_start();
         <form action="post.php" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="document_version_id" value="<?= $document_version_id ?>">
-            <button type="submit" name="restore_document_version" class="btn btn-primary text-bold confirm-link" data-confirm-title="Put this version back?" data-confirm-text="What the document says now is kept in its history." data-confirm-button="Restore">
+            <button type="submit" name="restore_document_version" class="btn btn-primary fw-bold confirm-link" data-confirm-title="Put this version back?" data-confirm-text="What the document says now is kept in its history." data-confirm-button="Restore">
                 <i class="fas fa-undo me-2"></i>Restore This Version
             </button>
         </form>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <script src="<?= staticFileUrl('/js/pretty_content.js') ?>"></script>

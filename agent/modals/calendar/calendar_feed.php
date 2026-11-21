@@ -108,9 +108,9 @@ ob_start();
                         data-confirm-text="Calendars subscribed to it stop updating."><i class="fas fa-fw fa-unlink me-2"></i>Stop the Link</a>
                 </div>
             </div>
-            <button type="submit" name="calendar_feed_save" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+            <button type="submit" name="calendar_feed_save" class="btn btn-primary fw-bold"><i class="fas fa-check me-2"></i>Save</button>
         <?php } else { ?>
-            <button type="submit" name="calendar_feed_save" class="btn btn-primary text-bold"><i class="fas fa-link me-2"></i>Make My Link</button>
+            <button type="submit" name="calendar_feed_save" class="btn btn-primary fw-bold"><i class="fas fa-link me-2"></i>Make My Link</button>
         <?php } ?>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
     </div>

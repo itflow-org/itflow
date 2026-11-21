@@ -128,9 +128,9 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="billing_ai_lines" class="btn btn-primary text-bold d-none" data-ai-billing-add><i class="fas fa-fw fa-plus me-2"></i><span>Add to <?= escapeHtml($number) ?></span></button>
+        <button type="submit" name="billing_ai_lines" class="btn btn-primary fw-bold d-none" data-ai-billing-add><i class="fas fa-fw fa-plus me-2"></i><span>Add to <?= escapeHtml($number) ?></span></button>
         <button type="button" class="btn btn-light border d-none" data-ai-billing-again><i class="fas fa-fw fa-redo me-2"></i>Again</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -55,7 +55,7 @@ while ($row = mysqli_fetch_row($sql_ticket_template_tags)) {
 <div class="mb-3">
     <label class="form-label">Template</label>
     <div class="input-group">
-        <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+        <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
         <select class="form-select select2" id="ticket_template_select" name="<?= escapeHtml($ticket_template_field) ?>" data-template-picker<?= $ticket_template_apply_on_load ? ' data-template-apply="1"' : '' ?>>
             <option value="0">- No template -</option>
             <?php foreach ($ticket_template_rows as $id => $row) {
