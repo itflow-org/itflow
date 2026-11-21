@@ -542,8 +542,8 @@ if (isset($_GET['ticket_id'])) {
                                 <span class="badge rounded-pill text-bg-dark ticket-ref me-1"><?= $ticket_reference ?></span>
                                 <?php if ($client_id) { ?>
                                     <a data-client-card="<?= $client_id ?>" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
-                                    <?php // What they owe that is past due, for those who can see billing
-                                    $client_overdue = lookupUserPermission('module_sales') >= 1 ? billingClientOverdue($client_id) : null;
+                                    <?php // What they owe that is past due, for those who can see billing - only without the client header, which says it already
+                                    $client_overdue = $client_url === '' && lookupUserPermission('module_sales') >= 1 ? billingClientOverdue($client_id) : null;
                                     if ($client_overdue) { ?>
                                         <a class="badge rounded-pill text-bg-danger fw-normal text-decoration-none ms-1 d-print-none" href="invoices.php?client_id=<?= $client_id ?>&amp;status=Overdue" data-client-overdue
                                             title="<?= $client_overdue['count'] ?> invoice<?= $client_overdue['count'] === 1 ? '' : 's' ?> past due, the oldest by <?= $client_overdue['days'] ?> day<?= $client_overdue['days'] === 1 ? '' : 's' ?>"><i class="fas fa-exclamation-circle me-1"></i><?= escapeHtml(billingMoney($client_overdue['amount'], $client_overdue['currency'])) ?> overdue</a>
