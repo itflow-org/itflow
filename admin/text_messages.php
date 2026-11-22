@@ -129,7 +129,7 @@ $ready = smsReady();
                         <label class="form-label" for="dateFilter">When</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-fw fa-calendar-alt"></i></span>
-                            <input type="text" id="dateFilter" class="form-control" autocomplete="off">
+                            <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($dtf ?? '', $dtt ?? '')) ?>" class="form-control" autocomplete="off">
                         </div>
                         <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                         <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">

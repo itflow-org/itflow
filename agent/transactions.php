@@ -291,7 +291,7 @@ $is_card = $account && $account['type'] === 3;
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-4">
-                    <input type="text" id="dateFilter" class="form-control" autocomplete="off" title="Date" aria-label="Date">
+                    <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($dtf ?? '', $dtt ?? '')) ?>" class="form-control" autocomplete="off" title="Date" aria-label="Date">
                     <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                     <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                     <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">

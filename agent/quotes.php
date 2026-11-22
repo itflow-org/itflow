@@ -189,7 +189,7 @@ $stat_monthly = function ($amount) use ($stat_money) {
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <input type="text" id="dateFilter" class="form-control" autocomplete="off" title="Quote date" aria-label="Quote date">
+                    <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($dtf ?? '', $dtt ?? '')) ?>" class="form-control" autocomplete="off" title="Quote date" aria-label="Quote date">
                     <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                     <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                     <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">

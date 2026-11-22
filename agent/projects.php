@@ -260,7 +260,7 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
                 <div class="row g-2 mt-1">
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Created</label>
-                        <input type="text" id="dateFilter" class="form-control" autocomplete="off" placeholder="Any time">
+                        <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($date_filter_active ? $dtf : '', $date_filter_active ? $dtt : '')) ?>" class="form-control" autocomplete="off" placeholder="Any time">
                         <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                         <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($date_filter_active ? $dtf : '') ?>">
                         <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($date_filter_active ? $dtt : '') ?>">

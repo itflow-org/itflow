@@ -46,7 +46,10 @@
  *
  * functions/format.php has PHP helpers that write these for clients, users,
  * contacts, tags and categories. Labels written as "- Unassigned -" show
- * without the dashes, in a quieter colour, as the "nothing" choice.
+ * without the dashes, in a quieter colour, as the "nothing" choice. On the
+ * page as it first loads, js/itflow_select_early.js has already taken the
+ * dashes off and marked the option data-none="1", so the plain <select> the
+ * browser paints before this runs shows the same label.
  *
  * ON THE <select>:
  *
@@ -191,7 +194,7 @@
             option: option,
             value: option.value,
             label: none ? none[1] : raw,
-            none: !!none || option.value === '',
+            none: !!none || option.value === '' || data.none === '1',
             description: data.description || '',
             icon: icon && icon.indexOf('fa-') === -1 ? 'fas fa-' + icon : icon,
             image: data.image || '',
@@ -398,11 +401,12 @@
         return this.multiple ? 'Choose' : 'Select';
     };
 
-    /* The option that means "nothing" - an empty value, or a "- None -" label. */
+    /* The option that means "nothing" - an empty value, or a "- None -" label (data-none="1" once
+       js/itflow_select_early.js has taken its dashes off). */
     Picker.prototype.noneOption = function () {
         var options = this.select.options;
         for (var i = 0; i < options.length; i++) {
-            if (options[i].value === '' || NONE_LABEL.test(options[i].label || options[i].textContent || '')) {
+            if (options[i].value === '' || options[i].dataset.none === '1' || NONE_LABEL.test(options[i].label || options[i].textContent || '')) {
                 return options[i];
             }
         }
@@ -418,7 +422,7 @@
         }
         var none = this.noneOption();
         var chosen = this.select.selectedOptions[0];
-        return !!(none && chosen && chosen !== none && !NONE_LABEL.test(chosen.label || ''));
+        return !!(none && chosen && chosen !== none && chosen.dataset.none !== '1' && !NONE_LABEL.test(chosen.label || ''));
     };
 
     Picker.prototype.chosen = function () {

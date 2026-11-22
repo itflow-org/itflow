@@ -92,6 +92,8 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
         <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
     <?php } ?>
 
+    <!-- "- Anyone -" choices without their dashes from the first paint (js/itflow_select_early.js) -->
+    <script src="<?= staticFileUrl('/js/itflow_select_early.js') ?>"></script>
 </head>
 
 <?php /* Same country bridge as the agent header: intl-tel-input wants an ISO2

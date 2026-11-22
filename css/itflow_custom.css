@@ -1119,6 +1119,13 @@ select.select2[multiple]:not(.itflow-select-native) {
 @keyframes itflowRevealUninitSelect {
     to { visibility: visible; }
 }
+/* A single one showing its "nothing" choice - "Anyone", its dashes already taken off by
+   js/itflow_select_early.js - is in the quieter colour the picker gives it, so nothing about
+   it changes when the picker takes over */
+select.select2:not([multiple]):not(.itflow-select-native):has(option:checked[data-none="1"]),
+select.select2:not([multiple]):not(.itflow-select-native):has(option:checked[value=""]) {
+    color: var(--bs-secondary-color);
+}
 
 .itflow-select {
     position: relative;
