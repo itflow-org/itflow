@@ -133,13 +133,17 @@ if (mysqli_num_rows($sql) == 0) {
     // Its alerts that are open, with their tickets
     $rmm_open_alerts = rmmOpenAlertsForDevices(array_column($rmm_devices, 'rmm_device_id'));
 
-    // The rack it sits in, if any
+    // The rack it sits in, if any - in a holder, its slot there and the holder; a holder (a chassis), what is in it
     $asset_rack = rackPositionForAsset($asset_id);
+    $asset_holds = null;
     if ($asset_rack) {
         $asset_rack_id = intval($asset_rack['rack_id']);
         $asset_rack_name = escapeHtml($asset_rack['rack_name']);
         $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front')
-            . escapeHtml(rackSlotText($asset_rack['holder_name'], $asset_rack['unit_position']));
+            . rackSlotHtml($asset_rack, $client_id);
+        if (intval($asset_rack['unit_slots']) && !$asset_rack['holder_id']) {
+            $asset_holds = rackHolderChildren($asset_rack['unit_id']);
+        }
     }
 
     // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
@@ -658,6 +662,40 @@ if (mysqli_num_rows($sql) == 0) {
                     </dl>
                 </div>
             </div>
+
+            <?php if ($asset_holds !== null) { ?>
+                <!-- What is in it, when it holds devices in the rack - a chassis and its nodes -->
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-th text-secondary me-2"></i>Devices in it <span class="text-body-secondary fw-normal">(<?= count($asset_holds) ?>)</span></h3>
+                        <span class="small text-body-secondary"><?= intval($asset_rack['unit_slots']) ?> across</span>
+                    </div>
+                    <?php if ($asset_holds) { ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($asset_holds as $held) { ?>
+                                <div class="list-group-item d-flex align-items-center gap-2">
+                                    <span class="itflow-rack-chip itflow-rack-tone-<?= $held['tone'] ?>"><i class="fas fa-fw <?= $held['icon'] ?>"></i></span>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <?php if ($held['asset_id']) { ?>
+                                            <a class="fw-semibold d-block text-truncate<?= $held['asset_archived'] ? ' text-decoration-line-through' : '' ?>" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $held['asset_id'] ?>"><?= $held['name'] ?></a>
+                                        <?php } else { ?>
+                                            <span class="fw-semibold d-block text-truncate"><?= $held['name'] ?></span>
+                                        <?php } ?>
+                                        <div class="small text-body-secondary text-truncate">Slot <?= $held['slot'] ?> &middot; <?= $held['make_model'] ?: $held['type_label'] ?></div>
+                                    </div>
+                                    <?php if ($held['ip']) { ?>
+                                        <span class="small font-monospace text-body-secondary flex-shrink-0"><?= $held['ip'] ?></span>
+                                    <?php } ?>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    <?php } else { ?>
+                        <div class="card-body small text-body-secondary">
+                            Nothing in it yet - add devices to its slots on <a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a>.
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
 
             <div class="card mb-3">
                 <div class="card-header">

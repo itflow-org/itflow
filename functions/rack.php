@@ -264,13 +264,27 @@ function rackDeletePhoto($client_id, $photo) {
  * listing draw from its asset. Raw rows - escape them (rackUnitView() does).
  */
 function rackLoadUnits(array $rack_ids) {
-    global $mysqli;
-
     $rack_ids = array_filter(array_map('intval', $rack_ids));
     $units = array_fill_keys($rack_ids, []);
     if (empty($rack_ids)) {
         return $units;
     }
+
+    foreach (rackUnitRows("unit_rack_id IN (" . implode(',', $rack_ids) . ")") as $row) {
+        $units[intval($row['unit_rack_id'])][] = $row;
+    }
+
+    return $units;
+}
+
+/** What is in a holder, by slot - rackUnitView() items */
+function rackHolderChildren($unit_id) {
+    return array_map('rackUnitView', rackUnitRows("unit_parent_id = " . intval($unit_id)));
+}
+
+/** Rack items where $where (SQL, built from ints) - the raw rows rackUnitView() draws from */
+function rackUnitRows($where) {
+    global $mysqli;
 
     $sql = mysqli_query($mysqli, "SELECT unit_id, unit_rack_id, unit_start_number, unit_end_number, unit_device,
         unit_face, unit_full_depth, unit_type, unit_power_watts, unit_notes, unit_slots, unit_parent_id, unit_position,
@@ -280,14 +294,14 @@ function rackLoadUnits(array $rack_ids) {
             LIMIT 1) AS asset_primary_ip
         FROM rack_units
         LEFT JOIN assets ON asset_id = unit_asset_id
-        WHERE unit_rack_id IN (" . implode(',', $rack_ids) . ")
+        WHERE $where
         ORDER BY unit_start_number DESC, unit_position");
 
+    $rows = [];
     while ($row = mysqli_fetch_assoc($sql)) {
-        $units[intval($row['unit_rack_id'])][] = $row;
+        $rows[] = $row;
     }
-
-    return $units;
+    return $rows;
 }
 
 /**
@@ -572,6 +586,22 @@ function rackSlotText($holder_name, $position) {
 }
 
 /**
+ * rackSlotText() as HTML for a rackPositionForAsset() row: the holder links to
+ * its asset page when it is an asset - a node to its chassis.
+ */
+function rackSlotHtml(array $rack, $client_id) {
+    $holder_name = trim((string) ($rack['holder_name'] ?? ''));
+    if ($holder_name === '') {
+        return '';
+    }
+    $holder = escapeHtml($holder_name);
+    if (intval($rack['holder_asset_id'] ?? 0)) {
+        $holder = '<a href="asset.php?client_id=' . intval($client_id) . '&asset_id=' . intval($rack['holder_asset_id']) . '">' . $holder . '</a>';
+    }
+    return ' - slot ' . intval($rack['unit_position']) . " in $holder";
+}
+
+/**
  * How an asset of this type usually goes in a rack, to start the Add window
  * from: ['height' => U, 'full_depth' => 0|1]. A server, NAS or UPS takes 2U;
  * an access point, firewall, modem or PDU is usually half depth.
@@ -586,15 +616,17 @@ function rackAssetDefaults($asset_type) {
 
 /**
  * Where an asset is racked: the rack and its position, or null. Raw values. In
- * a holder, holder_name is the holder and unit_position its slot there.
+ * a holder, holder_name is the holder, holder_asset_id its asset (0 when it
+ * isn't one) and unit_position its slot there. unit_id and unit_slots are its
+ * own item - a holder has slots, and rackHolderChildren(unit_id) is what is in it.
  */
 function rackPositionForAsset($asset_id) {
     global $mysqli;
 
     $asset_id = intval($asset_id);
-    $sql = mysqli_query($mysqli, "SELECT rack_id, rack_name, rack_archived_at, rack_units.unit_start_number, rack_units.unit_end_number,
-            rack_units.unit_face, rack_units.unit_position, holder.unit_id AS holder_id, holder.unit_device AS holder_device,
-            holder.unit_type AS holder_type, holder_asset.asset_name AS holder_asset_name
+    $sql = mysqli_query($mysqli, "SELECT rack_id, rack_name, rack_archived_at, rack_units.unit_id, rack_units.unit_start_number, rack_units.unit_end_number,
+            rack_units.unit_face, rack_units.unit_position, rack_units.unit_slots, holder.unit_id AS holder_id, holder.unit_device AS holder_device,
+            holder.unit_type AS holder_type, holder_asset.asset_id AS holder_asset_id, holder_asset.asset_name AS holder_asset_name
         FROM rack_units
         JOIN racks ON rack_id = rack_units.unit_rack_id
         LEFT JOIN rack_units holder ON holder.unit_id = rack_units.unit_parent_id
