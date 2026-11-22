@@ -290,6 +290,8 @@ function assetTypeRenameEverywhere($old, $new) {
             $lines++;
         }
     }
+    // And the RMM providers that bring devices in as it (functions/rmm.php)
+    rmmProviderAssetTypesRename((string) $old, (string) $new);
     return [$assets, $products, $lines];
 }
 

@@ -5,7 +5,8 @@
  * picked when it is added and stays; each kind brings its own fields (rmmProviderKinds() in
  * functions/rmm.php) - addresses, a key, a secret. A key or secret is never put back into the
  * page, so left empty it stays. A kind that has alerts can have them open tickets, from the
- * level picked, in a category. Save asks first (check_rmm_provider, admin/post/rmm.php): what
+ * level picked, in a category. Desktops, laptops, servers and virtual machines each come in as
+ * the asset type picked for them (rmmProviderAssetTypes()). Save asks first (check_rmm_provider, admin/post/rmm.php): what
  * is wrong shows beside each field and the window stays open; once all is right it saves, and
  * tries the connection.
  */
@@ -147,6 +148,31 @@ ob_start();
                         <?= categoryAddButtonHtml('Ticket') ?>
                     </div>
                 </div>
+            </div>
+        <?php } ?>
+
+        <?php if (rmmAssetTypesReady()) {
+            $device_types = rmmProviderAssetTypes($row); ?>
+            <div class="mb-3" data-rmm-asset-types>
+                <label class="form-label">Asset types</label>
+                <div class="row g-2">
+                    <?php foreach (rmmDeviceKinds() as $guessed => $kind_label) {
+                        $type_id = 'rmmProviderType' . str_replace(' ', '', $guessed); ?>
+                        <div class="col-sm-6">
+                            <label class="form-label small text-body-secondary mb-1" for="<?= $type_id ?>"><?= escapeHtml($kind_label) ?></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw <?= escapeHtml(assetTypeInfo($guessed)['icon']) ?>"></i></span>
+                                <select class="form-select select2" name="asset_types[<?= escapeHtml($guessed) ?>]" id="<?= $type_id ?>">
+                                    <?php foreach (assetTypePicker($device_types[$guessed]) as $type_name => $type_icon) { ?>
+                                        <option <?= $type_name === $device_types[$guessed] ? 'selected' : '' ?><?= selectOptionData(['icon' => "fas $type_icon"]) ?>><?= escapeHtml($type_name) ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+                <?= $error_for('asset_types') ?>
+                <div class="form-text">What its devices come in as. A device the sync typed follows a change here at the next sync; one whose type you changed on the asset keeps yours. Recurring invoice lines that count managed devices by type count these.</div>
             </div>
         <?php } ?>
 

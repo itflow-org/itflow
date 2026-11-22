@@ -83,12 +83,13 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_query = '';
 }
 
-// RMM Filter - only once an RMM provider is set up (functions/rmm.php): any of its devices, online, offline or overdue, or not one of them.
-// With one provider it goes by its name
+// RMM Filter - only once an RMM provider is set up (functions/rmm.php): any of its devices, online, offline or overdue, needing
+// a reboot, with patches waiting or checks failing, or not one of them. With one provider it goes by its name
 $rmm_set_up = (bool) rmmProviders();
 $rmm_name = $rmm_set_up ? rmmListLabel() : '';
 $rmm_short = $rmm_name === 'an RMM' ? 'RMM' : $rmm_name;
-$rmm_filters = ['any' => "In $rmm_name", 'online' => "$rmm_short: online", 'offline' => "$rmm_short: offline", 'overdue' => "$rmm_short: overdue", 'none' => "Not in $rmm_name"];
+$rmm_filters = ['any' => "In $rmm_name", 'online' => "$rmm_short: online", 'offline' => "$rmm_short: offline", 'overdue' => "$rmm_short: overdue",
+    'reboot' => "$rmm_short: needs a reboot", 'patches' => "$rmm_short: patches waiting", 'checks' => "$rmm_short: checks failing", 'none' => "Not in $rmm_name"];
 $rmm_filter = $rmm_set_up && isset($rmm_filters[$_GET['rmm'] ?? '']) ? (string) $_GET['rmm'] : '';
 $rmm_in = "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL";
 $rmm_query = [
@@ -97,6 +98,9 @@ $rmm_query = [
     'online' => "AND asset_id IN ($rmm_in AND rmm_device_status = 'online')",
     'offline' => "AND asset_id IN ($rmm_in AND rmm_device_status = 'offline')",
     'overdue' => "AND asset_id IN ($rmm_in AND rmm_device_status = 'overdue')",
+    'reboot' => "AND asset_id IN ($rmm_in AND rmm_device_needs_reboot = 1)",
+    'patches' => "AND asset_id IN ($rmm_in AND rmm_device_patches_pending = 1)",
+    'checks' => "AND asset_id IN ($rmm_in AND rmm_device_checks_failing > 0)",
     'none' => "AND asset_id NOT IN ($rmm_in)",
 ][$rmm_filter];
 
@@ -416,6 +420,12 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                     data-bulk="true">
                                     <i class="fas fa-fw fa-map-marker-alt me-2"></i>Assign Location
                                 </a>
+                                <?php } ?>
+                                <?php if ($rmm_set_up) { ?>
+                                <button class="dropdown-item" title="The ones with nobody assigned get the contact signed in to them in <?= escapeHtml($rmm_short) ?>"
+                                    type="submit" form="bulkActions" name="bulk_rmm_assign_contacts">
+                                    <i class="fas fa-fw fa-user-check me-2"></i>Assign Signed-in Users
+                                </button>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_physical_location.php"

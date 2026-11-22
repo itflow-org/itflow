@@ -415,12 +415,26 @@ if (mysqli_num_rows($sql) == 0) {
                 $rmm_each_name = rmmProviderName($rmm_each);
                 $rmm_each_kind = rmmKind($rmm_each);
                 $rmm_each_urls = $rmm_each !== $rmm_device && $rmm_state['key'] !== 'removed' ? rmmDeviceUrls($rmm_each) : [];
-                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id; ?>
+                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id;
+                // Who is signed in, when they are one of the client's contacts and the asset has nobody yet - offered once
+                $rmm_user_contact = $can_edit && !$asset_contact_id && empty($rmm_suggested) && $rmm_state['key'] !== 'removed'
+                    ? rmmUserContact($client_id, (string) $rmm_each['rmm_device_logged_user']) : null;
+                $rmm_suggested = !empty($rmm_suggested) || $rmm_user_contact; ?>
                 <div class="card mb-3" data-rmm-card="<?= escapeHtml($rmm_state['key']) ?>">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0"><i class="<?= escapeHtml($rmm_each_kind['icon'] ?? 'fas fa-laptop-medical') ?> fa-fw text-secondary me-2"></i><?= escapeHtml($rmm_each_name) ?></h3>
                         <?php if (isset($rmm_each_urls['open'])) { ?>
                             <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($rmm_each_urls['open']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_each_kind['links']['open'] ?? 'Open') . " - $rmm_each_name") ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php } ?>
+                        <?php if ($can_edit && $rmm_state['key'] !== 'removed') { ?>
+                            <div class="dropdown <?= isset($rmm_each_urls['open']) ? 'ps-1' : 'ms-auto' ?>">
+                                <button class="btn btn-sm btn-link text-secondary p-0 px-1" type="button" data-bs-toggle="dropdown" title="More" aria-label="More"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_rmm_link.php?device_id=<?= intval($rmm_each['rmm_device_id']) ?>">
+                                        <i class="fas fa-fw fa-link me-2"></i>Link to another asset
+                                    </a>
+                                </div>
+                            </div>
                         <?php } ?>
                     </div>
                     <div class="card-body">
@@ -436,7 +450,16 @@ if (mysqli_num_rows($sql) == 0) {
                                 </dd>
                                 <?php if ((string) $rmm_each['rmm_device_logged_user'] !== '') { ?>
                                     <dt><?= $rmm_state['key'] === 'online' ? 'Signed in' : 'Last user' ?></dt>
-                                    <dd><?= escapeHtml($rmm_each['rmm_device_logged_user']) ?></dd>
+                                    <dd><?= escapeHtml($rmm_each['rmm_device_logged_user']) ?>
+                                        <?php if ($rmm_user_contact) { ?>
+                                            <form class="d-inline" action="post.php" method="post">
+                                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
+                                                <input type="hidden" name="contact_id" value="<?= intval($rmm_user_contact['contact_id']) ?>">
+                                                <button type="submit" name="rmm_assign_contact" class="btn btn-link btn-sm p-0 ms-1 align-baseline" data-rmm-assign-contact title="Make <?= escapeHtml($rmm_user_contact['contact_name']) ?> this asset's contact"><i class="fas fa-user-check me-1"></i>Assign <?= escapeHtml($rmm_user_contact['contact_name']) ?></button>
+                                            </form>
+                                        <?php } ?>
+                                    </dd>
                                 <?php } ?>
                                 <?php if ($rmm_each['rmm_device_boot_at'] && $rmm_state['key'] === 'online') { ?>
                                     <dt>Up since</dt>

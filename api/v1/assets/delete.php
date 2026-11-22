@@ -30,6 +30,9 @@ if (!empty($asset_id)) {
         // Its logins stay with the client, no longer pointing at it
         credentialsForget('asset', $asset_id);
 
+        // Its device in an RMM keeps no asset, for Bring back (functions/rmm.php)
+        rmmAssetsDeleted([$asset_id]);
+
         // Logging
         logAudit("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
     }

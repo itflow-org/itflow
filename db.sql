@@ -3513,6 +3513,7 @@ CREATE TABLE `rmm_providers` (
   `rmm_provider_alerts_since` datetime DEFAULT NULL,
   `rmm_provider_alerts_at` datetime DEFAULT NULL,
   `rmm_provider_alerts_note` varchar(500) DEFAULT NULL,
+  `rmm_provider_asset_types` varchar(1000) DEFAULT NULL,
   `rmm_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `rmm_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`rmm_provider_id`)

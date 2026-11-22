@@ -119,6 +119,16 @@ function clientOverviewAttention($client_id, $access, $renewals) {
     }
 
     if ($access['docs']) {
+        // Devices the RMM says haven't checked in for longer than it allows (functions/rmm.php) - the same as assets.php?rmm=overdue
+        $rmm_summary = rmmClientSummary($client_id);
+        if ($rmm_summary) {
+            $items[] = [
+                'count' => $rmm_summary['overdue'],
+                'label' => 'Devices overdue', 'one' => 'Device overdue', 'icon' => 'heartbeat', 'tone' => 'danger',
+                'detail' => 'Not checking in to ' . (rmmListLabel() === 'an RMM' ? 'their RMM' : rmmListLabel()),
+                'url' => "/agent/assets.php?client_id=$client_id&rmm=overdue",
+            ];
+        }
         // More devices and users on a license than seats bought - a true-up to bill, or seats to free
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL

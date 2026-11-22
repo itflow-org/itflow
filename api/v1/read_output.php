@@ -25,6 +25,11 @@ if ($sql && mysqli_num_rows($sql) > 0) {
         $return_arr['data'] = assetSpecsApiAttach($return_arr['data']);
     }
 
+    // Each asset's devices in an RMM, as asset_rmm ($api_asset_rmm, set by api/v1/assets/read.php)
+    if (!empty($api_asset_rmm)) {
+        $return_arr['data'] = rmmApiAttach($return_arr['data']);
+    }
+
     echo json_encode($return_arr);
     exit();
 }

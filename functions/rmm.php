@@ -654,6 +654,8 @@ function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array
     }
     $facts = rmmDeviceFacts($device);
     $values = rmmDeviceAssetValues($device, $facts, $client_id);
+    // The asset type the provider's Edit has this kind of device come in as
+    $values['type'] = rmmProviderAssetTypes($provider)[$values['type']] ?? $values['type'];
     $row = rmmDeviceRow($provider_id, $remote_id);
     $synced_before = [];
     $asset_id = 0;
@@ -1512,6 +1514,322 @@ function rmmClientRow($rmm_client_id): ?array
 }
 
 /*
+ * ------------------------------------------------------------------ Asset types, linking by hand, contacts
+ */
+
+/** Can a provider pick the asset types its devices come in as yet (database update 4.1.2)? */
+function rmmAssetTypesReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.1.2', '>=');
+    }
+    return $ready;
+}
+
+/** The kinds of device the sync tells apart - the type it guesses (rmmDeviceType()) => what the provider window calls them. */
+function rmmDeviceKinds(): array
+{
+    return ['Desktop' => 'Desktops', 'Laptop' => 'Laptops', 'Server' => 'Servers', 'Virtual Machine' => 'Virtual machines'];
+}
+
+/** The asset type each kind of a provider's devices comes in as - [guessed type => type]. A type deleted since is the guessed one again. */
+function rmmProviderAssetTypes(?array $provider): array
+{
+    $picked = $provider && rmmAssetTypesReady() ? json_decode((string) ($provider['rmm_provider_asset_types'] ?? ''), true) : null;
+    $types = [];
+    foreach (array_keys(rmmDeviceKinds()) as $guessed) {
+        $type = is_array($picked) && is_string($picked[$guessed] ?? null) ? assetTypeName($picked[$guessed]) : '';
+        $types[$guessed] = $type !== '' ? $type : $guessed;
+    }
+    return $types;
+}
+
+/** One of your asset types renamed, or deleted with its assets moved to another - the providers bringing devices in as it follow. */
+function rmmProviderAssetTypesRename(string $old, string $new): void
+{
+    global $mysqli;
+    if (!rmmTablesReady() || !rmmAssetTypesReady() || $old === $new) {
+        return;
+    }
+    $sql = mysqli_query($mysqli, "SELECT rmm_provider_id, rmm_provider_asset_types FROM rmm_providers WHERE rmm_provider_asset_types IS NOT NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $picked = json_decode((string) $row['rmm_provider_asset_types'], true);
+        if (!is_array($picked)) {
+            continue;
+        }
+        $changed = false;
+        foreach ($picked as $guessed => $type) {
+            if (is_string($type) && strcasecmp($type, $old) === 0) {
+                $picked[$guessed] = $new;
+                $changed = true;
+            }
+        }
+        if ($changed) {
+            mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_asset_types = '" . escapeSql(json_encode($picked)) . "' WHERE rmm_provider_id = " . intval($row['rmm_provider_id']));
+        }
+    }
+}
+
+/** One device with its provider's columns and its RMM client's name - raw, or null. */
+function rmmDeviceById(int $device_id): ?array
+{
+    global $mysqli;
+    if (!$device_id || !rmmTablesReady()) {
+        return null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT rmm_devices.*, rmm_providers.*, rmm_client_name FROM rmm_devices
+        JOIN rmm_providers ON rmm_provider_id = rmm_device_provider_id
+        LEFT JOIN rmm_clients ON rmm_clients.rmm_client_id = rmm_device_rmm_client_id
+        WHERE rmm_device_id = $device_id LIMIT 1"));
+    return $row ?: null;
+}
+
+/** The assets a device can be linked to by hand - its client's, not archived, but the one it has: [asset_id => row, with 'taken' - the hostname of another device of its provider that has it]. */
+function rmmDeviceLinkTargets(array $device): array
+{
+    global $mysqli;
+    $client_id = intval($device['rmm_device_client_id']);
+    $provider_id = intval($device['rmm_device_provider_id']);
+    $device_id = intval($device['rmm_device_id']);
+    $targets = [];
+    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_serial,
+            (SELECT rmm_device_hostname FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id = asset_id
+                AND rmm_device_removed_at IS NULL AND rmm_device_id <> $device_id LIMIT 1) AS taken
+        FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL AND asset_id <> " . intval($device['rmm_device_asset_id']) . "
+        ORDER BY asset_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $targets[intval($row['asset_id'])] = $row;
+    }
+    return $targets;
+}
+
+/**
+ * Link a device to another of its client's assets, by hand - it was matched to the wrong one,
+ * or brought in as a new one beside the asset you already had. The asset it had stays, no
+ * longer kept up. The one picked fills in only what it is missing, as a matched asset does.
+ * '' when done, or what is wrong.
+ */
+function rmmDeviceLinkAsset(array $device, int $asset_id): string
+{
+    global $mysqli, $session_name;
+    $device_id = intval($device['rmm_device_id']);
+    $provider_id = intval($device['rmm_device_provider_id']);
+    $client_id = intval($device['rmm_device_client_id']);
+    $name = rmmProviderName($device);
+    $host = (string) $device['rmm_device_hostname'];
+    $had = intval($device['rmm_device_asset_id']);
+    if ($device['rmm_device_removed_at'] !== null) {
+        return "$name no longer has it.";
+    }
+    $target = rmmAssetCurrent($asset_id);
+    if (!$target || $target['_client_id'] !== $client_id) {
+        return 'Pick one of this client\'s assets.';
+    }
+    if ($asset_id === $had) {
+        return 'It is linked to that asset already.';
+    }
+    $taken = rmmDeviceLinkTargets($device)[$asset_id]['taken'] ?? null;
+    if ($taken !== null) {
+        return "That asset is $taken in $name already.";
+    }
+
+    // A device of this provider that had the asset picked and is gone there no longer holds it
+    mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id = $asset_id
+        AND rmm_device_removed_at IS NOT NULL AND rmm_device_id <> $device_id");
+    mysqli_query($mysqli, "UPDATE rmm_devices SET rmm_device_asset_id = $asset_id, rmm_device_synced = '[]' WHERE rmm_device_id = $device_id");
+
+    $who = stripslashes((string) $session_name);
+    $had_row = $had ? rmmAssetCurrent($had) : null;
+    if ($had_row) {
+        rmmAssetHistory($had, $name, "no longer keeps it up - $who linked its device $host to " . $target['name']);
+    }
+    rmmAssetHistory($asset_id, $who, "linked it to its device in $name, $host" . ($had_row ? ', which was ' . $had_row['name'] : ''));
+    logAudit('Asset', 'Edit', "$session_name linked " . escapeSql("$name device $host to asset {$target['name']}" . ($had_row ? " - it was {$had_row['name']}" : '')), $client_id, $asset_id);
+    return '';
+}
+
+/** A username as it is compared with contacts - DOMAIN\ and @domain taken off, then letters and digits only, in lower case. */
+function rmmUserKey($user): string
+{
+    $user = preg_replace('/^.*\\\\/u', '', (string) $user);
+    $user = preg_replace('/@.*$/u', '', $user);
+    return preg_replace('/[^\p{L}\p{N}]+/u', '', mb_strtolower($user));
+}
+
+/**
+ * The contact a device's signed-in user is - the only one of the client's contacts whose email
+ * starts with that username, or whose name it is: Marla Whitfield for mwhitfield, marlaw,
+ * marla.whitfield or AzureAD\MarlaWhitfield. Null when none is, or when more than one could be.
+ */
+function rmmUserContact(int $client_id, string $logged_user): ?array
+{
+    global $mysqli;
+    static $contacts = [];
+    $key = rmmUserKey($logged_user);
+    if (mb_strlen($key) < 3 || in_array($key, ['administrator', 'admin', 'localadmin', 'user', 'guest', 'owner', 'system', 'defaultuser0', 'kiosk'], true)) {
+        return null;
+    }
+    if (!isset($contacts[$client_id])) {
+        $contacts[$client_id] = [];
+        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $keys = [];
+            $email = (string) $row['contact_email'];
+            if (str_contains($email, '@')) {
+                $keys[] = rmmUserKey($email);
+            }
+            $words = preg_split('/\s+/u', trim((string) $row['contact_name']), -1, PREG_SPLIT_NO_EMPTY);
+            if (count($words) >= 2) {
+                $first = rmmUserKey($words[0]);
+                $last = rmmUserKey(end($words));
+                $keys[] = rmmUserKey(implode('', $words));
+                $keys[] = mb_substr($first, 0, 1) . $last;
+                $keys[] = $first . mb_substr($last, 0, 1);
+            }
+            $row['keys'] = array_values(array_unique(array_filter($keys, function ($k) {
+                return mb_strlen($k) >= 3;
+            })));
+            $contacts[$client_id][] = $row;
+        }
+    }
+    $found = [];
+    foreach ($contacts[$client_id] as $row) {
+        if (in_array($key, $row['keys'], true)) {
+            $found[intval($row['contact_id'])] = $row;
+        }
+    }
+    return count($found) === 1 ? reset($found) : null;
+}
+
+/**
+ * Some assets' contacts from who is signed in to their devices - only assets with nobody
+ * assigned. ['assigned', 'had', 'none'] counts. The caller checks the agent may edit them.
+ */
+function rmmAssignUserContacts(array $asset_ids): array
+{
+    global $mysqli;
+    $counts = ['assigned' => 0, 'had' => 0, 'none' => 0];
+    $asset_ids = array_values(array_filter(array_map('intval', $asset_ids)));
+    $devices = rmmDevicesForAssets($asset_ids);
+    foreach ($asset_ids as $asset_id) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_client_id, asset_contact_id FROM assets WHERE asset_id = $asset_id"));
+        if (!$row) {
+            continue;
+        }
+        if (intval($row['asset_contact_id'])) {
+            $counts['had']++;
+            continue;
+        }
+        $contact = null;
+        foreach ($devices[$asset_id] ?? [] as $device) {
+            if ($device['rmm_device_removed_at'] === null && (string) $device['rmm_device_logged_user'] !== '') {
+                $contact = rmmUserContact(intval($row['asset_client_id']), (string) $device['rmm_device_logged_user']);
+                break;
+            }
+        }
+        if (!$contact) {
+            $counts['none']++;
+            continue;
+        }
+        [$ok] = assetQuickSet($asset_id, 'asset_contact', (string) intval($contact['contact_id']));
+        $counts[$ok ? 'assigned' : 'none']++;
+    }
+    return $counts;
+}
+
+/** Assets deleted - their devices keep no asset, so Bring back on their client's row has them at once. How many were in an RMM. */
+function rmmAssetsDeleted(array $asset_ids): int
+{
+    global $mysqli;
+    $asset_ids = array_values(array_filter(array_map('intval', $asset_ids)));
+    if (!$asset_ids || !rmmTablesReady()) {
+        return 0;
+    }
+    $in = implode(', ', $asset_ids);
+    $live = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT rmm_device_asset_id) FROM rmm_devices WHERE rmm_device_asset_id IN ($in) AND rmm_device_removed_at IS NULL"))[0]);
+    mysqli_query($mysqli, "UPDATE rmm_devices SET rmm_device_asset_id = 0 WHERE rmm_device_asset_id IN ($in)");
+    return $live;
+}
+
+/**
+ * How a client's devices in its RMMs are - how many of its assets are in one, and how many are
+ * online, offline, overdue, need a reboot, have patches waiting or checks failing, with when it
+ * was last brought in. Null when none of its assets are in an RMM.
+ */
+function rmmClientSummary(int $client_id): ?array
+{
+    global $mysqli;
+    static $summaries = [];
+    if (array_key_exists($client_id, $summaries)) {
+        return $summaries[$client_id];
+    }
+    if (!rmmTablesReady() || !rmmProviders()) {
+        return $summaries[$client_id] = null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(DISTINCT asset_id) AS total,
+            COUNT(DISTINCT IF(rmm_device_status = 'online', asset_id, NULL)) AS online,
+            COUNT(DISTINCT IF(rmm_device_status = 'offline', asset_id, NULL)) AS offline,
+            COUNT(DISTINCT IF(rmm_device_status = 'overdue', asset_id, NULL)) AS overdue,
+            COUNT(DISTINCT IF(rmm_device_needs_reboot = 1, asset_id, NULL)) AS reboot,
+            COUNT(DISTINCT IF(rmm_device_patches_pending = 1, asset_id, NULL)) AS patches,
+            COUNT(DISTINCT IF(rmm_device_checks_failing > 0, asset_id, NULL)) AS checks,
+            MAX(rmm_device_synced_at) AS synced_at
+        FROM rmm_devices JOIN assets ON asset_id = rmm_device_asset_id AND asset_client_id = $client_id AND asset_archived_at IS NULL
+        WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL"));
+    if (!$row || !intval($row['total'])) {
+        return $summaries[$client_id] = null;
+    }
+    $summary = ['synced_at' => $row['synced_at']];
+    foreach (['total', 'online', 'offline', 'overdue', 'reboot', 'patches', 'checks'] as $key) {
+        $summary[$key] = intval($row[$key]);
+    }
+    return $summaries[$client_id] = $summary;
+}
+
+/** Each asset's devices in its RMMs, for the API - as asset_rmm, [] for an asset in none. */
+function rmmApiAttach(array $rows): array
+{
+    $devices = rmmTablesReady() ? rmmDevicesForAssets(array_map(function ($row) {
+        return intval($row['asset_id'] ?? 0);
+    }, $rows)) : [];
+    foreach ($rows as &$row) {
+        $row['asset_rmm'] = array_map(function ($device) {
+            return [
+                'provider_id' => intval($device['rmm_device_provider_id']),
+                'provider' => rmmProviderName($device),
+                'device_id' => (string) $device['rmm_device_remote_id'],
+                'hostname' => (string) $device['rmm_device_hostname'],
+                'site' => (string) $device['rmm_device_site'],
+                'status' => $device['rmm_device_removed_at'] !== null ? 'removed' : (string) $device['rmm_device_status'],
+                'last_seen_at' => $device['rmm_device_last_seen_at'],
+                'boot_at' => $device['rmm_device_boot_at'],
+                'logged_user' => (string) $device['rmm_device_logged_user'],
+                'public_ip' => (string) $device['rmm_device_public_ip'],
+                'local_ips' => (string) $device['rmm_device_local_ips'],
+                'needs_reboot' => (bool) intval($device['rmm_device_needs_reboot']),
+                'patches_pending' => (bool) intval($device['rmm_device_patches_pending']),
+                'checks_total' => intval($device['rmm_device_checks_total']),
+                'checks_failing' => intval($device['rmm_device_checks_failing']),
+                'maintenance' => (bool) intval($device['rmm_device_maintenance']),
+                'agent_version' => (string) $device['rmm_device_agent_version'],
+                'synced_at' => $device['rmm_device_synced_at'],
+                'removed_at' => $device['rmm_device_removed_at'],
+            ];
+        }, $devices[intval($row['asset_id'] ?? 0)] ?? []);
+    }
+    unset($row);
+    return $rows;
+}
+
+/*
  * ------------------------------------------------------------------ The provider window
  */
 
@@ -1585,6 +1903,24 @@ function rmmProviderCheck(array $in, ?array $before): array
         $after['rmm_provider_alerts_restart'] = $level !== '' && ($level !== (string) ($before['rmm_provider_alert_level'] ?? '')
             || ($before && !intval($before['rmm_provider_active']) && $after['rmm_provider_active']));
     }
+
+    // The asset type each kind of device comes in as - kept as they were for a kind the window didn't send
+    if (rmmAssetTypesReady()) {
+        $now = rmmProviderAssetTypes($before);
+        $sent = is_array($in['asset_types'] ?? null) ? $in['asset_types'] : [];
+        $picked = [];
+        foreach (array_keys(rmmDeviceKinds()) as $guessed) {
+            $type = isset($sent[$guessed]) && is_string($sent[$guessed]) ? assetTypeName($sent[$guessed]) : $now[$guessed];
+            if ($type === '') {
+                $errors['asset_types'] = 'Pick an asset type for each kind of device.';
+                $type = $now[$guessed];
+            }
+            if ($type !== $guessed) {
+                $picked[$guessed] = $type;
+            }
+        }
+        $after['rmm_provider_asset_types'] = $picked ? json_encode($picked) : null;
+    }
     return [$after, $errors];
 }
 
@@ -1609,6 +1945,9 @@ function rmmProviderWrite(array $after, int $provider_id = 0): int
         if (!empty($after['rmm_provider_alerts_restart'])) {
             $set[] = 'rmm_provider_alerts_since = NULL, rmm_provider_alerts_note = NULL';
         }
+    }
+    if (array_key_exists('rmm_provider_asset_types', $after)) {
+        $set[] = 'rmm_provider_asset_types = ' . ($after['rmm_provider_asset_types'] === null ? 'NULL' : "'" . escapeSql($after['rmm_provider_asset_types']) . "'");
     }
     if ($provider_id) {
         mysqli_query($mysqli, "UPDATE rmm_providers SET " . implode(', ', $set) . " WHERE rmm_provider_id = $provider_id");
@@ -1648,6 +1987,15 @@ function rmmProviderChangeLines(array $before, array $after): array
     if (array_key_exists('rmm_provider_alert_category_id', $after) && intval($before['rmm_provider_alert_category_id'] ?? 0) !== intval($after['rmm_provider_alert_category_id'])) {
         $category = intval($after['rmm_provider_alert_category_id']) ? (string) getFieldById('categories', intval($after['rmm_provider_alert_category_id']), 'category_name') : '';
         $lines[] = $category === '' ? 'alert tickets not categorized' : "alert tickets in $category";
+    }
+    if (array_key_exists('rmm_provider_asset_types', $after)) {
+        $had = rmmProviderAssetTypes($before);
+        $now = rmmProviderAssetTypes(['rmm_provider_asset_types' => $after['rmm_provider_asset_types']]);
+        foreach (rmmDeviceKinds() as $guessed => $label) {
+            if ($had[$guessed] !== $now[$guessed]) {
+                $lines[] = mb_strtolower($label) . ' come in as ' . $now[$guessed];
+            }
+        }
     }
     return $lines;
 }
