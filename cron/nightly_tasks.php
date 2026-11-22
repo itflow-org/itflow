@@ -171,6 +171,9 @@ if (ticketReplyDraftsReady()) {
 // What each agent has seen - closed tickets drop out (functions/ticket_read.php)
 ticketReadsCleanup();
 
+// RMM alerts cleared half a year ago (functions/rmm.php)
+rmmAlertsCleanup();
+
 // Clean-up mail queue - a failed or cancelled email with a link or code that opens something is cleared after a day, everything is deleted after 90
 mailQueueClearSensitive();
 mailQueueImageCleanup();

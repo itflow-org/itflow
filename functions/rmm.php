@@ -54,6 +54,17 @@
  *                      alert as described under Alerts below
  */
 
+/*
+ * Most of a client's devices gone from its RMM at once - at least RMM_GONE_AT_ONCE of them, and at
+ * least half - is far more often the RMM, or its API key's access, than the devices. They are kept
+ * as they were until they have been missing from it for RMM_GONE_HOLD_HOURS, and the sync says so.
+ */
+const RMM_GONE_AT_ONCE = 3;
+const RMM_GONE_HOLD_HOURS = 24;
+
+/** Alerts cleared this long ago are deleted at night - nothing reads one once it has cleared. */
+const RMM_ALERTS_KEEP_DAYS = 180;
+
 /** The RMMs ITFlow can bring devices in from - kind => what it is. */
 function rmmProviderKinds(): array
 {
@@ -233,6 +244,16 @@ function rmmHttp(array $provider, string $method, string $url, array $headers = 
         return ['ok' => false, 'code' => $code, 'json' => null, 'error' => "$host answered, but not as $name's API" . $hint('not_json')];
     }
     return ['ok' => true, 'code' => $code, 'json' => $json, 'error' => ''];
+}
+
+/**
+ * Is what an RMM answered a list - [{...}, {...}] - and not an object? An object where a list
+ * belongs is an error page or an API that has changed, never "it has none": read as none, every
+ * device or client would be marked gone.
+ */
+function rmmIsList($value): bool
+{
+    return is_array($value) && ($value === [] || array_keys($value) === range(0, count($value) - 1));
 }
 
 /** A provider's clients, from its RMM - ['ok', 'clients' => [id, name, sites, devices], 'error']. */
@@ -445,8 +466,9 @@ function rmmDeviceAssetValues(array $device, array $facts, int $client_id): arra
         'serial' => rmmSerial($asset['serial'] ?? ''),
         'os' => $value('os'),
         'ip' => rmmFirstIp($asset['ip'] ?? ''),
-        'cpu' => $value('cpu', 500),
-        'storage' => $value('storage', 500),
+        // Details are 255 characters (asset_specs) - a server's eight disks are more
+        'cpu' => $value('cpu', 255),
+        'storage' => $value('storage', 255),
         'location_id' => rmmSiteLocationId($client_id, $facts['site']),
     ];
 }
@@ -519,7 +541,7 @@ function rmmAssetWrite(int $asset_id, array $set, array $current): void
     $allowed = function_exists('assetTypeSpecs') ? array_keys(assetTypeSpecs($type)) : [];
     foreach (['cpu', 'storage'] as $key) {
         if (array_key_exists($key, $set) && in_array($key, $allowed, true) && function_exists('assetSpecsReady') && assetSpecsReady()) {
-            $value = escapeSql($set[$key]);
+            $value = escapeSql(mb_substr((string) $set[$key], 0, 255));
             mysqli_query($mysqli, "INSERT INTO asset_specs SET asset_spec_asset_id = $asset_id, asset_spec_key = '$key', asset_spec_value = '$value'
                 ON DUPLICATE KEY UPDATE asset_spec_value = VALUES(asset_spec_value)");
         }
@@ -604,10 +626,12 @@ function rmmAssetCreate(int $client_id, array $values): int
  * its name - and not another of this provider's devices already. One it no longer has doesn't
  * keep its asset: an agent reinstalled is a new device there. 0 when there is none.
  */
-function rmmAssetMatch(int $provider_id, int $client_id, array $values): int
+function rmmAssetMatch(int $provider_id, int $client_id, array $values, array $free = []): int
 {
     global $mysqli;
-    $taken = "asset_id NOT IN (SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL)";
+    // $free - devices it didn't list this time, kept for now (RMM_GONE_AT_ONCE): they don't hold their assets either
+    $free_sql = $free ? ' AND rmm_device_id NOT IN (' . implode(', ', array_map('intval', $free)) . ')' : '';
+    $taken = "asset_id NOT IN (SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL$free_sql)";
     if ($values['serial'] !== '') {
         $serial = escapeSql($values['serial']);
         $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT asset_id FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL
@@ -638,10 +662,11 @@ function rmmDeviceRow(int $provider_id, string $remote_id): ?array
 
 /**
  * One device from an RMM, brought into ITFlow - its asset made, matched or kept up to date,
- * and what it is doing saved. What happened goes into $counts. Its id in the RMM, or '' when
- * it hasn't got one ITFlow can keep.
+ * and what it is doing saved. What happened goes into $counts. $free are the client's devices
+ * the RMM didn't list this time but that are kept for now - a reinstalled agent can have the
+ * asset of one. Its id in the RMM, or '' when it hasn't got one ITFlow can keep.
  */
-function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array $device, array &$counts): string
+function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array $device, array &$counts, array $free = []): string
 {
     global $mysqli, $session_name;
 
@@ -683,13 +708,14 @@ function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array
     $made = false;
     $matched = false;
     if ($find) {
-        $asset_id = rmmAssetMatch($provider_id, $client_id, $values);
+        $asset_id = rmmAssetMatch($provider_id, $client_id, $values, $free);
         if ($asset_id) {
             $matched = true;
             $counts['linked']++;
             // The device it was before - an agent since reinstalled - is gone there; this one has its asset now
+            $free_sql = $free ? ' OR rmm_device_id IN (' . implode(', ', array_map('intval', $free)) . ')' : '';
             mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id = $asset_id
-                AND rmm_device_removed_at IS NOT NULL AND rmm_device_remote_id != '" . escapeSql($remote_id) . "'");
+                AND (rmm_device_removed_at IS NOT NULL$free_sql) AND rmm_device_remote_id != '" . escapeSql($remote_id) . "'");
         } else {
             $asset_id = rmmAssetCreate($client_id, $values);
             $made = true;
@@ -814,23 +840,57 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
 
     $clock = microtime(true);
     $errors = [];
-    $complete = [];   // rmm_clients id => [] for each client the RMM no longer has - all its devices are gone
+    $held = [];       // the clients whose devices went at once, kept as they were: "client: n of m"
+    $complete = [];   // rmm_clients id => its name, for each client the RMM no longer has - all its devices are gone
     $stopped = false;
 
     $in_list = function (array $ids) {
         return $ids ? "'" . implode("', '", array_map('escapeSql', $ids)) . "'" : "''";
     };
 
-    // A client's devices the RMM didn't list, when its list came back whole - it no longer has them
-    $remove_unlisted = function (int $rmm_client_id, array $listed) use ($mysqli, $provider_id, $name, $in_list, &$counts) {
-        $sql = mysqli_query($mysqli, "SELECT rmm_device_id, rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id
+    /*
+     * A client's devices the RMM didn't list, when its list came back whole - it no longer has them.
+     * Most of them at once are kept as they were for now (RMM_GONE_AT_ONCE). The ids of the ones
+     * kept - an agent reinstalled there can still be matched to the asset of one of them.
+     */
+    $remove_unlisted = function (int $rmm_client_id, array $listed) use ($mysqli, $provider_id, $name, $in_list, &$counts): array {
+        $rows = [];
+        $sql = mysqli_query($mysqli, "SELECT rmm_device_id, rmm_device_asset_id, rmm_device_synced_at FROM rmm_devices WHERE rmm_device_provider_id = $provider_id
             AND rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_removed_at IS NULL AND rmm_device_remote_id NOT IN (" . $in_list($listed) . ")");
         while ($row = mysqli_fetch_assoc($sql)) {
+            $rows[] = $row;
+        }
+        if (!$rows) {
+            return [];
+        }
+        $live = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = $provider_id
+            AND rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_removed_at IS NULL"))[0]);
+        $at_once = count($rows) >= RMM_GONE_AT_ONCE && count($rows) * 2 >= $live;
+        $kept = [];
+        foreach ($rows as $row) {
+            if ($at_once && $row['rmm_device_synced_at'] !== null && strtotime($row['rmm_device_synced_at']) > time() - RMM_GONE_HOLD_HOURS * 3600) {
+                $kept[] = intval($row['rmm_device_id']);
+                continue;
+            }
             mysqli_query($mysqli, "UPDATE rmm_devices SET rmm_device_removed_at = NOW() WHERE rmm_device_id = " . intval($row['rmm_device_id']));
             if (intval($row['rmm_device_asset_id']) && rmmAssetCurrent(intval($row['rmm_device_asset_id']))) {
                 rmmAssetHistory(intval($row['rmm_device_asset_id']), $name, 'no longer has it');
             }
             $counts['removed']++;
+        }
+        return $kept;
+    };
+
+    // The ones kept that are still there - not taken over by a reinstalled agent - for the note
+    $note_kept = function (int $rmm_client_id, string $client_name, array $kept) use ($mysqli, $provider_id, &$held) {
+        if (!$kept) {
+            return;
+        }
+        $still = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_id IN (" . implode(', ', $kept) . ")"))[0]);
+        if ($still) {
+            $live = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = $provider_id
+                AND rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_removed_at IS NULL"))[0]);
+            $held[] = "$client_name, $still of $live";
         }
     };
 
@@ -852,11 +912,15 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
         $counts['clients'] = count($answer['clients']);
         if (!$only) {
             $listed = $in_list(array_column($answer['clients'], 'id'));
-            $gone = mysqli_query($mysqli, "SELECT rmm_client_id FROM rmm_clients WHERE rmm_client_provider_id = $provider_id AND rmm_client_removed_at IS NULL
-                AND rmm_client_remote_id NOT IN ($listed)");
-            while ($gone_row = mysqli_fetch_row($gone)) {
-                $complete[intval($gone_row[0])] = [];
-                mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_removed_at = NOW() WHERE rmm_client_id = " . intval($gone_row[0]));
+            // And the ones marked before whose devices were kept, until they are marked too
+            $gone = mysqli_query($mysqli, "SELECT rmm_client_id, rmm_client_name, rmm_client_removed_at FROM rmm_clients WHERE rmm_client_provider_id = $provider_id
+                AND rmm_client_remote_id NOT IN ($listed) AND (rmm_client_removed_at IS NULL OR rmm_client_id IN (SELECT rmm_device_rmm_client_id FROM rmm_devices
+                WHERE rmm_device_provider_id = $provider_id AND rmm_device_removed_at IS NULL))");
+            while ($gone_row = mysqli_fetch_assoc($gone)) {
+                $complete[intval($gone_row['rmm_client_id'])] = (string) $gone_row['rmm_client_name'];
+                if ($gone_row['rmm_client_removed_at'] === null) {
+                    mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_removed_at = NOW() WHERE rmm_client_id = " . intval($gone_row['rmm_client_id']));
+                }
             }
         }
 
@@ -889,18 +953,26 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
                     $listed[] = (string) ($device['remote_id'] ?? '');
                 }
             }
-            $remove_unlisted(intval($rmm_client['rmm_client_id']), $listed);
+            $kept = $remove_unlisted(intval($rmm_client['rmm_client_id']), $listed);
             foreach ($devices['devices'] as $device) {
-                if (is_array($device)) {
-                    rmmDeviceSave($provider, $rmm_client, intval($rmm_client['rmm_client_client_id']), $device, $counts);
+                if (!is_array($device)) {
+                    continue;
+                }
+                // One device that can't be saved doesn't stop the rest - the note says which
+                try {
+                    rmmDeviceSave($provider, $rmm_client, intval($rmm_client['rmm_client_client_id']), $device, $counts, $kept);
+                } catch (Throwable $e) {
+                    $errors[] = $rmm_client['rmm_client_name'] . ': ' . rmmText($device['hostname'] ?? '', 100) . ' - ' . $e->getMessage();
+                    $counts['skipped']++;
                 }
             }
+            $note_kept(intval($rmm_client['rmm_client_id']), (string) $rmm_client['rmm_client_name'], $kept);
             mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_synced_at = NOW() WHERE rmm_client_id = " . intval($rmm_client['rmm_client_id']));
         }
 
         // Devices of the clients it no longer has
-        foreach (array_keys($complete) as $rmm_client_id) {
-            $remove_unlisted($rmm_client_id, []);
+        foreach ($complete as $rmm_client_id => $client_name) {
+            $note_kept($rmm_client_id, $client_name, $remove_unlisted($rmm_client_id, []));
         }
 
         $note = number_format($counts['devices']) . ' device' . ($counts['devices'] === 1 ? '' : 's') . ' brought in';
@@ -914,11 +986,18 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
         if ($stopped) {
             $note .= '. Stopped for time - the rest come in next sync';
         }
-        if ($errors) {
-            $note .= '. Not brought in: ' . implode('; ', $errors);
-            logApp('RMM', 'warning', "$name: sync - " . implode('; ', $errors));
+        if ($held) {
+            $note .= ". Not marked gone yet - $short stopped listing most of a client's devices at once, which is more often $short or its API key's access than the devices ("
+                . implode('; ', $held) . '). If they are still missing after ' . RMM_GONE_HOLD_HOURS . ' hours, they are marked gone';
         }
-        $ok = !$errors;
+        if ($errors) {
+            $more = count($errors) > 5 ? ' - and ' . (count($errors) - 5) . ' more' : '';
+            $note .= '. Not brought in: ' . implode('; ', array_slice($errors, 0, 5)) . $more;
+        }
+        if ($held || $errors) {
+            logApp('RMM', 'warning', "$name: sync - " . implode('; ', array_merge($held ? ['devices kept as they were: ' . implode('; ', $held)] : [], array_slice($errors, 0, 20))));
+        }
+        $ok = !$errors && !$held;
     } catch (Throwable $e) {
         $ok = false;
         $note = $e->getMessage();
@@ -1334,6 +1413,15 @@ function rmmAlertsPollAll(int $max_seconds = 50): array
         $results[rmmProviderName($provider)] = rmmAlertsPoll($provider, $left);
     }
     return $results;
+}
+
+/** Alerts cleared more than RMM_ALERTS_KEEP_DAYS ago go - for the nightly tasks. The RMM no longer lists them, and nothing here reads one once it has cleared. */
+function rmmAlertsCleanup(): void
+{
+    global $mysqli;
+    if (rmmAlertsReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_alerts WHERE rmm_alert_cleared_at IS NOT NULL AND rmm_alert_cleared_at < NOW() - INTERVAL " . RMM_ALERTS_KEEP_DAYS . " DAY");
+    }
 }
 
 /** The alerts still open on some devices that have tickets - rmm_device_id => rows with the ticket's reference and status. */
