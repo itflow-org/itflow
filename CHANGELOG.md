@@ -27,6 +27,7 @@ Update from Maintenance > Update — Queue Update hands the job to cron, which u
 - RMM Providers: an answer from the RMM that wasn't a list - an error page sent as a success, or a change to its API - was read as a client with no devices, or an RMM with no clients, and everything in it would have been marked gone. It is now an error, and nothing is changed.
 - Pickers: as a page loaded, a picker's "nothing" choice showed as "- Anyone -" for a moment before it became "Anyone" - on the tickets list's filters and in pickers across the app and the client portal. It is "Anyone", in its quieter grey, from the start.
 - Lists: the date filter box - on tickets, invoices, quotes, expenses, the audit log and the rest - was empty as the page loaded, then filled in with All Time or its dates a moment later. It says so from the start.
+- Lists: the tabs along the top of the lists - Workstations, Network and Other on the assets list, a ticket's status, Admin > Users and the rest - and the tabs on an asset's, contact's or other record's page didn't change under the pointer. One that isn't picked now darkens its text when you point at it or tab to it.
 
 ### Developer Updates
 

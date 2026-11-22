@@ -4418,6 +4418,15 @@ tr:hover .itflow-copy,
     background-color: rgba(255, 255, 255, .25);
     color: inherit;
 }
+/* The tabs along the top of the lists and on a record's page: one that isn't picked darkens
+   its text under the pointer or keyboard focus. Their colour is set above, so Bootstrap's own
+   hover colour never showed. .nav on the pills outranks the greyed text of an empty tab. */
+.itflow-asset-tabs .nav-link:not(.active):hover,
+.itflow-asset-tabs .nav-link:not(.active):focus-visible,
+.nav.itflow-asset-pills .nav-link:not(.active):hover,
+.nav.itflow-asset-pills .nav-link:not(.active):focus-visible {
+    color: var(--bs-emphasis-color);
+}
 .itflow-asset-pane-bar {
     display: flex;
     flex-wrap: wrap;
