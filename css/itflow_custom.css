@@ -4013,14 +4013,165 @@ button.itflow-rack-item-body:hover {
     cursor: default;
 }
 
+/* A holder - a bracket, shelf or chassis - with the devices in it side by side,
+   in rows when it wraps. Its tab at the left is the holder itself; each slot is
+   a device, or an empty "add here". */
+.itflow-rack-item.is-holder {
+    display: flex;
+}
+.itflow-rack-holder-tab {
+    display: flex;
+    flex: 0 0 1.4rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid rgba(0, 0, 0, .25);
+    background: transparent;
+    font-size: .7rem;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-rack-holder-tab:hover,
+button.itflow-rack-holder-tab:hover {
+    color: inherit;
+    background-color: rgba(255, 255, 255, .1);
+}
+.itflow-rack-holder-tab:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+.itflow-rack-holder-slots {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 2px;
+    padding: 2px;
+}
+.itflow-rack-cell {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: .2rem;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 1px 1px rgba(0, 0, 0, .35);
+    container-type: inline-size;
+}
+.itflow-rack-cell.is-empty {
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px dashed rgba(255, 255, 255, .22);
+    background-color: rgba(0, 0, 0, .25);
+    box-shadow: none;
+    font-size: .6rem;
+    color: rgba(255, 255, 255, .8);
+}
+.itflow-rack-cell.is-empty i {
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+button.itflow-rack-cell.is-empty:hover,
+button.itflow-rack-cell.is-empty:focus-visible {
+    border-color: rgba(255, 255, 255, .5);
+    background-color: rgba(255, 255, 255, .1);
+    outline: 0;
+}
+button.itflow-rack-cell.is-empty:hover i,
+button.itflow-rack-cell.is-empty:focus-visible i,
+.itflow-rack-dragging .itflow-rack-cell.is-empty i {
+    opacity: 1;
+}
+.itflow-rack-cell.is-target {
+    border: 2px dashed rgba(117, 214, 157, .9);
+    background-color: rgba(117, 214, 157, .25);
+}
+.itflow-rack-cell-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    padding: 0 .3rem;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    line-height: 1.1;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-rack-cell-body:hover,
+button.itflow-rack-cell-body:hover {
+    color: inherit;
+    background-color: rgba(255, 255, 255, .1);
+}
+.itflow-rack-cell-body:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+.itflow-rack-cell-name,
+.itflow-rack-cell-meta {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-rack-cell-name {
+    font-size: .66rem;
+    font-weight: 600;
+}
+.itflow-rack-cell-meta {
+    font-size: .6rem;
+    opacity: .78;
+}
+.itflow-rack-cell-edit {
+    position: absolute;
+    top: 50%;
+    right: .15rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.05rem;
+    margin-top: -.525rem;
+    padding: 0;
+    border: 0;
+    border-radius: .2rem;
+    background-color: rgba(0, 0, 0, .4);
+    font-size: .55rem;
+    color: #fff;
+}
+.itflow-rack-cell-edit:hover {
+    background-color: rgba(0, 0, 0, .6);
+}
+/* The pen only where the slot is wide enough for it and the name */
+@container (min-width: 4.5rem) {
+    .itflow-rack-cell:hover .itflow-rack-cell-edit,
+    .itflow-rack-cell:focus-within .itflow-rack-cell-edit {
+        display: flex;
+    }
+}
+.itflow-rack-cell.is-archived {
+    opacity: .55;
+}
+.itflow-rack-cell.is-archived .itflow-rack-cell-name {
+    text-decoration: line-through;
+}
+
 /* Dragging kit into place (agent/js/rack_drag.js): where it would go, red
    where something is in the way, and the item being moved faded */
 .itflow-rack-item[draggable="true"] {
     cursor: grab;
 }
 .itflow-rack-item.is-dragging,
+.itflow-rack-cell.is-dragging,
 .itflow-rack-unracked.is-dragging {
     opacity: .45;
+}
+.itflow-rack-cell[draggable="true"] {
+    cursor: grab;
 }
 .itflow-rack-unracked[draggable="true"] {
     cursor: grab;
@@ -4158,6 +4309,9 @@ button.itflow-rack-item-body:hover {
 .itflow-rack-fit:empty {
     display: none;
 }
+.itflow-rack-slots-input {
+    max-width: 14rem;
+}
 
 /* Listing cards: the whole card opens the rack, the menu sits above that link */
 .itflow-rack-card {
@@ -4196,6 +4350,7 @@ button.itflow-rack-item-body:hover {
     .itflow-rack-frame,
     .itflow-rack-bay,
     .itflow-rack-item,
+    .itflow-rack-cell,
     .itflow-rack-chip,
     .itflow-rack-swatch,
     .itflow-rack-head-icon {
@@ -4203,7 +4358,9 @@ button.itflow-rack-item-body:hover {
         print-color-adjust: exact;
     }
     .itflow-rack-slot span,
-    .itflow-rack-item-edit {
+    .itflow-rack-item-edit,
+    .itflow-rack-cell-edit,
+    .itflow-rack-cell.is-empty i {
         display: none;
     }
     .itflow-rack {

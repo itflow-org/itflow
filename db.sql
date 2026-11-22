@@ -3027,15 +3027,20 @@ CREATE TABLE `rack_units` (
   `unit_type` varchar(50) DEFAULT NULL,
   `unit_power_watts` int(11) DEFAULT NULL,
   `unit_notes` varchar(255) DEFAULT NULL,
+  `unit_slots` int(11) NOT NULL DEFAULT 0,
+  `unit_position` int(11) NOT NULL DEFAULT 0,
   `unit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `unit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `unit_archived_at` datetime DEFAULT NULL,
   `unit_asset_id` int(11) DEFAULT NULL,
   `unit_rack_id` int(11) NOT NULL,
+  `unit_parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`unit_id`),
   KEY `unit_rack_id` (`unit_rack_id`),
   KEY `unit_asset_id` (`unit_asset_id`),
-  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE
+  KEY `unit_parent_id` (`unit_parent_id`),
+  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE,
+  CONSTRAINT `rack_units_ibfk_2` FOREIGN KEY (`unit_parent_id`) REFERENCES `rack_units` (`unit_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

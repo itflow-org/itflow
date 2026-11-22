@@ -14,10 +14,13 @@
  *   asset_id           The client's asset - or unit_device for an item that isn't one
  *   unit_device        A name for the item
  *   unit_type          optional - Without an asset: Device (the default), Patch Panel, Cable Management, Shelf, PDU, UPS, KVM / Console or Blanking Panel
- *   unit_start_number  required - The lowest unit it takes
+ *   unit_start_number  required - The lowest unit it takes (not in a holder)
  *   unit_height        optional - How many units, 1 if left out
  *   unit_face          optional - front (the default) or rear
  *   unit_full_depth    optional - 1: it takes the front and the rear
+ *   unit_slots         optional - It holds devices side by side, this many across (a bracket, shelf or chassis)
+ *   unit_parent_id     optional - The holder it goes in instead - it takes the holder's units, face and depth
+ *   unit_position      optional - Its slot in the holder, 1 the first; the first free one if left out
  *   unit_power_watts, unit_notes   optional
  */
 

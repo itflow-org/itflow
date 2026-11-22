@@ -299,7 +299,7 @@ ob_start();
                     <?php if ($asset_rack) { ?>
                         <div class="itflow-glance-item" title="Rack">
                             <i class="fas fa-fw fa-server"></i>
-                            <span><a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= intval($asset_rack['rack_id']) ?>"><?= escapeHtml($asset_rack['rack_name']) ?></a> <span class="text-body-secondary">&middot; <?= rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) ?>, <?= $asset_rack['unit_face'] === 'rear' ? 'rear' : 'front' ?></span></span>
+                            <span><a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= intval($asset_rack['rack_id']) ?>"><?= escapeHtml($asset_rack['rack_name']) ?></a> <span class="text-body-secondary">&middot; <?= rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) ?>, <?= $asset_rack['unit_face'] === 'rear' ? 'rear' : 'front' ?><?= escapeHtml(rackSlotText($asset_rack['holder_name'], $asset_rack['unit_position'])) ?></span></span>
                         </div>
                     <?php } ?>
                 </div>

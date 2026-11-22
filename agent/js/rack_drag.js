@@ -12,6 +12,11 @@
  * The data-rack-* attributes come from agent/includes/rack_elevation.php:
  * each bay knows its face, height and numbering; each item its unit, units
  * and depth. Click still does what it did - an empty U adds, an item opens.
+ *
+ * Holders: an empty slot in one (data-rack-cell) takes what is dropped on it -
+ * an item from the rack, a device from another slot, or an asset not racked
+ * yet (which opens Add for that slot). A holder doesn't go in a holder, and a
+ * device in one only drags to another slot - Edit takes it out.
  */
 
 (function () {
@@ -67,22 +72,39 @@
         return el;
     }
 
+    function clearTargets(keep) {
+        document.querySelectorAll('.itflow-rack-cell.is-target').forEach(function (el) {
+            if (el !== keep) {
+                el.classList.remove('is-target');
+            }
+        });
+    }
+
     function clearMarkers() {
         document.querySelectorAll('.itflow-rack-drop').forEach(function (el) {
             el.remove();
         });
+        clearTargets(null);
+    }
+
+    // The empty slot under the pointer that this can go in, or null
+    function cellAt(bay, target) {
+        var cell = target && target.closest ? target.closest('[data-rack-cell]') : null;
+        return cell && bay.contains(cell) && !drag.holds ? cell : null;
     }
 
     function label(place) {
         return place.start === place.end ? 'U' + place.start : 'U' + place.start + '–U' + place.end;
     }
 
-    function openAdd(place) {
+    function openAdd(place, cell) {
         var open = document.createElement('a');
         open.href = '#';
         open.className = 'ajax-modal d-none';
         open.setAttribute('data-modal-url', 'modals/rack/rack_device_add.php?id=' + encodeURIComponent(rackId)
-            + '&asset_id=' + encodeURIComponent(drag.id) + '&u=' + place.start + '&face=' + place.face);
+            + '&asset_id=' + encodeURIComponent(drag.id) + (cell
+                ? '&holder=' + encodeURIComponent(cell.dataset.rackHolder) + '&slot=' + encodeURIComponent(cell.dataset.rackSlot)
+                : '&u=' + place.start + '&face=' + place.face));
         document.body.appendChild(open);
         open.click();
         open.remove();
@@ -94,8 +116,23 @@
             return;
         }
         form.elements.unit_id.value = drag.id;
-        form.elements.unit_start.value = place.start;
-        form.elements.face.value = place.face;
+        form.elements.unit_start.value = place ? place.start : '';
+        form.elements.face.value = place ? place.face : '';
+        form.elements.holder.value = '';
+        form.elements.slot.value = '';
+        form.submit();
+    }
+
+    function moveToSlot(cell) {
+        var form = document.getElementById('rackMoveForm');
+        if (!form) {
+            return;
+        }
+        form.elements.unit_id.value = drag.id;
+        form.elements.unit_start.value = '';
+        form.elements.face.value = '';
+        form.elements.holder.value = cell.dataset.rackHolder;
+        form.elements.slot.value = cell.dataset.rackSlot;
         form.submit();
     }
 
@@ -117,6 +154,8 @@
             height: height,
             grab: grab,
             full: source.dataset.rackFull === '1',
+            child: source.dataset.rackChild === '1',
+            holds: source.dataset.rackHolds === '1',
             from: source.dataset.rackFrom || '',
             start: parseInt(source.dataset.rackStart, 10) || 0,
             source: source
@@ -142,21 +181,28 @@
                 return;
             }
             e.preventDefault();
-            var place = placeAt(bay, e.clientY);
-            var blocked = inTheWay(place);
+            var cell = cellAt(bay, e.target);
+            clearTargets(cell);
             bays.forEach(function (other) {
-                if (other !== bay) {
+                if (other !== bay || cell) {
                     var old = other.querySelector('.itflow-rack-drop');
                     if (old) {
                         old.remove();
                     }
                 }
             });
+            e.dataTransfer.dropEffect = 'move';
+            // Over an empty slot in a holder: that is where it goes
+            if (cell) {
+                cell.classList.add('is-target');
+                return;
+            }
+            var place = placeAt(bay, e.clientY);
+            var blocked = drag.child ? 'slot' : inTheWay(place);
             var el = marker(bay);
             el.style.gridRow = place.top + ' / span ' + drag.height;
             el.classList.toggle('is-blocked', blocked !== '');
-            el.textContent = blocked ? blocked + ' is here' : label(place);
-            e.dataTransfer.dropEffect = 'move';
+            el.textContent = drag.child ? 'Drop it on an empty slot' : (blocked ? blocked + ' is here' : label(place));
         });
 
         bay.addEventListener('dragleave', function (e) {
@@ -165,6 +211,9 @@
                 if (el) {
                     el.remove();
                 }
+                bay.querySelectorAll('.itflow-rack-cell.is-target').forEach(function (target) {
+                    target.classList.remove('is-target');
+                });
             }
         });
 
@@ -173,9 +222,24 @@
                 return;
             }
             e.preventDefault();
+            var cell = cellAt(bay, e.target);
+            clearMarkers();
+            if (cell) {
+                if (drag.kind === 'asset') {
+                    openAdd(null, cell);
+                } else if (cell.dataset.rackHolder !== drag.source.dataset.rackHolder || cell.dataset.rackSlot !== drag.source.dataset.rackSlot) {
+                    moveToSlot(cell);
+                }
+                return;
+            }
+            if (drag.child) {
+                if (typeof itflowToast === 'function') {
+                    itflowToast('Drop it on an empty slot - or take it out of the holder with Edit', 'error');
+                }
+                return;
+            }
             var place = placeAt(bay, e.clientY);
             var blocked = inTheWay(place);
-            clearMarkers();
             if (blocked) {
                 if (typeof itflowToast === 'function') {
                     itflowToast(label(place) + ' on the ' + place.face + ' is taken by ' + blocked, 'error');

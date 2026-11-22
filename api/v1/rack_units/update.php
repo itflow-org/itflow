@@ -4,7 +4,7 @@
  * POST /api/v1/rack_units/update.php
  *
  * Move or change an item in its rack, as Edit does on it - only what is sent,
- * with the same checks as mounting it.
+ * with the same checks as mounting it. A holder takes what is in it along.
  *
  * Parameters (POST, JSON body):
  *   api_key    required - Your API key
@@ -26,6 +26,9 @@ if ($unit) {
 
     if (mysqli_query($mysqli, "UPDATE rack_units SET $unit_set WHERE unit_id = $unit_id")) {
         $update_count = 1;
+        if ($unit_place['slots']) {
+            rackSyncChildren($unit_id);
+        }
         $what = escapeSql("$unit_label in rack " . $rack['rack_name']);
         logAudit("Rack", "Edit", "Updated $what via API ($api_key_name)", $client_id, $rack_id);
         logAudit("API", "Success", "Updated $what via API ($api_key_name)", $client_id);

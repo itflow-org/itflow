@@ -138,7 +138,8 @@ if (mysqli_num_rows($sql) == 0) {
     if ($asset_rack) {
         $asset_rack_id = intval($asset_rack['rack_id']);
         $asset_rack_name = escapeHtml($asset_rack['rack_name']);
-        $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front');
+        $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front')
+            . escapeHtml(rackSlotText($asset_rack['holder_name'], $asset_rack['unit_position']));
     }
 
     // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title

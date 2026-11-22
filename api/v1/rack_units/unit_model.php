@@ -2,8 +2,8 @@
 
 // An item in a rack from POST, checked as the rack item form checks it - with what
 // the item has now ($unit) for those not sent, on an update. $rack is its rack and
-// $client_id the rack's client. Sets $unit_set (the SET clause) and $unit_label, or
-// turns the request down with 400 and why.
+// $client_id the rack's client. Sets $unit_set (the SET clause), $unit_label and
+// $unit_place (rackPlacement()), or turns the request down with 400 and why.
 
 if (!function_exists('apiDeny')) {
     http_response_code(404);
@@ -26,7 +26,10 @@ $face = (string) $sent('unit_face', $unit['unit_face'] ?? 'front');
 $full_depth = intval($sent('unit_full_depth', $unit['unit_full_depth'] ?? 0)) === 1 ? 1 : 0;
 $power_watts = intval($sent('unit_power_watts', $unit['unit_power_watts'] ?? 0));
 $notes = mb_substr(trim((string) $sent('unit_notes', $unit['unit_notes'] ?? '')), 0, 255);
-$rack_units = intval($rack['rack_units']);
+// In a holder at a slot, or in the rack - and holding devices side by side, or not
+$holder_id = intval($sent('unit_parent_id', $unit['unit_parent_id'] ?? 0));
+$position = intval($sent('unit_position', $unit['unit_position'] ?? 0));
+$slots = intval($sent('unit_slots', $unit['unit_slots'] ?? 0));
 
 if ($unit_type === '' || !array_key_exists($unit_type, rackItemTypes())) {
     if (array_key_exists('unit_type', $_POST)) {
@@ -37,8 +40,11 @@ if ($unit_type === '' || !array_key_exists($unit_type, rackItemTypes())) {
 if (!in_array($face, ['front', 'rear'], true)) {
     $rack_refuse('unit_face is front or rear.');
 }
-if ($start < 1 || $end > $rack_units) {
-    $rack_refuse("That doesn't fit - this rack runs from U1 to U$rack_units.");
+if ($slots < 0 || $slots > RACK_SLOTS_MAX) {
+    $rack_refuse('unit_slots is how many it holds side by side - 0 to ' . RACK_SLOTS_MAX . '.');
+}
+if ($holder_id && $slots) {
+    $rack_refuse("An item in a holder (unit_parent_id) can't hold devices of its own (unit_slots).");
 }
 
 // The asset has to be the client's, and in one place at a time
@@ -58,13 +64,16 @@ if ($asset_id) {
     $rack_refuse('Send asset_id, or a name for the item in unit_device.');
 }
 
-$conflict = rackUnitConflict($rack['rack_id'], $start, $end, $face, $full_depth, $unit_id);
-if ($conflict) {
-    $rack_refuse(html_entity_decode(rackPositionLabel($start, $end)) . " on the $face is taken by {$conflict['name']} (" . html_entity_decode(rackPositionLabel($conflict['start'], $conflict['end'])) . ").");
+// Units, overlaps and slots - functions/rack.php
+$unit_place = rackPlacement($rack['rack_id'], $unit_id, ['holder' => $holder_id, 'position' => $position,
+    'start' => $start, 'end' => $end, 'face' => $face, 'full_depth' => $full_depth, 'slots' => $slots]);
+if (isset($unit_place['error'])) {
+    $rack_refuse(strip_tags($unit_place['error']) . '.');
 }
 
 // A linked asset is drawn by its own asset type, so only unlinked items keep one
 $unit_set = "unit_device = '" . escapeSql(mb_substr($label, 0, 200)) . "', unit_asset_id = " . ($asset_id ?: 'NULL') . ", unit_type = " . ($asset_id ? 'NULL' : "'" . escapeSql($unit_type) . "'") . ",
-    unit_start_number = $start, unit_end_number = $end, unit_face = '$face', unit_full_depth = $full_depth,
+    " . rackPlacementSet($unit_place) . ", unit_slots = " . intval($unit_place['slots']) . ",
     unit_power_watts = " . ($power_watts > 0 ? $power_watts : 'NULL') . ", unit_notes = '" . escapeSql($notes) . "'";
-$unit_label = rackUnitName($asset_name, $label, $unit_type) . ' at ' . html_entity_decode(rackPositionLabel($start, $end)) . " ($face)";
+$unit_label = rackUnitName($asset_name, $label, $unit_type) . ($unit_place['holder'] ? " in slot {$unit_place['position']} of {$unit_place['holder_name']}" : '')
+    . ' at ' . html_entity_decode(rackPositionLabel($unit_place['start'], $unit_place['end'])) . " ({$unit_place['face']})";

@@ -212,7 +212,7 @@ $assets_tags = tagsForRecords('asset', array_keys($assets));
 $assets_rmm = $rmm_set_up ? rmmDevicesForAssets(array_keys($assets)) : [];
 $assets_racked = [];
 if ($assets) {
-    $sql_racked = mysqli_query($mysqli, "SELECT unit_asset_id, unit_start_number, unit_end_number, rack_id, rack_name FROM rack_units
+    $sql_racked = mysqli_query($mysqli, "SELECT unit_asset_id, unit_start_number, unit_end_number, unit_parent_id, unit_position, rack_id, rack_name FROM rack_units
         JOIN racks ON rack_id = unit_rack_id
         WHERE unit_asset_id IN (" . implode(',', array_keys($assets)) . ")");
     while ($row = mysqli_fetch_assoc($sql_racked)) {
@@ -732,7 +732,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                             <?php } ?>
                             <?php if ($asset_rack) { ?>
                                 <a class="small text-nowrap d-inline-block <?= $can_edit && !$asset_physical_location ? 'mt-1' : '' ?>" href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= intval($asset_rack['rack_id']) ?>" title="Racked">
-                                    <i class="fas fa-server me-1"></i><?= escapeHtml($asset_rack['rack_name']) ?> &middot; <?= rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) ?>
+                                    <i class="fas fa-server me-1"></i><?= escapeHtml($asset_rack['rack_name']) ?> &middot; <?= rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) ?><?= $asset_rack['unit_parent_id'] ? ' &middot; slot ' . intval($asset_rack['unit_position']) : '' ?>
                                 </a>
                             <?php } ?>
                         </td>
