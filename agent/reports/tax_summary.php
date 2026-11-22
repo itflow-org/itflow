@@ -65,6 +65,37 @@ $paid_total = $sum($paid_months);
 $prev_tax_total = array_sum(array_column($prev['parts'], 'total'));
 $has_purchases = (bool) $purchases['parts'];
 
+// Quarterly has a card for each quarter in place of the chart - each against the same quarter last year
+$quarters = $view === 'quarter' ? reportQuarters($year, $current_year) : [];
+if ($quarters) {
+    $add_parts = function (array $parts) {
+        $months = taxReportMonths();
+        foreach ($parts as $part) {
+            foreach ($part['months'] as $m => $amount) {
+                $months[$m] += $amount;
+            }
+        }
+        return $months;
+    };
+    $prev_tax_months = $add_parts($prev['parts']);
+    $prev_paid_months = $has_purchases
+        ? $add_parts(taxReportPurchases(($year - 1) . '-01-01', $current_year ? dashboardShiftMonths(date('Y-m-d'), -12) : ($year - 1) . '-12-31')['parts'])
+        : taxReportMonths();
+    foreach ($quarters as &$quarter) {
+        $collected = reportQuarterSum($tax_months, $quarter);
+        $collected_prev = reportQuarterSum($prev_tax_months, $quarter);
+        $quarter['rows'] = [
+            ['label' => 'Taxable', 'now' => reportQuarterSum($sales['taxable'], $quarter), 'prev' => reportQuarterSum($prev['taxable'], $quarter), 'good' => 'up'],
+            ['label' => 'Collected', 'now' => $collected, 'prev' => $collected_prev, 'good' => 'up', 'strong' => !$has_purchases],
+        ];
+        if ($has_purchases) {
+            $quarter['rows'][] = ['label' => 'Net tax', 'now' => $collected - reportQuarterSum($paid_months, $quarter),
+                'prev' => $collected_prev - reportQuarterSum($prev_paid_months, $quarter), 'good' => 'up', 'strong' => true];
+        }
+    }
+    unset($quarter);
+}
+
 // A table row for each figure: [group, name, sub, months, emphasis]
 $grid = [];
 foreach ($sales['parts'] as $label => $part) {
@@ -147,11 +178,12 @@ if ($has_purchases) {
         <div class="card"><div class="card-body"><?= reportEmpty($basis === 'invoiced' ? "No invoices were sent in $year." : "No payments came in during $year.", 'fa-percent', 'secondary') ?></div></div>
     <?php } else { ?>
 
-        <?php if ($tax_total != 0) { ?>
-            <?= reportSectionOpen('Tax collected by ' . ($view === 'quarter' ? 'quarter' : 'month'), escapeHtml((string) $year)) ?>
+        <?php if ($quarters) { ?>
+            <?= reportQuarterCards($quarters) ?>
+        <?php } elseif ($tax_total != 0) { ?>
+            <?= reportSectionOpen('Tax collected by month', escapeHtml((string) $year)) ?>
                 <div class="card-body">
                     <?php
-                    // By month or quarter, as the table below is
                     $months_shown = $current_year ? intval(date('n')) : 12;
                     $series = [];
                     $i = 0;
@@ -167,7 +199,7 @@ if ($has_purchases) {
                         'series' => $series,
                         'stacked' => true,
                         'format' => 'money',
-                    ], 'sm', 'Tax collected per ' . ($view === 'quarter' ? 'quarter' : 'month') . ', by part');
+                    ], 'sm', 'Tax collected per month, by part');
                     ?>
                 </div>
             </div>

@@ -6813,6 +6813,67 @@ a.itflow-report-stat:focus-visible {
     color: var(--bs-secondary-color);
 }
 
+/* A report's quarters on its Quarterly view (reportQuarterCards()) - a card each, in the same
+   strip as the figures along the top: the quarter's lines with the change on last year's.
+   Four across where they fit, two by two where they don't, one a row on a phone - never three
+   and one. By the strip's own width, as the side menu changes how much there is */
+.itflow-report-quarters-wrap {
+    container-type: inline-size;
+}
+.itflow-report-quarters {
+    grid-template-columns: minmax(0, 1fr);
+}
+@container (min-width: 30rem) {
+    .itflow-report-quarters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@container (min-width: 60rem) {
+    .itflow-report-quarters {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+.itflow-report-quarter {
+    justify-content: flex-start;
+    gap: .45rem;
+}
+.itflow-report-quarter-head {
+    display: flex;
+    align-items: baseline;
+    gap: .45rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-report-quarter-head strong {
+    font-size: 1rem;
+    color: var(--bs-body-color);
+}
+.itflow-report-quarter-rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    gap: .2rem .5rem;
+    font-size: .875rem;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-report-quarter-rows > span {
+    white-space: nowrap;
+}
+.itflow-report-quarter-rows > span:nth-child(3n+1) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.itflow-report-quarter-rows > span:nth-child(3n) {
+    font-size: .8rem;
+}
+.itflow-report-quarter-foot {
+    font-size: .75rem;
+    color: var(--bs-tertiary-color);
+}
+.itflow-report-quarter.is-later {
+    opacity: .55;
+}
+
 .itflow-report-chart {
     position: relative;
     height: 260px;

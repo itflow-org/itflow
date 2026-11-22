@@ -1549,6 +1549,72 @@ function reportChartColumns(array $months, array $columns, $months_shown) {
     return $out;
 }
 
+/**
+ * A year's quarters, for a report's Quarterly view: label, months, first and last month,
+ * whether it is 'done', 'now' (under way, this year) or 'later' (still to come), and what each
+ * is compared with - the same quarter last year, or for the one under way, last year's to
+ * today's date. reportQuarterCards() draws them once the report has put its 'rows' in.
+ */
+function reportQuarters($year, $current_year) {
+    $month = $current_year ? intval(date('n')) : 12;
+    $quarters = [];
+    foreach (reportYearColumns('quarter') as $i => [$label, $first, $last]) {
+        $state = $first > $month ? 'later' : ($current_year && $month <= $last ? 'now' : 'done');
+        $quarters[$i] = [
+            'label' => $label, 'first' => $first, 'last' => $last, 'state' => $state,
+            'months' => date('M', mktime(0, 0, 0, $first, 1)) . ' – ' . date('M', mktime(0, 0, 0, $last, 1)),
+            'compare' => "$label " . ($year - 1) . ($state === 'now' ? ' to ' . date('M j') : ''),
+            'rows' => [],
+        ];
+    }
+    return $quarters;
+}
+
+/** A quarter's share of a year's amounts by month. */
+function reportQuarterSum(array $months, array $quarter) {
+    $sum = 0.0;
+    for ($m = $quarter['first']; $m <= $quarter['last']; $m++) {
+        $sum += $months[$m] ?? 0;
+    }
+    return $sum;
+}
+
+/**
+ * A report's quarters as a row of cards - its Quarterly view, in place of a chart that had
+ * only four bars to show. Each card has the quarter's figures and how each compares with the
+ * same quarter last year; the one under way says so, and the ones still to come are dimmed.
+ * Each of a quarter's 'rows' is ['label' => .., 'now' => amount, 'prev' => amount,
+ * 'good' => up | down, 'strong' => true for its bottom line]. $whole leaves off the cents.
+ */
+function reportQuarterCards(array $quarters, $whole = false) {
+    $money = function ($amount) use ($whole) {
+        return escapeHtml($whole ? reportMoneyWhole($amount) : reportMoney($amount));
+    };
+    $html = '<div class="itflow-report-quarters-wrap"><div class="card itflow-report-stats itflow-report-quarters">';
+    foreach ($quarters as $quarter) {
+        $later = $quarter['state'] === 'later';
+        $html .= '<div class="itflow-report-stat itflow-report-quarter' . ($later ? ' is-later' : '') . '" data-report-quarter="' . escapeHtml($quarter['label']) . '">'
+            . '<div class="itflow-report-quarter-head"><strong>' . escapeHtml($quarter['label']) . '</strong>' . escapeHtml($quarter['months'])
+            . ($quarter['state'] === 'now' ? '<span class="badge rounded-pill text-bg-light border fw-normal ms-auto">So far</span>' : '') . '</div>';
+        if ($later) {
+            $html .= '<div class="itflow-report-quarter-foot">Still to come</div></div>';
+            continue;
+        }
+        $html .= '<div class="itflow-report-quarter-rows">';
+        foreach ($quarter['rows'] as $row) {
+            $strong = !empty($row['strong']) ? ' fw-semibold' : '';
+            $negative = $row['now'] < 0 ? ' text-danger' : '';
+            $change = reportChange($row['now'], $row['prev']);
+            $html .= '<span class="text-body-secondary' . $strong . '">' . escapeHtml($row['label']) . '</span>'
+                . '<span class="text-end' . $strong . $negative . '">' . $money($row['now']) . '</span>'
+                . '<span class="text-end">' . ($change === null ? '<span class="text-body-tertiary">–</span>'
+                    : ($change === 0 ? '<span class="text-body-secondary">0%</span>' : reportChangeHtml($row['now'], $row['prev'], $row['good'] ?? 'up'))) . '</span>';
+        }
+        $html .= '</div><div class="itflow-report-quarter-foot">vs ' . escapeHtml($quarter['compare']) . '</div></div>';
+    }
+    return $html . '</div></div>';
+}
+
 /** One category's amounts summed into the report's columns. */
 function reportSumColumns(array $months, array $columns) {
     $out = [];
