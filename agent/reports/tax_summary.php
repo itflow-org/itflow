@@ -148,9 +148,10 @@ if ($has_purchases) {
     <?php } else { ?>
 
         <?php if ($tax_total != 0) { ?>
-            <?= reportSectionOpen('Tax collected by month', escapeHtml((string) $year)) ?>
+            <?= reportSectionOpen('Tax collected by ' . ($view === 'quarter' ? 'quarter' : 'month'), escapeHtml((string) $year)) ?>
                 <div class="card-body">
                     <?php
+                    // By month or quarter, as the table below is
                     $months_shown = $current_year ? intval(date('n')) : 12;
                     $series = [];
                     $i = 0;
@@ -158,17 +159,15 @@ if ($has_purchases) {
                         if (abs($part['total']) < 0.005) {
                             continue;
                         }
-                        $series[] = ['label' => $label, 'data' => array_map(function ($m) use ($part, $months_shown) {
-                            return $m <= $months_shown ? round($part['months'][$m], 2) : null;
-                        }, range(1, 12)), 'tone' => reportPalette($i++), 'stack' => 'tax'];
+                        $series[] = ['label' => $label, 'data' => reportChartColumns($part['months'], $columns, $months_shown), 'tone' => reportPalette($i++), 'stack' => 'tax'];
                     }
                     echo reportChart([
                         'type' => 'bar',
-                        'labels' => array_map(function ($m) { return date('M', mktime(0, 0, 0, $m, 1)); }, range(1, 12)),
+                        'labels' => array_column($columns, 0),
                         'series' => $series,
                         'stacked' => true,
                         'format' => 'money',
-                    ], 'sm', 'Tax collected per month, by part');
+                    ], 'sm', 'Tax collected per ' . ($view === 'quarter' ? 'quarter' : 'month') . ', by part');
                     ?>
                 </div>
             </div>

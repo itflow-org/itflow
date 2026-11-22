@@ -102,16 +102,16 @@ if (reportExporting()) {
     reportCsv("Profit and Loss $year", $csv_columns, $csv_rows);
 }
 
-// The chart goes a month at a time, whichever way the table is split
+// The chart goes by month or quarter, as the table does - nothing for the months still to come
 $months_shown = $current_year ? intval(date('n')) : 12;
-$chart = ['income' => [], 'expenses' => [], 'profit' => []];
-for ($m = 1; $m <= 12; $m++) {
-    $in = round($income_total['months'][$m], 2);
-    $out = round($expense_total['months'][$m], 2);
-    $chart['income'][] = $m <= $months_shown ? $in : null;
-    $chart['expenses'][] = $m <= $months_shown ? $out : null;
-    $chart['profit'][] = $m <= $months_shown ? round($in - $out, 2) : null;
-}
+$period = $view === 'quarter' ? 'quarter' : 'month';
+$chart = [
+    'income' => reportChartColumns($income_total['months'], $columns, $months_shown),
+    'expenses' => reportChartColumns($expense_total['months'], $columns, $months_shown),
+];
+$chart['profit'] = array_map(function ($in, $out) {
+    return $in === null ? null : round($in - $out, 2);
+}, $chart['income'], $chart['expenses']);
 
 require_once "includes/inc_report_layout.php";
 
@@ -162,18 +162,18 @@ $span = count($columns) + 4;
             'sub' => $margin_prev === null ? '<span class="text-body-tertiary">Nothing before to compare</span>' : escapeHtml(reportPercent($margin_prev)) . ' <span class="text-body-tertiary">' . escapeHtml($current_year ? 'same time last year' : 'in ' . ($year - 1)) . '</span>'],
     ]) ?>
 
-    <?= reportSectionOpen('Income, expenses and profit by month', escapeHtml((string) $year)) ?>
+    <?= reportSectionOpen("Income, expenses and profit by $period", escapeHtml((string) $year)) ?>
         <div class="card-body">
             <?= reportChart([
                 'type' => 'bar',
-                'labels' => array_map(function ($m) { return date('M', mktime(0, 0, 0, $m, 1)); }, range(1, 12)),
+                'labels' => array_column($columns, 0),
                 'series' => [
                     ['label' => 'Income', 'data' => $chart['income'], 'tone' => 'success'],
                     ['label' => 'Expenses', 'data' => $chart['expenses'], 'tone' => 'danger'],
                     ['label' => 'Net profit', 'data' => $chart['profit'], 'tone' => 'accent', 'type' => 'line'],
                 ],
                 'format' => 'money',
-            ], 'lg', 'Income, expenses and net profit per month') ?>
+            ], 'lg', "Income, expenses and net profit per $period") ?>
         </div>
     </div>
 

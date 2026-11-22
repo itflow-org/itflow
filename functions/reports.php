@@ -1528,6 +1528,27 @@ function reportYearColumns($view) {
     return $columns;
 }
 
+/**
+ * A year's amounts by month, summed into the report's columns for its chart - so it goes by
+ * quarter when the table does. A column after $months_shown (later this year) is null, so the
+ * chart draws nothing there; the one under way is summed as far as it has got.
+ */
+function reportChartColumns(array $months, array $columns, $months_shown) {
+    $out = [];
+    foreach ($columns as [$label, $first, $last]) {
+        if ($first > $months_shown) {
+            $out[] = null;
+            continue;
+        }
+        $sum = 0.0;
+        for ($m = $first; $m <= min($last, $months_shown); $m++) {
+            $sum += $months[$m] ?? 0;
+        }
+        $out[] = round($sum, 2);
+    }
+    return $out;
+}
+
 /** One category's amounts summed into the report's columns. */
 function reportSumColumns(array $months, array $columns) {
     $out = [];
