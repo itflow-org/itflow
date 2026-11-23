@@ -5,6 +5,7 @@
  * is linked to the ITFlow client its devices go to, or not linked yet - with the client of the
  * same name suggested. Linking brings that client's devices in straight away; after that,
  * every 15 minutes (cron/rmm_sync.php) or with Sync now. The handlers are admin/post/rmm.php.
+ * A network platform's are its sites, in its family's words (rmmFamilyWords()).
  */
 
 // Default Column Sortby Filter
@@ -15,9 +16,10 @@ require_once "includes/inc_all_admin.php";
 
 $provider = rmmProviderRow($_GET['provider_id'] ?? 0);
 $kind = $provider ? rmmKind($provider) : null;
+$words = rmmFamilyWords($provider ? rmmFamily($provider) : 'rmm');
 
 if (!$provider || !$kind) { ?>
-    <div class="alert alert-secondary"><i class="fas fa-fw fa-question-circle me-2"></i><?= $provider ? 'This ITFlow doesn\'t know that provider\'s kind of RMM.' : 'That RMM provider is gone - it may have been deleted.' ?> <a href="rmm_providers.php" class="alert-link">RMM Providers</a></div>
+    <div class="alert alert-secondary"><i class="fas fa-fw fa-question-circle me-2"></i><?= $provider ? 'This ITFlow doesn\'t know that provider\'s kind of RMM.' : 'That ' . $words['full'] . ' is gone - it may have been deleted.' ?> <a href="<?= $words['page'] ?>" class="alert-link"><?= $words['title'] ?></a></div>
     <?php
     require_once "../includes/footer.php";
     exit;
@@ -25,6 +27,7 @@ if (!$provider || !$kind) { ?>
 
 $provider_id = intval($provider['rmm_provider_id']);
 $name = rmmProviderName($provider);
+$page_title = "$name {$words['Clients']}";
 $short = $kind['short'];
 $on = intval($provider['rmm_provider_active']) === 1;
 $usable = rmmProviderUsable($provider);
@@ -34,7 +37,7 @@ $suggestions = rmmClientSuggestions($provider_id);
 
 // The views - every client it has, the ones not linked yet, the linked ones, and the ones it no longer has
 $shows = [
-    '' => ['label' => 'All', 'icon' => 'fa-list', 'sql' => 'rmm_client_removed_at IS NULL', 'title' => "Every client $name has"],
+    '' => ['label' => 'All', 'icon' => 'fa-list', 'sql' => 'rmm_client_removed_at IS NULL', 'title' => "Every {$words['client']} $name has"],
     'unlinked' => ['label' => 'Not linked', 'icon' => 'fa-unlink', 'sql' => 'rmm_client_removed_at IS NULL AND rmm_client_client_id = 0', 'title' => 'Their devices don\'t come in until they are linked'],
     'linked' => ['label' => 'Linked', 'icon' => 'fa-link', 'sql' => 'rmm_client_removed_at IS NULL AND rmm_client_client_id > 0', 'title' => 'Their devices come in as assets'],
     'removed' => ['label' => "Gone from $short", 'icon' => 'fa-ghost', 'sql' => 'rmm_client_removed_at IS NOT NULL', 'title' => "$name no longer has them"],
@@ -94,16 +97,16 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2"></i><?= escapeHtml($name) ?> <span class="fw-normal opacity-75">&middot; Clients</span>
+        <h3 class="card-title mt-2"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2"></i><?= escapeHtml($name) ?> <span class="fw-normal opacity-75">&middot; <?= $words['Clients'] ?></span>
             <?php if (!$on) { ?><span class="badge rounded-pill text-bg-secondary ms-2 fw-normal" data-rmm-provider-state="off" title="Nothing is brought in, and assets keep what it last said">Off</span><?php } ?>
         </h3>
         <div class="card-tools">
-            <a class="btn btn-outline-light me-1" href="rmm_providers.php" title="Back to RMM Providers"><i class="fas fa-fw fa-arrow-left"></i><span class="d-none d-lg-inline ms-2">RMM Providers</span></a>
+            <a class="btn btn-outline-light me-1" href="<?= $words['page'] ?>" title="Back to <?= $words['title'] ?>"><i class="fas fa-fw fa-arrow-left"></i><span class="d-none d-lg-inline ms-2"><?= $words['title'] ?></span></a>
             <?php if ($dashboard !== '') { ?>
                 <a class="btn btn-outline-light me-1" href="<?= escapeHtml($dashboard) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml($name) ?>'s dashboard"><i class="fas fa-fw fa-external-link-alt"></i><span class="d-none d-lg-inline ms-2">Open <?= escapeHtml($short) ?></span></a>
             <?php } ?>
             <?php if ($usable) { ?>
-                <a class="btn btn-primary" href="post.php?sync_rmm=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>" data-rmm-sync title="Bring in the linked clients' devices now"><i class="fas fa-fw fa-sync-alt"></i><span class="d-none d-lg-inline ms-2">Sync Now</span></a>
+                <a class="btn btn-primary" href="post.php?sync_rmm=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>" data-rmm-sync title="Bring in the linked <?= $words['clients'] ?>' devices now"><i class="fas fa-fw fa-sync-alt"></i><span class="d-none d-lg-inline ms-2">Sync Now</span></a>
             <?php } ?>
             <div class="dropdown dropstart d-inline-block ms-1">
                 <button class="btn btn-outline-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
@@ -130,7 +133,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
     <div class="card-header py-2 small" data-rmm-sync-state="<?= $provider['rmm_provider_sync_at'] ? (intval($provider['rmm_provider_sync_ok']) ? 'ok' : 'failed') : 'never' ?>">
         <div class="d-flex flex-wrap align-items-center column-gap-3 row-gap-1">
             <?php if (!$provider['rmm_provider_sync_at']) { ?>
-                <span class="text-body-secondary"><i class="fas fa-fw fa-info-circle me-1"></i>Not synced yet - link a client below and its devices come in straight away.</span>
+                <span class="text-body-secondary"><i class="fas fa-fw fa-info-circle me-1"></i>Not synced yet - link a <?= $words['client'] ?> below and its devices come in straight away.</span>
             <?php } elseif (intval($provider['rmm_provider_sync_ok'])) { ?>
                 <span><i class="fas fa-fw fa-check-circle text-success me-1"></i>Synced <span title="<?= formatDateTime($provider['rmm_provider_sync_at']) ?>"><?= escapeHtml(timeAgo($provider['rmm_provider_sync_at'])) ?></span> - <?= escapeHtml((string) $provider['rmm_provider_sync_note']) ?></span>
             <?php } else { ?>
@@ -147,12 +150,12 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search clients..." title="<?= escapeHtml($short) ?>'s client, or yours">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $words['clients'] ?>..." title="<?= escapeHtml($short) ?>'s <?= $words['client'] ?>, or your client">
                         <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-lg-7 col-md-6 small text-body-secondary text-md-end">
-                    Link each of <?= escapeHtml($short) ?>'s clients to yours - its devices come in as assets.
+                    Link each of <?= escapeHtml($short) ?>'s <?= $words['clients'] ?> to <?= $words['client'] === 'client' ? 'yours' : 'a client' ?> - its devices come in as assets.
                 </div>
             </div>
         </form>
@@ -172,7 +175,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= sortLink('rmm_client_name', escapeHtml("$short client")) ?></th>
+                <th class="ps-3"><?= sortLink('rmm_client_name', escapeHtml("$short {$words['client']}")) ?></th>
                 <th class="d-none d-md-table-cell"><?= sortLink('rmm_client_devices', 'Devices') ?></th>
                 <th><?= sortLink('client_name', 'ITFlow client') ?></th>
                 <th class="d-none d-lg-table-cell"><?= sortLink('rmm_client_synced_at', 'Brought in') ?></th>
@@ -196,7 +199,7 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                         <div class="fw-semibold"><?= escapeHtml($row['rmm_client_name']) ?>
                             <?php if ($removed) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1" title="<?= escapeHtml($name) ?> stopped listing it <?= escapeHtml(timeAgo($row['rmm_client_removed_at'])) ?>">Gone from <?= escapeHtml($short) ?></span><?php } ?>
                         </div>
-                        <div class="small text-body-secondary"><?= $sites ?> site<?= $sites === 1 ? '' : 's' ?><span class="d-md-none"> &middot; <?= intval($row['rmm_client_devices']) ?> devices</span></div>
+                        <div class="small text-body-secondary"><?php if ($words['client'] === 'client') { ?><?= $sites ?> site<?= $sites === 1 ? '' : 's' ?><span class="d-md-none"> &middot; </span><?php } ?><span class="d-md-none"><?= intval($row['rmm_client_devices']) ?> devices</span></div>
                     </td>
                     <td class="d-none d-md-table-cell text-nowrap">
                         <div><?= number_format(intval($row['rmm_client_devices'])) ?> in <?= escapeHtml($short) ?></div>
@@ -273,10 +276,10 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
     </div>
     <?php
     $empty_state = [
-        'thing' => "$short clients",
+        'thing' => "$short {$words['clients']}",
         'icon' => $kind['icon'],
-        'title' => escapeHtml($show === 'unlinked' ? "Every $short client is linked" : "No $short clients yet"),
-        'text' => $show === 'unlinked' ? '' : escapeHtml($provider['rmm_provider_sync_at'] ? "$name has no clients this key can see." : "Sync now asks $name for its clients."),
+        'title' => escapeHtml($show === 'unlinked' ? "Every $short {$words['client']} is linked" : "No $short {$words['clients']} yet"),
+        'text' => $show === 'unlinked' ? '' : escapeHtml($provider['rmm_provider_sync_at'] ? "$name has no {$words['clients']} it can see." : "Sync now asks $name for its {$words['clients']}."),
         'actions' => $usable && !$provider['rmm_provider_sync_at'] ? [['label' => 'Sync Now', 'href' => "post.php?sync_rmm=$provider_id&csrf_token=$csrf", 'icon' => 'fa-sync-alt']] : [],
         'filtered' => $q !== '',
     ];

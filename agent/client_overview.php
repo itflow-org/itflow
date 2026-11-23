@@ -470,7 +470,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
         <?php } ?>
 
         <?php if ($rmm_summary) {
-            $rmm_title = rmmListLabel() === 'an RMM' ? 'RMM' : rmmListLabel();
+            $rmm_title = rmmListLabel('rmm') === 'an RMM' ? 'RMM' : rmmListLabel('rmm');
             $rmm_rows = [
                 'online' => ['Online', 'fa-circle', 'success'], 'offline' => ['Offline', 'fa-circle', 'secondary'], 'overdue' => ['Overdue', 'fa-circle', 'danger'],
                 'reboot' => ['Need a reboot', 'fa-redo-alt', 'warning'], 'patches' => ['Patches waiting', 'fa-download', 'warning'], 'checks' => ['Checks failing', 'fa-exclamation-triangle', 'danger'],

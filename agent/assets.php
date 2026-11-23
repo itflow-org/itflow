@@ -87,7 +87,7 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 // a reboot, with patches waiting or checks failing, or not one of them. With one provider it goes by its name
 $rmm_set_up = (bool) rmmProviders();
 $rmm_name = $rmm_set_up ? rmmListLabel() : '';
-$rmm_short = $rmm_name === 'an RMM' ? 'RMM' : $rmm_name;
+$rmm_short = $rmm_name === 'an RMM' ? 'RMM' : ($rmm_name === 'monitoring' ? 'Monitoring' : $rmm_name);
 $rmm_filters = ['any' => "In $rmm_name", 'online' => "$rmm_short: online", 'offline' => "$rmm_short: offline", 'overdue' => "$rmm_short: overdue",
     'reboot' => "$rmm_short: needs a reboot", 'patches' => "$rmm_short: patches waiting", 'checks' => "$rmm_short: checks failing", 'none' => "Not in $rmm_name"];
 $rmm_filter = $rmm_set_up && isset($rmm_filters[$_GET['rmm'] ?? '']) ? (string) $_GET['rmm'] : '';

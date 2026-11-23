@@ -2214,11 +2214,19 @@ function recurringSeatFilter($source, $filter) {
     return $clean;
 }
 
-/** The asset ids an RMM has - one provider's, or any's (0) - as a subquery. Gone from the RMM isn't managed. */
+/**
+ * The asset ids an RMM has - one provider's, or any RMM's (0) - as a subquery. Gone from the RMM isn't managed,
+ * and a network platform's switches and access points aren't managed devices.
+ */
 function recurringSeatManagedSql($provider_id = 0) {
     $provider_id = intval($provider_id);
+    if (!$provider_id) {
+        $ids = array_map(function ($provider) {
+            return intval($provider['rmm_provider_id']);
+        }, rmmFamilyProviders('rmm'));
+    }
     return "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL"
-        . ($provider_id ? " AND rmm_device_provider_id = $provider_id" : '');
+        . ($provider_id ? " AND rmm_device_provider_id = $provider_id" : ($ids ? ' AND rmm_device_provider_id IN (' . implode(', ', $ids) . ')' : ' AND 0'));
 }
 
 /**
@@ -2228,7 +2236,11 @@ function recurringSeatManagedSql($provider_id = 0) {
 function recurringSeatManagedLineCount($provider_id) {
     global $mysqli;
     $provider_id = intval($provider_id);
-    $only = count(rmmProviders()) === 1;
+    $rmms = rmmFamilyProviders('rmm');
+    if (!in_array($provider_id, array_map('intval', array_column($rmms, 'rmm_provider_id')), true)) {
+        return 0;
+    }
+    $only = count($rmms) === 1;
     $lines = 0;
     $sql = mysqli_query($mysqli, "SELECT item_seat_filter FROM recurring_invoice_items JOIN recurring_invoices ON recurring_invoice_id = item_recurring_invoice_id
         WHERE item_seat_source = 'managed' AND recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL");
@@ -2356,7 +2368,7 @@ function recurringSeatOptions($client_id) {
     while ($row = mysqli_fetch_assoc($sql)) {
         $options['licenses'][intval($row['software_id'])] = $row;
     }
-    if (recurringSeatManagedReady() && rmmProviders()) {
+    if (recurringSeatManagedReady() && rmmFamilyProviders('rmm')) {
         $managed = "$assets_in_use AND asset_id IN (" . recurringSeatManagedSql() . ")";
         $options['managed'] = recurringSeatCount($client_id, 'managed', []);
         $sql = mysqli_query($mysqli, "SELECT asset_type, COUNT(*) AS n FROM assets WHERE $managed AND asset_type <> '' GROUP BY asset_type ORDER BY asset_type");
@@ -2368,7 +2380,7 @@ function recurringSeatOptions($client_id) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $options['managed_tags'][intval($row['tag_id'])] = $row;
         }
-        foreach (rmmProviders() as $provider) {
+        foreach (rmmFamilyProviders('rmm') as $provider) {
             $provider_id = intval($provider['rmm_provider_id']);
             $options['rmm_providers'][$provider_id] = ['name' => rmmProviderName($provider), 'n' => recurringSeatCount($client_id, 'managed', ['rmm' => $provider_id])];
         }

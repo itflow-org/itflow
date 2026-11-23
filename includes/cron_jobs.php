@@ -97,7 +97,7 @@ function cronJobRegistry(): array
             'label' => 'RMM Sync',
             'icon' => 'fa-laptop-medical',
             'script' => 'rmm_sync.php',
-            'description' => 'Brings in the devices of the RMM clients linked in Admin > RMM Providers as assets, and keeps up whether each is online - once an RMM is set up there.',
+            'description' => 'Brings in the devices of the RMM clients linked in Admin > RMM Providers, and of the network platforms\' sites linked in Admin > Network Platforms, as assets, and keeps up whether each is online - once one is set up there.',
             'schedule' => 'Interval',
             'interval_minutes' => 15,
         ],

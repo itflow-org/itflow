@@ -2,6 +2,10 @@
 
 /*
  * RMM Providers - devices from an RMM as ITFlow assets (Admin > Integrations > RMM Providers).
+ * Network platforms - UniFi's switches, access points and gateways (Admin > Network Platforms,
+ * functions/rmm_unifi.php) - are kinds of the same thing in another family: what is said here
+ * of an RMM's clients is said of a platform's sites, and the pages say so in its own words
+ * (rmmFamilyWords()).
  *
  * Each provider (rmm_providers) is one RMM ITFlow reads from: its kind - which RMM it is - the
  * name it goes by here, its addresses and its key. Every kind looks the same to the rest of
@@ -34,11 +38,18 @@
  *
  * A kind is an array:
  *   name, short      - "Tactical RMM", and "Tactical" for "Gone from Tactical"
+ *   default_name     - what a new one is called, when not its name
  *   icon, about      - its icon, and a line on what it brings in
  *   docs_url         - where its API keys are explained
- *   fields           - the connection's fields it uses, of api_url, web_url, api_key and
- *                      api_secret (the rmm_provider_ columns): each with label, icon, type (url
- *                      or secret), required, placeholder, help and needed (said when it's empty)
+ *   family           - rmm (the default) or network - which Admin page it is on (rmmFamilyWords())
+ *   fields           - the connection's fields it uses, of api_url, web_url, api_key, api_secret
+ *                      and insecure (the rmm_provider_ columns): each with label, icon, type (url,
+ *                      text, secret or switch), required, placeholder, help and needed (said when
+ *                      it's empty)
+ *   seal             - true to keep its secrets encrypted with this install's key (rmmSecret())
+ *   device_kinds     - the kinds of device it has, guessed type => what they are called, each
+ *                      coming in as the asset type its Edit picks (rmmDeviceKinds())
+ *   attention        - its own words for what rmmDeviceAttention() says: patches_pending
  *   hints            - added to what rmmHttp() says went wrong: auth (401/403), not_found
  *                      (404) and not_json (an answer that isn't the API's)
  *   links            - a device's pages in the RMM that rmmDeviceUrls() gives, key => label:
@@ -66,10 +77,64 @@ const RMM_GONE_HOLD_HOURS = 24;
 const RMM_ALERTS_KEEP_DAYS = 180;
 
 /** The RMMs ITFlow can bring devices in from - kind => what it is. */
-function rmmProviderKinds(): array
+function rmmProviderKinds(?string $family = null): array
 {
-    return [
+    $kinds = [
         'tactical' => rmmTacticalKind(),
+    ];
+    // Network platforms keep columns of their own - once the 4.1.5 database update is in
+    if (rmmNetworkReady()) {
+        $kinds += rmmUnifiKinds();
+    }
+    if ($family === null) {
+        return $kinds;
+    }
+    return array_filter($kinds, function ($kind) use ($family) {
+        return ($kind['family'] ?? 'rmm') === $family;
+    });
+}
+
+/** Whether the 4.1.5 database update is in - network platforms, and devices' MAC addresses. */
+function rmmNetworkReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        if (defined('CURRENT_DATABASE_VERSION')) {
+            $version = CURRENT_DATABASE_VERSION;
+        } else {
+            $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings WHERE company_id = 1");
+            $version = $result && ($row = mysqli_fetch_row($result)) ? (string) $row[0] : '0';
+        }
+        $ready = version_compare($version, '4.1.5', '>=');
+    }
+    return $ready;
+}
+
+/** Which family a provider, or a kind, is in - rmm or network. One of a kind ITFlow doesn't know is an RMM's. */
+function rmmFamily($provider): string
+{
+    $kind = is_array($provider) && isset($provider['fields']) ? $provider : rmmKind($provider);
+    return (string) ($kind['family'] ?? 'rmm');
+}
+
+/**
+ * How a family's pages speak - Admin > RMM Providers and its clients, or Admin > Network
+ * Platforms and their sites. $family is rmm or network.
+ */
+function rmmFamilyWords(string $family): array
+{
+    if ($family === 'network') {
+        return [
+            'title' => 'Network Platforms', 'page' => 'network_platforms.php', 'icon' => 'fas fa-network-wired',
+            'one' => 'platform', 'One' => 'Platform', 'full' => 'network platform', 'Full' => 'Network platform', 'kind' => 'Platform',
+            'audit' => 'Network Platform', 'clients' => 'sites', 'Clients' => 'Sites', 'client' => 'site', 'Client' => 'Site',
+        ];
+    }
+    return [
+        'title' => 'RMM Providers', 'page' => 'rmm_providers.php', 'icon' => 'fas fa-laptop-medical',
+        'one' => 'provider', 'One' => 'Provider', 'full' => 'RMM provider', 'Full' => 'RMM provider', 'kind' => 'RMM',
+        'audit' => 'RMM Provider', 'clients' => 'clients', 'Clients' => 'Clients', 'client' => 'client', 'Client' => 'Client',
     ];
 }
 
@@ -132,6 +197,14 @@ function rmmProviders(bool $fresh = false): array
     return $providers;
 }
 
+/** The providers of one family (rmmFamily()) - rmm for the RMMs, network for the network platforms. */
+function rmmFamilyProviders(string $family): array
+{
+    return array_values(array_filter(rmmProviders(), function ($provider) use ($family) {
+        return rmmFamily($provider) === $family;
+    }));
+}
+
 /** Whether a provider can be asked - on, of a kind ITFlow knows, with what its kind needs. */
 function rmmProviderUsable(?array $provider): bool
 {
@@ -140,11 +213,51 @@ function rmmProviderUsable(?array $provider): bool
         return false;
     }
     foreach ($kind['fields'] as $field => $about) {
-        if (!empty($about['required']) && trim((string) ($provider["rmm_provider_$field"] ?? '')) === '') {
+        if (!empty($about['required']) && $about['type'] !== 'switch' && trim((string) ($provider["rmm_provider_$field"] ?? '')) === '') {
             return false;
         }
     }
     return true;
+}
+
+/**
+ * A provider's secret, as typed - its api_key or api_secret. A kind that seals them (seal) keeps
+ * them encrypted with this install's key (backupEncryptionKey(), in config.php); one saved before
+ * it did is read as it is. '' when it can't be read - config.php's key was changed.
+ */
+function rmmSecret(array $provider, string $field): string
+{
+    $stored = (string) ($provider["rmm_provider_$field"] ?? '');
+    if (!str_starts_with($stored, 'enc1:')) {
+        return $stored;
+    }
+    $raw = base64_decode(substr($stored, 5), true);
+    $key = rmmSealKey();
+    if ($raw === false || strlen($raw) < 29 || $key === '') {
+        return '';
+    }
+    $plain = openssl_decrypt(substr($raw, 28), 'aes-256-gcm', $key, OPENSSL_RAW_DATA, substr($raw, 0, 12), substr($raw, 12, 16));
+    return $plain === false ? '' : $plain;
+}
+
+/** A secret encrypted for keeping (rmmSecret() reads it) - '' when this install has no key to do it with. */
+function rmmSecretSeal(string $plain): string
+{
+    $key = rmmSealKey();
+    if ($key === '' || $plain === '') {
+        return '';
+    }
+    $iv = random_bytes(12);
+    $tag = '';
+    $cipher = openssl_encrypt($plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, '', 16);
+    return $cipher === false ? '' : 'enc1:' . base64_encode($iv . $tag . $cipher);
+}
+
+/** The key secrets are sealed with - from this install's key, so a backup restored with it reads them. */
+function rmmSealKey(): string
+{
+    $install = function_exists('backupEncryptionKey') ? backupEncryptionKey() : '';
+    return $install === '' ? '' : hash('sha256', "itflow-rmm-secrets|$install", true);
 }
 
 /** An address typed in, tidied - https:// in front when there is no scheme, no trailing slash. '' when it isn't a web address. */
@@ -189,10 +302,10 @@ function rmmDeviceUrls(array $row): array
 }
 
 /**
- * Ask an RMM's API - ['ok', 'code', 'json', 'error']: error is what to tell a person when it
- * didn't work, with the kind's hints. The kind's file says where and how to sign in.
+ * Ask an RMM's API - ['ok', 'code', 'json', 'error', 'headers']: error is what to tell a person
+ * when it didn't work, with the kind's hints. The kind's file says where and how to sign in.
  */
-function rmmHttp(array $provider, string $method, string $url, array $headers = [], ?array $body = null, int $timeout = 30): array
+function rmmHttp(array $provider, string $method, string $url, array $headers = [], ?array $body = null, int $timeout = 30, array $opts = []): array
 {
     $name = rmmProviderName($provider);
     $hints = rmmKind($provider)['hints'] ?? [];
@@ -214,6 +327,29 @@ function rmmHttp(array $provider, string $method, string $url, array $headers = 
     if ($body !== null) {
         $options[CURLOPT_POSTFIELDS] = json_encode($body);
     }
+    // $opts: insecure - accept a certificate the server made for itself; cookie - the Cookie header to send
+    if (!empty($opts['insecure'])) {
+        $options[CURLOPT_SSL_VERIFYPEER] = false;
+        $options[CURLOPT_SSL_VERIFYHOST] = 0;
+    }
+    if (!empty($opts['cookie'])) {
+        $options[CURLOPT_COOKIE] = (string) $opts['cookie'];
+    }
+    // The answer's headers - name (lower case) => its last value, and cookies => each Set-Cookie's name=value
+    $answer_headers = ['cookies' => []];
+    $options[CURLOPT_HEADERFUNCTION] = function ($curl, $line) use (&$answer_headers) {
+        $parts = explode(':', $line, 2);
+        if (count($parts) === 2) {
+            $header = strtolower(trim($parts[0]));
+            $value = trim($parts[1]);
+            if ($header === 'set-cookie') {
+                $answer_headers['cookies'][] = trim(explode(';', $value, 2)[0]);
+            } else {
+                $answer_headers[$header] = $value;
+            }
+        }
+        return strlen($line);
+    };
     curl_setopt_array($ch, $options);
     $raw = curl_exec($ch);
     $transport = curl_error($ch);
@@ -223,27 +359,27 @@ function rmmHttp(array $provider, string $method, string $url, array $headers = 
     $host = (string) parse_url($url, PHP_URL_HOST);
     $path = (string) parse_url($url, PHP_URL_PATH);
     if ($raw === false) {
-        $ssl = stripos($transport, 'SSL') !== false && stripos($url, 'https://') === 0 ? ' - if it isn\'t on https, put http:// in front of the address' : '';
-        return ['ok' => false, 'code' => 0, 'json' => null, 'error' => "Couldn't reach $host - $transport$ssl"];
+        $ssl = stripos($transport, 'SSL') !== false && stripos($url, 'https://') === 0 ? ($hint('certificate') ?: ' - if it isn\'t on https, put http:// in front of the address') : '';
+        return ['ok' => false, 'code' => 0, 'json' => null, 'error' => "Couldn't reach $host - $transport$ssl", 'headers' => []];
     }
     $json = json_decode((string) $raw, true);
     if ($code === 401 || $code === 403) {
-        return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "$name turned the key away (HTTP $code)" . ($hint('auth') ?: ' - check the key')];
+        return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "$name turned the key away (HTTP $code)" . ($hint('auth') ?: ' - check the key'), 'headers' => $answer_headers];
     }
     if ($code >= 300 && $code < 400) {
-        return ['ok' => false, 'code' => $code, 'json' => null, 'error' => "$host sent ITFlow somewhere else (HTTP $code) - use the API's own address, with https if it has it."];
+        return ['ok' => false, 'code' => $code, 'json' => null, 'error' => "$host sent ITFlow somewhere else (HTTP $code) - use the API's own address, with https if it has it.", 'headers' => $answer_headers];
     }
     if ($code === 404) {
-        return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "Nothing at $path on $host (HTTP 404)" . $hint('not_found')];
+        return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "Nothing at $path on $host (HTTP 404)" . $hint('not_found'), 'headers' => $answer_headers];
     }
     if ($code < 200 || $code > 299) {
         $detail = is_array($json) ? rmmText($json['detail'] ?? $json['error'] ?? $json['message'] ?? '', 300) : '';
-        return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "$name answered HTTP $code" . ($detail !== '' ? " - $detail" : '')];
+        return ['ok' => false, 'code' => $code, 'json' => $json, 'error' => "$name answered HTTP $code" . ($detail !== '' ? " - $detail" : ''), 'headers' => $answer_headers];
     }
     if (!is_array($json)) {
-        return ['ok' => false, 'code' => $code, 'json' => null, 'error' => "$host answered, but not as $name's API" . $hint('not_json')];
+        return ['ok' => false, 'code' => $code, 'json' => null, 'error' => "$host answered, but not as $name's API" . $hint('not_json'), 'headers' => $answer_headers];
     }
-    return ['ok' => true, 'code' => $code, 'json' => $json, 'error' => ''];
+    return ['ok' => true, 'code' => $code, 'json' => $json, 'error' => '', 'headers' => $answer_headers];
 }
 
 /**
@@ -285,8 +421,11 @@ function rmmTest(array $provider): array
     }
     $devices = array_sum(array_column($answer['clients'], 'devices'));
     $clients = count($answer['clients']);
-    return ['ok' => true, 'text' => 'Connected - ' . rmmProviderName($provider) . ' has ' . number_format($clients) . ' client' . ($clients === 1 ? '' : 's')
-        . ' and ' . number_format($devices) . ' device' . ($devices === 1 ? '' : 's') . ' this key can see.'];
+    $words = rmmFamilyWords(rmmFamily($provider));
+    // A kind can say more - which API it reached
+    $more = isset($answer['about']) && $answer['about'] !== '' ? ' ' . $answer['about'] : '';
+    return ['ok' => true, 'text' => 'Connected - ' . rmmProviderName($provider) . ' has ' . number_format($clients) . ' ' . $words['client'] . ($clients === 1 ? '' : 's')
+        . ' and ' . number_format($devices) . ' device' . ($devices === 1 ? '' : 's') . ' ' . (rmmFamily($provider) === 'network' ? 'it can see' : 'this key can see') . '.' . $more];
 }
 
 /*
@@ -394,9 +533,11 @@ function rmmDeviceType(string $role, string $make, string $model): string
  *   last_seen_at, boot_at            - from rmmTime(), or null
  *   needs_reboot, patches_pending, maintenance - 1 or 0
  *   checks_total, checks_failing     - numbers
+ *   mac                              - its MAC address, any separators - '' when the kind doesn't say
  *   asset                            - what its asset is: make, model, serial, os, ip, cpu,
- *                                      storage - '' where the RMM doesn't say - and type
- *                                      when the kind knows better than rmmDeviceType()
+ *                                      storage, mac - '' where the RMM doesn't say - and type
+ *                                      when the kind knows better than rmmDeviceType(). One with
+ *                                      a MAC address is matched to the asset that has it first
  */
 
 /** The rmm_devices columns a device's facts go into, as they are to be saved. */
@@ -425,7 +566,21 @@ function rmmDeviceFacts(array $device): array
         'checks_failing' => intval($device['checks_failing'] ?? 0),
         'maintenance' => !empty($device['maintenance']) ? 1 : 0,
         'agent_version' => $text('agent_version', 50),
-    ];
+    ] + (rmmNetworkReady() ? ['mac' => rmmMac($device['mac'] ?? '')] : []);
+}
+
+/** A MAC address as 12 lower-case hex digits - '' when it isn't one. */
+function rmmMac($raw): string
+{
+    $mac = strtolower((string) preg_replace('/[^0-9a-fA-F]/', '', (string) $raw));
+    return strlen($mac) === 12 && $mac !== '000000000000' && $mac !== 'ffffffffffff' ? $mac : '';
+}
+
+/** A MAC address the way ITFlow's interfaces keep it - "F4:E2:C6:12:34:56" - '' when it isn't one. */
+function rmmMacText($raw): string
+{
+    $mac = rmmMac($raw);
+    return $mac === '' ? '' : strtoupper(implode(':', str_split($mac, 2)));
 }
 
 /** The location of an ITFlow client a site in the RMM is - the one with its name - or 0. */
@@ -469,6 +624,7 @@ function rmmDeviceAssetValues(array $device, array $facts, int $client_id): arra
         // Details are 255 characters (asset_specs) - a server's eight disks are more
         'cpu' => $value('cpu', 255),
         'storage' => $value('storage', 255),
+        'mac' => rmmMacText($asset['mac'] ?? ''),
         'location_id' => rmmSiteLocationId($client_id, $facts['site']),
     ];
 }
@@ -477,7 +633,7 @@ function rmmDeviceAssetValues(array $device, array $facts, int $client_id): arra
 function rmmAssetFieldLabels(): array
 {
     return ['name' => 'name', 'type' => 'type', 'make' => 'make', 'model' => 'model', 'serial' => 'serial number', 'os' => 'OS', 'ip' => 'IP',
-        'cpu' => 'CPU', 'storage' => 'storage', 'location_id' => 'location'];
+        'mac' => 'MAC address', 'cpu' => 'CPU', 'storage' => 'storage', 'location_id' => 'location'];
 }
 
 /** An asset's present values, for the fields the sync keeps up - null when the asset is gone. */
@@ -485,7 +641,7 @@ function rmmAssetCurrent(int $asset_id): ?array
 {
     global $mysqli;
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_serial, asset_os, asset_location_id,
-        asset_status, asset_client_id, asset_archived_at, interface_id, interface_ip FROM assets
+        asset_status, asset_client_id, asset_archived_at, interface_id, interface_ip, interface_mac FROM assets
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_id = $asset_id LIMIT 1"));
     if (!$row) {
@@ -500,6 +656,7 @@ function rmmAssetCurrent(int $asset_id): ?array
         'serial' => (string) $row['asset_serial'],
         'os' => (string) $row['asset_os'],
         'ip' => (string) $row['interface_ip'],
+        'mac' => (string) $row['interface_mac'],
         'cpu' => (string) ($specs['cpu'] ?? ''),
         'storage' => (string) ($specs['storage'] ?? ''),
         'location_id' => intval($row['asset_location_id']),
@@ -527,12 +684,18 @@ function rmmAssetWrite(int $asset_id, array $set, array $current): void
         mysqli_query($mysqli, "UPDATE assets SET " . implode(', ', $sets) . " WHERE asset_id = $asset_id");
     }
 
-    if (array_key_exists('ip', $set)) {
-        $ip = escapeSql($set['ip']);
+    // Its IP and MAC address are its primary interface's
+    $interface = [];
+    foreach (['ip' => 'interface_ip', 'mac' => 'interface_mac'] as $field => $column) {
+        if (array_key_exists($field, $set)) {
+            $interface[] = "$column = '" . escapeSql($set[$field]) . "'";
+        }
+    }
+    if ($interface) {
         if ($current['_interface_id']) {
-            mysqli_query($mysqli, "UPDATE asset_interfaces SET interface_ip = '$ip' WHERE interface_id = " . intval($current['_interface_id']));
+            mysqli_query($mysqli, "UPDATE asset_interfaces SET " . implode(', ', $interface) . " WHERE interface_id = " . intval($current['_interface_id']));
         } else {
-            mysqli_query($mysqli, "INSERT INTO asset_interfaces SET interface_name = '01', interface_ip = '$ip', interface_primary = 1, interface_asset_id = $asset_id");
+            mysqli_query($mysqli, "INSERT INTO asset_interfaces SET interface_name = '01', " . implode(', ', $interface) . ", interface_primary = 1, interface_asset_id = $asset_id");
         }
     }
 
@@ -622,8 +785,8 @@ function rmmAssetCreate(int $client_id, array $values): int
 }
 
 /**
- * An asset already in ITFlow that is this device - same serial number, or the only one with
- * its name - and not another of this provider's devices already. One it no longer has doesn't
+ * An asset already in ITFlow that is this device - same MAC address, same serial number, or the
+ * only one with its name - and not another of this provider's devices already. One it no longer has doesn't
  * keep its asset: an agent reinstalled is a new device there. 0 when there is none.
  */
 function rmmAssetMatch(int $provider_id, int $client_id, array $values, array $free = []): int
@@ -632,6 +795,16 @@ function rmmAssetMatch(int $provider_id, int $client_id, array $values, array $f
     // $free - devices it didn't list this time, kept for now (RMM_GONE_AT_ONCE): they don't hold their assets either
     $free_sql = $free ? ' AND rmm_device_id NOT IN (' . implode(', ', array_map('intval', $free)) . ')' : '';
     $taken = "asset_id NOT IN (SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL$free_sql)";
+    $mac = rmmMac($values['mac'] ?? '');
+    if ($mac !== '') {
+        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT asset_id FROM assets JOIN asset_interfaces ON interface_asset_id = asset_id
+            WHERE asset_client_id = $client_id AND asset_archived_at IS NULL AND $taken
+            AND LOWER(REPLACE(REPLACE(REPLACE(interface_mac, ':', ''), '-', ''), '.', '')) = '$mac'
+            ORDER BY interface_primary DESC, asset_id ASC LIMIT 1"));
+        if ($row) {
+            return intval($row[0]);
+        }
+    }
     if ($values['serial'] !== '') {
         $serial = escapeSql($values['serial']);
         $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT asset_id FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL
@@ -726,8 +899,15 @@ function rmmDeviceSave(array $provider, array $rmm_client, int $client_id, array
     $changed = [];
     if ($asset_id) {
         [$changed, $synced] = rmmAssetFollow($asset_id, $values, $made ? array_fill_keys(array_keys(rmmAssetFieldLabels()), '') : $synced_before);
+        // A network platform's devices have firmware, not an OS, and come from one of its sites
+        $network = rmmFamily($provider) === 'network';
+        if ($network) {
+            $changed = array_map(function ($label) {
+                return $label === 'OS' ? 'firmware' : $label;
+            }, $changed);
+        }
         if ($made) {
-            rmmAssetHistory($asset_id, $who, 'brought it in from ' . ($facts['site'] !== '' ? 'site ' . $facts['site'] . ' of ' : '') . $rmm_client['rmm_client_name']);
+            rmmAssetHistory($asset_id, $who, 'brought it in from ' . ($network ? 'its site ' : ($facts['site'] !== '' ? 'site ' . $facts['site'] . ' of ' : '')) . $rmm_client['rmm_client_name']);
             logAudit('Asset', 'Create', "$session_name brought in asset " . escapeSql($values['name']) . ' from ' . escapeSql($rmm_client['rmm_client_name']), $client_id, $asset_id);
         } elseif ($matched) {
             rmmAssetHistory($asset_id, $who, 'linked it to its device there, ' . $facts['hostname'] . ($changed ? ', and filled in its ' . implode(', ', $changed) : ''));
@@ -1008,7 +1188,7 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
     mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_sync_at = NOW(), rmm_provider_sync_ok = " . ($ok ? 1 : 0) . ", rmm_provider_sync_note = '$note_sql' WHERE rmm_provider_id = $provider_id");
 
     if ($counts['updated'] || $counts['removed'] || $counts['returned']) {
-        logAudit('RMM Provider', 'Sync', escapeSql("$name synced devices: $note"), 0, $provider_id);
+        logAudit(rmmFamilyWords(rmmFamily($provider))['audit'], 'Sync', escapeSql("$name synced devices: $note"), 0, $provider_id);
     }
 
     mysqli_query($mysqli, "SELECT RELEASE_LOCK('$lock')");
@@ -1533,7 +1713,7 @@ function rmmDeviceAttention(array $row): array
         $items[] = ['icon' => 'fa-redo-alt', 'text' => 'Needs a reboot', 'tone' => 'warning'];
     }
     if (intval($row['rmm_device_patches_pending'])) {
-        $items[] = ['icon' => 'fa-download', 'text' => 'Patches waiting to install', 'tone' => 'warning'];
+        $items[] = ['icon' => 'fa-download', 'text' => rmmKind($row)['attention']['patches_pending'] ?? 'Patches waiting to install', 'tone' => 'warning'];
     }
     $failing = intval($row['rmm_device_checks_failing']);
     if ($failing) {
@@ -1543,11 +1723,24 @@ function rmmDeviceAttention(array $row): array
     return $items;
 }
 
-/** How the assets list speaks of the RMMs - the one provider by name, or "an RMM" when there are more. */
-function rmmListLabel(): string
+/**
+ * How the assets list speaks of the RMMs - the one provider by name, "an RMM" when there are more,
+ * and "monitoring" once a network platform is among them. $family speaks of that family's only.
+ */
+function rmmListLabel(?string $family = null): string
 {
-    $providers = rmmProviders();
-    return count($providers) === 1 ? rmmProviderName($providers[0]) : 'an RMM';
+    $providers = array_values(array_filter(rmmProviders(), function ($provider) use ($family) {
+        return $family === null || rmmFamily($provider) === $family;
+    }));
+    if (count($providers) === 1) {
+        return rmmProviderName($providers[0]);
+    }
+    foreach ($providers as $provider) {
+        if (rmmFamily($provider) === 'network') {
+            return 'monitoring';
+        }
+    }
+    return 'an RMM';
 }
 
 /*
@@ -1578,9 +1771,12 @@ function rmmClientSuggestions(int $provider_id): array
     $suggestions = [];
     $sql = mysqli_query($mysqli, "SELECT rmm_client_id, rmm_client_name FROM rmm_clients WHERE rmm_client_provider_id = $provider_id AND rmm_client_client_id = 0 AND rmm_client_removed_at IS NULL");
     while ($row = mysqli_fetch_assoc($sql)) {
-        $key = rmmNameKey($row['rmm_client_name']);
-        if ($key !== '' && count($by_key[$key] ?? []) === 1) {
-            $suggestions[intval($row['rmm_client_id'])] = $by_key[$key][0];
+        // "Harbor Freight Logistics (MSP Gateway)" - a network platform's site with its console's name - is its name too
+        foreach (array_unique([rmmNameKey($row['rmm_client_name']), rmmNameKey(preg_replace('/\s*\([^)]*\)\s*$/', '', (string) $row['rmm_client_name']))]) as $key) {
+            if ($key !== '' && count($by_key[$key] ?? []) === 1) {
+                $suggestions[intval($row['rmm_client_id'])] = $by_key[$key][0];
+                break;
+            }
         }
     }
     return $suggestions;
@@ -1623,17 +1819,18 @@ function rmmAssetTypesReady(): bool
 }
 
 /** The kinds of device the sync tells apart - the type it guesses (rmmDeviceType()) => what the provider window calls them. */
-function rmmDeviceKinds(): array
+function rmmDeviceKinds(?array $kind = null): array
 {
-    return ['Desktop' => 'Desktops', 'Laptop' => 'Laptops', 'Server' => 'Servers', 'Virtual Machine' => 'Virtual machines'];
+    return $kind['device_kinds'] ?? ['Desktop' => 'Desktops', 'Laptop' => 'Laptops', 'Server' => 'Servers', 'Virtual Machine' => 'Virtual machines'];
 }
 
 /** The asset type each kind of a provider's devices comes in as - [guessed type => type]. A type deleted since is the guessed one again. */
-function rmmProviderAssetTypes(?array $provider): array
+function rmmProviderAssetTypes(?array $provider, ?array $kind = null): array
 {
     $picked = $provider && rmmAssetTypesReady() ? json_decode((string) ($provider['rmm_provider_asset_types'] ?? ''), true) : null;
+    $kind = $kind ?? ($provider ? rmmKind($provider) : null);
     $types = [];
-    foreach (array_keys(rmmDeviceKinds()) as $guessed) {
+    foreach (array_keys(rmmDeviceKinds($kind)) as $guessed) {
         $type = is_array($picked) && is_string($picked[$guessed] ?? null) ? assetTypeName($picked[$guessed]) : '';
         $types[$guessed] = $type !== '' ? $type : $guessed;
     }
@@ -1859,7 +2056,11 @@ function rmmClientSummary(int $client_id): ?array
     if (array_key_exists($client_id, $summaries)) {
         return $summaries[$client_id];
     }
-    if (!rmmTablesReady() || !rmmProviders()) {
+    // The RMMs' devices - a network platform's switches and access points aren't what this counts
+    $ids = array_map(function ($provider) {
+        return intval($provider['rmm_provider_id']);
+    }, rmmFamilyProviders('rmm'));
+    if (!rmmTablesReady() || !$ids) {
         return $summaries[$client_id] = null;
     }
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(DISTINCT asset_id) AS total,
@@ -1871,7 +2072,7 @@ function rmmClientSummary(int $client_id): ?array
             COUNT(DISTINCT IF(rmm_device_checks_failing > 0, asset_id, NULL)) AS checks,
             MAX(rmm_device_synced_at) AS synced_at
         FROM rmm_devices JOIN assets ON asset_id = rmm_device_asset_id AND asset_client_id = $client_id AND asset_archived_at IS NULL
-        WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL"));
+        WHERE rmm_device_asset_id > 0 AND rmm_device_removed_at IS NULL AND rmm_device_provider_id IN (" . implode(', ', $ids) . ")"));
     if (!$row || !intval($row['total'])) {
         return $summaries[$client_id] = null;
     }
@@ -1933,8 +2134,9 @@ function rmmProviderCheck(array $in, ?array $before): array
     $kind_key = $before ? (string) $before['rmm_provider_kind'] : (string) ($in['kind'] ?? '');
     $kind = rmmKind($kind_key);
     if (!$kind) {
-        return [[], ['kind' => 'Pick which RMM it is.']];
+        return [[], ['kind' => 'Pick which ' . (($in['family'] ?? '') === 'network' ? 'platform' : 'RMM') . ' it is.']];
     }
+    $words = rmmFamilyWords(rmmFamily($kind));
 
     $name = rmmText($in['name'] ?? '', 100);
     if ($name === '') {
@@ -1943,7 +2145,7 @@ function rmmProviderCheck(array $in, ?array $before): array
     $id = intval($before['rmm_provider_id'] ?? 0);
     $name_sql = escapeSql($name);
     if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM rmm_providers WHERE rmm_provider_name = '$name_sql' AND rmm_provider_id <> $id LIMIT 1"))) {
-        $errors['name'] = 'Another provider is called that - give this one a name of its own, like ' . $kind['name'] . ' (second office).';
+        $errors['name'] = 'Another ' . $words['one'] . ' is called that - give this one a name of its own, like ' . $kind['name'] . ' (second office).';
     }
 
     $after = [
@@ -1951,16 +2153,28 @@ function rmmProviderCheck(array $in, ?array $before): array
         'rmm_provider_name' => $name,
         'rmm_provider_active' => $before ? (!empty($in['active']) ? 1 : 0) : 1,
     ];
-    foreach (['api_url', 'web_url', 'api_key', 'api_secret'] as $field) {
+    foreach (array_merge(['api_url', 'web_url', 'api_key', 'api_secret'], rmmNetworkReady() ? ['insecure'] : []) as $field) {
         $column = "rmm_provider_$field";
-        $had = (string) ($before[$column] ?? '');
+        $had = (string) ($before[$column] ?? ($field === 'insecure' ? '0' : ''));
         $about = $kind['fields'][$field] ?? null;
         if (!$about) {
             $after[$column] = $had;
             continue;
         }
+        if ($about['type'] === 'switch') {
+            $after[$column] = !empty($in[$field]) ? 1 : 0;
+            continue;
+        }
         $typed = trim((string) ($in[$field] ?? ''));
-        if ($about['type'] === 'url') {
+        if ($about['type'] === 'text') {
+            // Shown in the window, so what is there is what it is - a user name
+            if ($typed === '' && !empty($about['required'])) {
+                $errors[$field] = $about['needed'];
+            } elseif (mb_strlen($typed) > 255 || preg_match('/[\x00-\x1F]/', $typed)) {
+                $errors[$field] = 'That doesn\'t look like a ' . rmmFieldWords($about['label']) . ' - just the ' . rmmFieldWords($about['label']) . '.';
+            }
+            $after[$column] = $typed;
+        } elseif ($about['type'] === 'url') {
             $clean = rmmUrlClean($typed);
             if ($typed === '' && !empty($about['required'])) {
                 $errors[$field] = $about['needed'];
@@ -1969,10 +2183,19 @@ function rmmProviderCheck(array $in, ?array $before): array
             }
             $after[$column] = $clean;
         } else {
+            // A password can hold spaces; a key can't
+            $spaces = !empty($about['spaces']) ? '/[\x00-\x1F]/' : '/\s/';
             if ($typed === '' && $had === '' && !empty($about['required'])) {
                 $errors[$field] = $about['needed'];
-            } elseif ($typed !== '' && (mb_strlen($typed) > 500 || preg_match('/\s/', $typed))) {
+            } elseif ($typed !== '' && (mb_strlen($typed) > 300 || preg_match($spaces, $typed))) {
                 $errors[$field] = 'That doesn\'t look like ' . $kind['name'] . '\'s ' . rmmFieldWords($about['label']) . ' - paste just the ' . rmmFieldWords($about['label']) . '.';
+            }
+            if ($typed !== '' && !empty($kind['seal'])) {
+                $sealed = rmmSecretSeal($typed);
+                if ($sealed === '') {
+                    $errors[$field] = 'ITFlow keeps this encrypted with its own key, and couldn\'t make one - config.php needs to be writable by the web server once. See Maintenance > Backup.';
+                }
+                $typed = $sealed;
             }
             $after[$column] = $typed !== '' ? $typed : $had;
         }
@@ -1994,10 +2217,10 @@ function rmmProviderCheck(array $in, ?array $before): array
 
     // The asset type each kind of device comes in as - kept as they were for a kind the window didn't send
     if (rmmAssetTypesReady()) {
-        $now = rmmProviderAssetTypes($before);
+        $now = rmmProviderAssetTypes($before, $kind);
         $sent = is_array($in['asset_types'] ?? null) ? $in['asset_types'] : [];
         $picked = [];
-        foreach (array_keys(rmmDeviceKinds()) as $guessed) {
+        foreach (array_keys(rmmDeviceKinds($kind)) as $guessed) {
             $type = isset($sent[$guessed]) && is_string($sent[$guessed]) ? assetTypeName($sent[$guessed]) : $now[$guessed];
             if ($type === '') {
                 $errors['asset_types'] = 'Pick an asset type for each kind of device.';
@@ -2027,6 +2250,9 @@ function rmmProviderWrite(array $after, int $provider_id = 0): int
         $set[] = "$column = '" . escapeSql($after[$column]) . "'";
     }
     $set[] = 'rmm_provider_active = ' . intval($after['rmm_provider_active']);
+    if (array_key_exists('rmm_provider_insecure', $after)) {
+        $set[] = 'rmm_provider_insecure = ' . (intval($after['rmm_provider_insecure']) ? 1 : 0);
+    }
     if (array_key_exists('rmm_provider_alert_level', $after)) {
         $set[] = "rmm_provider_alert_level = '" . escapeSql($after['rmm_provider_alert_level']) . "'";
         $set[] = 'rmm_provider_alert_category_id = ' . intval($after['rmm_provider_alert_category_id']);
@@ -2056,12 +2282,14 @@ function rmmProviderChangeLines(array $before, array $after): array
     }
     foreach ($kind['fields'] ?? [] as $field => $about) {
         $column = "rmm_provider_$field";
-        if ((string) $before[$column] === (string) $after[$column]) {
+        if (!array_key_exists($column, $after) || (string) ($before[$column] ?? '') === (string) $after[$column]) {
             continue;
         }
         $label = rmmFieldWords($about['label']);
         if ($about['type'] === 'secret') {
             $lines[] = "$label changed";
+        } elseif ($about['type'] === 'switch') {
+            $lines[] = intval($after[$column]) ? ($about['on'] ?? "$label on") : ($about['off'] ?? "$label off");
         } else {
             $lines[] = $after[$column] === '' ? "$label cleared" : "$label " . $after[$column];
         }
@@ -2077,9 +2305,9 @@ function rmmProviderChangeLines(array $before, array $after): array
         $lines[] = $category === '' ? 'alert tickets not categorized' : "alert tickets in $category";
     }
     if (array_key_exists('rmm_provider_asset_types', $after)) {
-        $had = rmmProviderAssetTypes($before);
-        $now = rmmProviderAssetTypes(['rmm_provider_asset_types' => $after['rmm_provider_asset_types']]);
-        foreach (rmmDeviceKinds() as $guessed => $label) {
+        $had = rmmProviderAssetTypes($before, $kind);
+        $now = rmmProviderAssetTypes(['rmm_provider_asset_types' => $after['rmm_provider_asset_types']], $kind);
+        foreach (rmmDeviceKinds($kind) as $guessed => $label) {
             if ($had[$guessed] !== $now[$guessed]) {
                 $lines[] = mb_strtolower($label) . ' come in as ' . $now[$guessed];
             }

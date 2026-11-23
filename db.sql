@@ -3598,6 +3598,7 @@ CREATE TABLE `rmm_devices` (
   `rmm_device_id` int(11) NOT NULL AUTO_INCREMENT,
   `rmm_device_provider_id` int(11) NOT NULL,
   `rmm_device_remote_id` varchar(100) NOT NULL,
+  `rmm_device_mac` varchar(12) NOT NULL DEFAULT '',
   `rmm_device_asset_id` int(11) NOT NULL DEFAULT 0,
   `rmm_device_client_id` int(11) NOT NULL DEFAULT 0,
   `rmm_device_rmm_client_id` int(11) NOT NULL DEFAULT 0,
@@ -3625,7 +3626,8 @@ CREATE TABLE `rmm_devices` (
   PRIMARY KEY (`rmm_device_id`),
   UNIQUE KEY `rmm_device_remote` (`rmm_device_provider_id`,`rmm_device_remote_id`),
   KEY `rmm_device_asset_id` (`rmm_device_asset_id`),
-  KEY `rmm_device_client_id` (`rmm_device_client_id`)
+  KEY `rmm_device_client_id` (`rmm_device_client_id`),
+  KEY `rmm_device_mac` (`rmm_device_mac`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3644,6 +3646,7 @@ CREATE TABLE `rmm_providers` (
   `rmm_provider_web_url` varchar(500) NOT NULL DEFAULT '',
   `rmm_provider_api_key` varchar(500) NOT NULL DEFAULT '',
   `rmm_provider_api_secret` varchar(500) NOT NULL DEFAULT '',
+  `rmm_provider_insecure` tinyint(1) NOT NULL DEFAULT 0,
   `rmm_provider_active` tinyint(1) NOT NULL DEFAULT 1,
   `rmm_provider_sync_at` datetime DEFAULT NULL,
   `rmm_provider_sync_ok` tinyint(1) NOT NULL DEFAULT 0,

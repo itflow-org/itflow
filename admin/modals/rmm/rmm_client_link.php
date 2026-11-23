@@ -41,7 +41,7 @@ ob_start();
     <input type="hidden" name="rmm_client_id" value="<?= $rmm_client_id ?>">
 
     <div class="modal-body">
-        <p class="small text-body-secondary">Its <?= number_format($devices) ?> device<?= $devices === 1 ? '' : 's' ?> in <?= escapeHtml($name) ?> come in as this client's assets - matched to the ones it has by serial number or name, made where there are none.
+        <p class="small text-body-secondary">Its <?= number_format($devices) ?> device<?= $devices === 1 ? '' : 's' ?> in <?= escapeHtml($name) ?> come in as this client's assets - matched to the ones it has by <?= rmmFamily($row) === 'network' ? 'MAC address' : 'serial number' ?> or name, made where there are none.
             <?php if ($current) { ?>Linked to another client, they come in there - the assets already brought in for <?= escapeHtml((string) $row['client_name']) ?> stay, no longer kept up.<?php } ?></p>
 
         <label class="form-label">ITFlow client <strong class="text-danger">*</strong></label>
