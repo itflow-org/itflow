@@ -4313,6 +4313,28 @@ button.itflow-rack-cell-body:hover {
     max-width: 14rem;
 }
 
+/* Calls (agent/calls.php) - each one's direction, or how it ended, in a round badge */
+.itflow-phone-call-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: .8rem;
+}
+
+/* Phone systems - the lines their setup window gives to copy (admin/modals/phone/phone_system_setup.php) */
+.itflow-phone-snippet {
+    padding: .6rem 2.75rem .6rem .75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 /* Listing cards: the whole card opens the rack, the menu sits above that link */
 .itflow-rack-card {
     transition: box-shadow .15s ease-in-out, border-color .15s ease-in-out;

@@ -147,6 +147,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/admin/phone_systems.php"
+                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['phone_systems.php', 'phone_domains.php']) ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-phone-volume"></i>
+                        <p>Phone Systems</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/admin/custom_links.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'custom_links.php' ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-external-link-alt"></i>
                         <p>Custom Links</p>

@@ -80,6 +80,7 @@ function clientMergeTables() {
         ['kb_article_feedback', 'kb_article_feedback_client_id'], ['order_items', 'order_item_client_id'], ['po_items', 'po_item_client_id'],
         ['expense_import_rules', 'import_rule_client_id'], ['income_import_rules', 'import_rule_client_id'],
         ['rmm_clients', 'rmm_client_client_id'], ['rmm_devices', 'rmm_device_client_id'], ['rmm_alerts', 'rmm_alert_client_id'],
+        ['phone_domains', 'phone_domain_client_id'], ['phone_calls', 'phone_call_client_id'], ['phone_devices', 'phone_device_client_id'], ['phone_events', 'phone_event_client_id'],
         ['managed_instances', 'managed_instance_client_id'], ['ai_usage', 'ai_usage_client_id'],
         ['logs', 'log_client_id'], ['notifications', 'notification_client_id'],
     ];

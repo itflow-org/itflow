@@ -131,6 +131,20 @@
                                 </a>
                             </li>
                         <?php } ?>
+                        <?php if (phoneSystemsExist()) { ?>
+                            <li class="nav-item">
+                                <a href="/agent/calls.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calls.php") { echo "active"; } ?>">
+                                    <i class="nav-icon fas fa-phone-volume"></i>
+                                    <p>
+                                        Calls
+                                        <?php $nav_calls_missed = phoneMissedToday(); ?>
+                                        <?php if ($nav_calls_missed) { ?>
+                                            <span class="right badge rounded-pill text-bg-danger" title="Missed today and not on a ticket" data-nav-calls-missed><?= number_format($nav_calls_missed) ?></span>
+                                        <?php } ?>
+                                    </p>
+                                </a>
+                            </li>
+                        <?php } ?>
                         <li class="nav-item">
                             <a href="/agent/recurring_tickets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_tickets.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-redo-alt"></i>

@@ -202,6 +202,21 @@
                         </a>
                     </li>
 
+                    <?php // Calls from the phone systems (functions/phone.php) - once there are some, or while open ?>
+                    <?php if (!empty($num_phone_calls) || basename($_SERVER["PHP_SELF"]) == "calls.php") { ?>
+                        <li class="nav-item">
+                            <a href="/agent/calls.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calls.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-phone-volume"></i>
+                                <p>
+                                    Calls
+                                    <?php if (!empty($num_phone_calls)) { ?>
+                                        <span class="right badge rounded-pill text-light" title="Calls in the last 30 days"><?= number_format(intval($num_phone_calls)) ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                    <?php } ?>
+
                 <?php } ?>
 
                 <?php if ($config_module_enable_itdoc == 1) { ?>

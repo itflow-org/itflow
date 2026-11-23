@@ -40,6 +40,13 @@ $prefill_subject = mb_substr(trim((string) ($_GET['subject'] ?? '')), 0, 500);
 $prefill_details = trim((string) ($_GET['details'] ?? ''));
 $prefill_details_html = $prefill_details !== '' ? '<p>' . nl2br(escapeHtml($prefill_details)) . '</p>' : '';
 
+// From a call's Add to Ticket (functions/phone.php) - the call goes on the ticket it makes
+$phone_call_id = intval($_GET['phone_call_id'] ?? 0);
+$phone_call = $phone_call_id && function_exists('phoneCallRow') ? phoneCallRow($phone_call_id) : null;
+if ($phone_call && phoneCallClientFor($phone_call) && !hasClientAccess($phone_call['phone_call_client_id'])) {
+    $phone_call = null;
+}
+
 if ($client_id) {
     enforceClientAccess();
 }
@@ -114,6 +121,9 @@ ob_start();
         <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
+    <?php if ($phone_call) { ?>
+        <input type="hidden" name="phone_call_id" value="<?= intval($phone_call['phone_call_id']) ?>">
+    <?php } ?>
 
     <div class="modal-body">
 

@@ -127,6 +127,7 @@ require_once __DIR__ . '/functions/weekly_summary.php';
 require_once __DIR__ . '/functions/sms.php';
 require_once __DIR__ . '/functions/rmm.php';
 require_once __DIR__ . '/functions/rmm_tactical.php';
+require_once __DIR__ . '/functions/phone.php';
 require_once __DIR__ . '/functions/client_onboarding.php';
 require_once __DIR__ . '/functions/ticket_mention.php';
 require_once __DIR__ . '/functions/ticket_reply_recipients.php';
