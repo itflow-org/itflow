@@ -508,8 +508,55 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php if ($rmm_elsewhere) { ?>
                                 <div class="small text-warning-emphasis mt-2"><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= escapeHtml($rmm_each_name) ?> has it under <?= escapeHtml($rmm_each['rmm_client_name']) ?>, which is linked to another client.</div>
                             <?php } ?>
+                            <?php // A network platform's switch or access point - the client's assets seen on it lately (functions/rmm_network.php)
+                            $rmm_via = rmmFamily($rmm_each) === 'network' ? rmmSeenVia($rmm_each) : [];
+                            if ($rmm_via) {
+                                $rmm_via_wired = count(array_filter($rmm_via, function ($row) { return intval($row['rmm_seen_wired']) === 1; })); ?>
+                                <div class="mt-3" data-rmm-seen-via="<?= count($rmm_via) ?>">
+                                    <div class="small fw-semibold mb-1"><?= $rmm_via_wired === count($rmm_via) ? 'Plugged in here' : ($rmm_via_wired ? 'Plugged in and on its Wi-Fi' : 'On its Wi-Fi') ?> <span class="text-body-secondary fw-normal">&middot; <?= count($rmm_via) ?></span></div>
+                                    <ul class="list-unstyled small mb-0">
+                                        <?php foreach (array_slice($rmm_via, 0, 12) as $via_row) { ?>
+                                            <li class="d-flex gap-2<?= intval($via_row['now']) ? '' : ' text-body-secondary' ?>" title="<?= intval($via_row['now']) ? 'There now' : 'Last seen there ' . escapeHtml(timeAgo($via_row['rmm_seen_at'])) ?>">
+                                                <span class="text-body-secondary text-nowrap text-truncate flex-shrink-0" style="width: 6rem;"><?= escapeHtml(intval($via_row['rmm_seen_wired']) || (string) $via_row['rmm_seen_ssid'] === '' ? rmmSeenPlace($via_row) : $via_row['rmm_seen_ssid']) ?></span>
+                                                <a class="text-truncate" href="asset.php?client_id=<?= intval($via_row['asset_client_id']) ?>&asset_id=<?= intval($via_row['rmm_seen_asset_id']) ?>"><?= escapeHtml($via_row['asset_name']) ?></a>
+                                            </li>
+                                        <?php } ?>
+                                        <?php if (count($rmm_via) > 12) { ?><li class="text-body-secondary">and <?= count($rmm_via) - 12 ?> more</li><?php } ?>
+                                    </ul>
+                                </div>
+                            <?php } ?>
                         <?php } ?>
                         <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $rmm_each['rmm_device_synced_at']) ?>">As <?= escapeHtml($rmm_each_kind['short'] ?? $rmm_each_name) ?> said <?= escapeHtml(timeAgo($rmm_each['rmm_device_synced_at'])) ?>.</div>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php // Where it plugs in, as a network platform last saw it (functions/rmm_network.php)
+            $seen_rows = rmmSeenForAsset($asset_id);
+            if ($seen_rows) {
+                $seen = $seen_rows[0];
+                $seen_short = rmmKind($seen)['short'] ?? rmmProviderName($seen);
+                $seen_wired = intval($seen['rmm_seen_wired']) === 1;
+                $seen_via = (string) ($seen['via_asset_name'] ?? '') !== '' ? '<a href="asset.php?client_id=' . $client_id . '&asset_id=' . intval($seen['via_asset_id']) . '">' . escapeHtml($seen['via_asset_name']) . '</a>'
+                    : escapeHtml((string) ($seen['via_name'] ?? '') !== '' ? $seen['via_name'] : ($seen_wired ? 'A switch' : 'An access point') . " $seen_short doesn't list"); ?>
+                <div class="card mb-3" data-rmm-seen="<?= intval($seen['now']) ? 'now' : 'before' ?>">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-fw <?= $seen_wired ? 'fa-ethernet' : 'fa-wifi' ?> text-secondary me-2"></i>Connection</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="itflow-asset-dl mb-0">
+                            <dt><?= $seen_wired ? 'Plugged into' : 'On' ?></dt>
+                            <dd><?= $seen_via ?><div class="small text-body-secondary"><?= escapeHtml(rmmSeenPlace($seen)) ?></div></dd>
+                            <?php if ((string) $seen['rmm_seen_ip'] !== '') { ?>
+                                <dt>IP</dt>
+                                <dd><span class="font-monospace"><?= escapeHtml($seen['rmm_seen_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= escapeHtml($seen['rmm_seen_ip']) ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ((string) $seen['rmm_seen_network'] !== '' || intval($seen['rmm_seen_vlan'])) { ?>
+                                <dt>Network</dt>
+                                <dd><?= escapeHtml(trim($seen['rmm_seen_network'] . (intval($seen['rmm_seen_vlan']) ? ' · VLAN ' . intval($seen['rmm_seen_vlan']) : ''), ' ·')) ?></dd>
+                            <?php } ?>
+                        </dl>
+                        <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $seen['rmm_seen_at']) ?>"><?= intval($seen['now']) ? 'Connected now - as ' . escapeHtml(rmmProviderName($seen)) . ' said ' . escapeHtml(timeAgo($seen['rmm_seen_at'])) : 'Last seen there ' . escapeHtml(timeAgo($seen['rmm_seen_at'])) . ', by ' . escapeHtml(rmmProviderName($seen)) ?>.</div>
                     </div>
                 </div>
             <?php } ?>

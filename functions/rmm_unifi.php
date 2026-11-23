@@ -58,6 +58,7 @@ function rmmUnifiKind(string $key): array
         'clients' => 'rmmUnifiSites',
         'devices' => 'rmmUnifiDevices',
         'networks' => 'rmmUnifiNetworks',
+        'seen' => 'rmmUnifiSeen',
         'dashboard' => 'rmmUnifiDashboard',
         'docs_url' => 'https://help.ui.com/hc/en-us/articles/30076656117655',
     ];
@@ -463,6 +464,7 @@ function rmmUnifiDevices(array $provider, string $site): array
         if (!$answer['ok']) {
             return ['ok' => false, 'devices' => [], 'error' => $answer['error']];
         }
+        rmmUnifiSiteDevices($provider, $site, $answer['data']);
         foreach ($answer['data'] as $device) {
             if (is_array($device) && ($device['adopted'] ?? true) !== false && rmmMac($device['mac'] ?? '') !== '') {
                 $devices[] = rmmUnifiControllerDevice($device);
@@ -480,6 +482,7 @@ function rmmUnifiDevices(array $provider, string $site): array
     if (!$answer['ok']) {
         return ['ok' => false, 'devices' => [], 'error' => $answer['error']];
     }
+    rmmUnifiSiteDevices($provider, $site, $answer['data']);
     foreach ($answer['data'] as $device) {
         if (is_array($device) && rmmMac($device['macAddress'] ?? '') !== '') {
             $devices[] = rmmUnifiNetworkDevice($device);
@@ -580,6 +583,104 @@ function rmmUnifiNetworks(array $provider, string $site): array
         ];
     }
     return ['ok' => true, 'networks' => $networks, 'error' => '', 'unoffered' => false];
+}
+
+/** A site's devices as UniFi gave them, kept for the request - the sync asks for them, then for where things plug in. $set keeps them; null when not asked yet. */
+function rmmUnifiSiteDevices(array $provider, string $site, ?array $set = null): ?array
+{
+    static $kept = [];
+    $key = intval($provider['rmm_provider_id'] ?? 0) . "\n$site";
+    if ($set !== null) {
+        $kept[$key] = $set;
+    }
+    return $kept[$key] ?? null;
+}
+
+/**
+ * What a site's switches and access points see - ['ok', 'seen', 'error'], each as rmmSeenSync() takes
+ * it (functions/rmm_network.php): the devices on it now, and what its own switches and access points
+ * are plugged into. A controller says the switch port; the official Network API only which device.
+ */
+function rmmUnifiSeen(array $provider, string $site): array
+{
+    $seen = [];
+    if ($provider['rmm_provider_kind'] === 'unifi') {
+        $devices = rmmUnifiSiteDevices($provider, $site);
+        if ($devices === null) {
+            $answer = rmmUnifiController($provider, 's/' . rawurlencode($site) . '/stat/device');
+            if (!$answer['ok']) {
+                return ['ok' => false, 'seen' => [], 'error' => $answer['error']];
+            }
+            $devices = $answer['data'];
+        }
+        // Its own switches and access points - what each is plugged into, or meshed to
+        foreach ($devices as $device) {
+            $uplink = is_array($device) && is_array($device['uplink'] ?? null) ? $device['uplink'] : [];
+            if (rmmMac($device['mac'] ?? '') === '' || rmmMac($uplink['uplink_mac'] ?? '') === '') {
+                continue;
+            }
+            $wireless = ($uplink['type'] ?? '') === 'wireless';
+            $seen[] = [
+                'mac' => (string) $device['mac'], 'hostname' => (string) ($device['name'] ?? ''), 'ip' => (string) ($device['ip'] ?? ''),
+                'via_mac' => (string) $uplink['uplink_mac'], 'port' => !$wireless && isset($uplink['uplink_remote_port']) ? (string) intval($uplink['uplink_remote_port']) : '',
+                'wired' => !$wireless, 'ssid' => '', 'network' => '', 'vlan' => 0,
+            ];
+        }
+        $answer = rmmUnifiController($provider, 's/' . rawurlencode($site) . '/stat/sta');
+        if (!$answer['ok']) {
+            return ['ok' => false, 'seen' => [], 'error' => $answer['error']];
+        }
+        foreach ($answer['data'] as $sta) {
+            if (!is_array($sta) || rmmMac($sta['mac'] ?? '') === '') {
+                continue;
+            }
+            $wired = !empty($sta['is_wired']);
+            $seen[] = [
+                'mac' => (string) $sta['mac'], 'hostname' => (string) ($sta['hostname'] ?? $sta['name'] ?? ''), 'ip' => (string) ($sta['ip'] ?? ''),
+                'via_mac' => (string) ($wired ? ($sta['sw_mac'] ?? '') : ($sta['ap_mac'] ?? '')),
+                'port' => $wired && isset($sta['sw_port']) ? (string) intval($sta['sw_port']) : '',
+                'wired' => $wired, 'ssid' => $wired ? '' : (string) ($sta['essid'] ?? ''),
+                'network' => (string) ($sta['network'] ?? ''), 'vlan' => intval($sta['vlan'] ?? 0),
+            ];
+        }
+        return ['ok' => true, 'seen' => $seen, 'error' => ''];
+    }
+
+    $where = rmmUnifiSiteWhere($provider, $site);
+    if (!$where) {
+        return ['ok' => false, 'seen' => [], 'error' => 'Site Manager no longer lists that site'];
+    }
+    [$console, $site_id] = $where;
+    $devices = rmmUnifiSiteDevices($provider, $site);
+    if ($devices === null) {
+        $answer = rmmUnifiNetwork($provider, 'sites/' . rawurlencode($site_id) . '/devices', [], $console);
+        if (!$answer['ok']) {
+            return ['ok' => false, 'seen' => [], 'error' => $answer['error']];
+        }
+        $devices = $answer['data'];
+    }
+    $macs = [];
+    foreach ($devices as $device) {
+        if (is_array($device) && isset($device['id'])) {
+            $macs[(string) $device['id']] = (string) ($device['macAddress'] ?? '');
+        }
+    }
+    $answer = rmmUnifiNetwork($provider, 'sites/' . rawurlencode($site_id) . '/clients', [], $console);
+    if (!$answer['ok']) {
+        // A Network version older than its clients endpoint - nothing to say, and nothing wrong
+        return $answer['code'] === 404 ? ['ok' => true, 'seen' => [], 'error' => ''] : ['ok' => false, 'seen' => [], 'error' => $answer['error']];
+    }
+    foreach ($answer['data'] as $client) {
+        $type = is_array($client) ? (string) ($client['type'] ?? '') : '';
+        if (!in_array($type, ['WIRED', 'WIRELESS'], true) || rmmMac($client['macAddress'] ?? '') === '') {
+            continue;
+        }
+        $seen[] = [
+            'mac' => (string) $client['macAddress'], 'hostname' => (string) ($client['name'] ?? ''), 'ip' => (string) ($client['ipAddress'] ?? ''),
+            'via_mac' => $macs[(string) ($client['uplinkDeviceId'] ?? '')] ?? '', 'port' => '', 'wired' => $type === 'WIRED', 'ssid' => '', 'network' => '', 'vlan' => 0,
+        ];
+    }
+    return ['ok' => true, 'seen' => $seen, 'error' => ''];
 }
 
 /** A controller's device (stat/device) as a device. */

@@ -1000,7 +1000,7 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
     global $mysqli, $session_name, $session_user_id, $session_ip, $session_user_agent;
 
     $counts = ['clients' => 0, 'devices' => 0, 'created' => 0, 'linked' => 0, 'updated' => 0, 'removed' => 0, 'returned' => 0, 'skipped' => 0,
-        'networks' => 0, 'networks_created' => 0, 'networks_linked' => 0, 'networks_updated' => 0, 'networks_removed' => 0, 'networks_returned' => 0];
+        'networks' => 0, 'networks_created' => 0, 'networks_linked' => 0, 'networks_updated' => 0, 'networks_removed' => 0, 'networks_returned' => 0, 'seen' => 0];
     $name = rmmProviderName($provider);
     if (!rmmProviderUsable($provider)) {
         return ['ok' => false, 'note' => "$name isn't set up, or is turned off.", 'counts' => $counts];
@@ -1157,6 +1157,15 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
             }
             if ($network_error !== '') {
                 $errors[] = $rmm_client['rmm_client_name'] . ': its networks - ' . $network_error;
+            }
+            // And where the client's assets plug in
+            try {
+                $seen_error = rmmSeenSync($provider, $rmm_client, $counts);
+            } catch (Throwable $e) {
+                $seen_error = $e->getMessage();
+            }
+            if ($seen_error !== '') {
+                $errors[] = $rmm_client['rmm_client_name'] . ': where its devices plug in - ' . $seen_error;
             }
             mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_synced_at = NOW() WHERE rmm_client_id = " . intval($rmm_client['rmm_client_id']));
         }

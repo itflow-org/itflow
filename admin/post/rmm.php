@@ -157,6 +157,9 @@ if (isset($_GET['delete_rmm_provider'])) {
     if (rmmNetworksReady()) {
         mysqli_query($mysqli, "DELETE FROM rmm_networks WHERE rmm_network_provider_id = $provider_id");
     }
+    if (rmmSeenReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_seen WHERE rmm_seen_provider_id = $provider_id");
+    }
     if (rmmAlertsReady()) {
         mysqli_query($mysqli, "DELETE FROM rmm_alerts WHERE rmm_alert_provider_id = $provider_id");
     }

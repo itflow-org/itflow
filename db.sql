@@ -3690,6 +3690,38 @@ CREATE TABLE `rmm_providers` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `rmm_seen`
+--
+
+DROP TABLE IF EXISTS `rmm_seen`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_seen` (
+  `rmm_seen_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_seen_provider_id` int(11) NOT NULL,
+  `rmm_seen_rmm_client_id` int(11) NOT NULL,
+  `rmm_seen_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_seen_asset_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_seen_mac` varchar(12) NOT NULL,
+  `rmm_seen_hostname` varchar(200) NOT NULL DEFAULT '',
+  `rmm_seen_ip` varchar(100) NOT NULL DEFAULT '',
+  `rmm_seen_via_mac` varchar(12) NOT NULL DEFAULT '',
+  `rmm_seen_port` varchar(50) NOT NULL DEFAULT '',
+  `rmm_seen_wired` tinyint(1) NOT NULL DEFAULT 1,
+  `rmm_seen_ssid` varchar(100) NOT NULL DEFAULT '',
+  `rmm_seen_network` varchar(200) NOT NULL DEFAULT '',
+  `rmm_seen_vlan` int(11) NOT NULL DEFAULT 0,
+  `rmm_seen_at` datetime DEFAULT NULL,
+  `rmm_seen_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rmm_seen_id`),
+  UNIQUE KEY `rmm_seen_device` (`rmm_seen_provider_id`,`rmm_seen_rmm_client_id`,`rmm_seen_mac`),
+  KEY `rmm_seen_asset_id` (`rmm_seen_asset_id`),
+  KEY `rmm_seen_via` (`rmm_seen_provider_id`,`rmm_seen_via_mac`),
+  KEY `rmm_seen_client_id` (`rmm_seen_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `service_assets`
 --
 

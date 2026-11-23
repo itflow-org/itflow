@@ -291,11 +291,12 @@ function rmmNetworksSync(array $provider, array $rmm_client, array &$counts): st
     return '';
 }
 
-/** The words for what a sync did with networks - "4 networks - 1 new, 3 matched to networks already here", or ''. */
+/** The words for what a sync did with networks - "4 networks - 1 new, 3 matched to networks already here. 12 assets seen on the network", or ''. */
 function rmmNetworksNote(array $counts, string $short): string
 {
+    $seen = ($counts['seen'] ?? 0) ? '. ' . number_format($counts['seen']) . ' asset' . ($counts['seen'] === 1 ? '' : 's') . ' seen on the network' : '';
     if (!($counts['networks'] ?? 0) && !($counts['networks_removed'] ?? 0)) {
-        return '';
+        return ltrim($seen, '. ');
     }
     $note = number_format($counts['networks']) . ' network' . ($counts['networks'] === 1 ? '' : 's');
     $done = [];
@@ -305,7 +306,7 @@ function rmmNetworksNote(array $counts, string $short): string
             $done[] = number_format($counts[$key]) . " $words";
         }
     }
-    return $note . ($done ? ' - ' . implode(', ', $done) : '');
+    return $note . ($done ? ' - ' . implode(', ', $done) : '') . $seen;
 }
 
 /** What the sync knew of a site's networks is forgotten - unlinked, or linked to another client. The networks stay. */
@@ -315,6 +316,7 @@ function rmmNetworksForget(int $rmm_client_id): void
     if (rmmNetworksReady()) {
         mysqli_query($mysqli, "DELETE FROM rmm_networks WHERE rmm_network_rmm_client_id = $rmm_client_id");
     }
+    rmmSeenForget($rmm_client_id);
 }
 
 /** Networks deleted in ITFlow - their platform's rows say so, so the sync doesn't make them again. */
@@ -343,4 +345,164 @@ function rmmNetworksFor(int $network_id): array
         $rows[] = $row;
     }
     return $rows;
+}
+
+/*
+ * ------------------------------------------------------------------ Where things plug in
+ *
+ * A kind with a 'seen' function (rmmUnifiSeen()) says what a site's switches and access points
+ * see on them: each device by its MAC address, the switch or access point it is on (via_mac -
+ * one of the platform's devices), the port or Wi-Fi network, its IP address and network. Only
+ * the ones that are one of the client's assets - by a MAC address on one of its interfaces, or
+ * failing that the only asset with its name - are kept, in rmm_seen.
+ */
+
+/** Whether the 4.1.7 database update is in - where things plug in. */
+function rmmSeenReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        $result = rmmNetworkReady() ? mysqli_query($mysqli, "SHOW TABLES LIKE 'rmm_seen'") : false;
+        $ready = $result && mysqli_num_rows($result) > 0;
+    }
+    return $ready;
+}
+
+/** How long a device stays connected after it was last seen, in minutes - a sync is every 15. */
+const RMM_SEEN_NOW_MINUTES = 35;
+
+/** How long what a site last saw of a device is kept, in days. */
+const RMM_SEEN_KEEP_DAYS = 90;
+
+/** A client's assets by the MAC addresses on their interfaces, and by name - ['mac' => [mac => asset_id], 'name' => [name => asset_id, 0 when more than one]]. */
+function rmmSeenAssetMap(int $client_id): array
+{
+    global $mysqli;
+    $map = ['mac' => [], 'name' => []];
+    $named = [];
+    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, interface_mac FROM assets
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_archived_at IS NULL
+        WHERE asset_client_id = $client_id AND asset_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $asset_id = intval($row['asset_id']);
+        $mac = rmmMac($row['interface_mac'] ?? '');
+        if ($mac !== '' && !isset($map['mac'][$mac])) {
+            $map['mac'][$mac] = $asset_id;
+        }
+        $named[mb_strtolower(trim((string) $row['asset_name']))][$asset_id] = true;
+    }
+    foreach ($named as $name => $ids) {
+        if ($name !== '') {
+            $map['name'][$name] = count($ids) === 1 ? array_key_first($ids) : 0;
+        }
+    }
+    return $map;
+}
+
+/** What a linked site sees on its switches and access points, kept for the client's assets. '' when that worked, or what went wrong. */
+function rmmSeenSync(array $provider, array $rmm_client, array &$counts): string
+{
+    global $mysqli;
+    $kind = rmmKind($provider);
+    if (!isset($kind['seen']) || !rmmSeenReady()) {
+        return '';
+    }
+    $answer = $kind['seen']($provider, (string) $rmm_client['rmm_client_remote_id']);
+    if (!$answer['ok']) {
+        return (string) $answer['error'];
+    }
+    $provider_id = intval($provider['rmm_provider_id']);
+    $rmm_client_id = intval($rmm_client['rmm_client_id']);
+    $client_id = intval($rmm_client['rmm_client_client_id']);
+    $map = rmmSeenAssetMap($client_id);
+    foreach ($answer['seen'] as $seen) {
+        $mac = is_array($seen) ? rmmMac($seen['mac'] ?? '') : '';
+        if ($mac === '') {
+            continue;
+        }
+        $hostname = rmmText($seen['hostname'] ?? '', 200);
+        $asset_id = $map['mac'][$mac] ?? ($hostname !== '' ? ($map['name'][mb_strtolower($hostname)] ?? 0) : 0);
+        if (!$asset_id) {
+            continue;
+        }
+        $ip = normalizeIpAddress(trim((string) ($seen['ip'] ?? '')));
+        $vlan = intval($seen['vlan'] ?? 0);
+        $set = "rmm_seen_client_id = $client_id, rmm_seen_asset_id = $asset_id, rmm_seen_hostname = '" . escapeSql($hostname) . "',
+            rmm_seen_ip = '" . escapeSql($ip === false ? '' : $ip) . "', rmm_seen_via_mac = '" . escapeSql(rmmMac($seen['via_mac'] ?? '')) . "',
+            rmm_seen_port = '" . escapeSql(rmmText($seen['port'] ?? '', 50)) . "', rmm_seen_wired = " . (!empty($seen['wired']) ? 1 : 0) . ",
+            rmm_seen_ssid = '" . escapeSql(rmmText($seen['ssid'] ?? '', 100)) . "', rmm_seen_network = '" . escapeSql(rmmText($seen['network'] ?? '', 200)) . "',
+            rmm_seen_vlan = " . ($vlan >= 1 && $vlan <= 4094 ? $vlan : 0) . ", rmm_seen_at = NOW()";
+        mysqli_query($mysqli, "INSERT INTO rmm_seen SET rmm_seen_provider_id = $provider_id, rmm_seen_rmm_client_id = $rmm_client_id, rmm_seen_mac = '$mac', $set
+            ON DUPLICATE KEY UPDATE $set");
+        $counts['seen']++;
+    }
+    mysqli_query($mysqli, "DELETE FROM rmm_seen WHERE rmm_seen_rmm_client_id = $rmm_client_id AND rmm_seen_at < NOW() - INTERVAL " . RMM_SEEN_KEEP_DAYS . " DAY");
+    return '';
+}
+
+/** What a site saw of the client's assets is forgotten - unlinked, or linked to another client. */
+function rmmSeenForget(int $rmm_client_id): void
+{
+    global $mysqli;
+    if (rmmSeenReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_seen WHERE rmm_seen_rmm_client_id = $rmm_client_id");
+    }
+}
+
+/**
+ * Where an asset was last seen on the network - newest first, each with its platform, the switch
+ * or access point it was on (via_asset_id and via_asset_name when that is one of the client's
+ * assets, via_name its name on the platform) and now (1 when it was there at the last sync).
+ */
+function rmmSeenForAsset(int $asset_id): array
+{
+    global $mysqli;
+    $rows = [];
+    if (!rmmSeenReady() || !$asset_id) {
+        return $rows;
+    }
+    $sql = mysqli_query($mysqli, "SELECT rmm_seen.*, rmm_provider_id, rmm_provider_name, rmm_provider_kind, via.rmm_device_hostname AS via_name,
+            via_asset.asset_id AS via_asset_id, via_asset.asset_name AS via_asset_name, via_asset.asset_type AS via_asset_type,
+            rmm_seen_at >= NOW() - INTERVAL " . RMM_SEEN_NOW_MINUTES . " MINUTE AS now
+        FROM rmm_seen
+        JOIN rmm_providers ON rmm_provider_id = rmm_seen_provider_id
+        JOIN rmm_clients ON rmm_clients.rmm_client_id = rmm_seen_rmm_client_id AND rmm_client_client_id = rmm_seen_client_id
+        LEFT JOIN rmm_devices via ON via.rmm_device_provider_id = rmm_seen_provider_id AND via.rmm_device_mac = rmm_seen_via_mac AND rmm_seen_via_mac <> '' AND via.rmm_device_removed_at IS NULL
+        LEFT JOIN assets via_asset ON via_asset.asset_id = via.rmm_device_asset_id AND via.rmm_device_asset_id > 0 AND via_asset.asset_archived_at IS NULL AND via_asset.asset_client_id = rmm_seen_client_id
+        WHERE rmm_seen_asset_id = $asset_id ORDER BY rmm_seen_at DESC, rmm_seen_id DESC LIMIT 5");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** What is plugged into one of a platform's switches or on one of its access points - the assets seen on it lately, by port. */
+function rmmSeenVia(array $device): array
+{
+    global $mysqli;
+    $rows = [];
+    $mac = rmmMac($device['rmm_device_mac'] ?? '');
+    if (!rmmSeenReady() || $mac === '') {
+        return $rows;
+    }
+    $provider_id = intval($device['rmm_device_provider_id']);
+    $sql = mysqli_query($mysqli, "SELECT rmm_seen.*, asset_name, asset_type, asset_client_id, rmm_seen_at >= NOW() - INTERVAL " . RMM_SEEN_NOW_MINUTES . " MINUTE AS now
+        FROM rmm_seen JOIN assets ON asset_id = rmm_seen_asset_id AND asset_archived_at IS NULL AND asset_client_id = rmm_seen_client_id
+        WHERE rmm_seen_provider_id = $provider_id AND rmm_seen_via_mac = '$mac' AND rmm_seen_at >= NOW() - INTERVAL 30 DAY
+        ORDER BY rmm_seen_wired DESC, rmm_seen_port = '', CAST(rmm_seen_port AS UNSIGNED), rmm_seen_port, asset_name LIMIT 200");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** Where a seen row is on the network, in words - "Port 7", "Wi-Fi Staff", "Wired", "Wi-Fi". */
+function rmmSeenPlace(array $row): string
+{
+    if (intval($row['rmm_seen_wired'])) {
+        $port = (string) $row['rmm_seen_port'];
+        return $port === '' ? 'Wired' : (ctype_digit($port) ? "Port $port" : $port);
+    }
+    return trim('Wi-Fi ' . (string) $row['rmm_seen_ssid']);
 }
