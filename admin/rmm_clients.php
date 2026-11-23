@@ -67,7 +67,9 @@ if (!isset($sortable_columns[$sort])) {
     $sort = 'rmm_client_name';
 }
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS rmm_clients.*, client_name, client_abbreviation, client_archived_at,
+// A network platform's networks deleted in ITFlow are brought back with its devices
+$networks_deleted_sql = rmmNetworksReady() ? "(SELECT COUNT(*) FROM rmm_networks WHERE rmm_network_rmm_client_id = rmm_clients.rmm_client_id AND rmm_network_removed_at IS NULL AND rmm_network_network_id = 0)" : '0';
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS rmm_clients.*, client_name, client_abbreviation, client_archived_at, $networks_deleted_sql AS networks_deleted,
     (SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_rmm_client_id = rmm_clients.rmm_client_id AND rmm_device_removed_at IS NULL AND rmm_device_asset_id > 0) AS assets_in,
     (SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_rmm_client_id = rmm_clients.rmm_client_id AND rmm_device_removed_at IS NULL AND rmm_device_asset_id = 0) AS assets_deleted,
     (SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_rmm_client_id = rmm_clients.rmm_client_id AND rmm_device_removed_at IS NULL AND rmm_device_status = 'overdue') AS devices_overdue
@@ -191,6 +193,8 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                 $suggested = $suggestions[$rmm_client_id] ?? 0;
                 $sites = intval($row['rmm_client_sites']);
                 $deleted = intval($row['assets_deleted']);
+                $networks_deleted = intval($row['networks_deleted']);
+                $deleted_words = implode(' and ', array_filter([$deleted ? "$deleted deleted device" . ($deleted === 1 ? '' : 's') : '', $networks_deleted ? "$networks_deleted deleted network" . ($networks_deleted === 1 ? '' : 's') : '']));
                 $overdue = intval($row['devices_overdue']);
                 $link_url = "modals/rmm/rmm_client_link.php?id=$rmm_client_id";
                 ?>
@@ -250,11 +254,11 @@ $devices_in = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FRO
                                             <i class="fas fa-fw fa-link text-secondary me-2"></i><?= $client_id ? 'Link to another client' : 'Link to a client' ?>
                                         </a>
                                     <?php } ?>
-                                    <?php if ($deleted && $linked && !$removed) { ?>
+                                    <?php if (($deleted || $networks_deleted) && $linked && !$removed) { ?>
                                         <a class="dropdown-item confirm-link" href="post.php?rmm_bring_back=<?= $rmm_client_id ?>&amp;csrf_token=<?= $csrf ?>"
-                                            data-confirm-title="Bring back <?= $deleted ?> deleted device<?= $deleted === 1 ? '' : 's' ?>?" data-confirm-button="Bring back"
-                                            data-confirm-text="Their assets were deleted in ITFlow. The sync matches them to assets that are there, or makes them again.">
-                                            <i class="fas fa-fw fa-trash-restore text-secondary me-2"></i>Bring back <?= $deleted ?> deleted
+                                            data-confirm-title="Bring back <?= $deleted_words ?>?" data-confirm-button="Bring back"
+                                            data-confirm-text="<?= !$networks_deleted ? 'Their assets were deleted in ITFlow. The sync matches them to assets that are there, or makes them again.' : (!$deleted ? 'They were deleted in ITFlow. The sync matches them to networks that are there, or makes them again.' : 'They were deleted in ITFlow. The sync matches them to the assets and networks that are there, or makes them again.') ?>">
+                                            <i class="fas fa-fw fa-trash-restore text-secondary me-2"></i>Bring back <?= $deleted + $networks_deleted ?> deleted
                                         </a>
                                     <?php } ?>
                                     <?php if ($client_id) { ?>

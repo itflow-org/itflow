@@ -218,6 +218,9 @@ function networkDelete($row) {
     $network_id = intval($row['network_id']);
     mysqli_query($mysqli, "UPDATE asset_interfaces SET interface_network_id = 0 WHERE interface_network_id = $network_id");
     mysqli_query($mysqli, "DELETE FROM networks WHERE network_id = $network_id");
+    if (function_exists('rmmNetworksDeleted')) {
+        rmmNetworksDeleted([$network_id]);
+    }
     logAudit("Network", "Delete", "$session_name deleted network " . escapeSql($row['network_name']), intval($row['network_client_id']));
 }
 

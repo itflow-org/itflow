@@ -154,6 +154,9 @@ if (isset($_GET['delete_rmm_provider'])) {
     $words = rmmFamilyWords(rmmFamily($provider));
     $devices = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0"))[0]);
     mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_provider_id = $provider_id");
+    if (rmmNetworksReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_networks WHERE rmm_network_provider_id = $provider_id");
+    }
     if (rmmAlertsReady()) {
         mysqli_query($mysqli, "DELETE FROM rmm_alerts WHERE rmm_alert_provider_id = $provider_id");
     }
@@ -280,10 +283,16 @@ if (isset($_GET['rmm_bring_back'])) {
     $rmm_client_id = intval($rmm_client['rmm_client_id']);
     mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_asset_id = 0");
     $brought = mysqli_affected_rows($mysqli);
+    $brought_networks = 0;
+    if (rmmNetworksReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_networks WHERE rmm_network_rmm_client_id = $rmm_client_id AND rmm_network_network_id = 0");
+        $brought_networks = mysqli_affected_rows($mysqli);
+    }
     set_time_limit(180);
     $sync = rmmSync(rmmProviderRow($rmm_client['rmm_client_provider_id']), $rmm_client_id, 150);
     $words = rmmFamilyWords(rmmFamily($rmm_client));
-    logAudit($words['audit'], "Edit", "$session_name brought back $brought deleted devices of " . escapeSql(rmmProviderName($rmm_client) . " {$words['client']} {$rmm_client['rmm_client_name']}"), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
+    $brought_words = implode(' and ', array_filter([$brought || !$brought_networks ? "$brought deleted device" . ($brought === 1 ? '' : 's') : '', $brought_networks ? "$brought_networks deleted network" . ($brought_networks === 1 ? '' : 's') : '']));
+    logAudit($words['audit'], "Edit", "$session_name brought back $brought_words of " . escapeSql(rmmProviderName($rmm_client) . " {$words['client']} {$rmm_client['rmm_client_name']}"), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
     flashAlert('<strong>' . escapeHtml($rmm_client['rmm_client_name']) . '</strong> - ' . escapeHtml($sync['note']), $sync['ok'] ? 'success' : 'warning');
     redirect('rmm_clients.php?provider_id=' . intval($rmm_client['rmm_client_provider_id']));
 

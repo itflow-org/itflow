@@ -302,6 +302,29 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                 </div>
             </div>
 
+            <?php // Kept up from a network platform's site (functions/rmm_network.php)
+            foreach (rmmNetworksFor($network_id) as $platform_row) {
+                $platform_kind = rmmKind($platform_row);
+                $platform_name = rmmProviderName($platform_row);
+                $platform_short = $platform_kind['short'] ?? $platform_name; ?>
+                <div class="card mb-3" data-network-platform="<?= $platform_row['rmm_network_removed_at'] === null ? 'kept' : 'removed' ?>">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="<?= escapeHtml($platform_kind['icon'] ?? 'fas fa-network-wired') ?> fa-fw text-secondary me-2"></i><?= escapeHtml($platform_name) ?></h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="itflow-asset-dl mb-0">
+                            <dt>Site</dt><dd><?= escapeHtml($platform_row['rmm_client_name']) ?></dd>
+                            <dt>In <?= escapeHtml($platform_short) ?></dt><dd><?= escapeHtml($platform_row['rmm_network_name']) ?></dd>
+                        </dl>
+                        <?php if ($platform_row['rmm_network_removed_at'] !== null) { ?>
+                            <p class="text-body-secondary small mt-2 mb-0"><i class="fas fa-fw fa-ghost me-1"></i><?= escapeHtml($platform_name) ?> stopped listing it <?= escapeHtml(timeAgo($platform_row['rmm_network_removed_at'])) ?> - it is kept here as it was.</p>
+                        <?php } else { ?>
+                            <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $platform_row['rmm_network_synced_at']) ?>">Kept up from <?= escapeHtml($platform_short) ?> - a detail you change here stays as you set it. As <?= escapeHtml($platform_short) ?> said <?= escapeHtml(timeAgo($platform_row['rmm_network_synced_at'])) ?>.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
+
             <div class="card mb-3">
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-pen text-secondary me-2"></i>Notes</h3>

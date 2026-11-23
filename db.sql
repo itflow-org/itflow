@@ -3632,6 +3632,32 @@ CREATE TABLE `rmm_devices` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `rmm_networks`
+--
+
+DROP TABLE IF EXISTS `rmm_networks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_networks` (
+  `rmm_network_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_network_provider_id` int(11) NOT NULL,
+  `rmm_network_rmm_client_id` int(11) NOT NULL,
+  `rmm_network_remote_id` varchar(100) NOT NULL,
+  `rmm_network_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_network_network_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_network_name` varchar(200) NOT NULL DEFAULT '',
+  `rmm_network_synced` text DEFAULT NULL,
+  `rmm_network_synced_at` datetime DEFAULT NULL,
+  `rmm_network_removed_at` datetime DEFAULT NULL,
+  `rmm_network_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rmm_network_id`),
+  UNIQUE KEY `rmm_network_remote` (`rmm_network_provider_id`,`rmm_network_rmm_client_id`,`rmm_network_remote_id`),
+  KEY `rmm_network_network_id` (`rmm_network_network_id`),
+  KEY `rmm_network_client_id` (`rmm_network_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `rmm_providers`
 --
 

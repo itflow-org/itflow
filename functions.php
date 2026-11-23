@@ -128,6 +128,7 @@ require_once __DIR__ . '/functions/sms.php';
 require_once __DIR__ . '/functions/rmm.php';
 require_once __DIR__ . '/functions/rmm_tactical.php';
 require_once __DIR__ . '/functions/rmm_unifi.php';
+require_once __DIR__ . '/functions/rmm_network.php';
 require_once __DIR__ . '/functions/phone.php';
 require_once __DIR__ . '/functions/client_onboarding.php';
 require_once __DIR__ . '/functions/ticket_mention.php';

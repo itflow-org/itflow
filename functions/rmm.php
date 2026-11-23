@@ -963,6 +963,7 @@ function rmmForgetClientDevices(int $rmm_client_id, string $name, string $why): 
         }
     }
     mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id");
+    rmmNetworksForget($rmm_client_id);
     return $left;
 }
 
@@ -998,7 +999,8 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
 {
     global $mysqli, $session_name, $session_user_id, $session_ip, $session_user_agent;
 
-    $counts = ['clients' => 0, 'devices' => 0, 'created' => 0, 'linked' => 0, 'updated' => 0, 'removed' => 0, 'returned' => 0, 'skipped' => 0];
+    $counts = ['clients' => 0, 'devices' => 0, 'created' => 0, 'linked' => 0, 'updated' => 0, 'removed' => 0, 'returned' => 0, 'skipped' => 0,
+        'networks' => 0, 'networks_created' => 0, 'networks_linked' => 0, 'networks_updated' => 0, 'networks_removed' => 0, 'networks_returned' => 0];
     $name = rmmProviderName($provider);
     if (!rmmProviderUsable($provider)) {
         return ['ok' => false, 'note' => "$name isn't set up, or is turned off.", 'counts' => $counts];
@@ -1147,6 +1149,15 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
                 }
             }
             $note_kept(intval($rmm_client['rmm_client_id']), (string) $rmm_client['rmm_client_name'], $kept);
+            // A network platform's networks and VLANs, as the client's networks (functions/rmm_network.php)
+            try {
+                $network_error = rmmNetworksSync($provider, $rmm_client, $counts);
+            } catch (Throwable $e) {
+                $network_error = $e->getMessage();
+            }
+            if ($network_error !== '') {
+                $errors[] = $rmm_client['rmm_client_name'] . ': its networks - ' . $network_error;
+            }
             mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_synced_at = NOW() WHERE rmm_client_id = " . intval($rmm_client['rmm_client_id']));
         }
 
@@ -1163,6 +1174,8 @@ function rmmSync(array $provider, int $only = 0, int $max_seconds = 120): array
             }
         }
         $note .= $done ? ' - ' . implode(', ', $done) : '';
+        $networks_note = rmmNetworksNote($counts, $short);
+        $note .= $networks_note !== '' ? ". $networks_note" : '';
         if ($stopped) {
             $note .= '. Stopped for time - the rest come in next sync';
         }

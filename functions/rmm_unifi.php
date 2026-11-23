@@ -57,6 +57,7 @@ function rmmUnifiKind(string $key): array
         'links' => ['open' => 'Open in UniFi'],
         'clients' => 'rmmUnifiSites',
         'devices' => 'rmmUnifiDevices',
+        'networks' => 'rmmUnifiNetworks',
         'dashboard' => 'rmmUnifiDashboard',
         'docs_url' => 'https://help.ui.com/hc/en-us/articles/30076656117655',
     ];
@@ -470,19 +471,11 @@ function rmmUnifiDevices(array $provider, string $site): array
         return ['ok' => true, 'devices' => $devices, 'error' => ''];
     }
 
-    $console = '';
-    $site_id = $site;
-    if ($kind === 'unifi_cloud') {
-        $map = rmmUnifiCloudSites();
-        if (!isset($map[$site])) {
-            rmmUnifiSites($provider);
-            $map = rmmUnifiCloudSites();
-        }
-        if (!isset($map[$site])) {
-            return ['ok' => false, 'devices' => [], 'error' => 'Site Manager no longer lists that site'];
-        }
-        [$console, $site_id] = $map[$site];
+    $where = rmmUnifiSiteWhere($provider, $site);
+    if (!$where) {
+        return ['ok' => false, 'devices' => [], 'error' => 'Site Manager no longer lists that site'];
     }
+    [$console, $site_id] = $where;
     $answer = rmmUnifiNetwork($provider, 'sites/' . rawurlencode($site_id) . '/devices', [], $console);
     if (!$answer['ok']) {
         return ['ok' => false, 'devices' => [], 'error' => $answer['error']];
@@ -493,6 +486,100 @@ function rmmUnifiDevices(array $provider, string $site): array
         }
     }
     return ['ok' => true, 'devices' => $devices, 'error' => ''];
+}
+
+/** Where a site is - for Site Manager, the console it is on and its id there: [console, site id], or null when it no longer lists it. */
+function rmmUnifiSiteWhere(array $provider, string $site): ?array
+{
+    if ($provider['rmm_provider_kind'] !== 'unifi_cloud') {
+        return ['', $site];
+    }
+    $map = rmmUnifiCloudSites();
+    if (!isset($map[$site])) {
+        rmmUnifiSites($provider);
+        $map = rmmUnifiCloudSites();
+    }
+    return $map[$site] ?? null;
+}
+
+/**
+ * One site's networks and VLANs - ['ok', 'networks', 'error', 'unoffered'], each as rmmNetworkSave() takes
+ * it (functions/rmm_network.php). Only the ones the gateway or a switch routes, with a subnet, and on:
+ * a WAN, a site-to-site VPN or a VLAN with no subnet isn't one of the client's networks.
+ */
+function rmmUnifiNetworks(array $provider, string $site): array
+{
+    $networks = [];
+    if ($provider['rmm_provider_kind'] === 'unifi') {
+        $answer = rmmUnifiController($provider, 's/' . rawurlencode($site) . '/rest/networkconf');
+        if (!$answer['ok']) {
+            return ['ok' => false, 'networks' => [], 'error' => $answer['error'], 'unoffered' => false];
+        }
+        $purposes = ['corporate' => 'lan', 'guest' => 'guest', 'remote-user-vpn' => 'vpn'];
+        foreach ($answer['data'] as $net) {
+            if (!is_array($net) || !isset($purposes[$net['purpose'] ?? '']) || ($net['enabled'] ?? true) === false || trim((string) ($net['ip_subnet'] ?? '')) === '') {
+                continue;
+            }
+            $dhcp = !empty($net['dhcpd_enabled']);
+            $dns = [];
+            if ($dhcp && !empty($net['dhcpd_dns_enabled'])) {
+                foreach (['dhcpd_dns_1', 'dhcpd_dns_2', 'dhcpd_dns_3', 'dhcpd_dns_4'] as $field) {
+                    if (trim((string) ($net[$field] ?? '')) !== '') {
+                        $dns[] = (string) $net[$field];
+                    }
+                }
+            }
+            $networks[] = [
+                'remote_id' => (string) ($net['_id'] ?? ''),
+                'name' => (string) ($net['name'] ?? ''),
+                'purpose' => $purposes[$net['purpose']],
+                'vlan' => !empty($net['vlan_enabled']) ? intval($net['vlan'] ?? 0) : 0,
+                'subnet' => (string) $net['ip_subnet'],
+                'dhcp_start' => $dhcp ? (string) ($net['dhcpd_start'] ?? '') : '',
+                'dhcp_stop' => $dhcp ? (string) ($net['dhcpd_stop'] ?? '') : '',
+                'dns' => $dns,
+            ];
+        }
+        return ['ok' => true, 'networks' => $networks, 'error' => '', 'unoffered' => false];
+    }
+
+    // The official Network API - the list, then each network's details for its subnet and DHCP
+    $where = rmmUnifiSiteWhere($provider, $site);
+    if (!$where) {
+        return ['ok' => false, 'networks' => [], 'error' => 'Site Manager no longer lists that site', 'unoffered' => false];
+    }
+    [$console, $site_id] = $where;
+    $answer = rmmUnifiNetwork($provider, 'sites/' . rawurlencode($site_id) . '/networks', [], $console);
+    if (!$answer['ok']) {
+        // A Network version older than its networks endpoint - nothing to bring in, and nothing wrong
+        return $answer['code'] === 404 ? ['ok' => true, 'networks' => [], 'error' => '', 'unoffered' => true] : ['ok' => false, 'networks' => [], 'error' => $answer['error'], 'unoffered' => false];
+    }
+    foreach ($answer['data'] as $item) {
+        $id = is_array($item) ? (string) ($item['id'] ?? '') : '';
+        if ($id === '' || !preg_match('/^[A-Za-z0-9-]{1,100}$/', $id) || ($item['enabled'] ?? true) === false || !in_array($item['management'] ?? '', ['GATEWAY', 'SWITCH'], true)) {
+            continue;
+        }
+        $details = rmmUnifiNetwork($provider, 'sites/' . rawurlencode($site_id) . '/networks/' . $id, [], $console, false);
+        if (!$details['ok']) {
+            return ['ok' => false, 'networks' => [], 'error' => $details['error'], 'unoffered' => false];
+        }
+        $ipv4 = is_array($details['data']['ipv4Configuration'] ?? null) ? $details['data']['ipv4Configuration'] : [];
+        if (trim((string) ($ipv4['hostIpAddress'] ?? '')) === '' || !isset($ipv4['prefixLength'])) {
+            continue;
+        }
+        $dhcp = is_array($ipv4['dhcpConfiguration'] ?? null) && ($ipv4['dhcpConfiguration']['mode'] ?? '') === 'SERVER' ? $ipv4['dhcpConfiguration'] : [];
+        $networks[] = [
+            'remote_id' => $id,
+            'name' => (string) ($details['data']['name'] ?? $item['name'] ?? ''),
+            'purpose' => 'lan',
+            'vlan' => intval($details['data']['vlanId'] ?? $item['vlanId'] ?? 0),
+            'subnet' => $ipv4['hostIpAddress'] . '/' . intval($ipv4['prefixLength']),
+            'dhcp_start' => (string) ($dhcp['ipAddressRange']['start'] ?? ''),
+            'dhcp_stop' => (string) ($dhcp['ipAddressRange']['stop'] ?? ''),
+            'dns' => array_map('strval', (array) ($dhcp['dnsServerIpAddressesOverride'] ?? [])),
+        ];
+    }
+    return ['ok' => true, 'networks' => $networks, 'error' => '', 'unoffered' => false];
 }
 
 /** A controller's device (stat/device) as a device. */
