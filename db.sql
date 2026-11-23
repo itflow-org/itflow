@@ -2613,6 +2613,141 @@ CREATE TABLE `payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `phone_calls`
+--
+
+DROP TABLE IF EXISTS `phone_calls`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_calls` (
+  `phone_call_id` int(11) NOT NULL AUTO_INCREMENT,
+  `phone_call_system_id` int(11) NOT NULL,
+  `phone_call_uuid` varchar(64) NOT NULL,
+  `phone_call_domain_id` int(11) NOT NULL DEFAULT 0,
+  `phone_call_client_id` int(11) NOT NULL DEFAULT 0,
+  `phone_call_contact_id` int(11) NOT NULL DEFAULT 0,
+  `phone_call_direction` varchar(10) NOT NULL DEFAULT '',
+  `phone_call_number` varchar(32) NOT NULL DEFAULT '',
+  `phone_call_name` varchar(100) NOT NULL DEFAULT '',
+  `phone_call_dialed` varchar(32) NOT NULL DEFAULT '',
+  `phone_call_extension` varchar(32) NOT NULL DEFAULT '',
+  `phone_call_user_id` int(11) NOT NULL DEFAULT 0,
+  `phone_call_status` varchar(20) NOT NULL DEFAULT '',
+  `phone_call_started_at` datetime NOT NULL,
+  `phone_call_answered_at` datetime DEFAULT NULL,
+  `phone_call_seconds` int(11) NOT NULL DEFAULT 0,
+  `phone_call_talk_seconds` int(11) NOT NULL DEFAULT 0,
+  `phone_call_hangup_cause` varchar(50) NOT NULL DEFAULT '',
+  `phone_call_recording` varchar(500) DEFAULT NULL,
+  `phone_call_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `phone_call_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`phone_call_id`),
+  UNIQUE KEY `phone_call_uuid` (`phone_call_system_id`,`phone_call_uuid`),
+  KEY `phone_call_client_id` (`phone_call_client_id`,`phone_call_started_at`),
+  KEY `phone_call_contact_id` (`phone_call_contact_id`,`phone_call_started_at`),
+  KEY `phone_call_started_at` (`phone_call_started_at`),
+  KEY `phone_call_ticket_id` (`phone_call_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `phone_devices`
+--
+
+DROP TABLE IF EXISTS `phone_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_devices` (
+  `phone_device_id` int(11) NOT NULL AUTO_INCREMENT,
+  `phone_device_system_id` int(11) NOT NULL,
+  `phone_device_mac` varchar(12) NOT NULL,
+  `phone_device_vendor` varchar(30) NOT NULL DEFAULT '',
+  `phone_device_model` varchar(100) NOT NULL DEFAULT '',
+  `phone_device_firmware` varchar(100) NOT NULL DEFAULT '',
+  `phone_device_ip` varchar(64) NOT NULL DEFAULT '',
+  `phone_device_line` varchar(100) NOT NULL DEFAULT '',
+  `phone_device_domain_id` int(11) NOT NULL DEFAULT 0,
+  `phone_device_client_id` int(11) NOT NULL DEFAULT 0,
+  `phone_device_asset_id` int(11) NOT NULL DEFAULT 0,
+  `phone_device_status` varchar(20) NOT NULL DEFAULT '',
+  `phone_device_status_at` datetime DEFAULT NULL,
+  `phone_device_heard_at` datetime DEFAULT NULL,
+  `phone_device_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`phone_device_id`),
+  UNIQUE KEY `phone_device_mac` (`phone_device_system_id`,`phone_device_mac`),
+  KEY `phone_device_asset_id` (`phone_device_asset_id`),
+  KEY `phone_device_client_id` (`phone_device_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `phone_domains`
+--
+
+DROP TABLE IF EXISTS `phone_domains`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_domains` (
+  `phone_domain_id` int(11) NOT NULL AUTO_INCREMENT,
+  `phone_domain_system_id` int(11) NOT NULL,
+  `phone_domain_name` varchar(255) NOT NULL,
+  `phone_domain_client_id` int(11) NOT NULL DEFAULT 0,
+  `phone_domain_seen_at` datetime DEFAULT NULL,
+  `phone_domain_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`phone_domain_id`),
+  UNIQUE KEY `phone_domain_name` (`phone_domain_system_id`,`phone_domain_name`),
+  KEY `phone_domain_client_id` (`phone_domain_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `phone_events`
+--
+
+DROP TABLE IF EXISTS `phone_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_events` (
+  `phone_event_id` int(11) NOT NULL AUTO_INCREMENT,
+  `phone_event_system_id` int(11) NOT NULL,
+  `phone_event_domain_id` int(11) NOT NULL DEFAULT 0,
+  `phone_event_line` varchar(100) NOT NULL DEFAULT '',
+  `phone_event_user_id` int(11) NOT NULL DEFAULT 0,
+  `phone_event_kind` varchar(20) NOT NULL,
+  `phone_event_call` varchar(100) NOT NULL DEFAULT '',
+  `phone_event_number` varchar(32) NOT NULL DEFAULT '',
+  `phone_event_name` varchar(100) NOT NULL DEFAULT '',
+  `phone_event_contact_id` int(11) NOT NULL DEFAULT 0,
+  `phone_event_client_id` int(11) NOT NULL DEFAULT 0,
+  `phone_event_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`phone_event_id`),
+  KEY `phone_event_user_id` (`phone_event_user_id`,`phone_event_id`),
+  KEY `phone_event_at` (`phone_event_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `phone_systems`
+--
+
+DROP TABLE IF EXISTS `phone_systems`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_systems` (
+  `phone_system_id` int(11) NOT NULL AUTO_INCREMENT,
+  `phone_system_kind` varchar(50) NOT NULL,
+  `phone_system_name` varchar(100) NOT NULL,
+  `phone_system_web_url` varchar(500) NOT NULL DEFAULT '',
+  `phone_system_key` varchar(100) NOT NULL,
+  `phone_system_active` tinyint(1) NOT NULL DEFAULT 1,
+  `phone_system_heard_at` datetime DEFAULT NULL,
+  `phone_system_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `phone_system_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`phone_system_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `po_items`
 --
 
@@ -3027,15 +3162,20 @@ CREATE TABLE `rack_units` (
   `unit_type` varchar(50) DEFAULT NULL,
   `unit_power_watts` int(11) DEFAULT NULL,
   `unit_notes` varchar(255) DEFAULT NULL,
+  `unit_slots` int(11) NOT NULL DEFAULT 0,
+  `unit_position` int(11) NOT NULL DEFAULT 0,
   `unit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `unit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `unit_archived_at` datetime DEFAULT NULL,
   `unit_asset_id` int(11) DEFAULT NULL,
   `unit_rack_id` int(11) NOT NULL,
+  `unit_parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`unit_id`),
   KEY `unit_rack_id` (`unit_rack_id`),
   KEY `unit_asset_id` (`unit_asset_id`),
-  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE
+  KEY `unit_parent_id` (`unit_parent_id`),
+  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE,
+  CONSTRAINT `rack_units_ibfk_2` FOREIGN KEY (`unit_parent_id`) REFERENCES `rack_units` (`unit_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3458,6 +3598,7 @@ CREATE TABLE `rmm_devices` (
   `rmm_device_id` int(11) NOT NULL AUTO_INCREMENT,
   `rmm_device_provider_id` int(11) NOT NULL,
   `rmm_device_remote_id` varchar(100) NOT NULL,
+  `rmm_device_mac` varchar(12) NOT NULL DEFAULT '',
   `rmm_device_asset_id` int(11) NOT NULL DEFAULT 0,
   `rmm_device_client_id` int(11) NOT NULL DEFAULT 0,
   `rmm_device_rmm_client_id` int(11) NOT NULL DEFAULT 0,
@@ -3485,7 +3626,34 @@ CREATE TABLE `rmm_devices` (
   PRIMARY KEY (`rmm_device_id`),
   UNIQUE KEY `rmm_device_remote` (`rmm_device_provider_id`,`rmm_device_remote_id`),
   KEY `rmm_device_asset_id` (`rmm_device_asset_id`),
-  KEY `rmm_device_client_id` (`rmm_device_client_id`)
+  KEY `rmm_device_client_id` (`rmm_device_client_id`),
+  KEY `rmm_device_mac` (`rmm_device_mac`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rmm_networks`
+--
+
+DROP TABLE IF EXISTS `rmm_networks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_networks` (
+  `rmm_network_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_network_provider_id` int(11) NOT NULL,
+  `rmm_network_rmm_client_id` int(11) NOT NULL,
+  `rmm_network_remote_id` varchar(100) NOT NULL,
+  `rmm_network_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_network_network_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_network_name` varchar(200) NOT NULL DEFAULT '',
+  `rmm_network_synced` text DEFAULT NULL,
+  `rmm_network_synced_at` datetime DEFAULT NULL,
+  `rmm_network_removed_at` datetime DEFAULT NULL,
+  `rmm_network_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rmm_network_id`),
+  UNIQUE KEY `rmm_network_remote` (`rmm_network_provider_id`,`rmm_network_rmm_client_id`,`rmm_network_remote_id`),
+  KEY `rmm_network_network_id` (`rmm_network_network_id`),
+  KEY `rmm_network_client_id` (`rmm_network_client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3504,6 +3672,7 @@ CREATE TABLE `rmm_providers` (
   `rmm_provider_web_url` varchar(500) NOT NULL DEFAULT '',
   `rmm_provider_api_key` varchar(500) NOT NULL DEFAULT '',
   `rmm_provider_api_secret` varchar(500) NOT NULL DEFAULT '',
+  `rmm_provider_insecure` tinyint(1) NOT NULL DEFAULT 0,
   `rmm_provider_active` tinyint(1) NOT NULL DEFAULT 1,
   `rmm_provider_sync_at` datetime DEFAULT NULL,
   `rmm_provider_sync_ok` tinyint(1) NOT NULL DEFAULT 0,
@@ -3513,9 +3682,42 @@ CREATE TABLE `rmm_providers` (
   `rmm_provider_alerts_since` datetime DEFAULT NULL,
   `rmm_provider_alerts_at` datetime DEFAULT NULL,
   `rmm_provider_alerts_note` varchar(500) DEFAULT NULL,
+  `rmm_provider_asset_types` varchar(1000) DEFAULT NULL,
   `rmm_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `rmm_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`rmm_provider_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `rmm_seen`
+--
+
+DROP TABLE IF EXISTS `rmm_seen`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rmm_seen` (
+  `rmm_seen_id` int(11) NOT NULL AUTO_INCREMENT,
+  `rmm_seen_provider_id` int(11) NOT NULL,
+  `rmm_seen_rmm_client_id` int(11) NOT NULL,
+  `rmm_seen_client_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_seen_asset_id` int(11) NOT NULL DEFAULT 0,
+  `rmm_seen_mac` varchar(12) NOT NULL,
+  `rmm_seen_hostname` varchar(200) NOT NULL DEFAULT '',
+  `rmm_seen_ip` varchar(100) NOT NULL DEFAULT '',
+  `rmm_seen_via_mac` varchar(12) NOT NULL DEFAULT '',
+  `rmm_seen_port` varchar(50) NOT NULL DEFAULT '',
+  `rmm_seen_wired` tinyint(1) NOT NULL DEFAULT 1,
+  `rmm_seen_ssid` varchar(100) NOT NULL DEFAULT '',
+  `rmm_seen_network` varchar(200) NOT NULL DEFAULT '',
+  `rmm_seen_vlan` int(11) NOT NULL DEFAULT 0,
+  `rmm_seen_at` datetime DEFAULT NULL,
+  `rmm_seen_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rmm_seen_id`),
+  UNIQUE KEY `rmm_seen_device` (`rmm_seen_provider_id`,`rmm_seen_rmm_client_id`,`rmm_seen_mac`),
+  KEY `rmm_seen_asset_id` (`rmm_seen_asset_id`),
+  KEY `rmm_seen_via` (`rmm_seen_provider_id`,`rmm_seen_via_mac`),
+  KEY `rmm_seen_client_id` (`rmm_seen_client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -5112,6 +5314,7 @@ CREATE TABLE `user_settings` (
   `user_config_compact_rows` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_booking_reminder` int(11) DEFAULT NULL,
   `user_config_reminder_email` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_phone_line` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

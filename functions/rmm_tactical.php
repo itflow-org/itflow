@@ -75,6 +75,9 @@ function rmmTacticalClients(array $provider): array
     if (!$answer['ok']) {
         return ['ok' => false, 'clients' => [], 'error' => $answer['error']];
     }
+    if (!rmmIsList($answer['json'])) {
+        return ['ok' => false, 'clients' => [], 'error' => rmmProviderName($provider) . ' answered, but not with a list of its clients - nothing was changed'];
+    }
     $clients = [];
     foreach ($answer['json'] as $client) {
         if (!is_array($client) || !isset($client['id']) || !isset($client['name'])) {
@@ -97,6 +100,9 @@ function rmmTacticalDevices(array $provider, string $client_remote_id): array
     $answer = rmmTacticalRequest($provider, 'GET', '/agents/', ['client' => $client_remote_id], null, 60);
     if (!$answer['ok']) {
         return ['ok' => false, 'devices' => [], 'error' => $answer['error']];
+    }
+    if (!rmmIsList($answer['json'])) {
+        return ['ok' => false, 'devices' => [], 'error' => rmmProviderName($provider) . ' answered, but not with a list of agents - nothing was changed'];
     }
     $devices = [];
     foreach ($answer['json'] as $agent) {
@@ -151,6 +157,9 @@ function rmmTacticalAlerts(array $provider): array
     $answer = rmmTacticalRequest($provider, 'PATCH', '/alerts/', [], ['resolvedFilter' => false], 60);
     if (!$answer['ok']) {
         return ['ok' => false, 'alerts' => [], 'error' => $answer['error']];
+    }
+    if (!rmmIsList($answer['json'])) {
+        return ['ok' => false, 'alerts' => [], 'error' => rmmProviderName($provider) . ' answered, but not with a list of alerts - nothing was changed'];
     }
     $alerts = [];
     foreach ($answer['json'] as $alert) {

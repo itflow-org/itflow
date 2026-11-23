@@ -502,7 +502,7 @@ $export_extra = [
                     <?php } ?>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label small text-body-secondary mb-1">Created</label>
-                        <input type="text" id="dateFilter" class="form-control" autocomplete="off" placeholder="Any time">
+                        <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($dtf ?? '', $dtt ?? '')) ?>" class="form-control" autocomplete="off" placeholder="Any time">
                         <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                         <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                         <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">

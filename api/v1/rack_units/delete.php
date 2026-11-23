@@ -3,7 +3,8 @@
  * API - Rack Units - Delete
  * POST /api/v1/rack_units/delete.php
  *
- * Take an item out of its rack, as Remove does - the asset stays.
+ * Take an item out of its rack, as Remove does - the asset stays. A holder takes
+ * what is in it out with it.
  *
  * Parameters (POST, JSON body): api_key, unit_id, client_id (the rack's client -
  * needed when the key's user is limited to certain clients)
@@ -18,11 +19,12 @@ require_once 'unit_find.php';
 
 if ($unit) {
 
+    $children = rackChildCount($unit_id);
     mysqli_query($mysqli, "DELETE FROM rack_units WHERE unit_id = $unit_id");
     $delete_count = mysqli_affected_rows($mysqli);
 
     if ($delete_count > 0) {
-        $what = escapeSql(rackUnitName($unit['asset_name'], $unit['unit_device'], $unit['unit_type']) . ' from rack ' . $rack['rack_name']);
+        $what = escapeSql(rackUnitName($unit['asset_name'], $unit['unit_device'], $unit['unit_type']) . ($children ? ' and the ' . rackDeviceCount($children) . ' in it' : '') . ' from rack ' . $rack['rack_name']);
         logAudit("Rack", "Edit", "Removed $what via API ($api_key_name)", $client_id, $rack_id);
         logAudit("API", "Success", "Removed $what via API ($api_key_name)", $client_id);
     }

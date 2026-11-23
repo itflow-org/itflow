@@ -98,6 +98,8 @@ define('FROM_CLIENT_ONBOARDING', true);
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/sweetalert2/css/sweetalert2.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/intl-tel-input/css/intlTelInput.min.css') ?>">
     <link rel="stylesheet" href="<?= staticFileUrl('/css/itflow_custom.css') ?>">
+    <!-- "- Anyone -" choices without their dashes from the first paint (js/itflow_select_early.js) -->
+    <script src="<?= staticFileUrl('/js/itflow_select_early.js') ?>"></script>
 </head>
 
 <body class="itflow-setup itflow-gs itflow-co bg-body-tertiary" data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">

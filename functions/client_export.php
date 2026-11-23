@@ -309,7 +309,7 @@ function clientExportDatasets() {
         ] + $archived],
         'rack_units' => ['section' => 'racks', 'label' => 'Rack contents', 'columns' => [
             'rack' => 'Rack', 'from_unit' => 'From unit', 'to_unit' => 'To unit', 'face' => 'Face', 'device' => 'Device', 'asset' => 'Asset', 'type' => 'Type',
-            'power_watts' => 'Power (W)', 'full_depth' => 'Full depth', 'notes' => 'Notes',
+            'power_watts' => 'Power (W)', 'full_depth' => 'Full depth', 'notes' => 'Notes', 'holder' => 'In holder', 'slot' => 'Slot',
         ]],
         'licenses' => ['section' => 'software', 'label' => 'Licenses', 'columns' => [
             'id' => 'ID', 'name' => 'Name', 'version' => 'Version', 'type' => 'Type', 'license_type' => 'License type', 'key' => 'License key', 'seats' => 'Seats',
@@ -616,12 +616,16 @@ function clientExportRows($dataset, $client_id, $options) {
             break;
 
         case 'rack_units':
-            foreach ($fetch("SELECT rack_units.*, rack_name FROM rack_units JOIN racks ON rack_id = unit_rack_id
-                WHERE rack_client_id = $client_id" . $live('rack_archived_at') . $live('unit_archived_at') . " ORDER BY rack_name, unit_face, unit_start_number") as $row) {
+            foreach ($fetch("SELECT rack_units.*, rack_name, holder.unit_device AS holder_device, holder.unit_type AS holder_type, holder.unit_asset_id AS holder_asset_id
+                FROM rack_units JOIN racks ON rack_id = rack_units.unit_rack_id
+                LEFT JOIN rack_units holder ON holder.unit_id = rack_units.unit_parent_id
+                WHERE rack_client_id = $client_id" . $live('rack_archived_at') . $live('rack_units.unit_archived_at') . " ORDER BY rack_name, rack_units.unit_face, rack_units.unit_start_number, rack_units.unit_position") as $row) {
                 $asset = $name('asset', $row['unit_asset_id']);
+                $holder = $row['unit_parent_id'] ? rackUnitName($name('asset', $row['holder_asset_id']), $row['holder_device'], $row['holder_type']) : '';
                 $rows[] = ['rack' => $row['rack_name'], 'from_unit' => $row['unit_start_number'], 'to_unit' => $row['unit_end_number'], 'face' => ucfirst((string) $row['unit_face']),
                     'device' => $row['unit_device'] ?: $asset, 'asset' => $asset, 'type' => $row['unit_type'], 'power_watts' => $row['unit_power_watts'] ?: '',
-                    'full_depth' => clientExportYes($row['unit_full_depth']), 'notes' => $row['unit_notes'], '_rack_id' => intval($row['unit_rack_id'])];
+                    'full_depth' => clientExportYes($row['unit_full_depth']), 'notes' => $row['unit_notes'], 'holder' => $holder, 'slot' => $holder !== '' ? intval($row['unit_position']) : '',
+                    '_rack_id' => intval($row['unit_rack_id'])];
             }
             break;
 
@@ -1356,7 +1360,7 @@ function clientExportPdf($client_id, $options) {
             $list = $units[$rack['name']] ?? [];
             usort($list, function ($a, $b) { return intval($b['from_unit']) <=> intval($a['from_unit']); });
             $write($list ? clientExportPdfTable(['Units' => 12, 'Face' => 10, 'Device' => 38, 'Type' => 16, 'Power' => 10, 'Notes' => 14], array_map(function ($u) use ($e) {
-                $span = intval($u['from_unit']) === intval($u['to_unit']) ? 'U' . $u['from_unit'] : 'U' . $u['from_unit'] . '-' . $u['to_unit'];
+                $span = (intval($u['from_unit']) === intval($u['to_unit']) ? 'U' . $u['from_unit'] : 'U' . $u['from_unit'] . '-' . $u['to_unit']) . ($u['holder'] !== '' ? ', slot ' . $u['slot'] : '');
                 return [$e($span), $e($u['face']), '<b>' . $e($u['device']) . '</b>', $e($u['type']), $e($u['power_watts'] ? $u['power_watts'] . ' W' : ''), $e($u['notes'])];
             }, $list)) : '<span style="color:#6c757d;">Nothing documented in this rack.</span>');
         }

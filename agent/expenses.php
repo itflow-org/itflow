@@ -193,7 +193,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-6">
-                    <input type="text" id="dateFilter" class="form-control" autocomplete="off" title="Date paid" aria-label="Date paid">
+                    <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($dtf ?? '', $dtt ?? '')) ?>" class="form-control" autocomplete="off" title="Date paid" aria-label="Date paid">
                     <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                     <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                     <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">

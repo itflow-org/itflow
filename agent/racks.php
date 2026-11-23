@@ -230,7 +230,8 @@ foreach ($racks as $rack_id => $row) {
                                 <?php /* The front, to scale: a full-depth item from the rear fills it too */ ?>
                                 <div class="itflow-rack-mini" style="--rack-rows: <?= $rack_units ?>" aria-hidden="true">
                                     <?php foreach ($rack_items as $item) {
-                                        if (!rackUnitOnFace($item['face'], $item['full_depth'], 'front')) {
+                                        // A device in a holder is drawn by its holder
+                                        if ($item['parent_id'] || !rackUnitOnFace($item['face'], $item['full_depth'], 'front')) {
                                             continue;
                                         } ?>
                                         <span class="itflow-rack-tone-<?= $item['tone'] ?><?= $item['face'] !== 'front' ? ' is-ghost' : '' ?>" style="grid-row: <?= rackGridRow($item['start'], $item['end'], $rack_units, $rack_units_descending) ?> / span <?= $item['height'] ?>"></span>

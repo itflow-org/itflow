@@ -279,9 +279,122 @@ if (isset($_GET['delete_asset'])) {
     // Its logins stay with the client, no longer pointing at an asset that is gone
     credentialsForget('asset', $asset_id);
 
+    // Its device in an RMM keeps no asset - Bring back on its client's row brings it in again (functions/rmm.php)
+    $in_rmm = rmmAssetsDeleted([$asset_id]);
+
     logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
-    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> deleted", 'error');
+    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> deleted" . ($in_rmm ? ' - the next sync won\'t bring it in again. Bring back on its client\'s row in Admin > RMM Providers does.' : ''), 'error');
+
+    redirect();
+
+}
+
+// Link a device from an RMM to another of its client's assets (modals/asset/asset_rmm_link.php)
+if (isset($_POST['rmm_link_asset'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $device = rmmDeviceById(intval($_POST['device_id'] ?? 0));
+    if (!$device) {
+        flashAlert('That device is no longer in its RMM.', 'error');
+        redirect();
+    }
+    $client_id = intval($device['rmm_device_client_id']);
+
+    enforceClientAccess();
+
+    $asset_id = intval($_POST['asset_id'] ?? 0);
+    $had = intval($device['rmm_device_asset_id']);
+    $had_row = $had ? rmmAssetCurrent($had) : null;
+    $problem = rmmDeviceLinkAsset($device, $asset_id);
+    if ($problem !== '') {
+        flashAlert(escapeHtml($problem), 'error');
+        redirect();
+    }
+
+    // What the asset picked is missing comes in now
+    set_time_limit(180);
+    $provider = rmmProviderRow($device['rmm_device_provider_id']);
+    $sync = $provider ? rmmSync($provider, intval($device['rmm_device_rmm_client_id']), 60) : ['ok' => false, 'note' => ''];
+
+    $message = '<strong>' . escapeHtml($device['rmm_device_hostname']) . '</strong> in ' . escapeHtml(rmmProviderName($device)) . ' linked to <strong>' . escapeHtml((string) getFieldById('assets', $asset_id, 'asset_name')) . '</strong>';
+    if (!$sync['ok'] && $sync['note'] !== '') {
+        $message .= '. What it is missing comes in at the next sync - ' . escapeHtml($sync['note']);
+    }
+
+    // And the asset it had archived, when asked - with Undo
+    $undo = null;
+    if (!empty($_POST['archive_old']) && $had_row && getFieldById('assets', $had, 'asset_archived_at') === null) {
+        $undo = undoArchiveBefore('asset', $had);
+        $had_name = escapeSql($had_row['name']);
+        mysqli_query($mysqli, "UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $had");
+        mysqli_query($mysqli, "INSERT INTO asset_history SET asset_history_status = 'Archived', asset_history_description = '$session_name archived $had_name', asset_history_asset_id = $had");
+        logAudit("Asset", "Archive", "$session_name archived asset $had_name", $client_id, $had);
+        $message .= ' - <strong>' . escapeHtml($had_row['name']) . '</strong> archived';
+    }
+
+    flashAlert($message, $undo ? 'error' : 'success');
+    if ($undo) {
+        undoOfferArchive($undo);
+    }
+
+    redirect("asset.php?client_id=$client_id&asset_id=$asset_id");
+
+}
+
+// An asset's contact from who is signed in to its device in an RMM (the card on the asset page)
+if (isset($_POST['rmm_assign_contact'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_POST['asset_id'] ?? 0);
+    $contact_id = intval($_POST['contact_id'] ?? 0);
+    $client_id = intval(getFieldById('assets', $asset_id, 'asset_client_id'));
+    if (!$client_id || !$contact_id) {
+        flashAlert('That asset no longer exists.', 'error');
+        redirect();
+    }
+
+    enforceClientAccess();
+
+    [$ok, $message] = assetQuickSet($asset_id, 'asset_contact', (string) $contact_id);
+    flashAlert(escapeHtml($message !== '' ? $message : 'Assigned'), $ok ? 'success' : 'error');
+
+    redirect();
+
+}
+
+// Assets' contacts from who is signed in to their devices - the ones with nobody assigned (the assets list's Bulk Action)
+if (isset($_POST['bulk_rmm_assign_contacts'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['asset_ids'] ?? [])))));
+    foreach ($asset_ids as $asset_id) {
+        $client_id = intval(getFieldById('assets', $asset_id, 'asset_client_id'));
+        enforceClientAccess();
+    }
+
+    $counts = rmmAssignUserContacts($asset_ids);
+    $assigned = $counts['assigned'];
+    $message = $assigned ? "Assigned <strong>$assigned</strong> asset" . ($assigned === 1 ? '' : 's') . ' to who is signed in' : 'Nobody assigned';
+    if ($counts['had']) {
+        $message .= ". {$counts['had']} already had a contact";
+    }
+    if ($counts['none']) {
+        $message .= ". {$counts['none']} " . ($counts['none'] === 1 ? 'has' : 'have') . " nobody signed in who is one of the client's contacts";
+    }
+    if ($assigned) {
+        logAudit("Asset", "Bulk Edit", "$session_name assigned $assigned assets to their signed-in users");
+    }
+    flashAlert($message, $assigned ? 'success' : 'info');
 
     redirect();
 

@@ -118,6 +118,8 @@ function auditLogKinds() {
         'AI Provider' => ['icon' => 'fa-robot'],
         'AI Model' => ['icon' => 'fa-brain'],
         'RMM Provider' => ['icon' => 'fa-laptop-medical'],
+        'Network Platform' => ['icon' => 'fa-network-wired'],
+        'Phone System' => ['icon' => 'fa-phone-volume'],
         'Starter Content' => ['icon' => 'fa-seedling'],
         'Demo Data' => ['icon' => 'fa-flask'],
         'Demo' => ['icon' => 'fa-flask'],

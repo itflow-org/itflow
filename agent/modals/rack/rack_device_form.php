@@ -1,24 +1,43 @@
 <?php
 /*
  * Rack item form - shared by rack_device_add.php and rack_device_edit.php,
- * which load the rack ($rack_id, $rack_units, $client_id) and the item's
- * current values ($unit_*, empty for a new one) before including this.
- * Should not be accessed directly.
+ * which load the rack ($rack_id, $rack_units, $rack_units_descending,
+ * $client_id) and the item's current values ($unit_*, empty for a new one -
+ * $unit_holder_id and $unit_slot for one in a holder, $unit_slots for one that
+ * holds devices) before including this. Should not be accessed directly.
  *
- * The live position check below is advisory - agent/post/rack.php runs the
- * same bounds, overlap and asset checks again on submit.
+ * The live position and slot checks below are advisory - agent/post/rack.php
+ * runs the same bounds, overlap, slot and asset checks (rackPlacement()) again
+ * on submit.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
 
-// Everything else in the rack, for the live position check
+// Everything else in the rack, for the live position check - and the holders
+// it could go in, with what is in each, for the slot check
 $rack_other_units = [];
-$sql = mysqli_query($mysqli, "SELECT unit_id, unit_device, unit_type, unit_start_number, unit_end_number, unit_face, unit_full_depth, asset_name
+$rack_holders = [];
+$rack_holder_taken = [];
+$sql = mysqli_query($mysqli, "SELECT unit_id, unit_device, unit_type, unit_start_number, unit_end_number, unit_face, unit_full_depth,
+        unit_slots, unit_parent_id, unit_position, asset_name, asset_type
     FROM rack_units
     LEFT JOIN assets ON asset_id = unit_asset_id
     WHERE unit_rack_id = $rack_id AND unit_id != $unit_id
-    ORDER BY unit_start_number");
+    ORDER BY unit_start_number DESC, unit_position");
 while ($row = mysqli_fetch_assoc($sql)) {
+    if (intval($row['unit_parent_id'])) {
+        $rack_holder_taken[intval($row['unit_parent_id'])][intval($row['unit_position'])] = rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type']);
+        continue;
+    }
+    if (intval($row['unit_slots']) > 0) {
+        $rack_holders[intval($row['unit_id'])] = [
+            'id' => intval($row['unit_id']),
+            'name' => rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type']),
+            'slots' => intval($row['unit_slots']),
+            'where' => html_entity_decode(rackPositionLabel($row['unit_start_number'], $row['unit_end_number'])) . ', ' . ($row['unit_face'] === 'rear' ? 'rear' : 'front'),
+            'icon' => rackItemStyle($row['asset_type'], $row['unit_type'], $row['asset_name'] !== null)['icon'],
+        ];
+    }
     $rack_other_units[] = [
         'start' => intval($row['unit_start_number']),
         'end' => intval($row['unit_end_number']),
@@ -45,6 +64,18 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
 $unit_is_asset = $unit_asset_id > 0 || ($unit_id === 0 && $unit_device === '');
 $item_types = rackItemTypes();
+
+// Each holder's slots: what is in them, and how far they go (one row past what is used)
+foreach ($rack_holders as $holder_id => $holder) {
+    $taken = $rack_holder_taken[$holder_id] ?? [];
+    $rack_holders[$holder_id]['taken'] = (object) $taken;
+    $rack_holders[$holder_id]['limit'] = rackSlotLimit($holder['slots'], $taken ? max(array_keys($taken)) : 0);
+}
+// A holder that holds something can't go in one, and one this item is in has to stay listed
+$unit_children = $unit_id ? rackChildCount($unit_id) : 0;
+$unit_holder_id = isset($rack_holders[$unit_holder_id]) && !$unit_children ? $unit_holder_id : 0;
+$unit_in_holder = $unit_holder_id > 0;
+$rack_slot_order = $rack_units_descending ? 'Slot 1 is at the top left, counting across and then down a row' : 'Slot 1 is at the bottom left, counting across and then up a row';
 
 ?>
 
@@ -98,7 +129,32 @@ $item_types = rackItemTypes();
     </div>
 </div>
 
-<div class="row g-3 mb-1">
+<?php if ($rack_holders && !$unit_children) { ?>
+    <div class="mb-3">
+        <label class="form-label">Goes in</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-layer-group"></i></span>
+            <select class="form-select select2" name="holder" id="rackItemHolder">
+                <option value="0"<?= selectOptionData(['icon' => 'fas fa-server']) ?>>The rack</option>
+                <?php foreach ($rack_holders as $holder) { ?>
+                    <option value="<?= $holder['id'] ?>" <?php if ($holder['id'] === $unit_holder_id) { echo "selected"; } ?><?= selectOptionData(['icon' => 'fas ' . $holder['icon'], 'description' => $holder['where'] . ' - ' . $holder['slots'] . ' across']) ?>><?= escapeHtml($holder['name']) ?></option>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3" data-rack-in="holder">
+        <label class="form-label" for="rackItemSlot">Slot <strong class="text-danger">*</strong></label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-th"></i></span>
+            <input type="number" class="form-control" name="slot" id="rackItemSlot" min="1" value="<?= $unit_slot ?: '' ?>">
+        </div>
+        <div class="form-text"><?= $rack_slot_order ?>.</div>
+        <div class="itflow-rack-fit small mt-2" id="rackItemSlotFit" aria-live="polite"></div>
+    </div>
+<?php } ?>
+
+<div class="row g-3 mb-1" data-rack-in="rack">
     <div class="col-sm-4">
         <label class="form-label" for="rackItemStart">Lowest U <strong class="text-danger">*</strong></label>
         <div class="input-group">
@@ -125,12 +181,35 @@ $item_types = rackItemTypes();
     </div>
 </div>
 
-<div class="form-check form-switch mt-2">
-    <input class="form-check-input" type="checkbox" name="full_depth" value="1" id="rackItemFullDepth" <?= $unit_full_depth ? 'checked' : '' ?>>
-    <label class="form-check-label" for="rackItemFullDepth">Full depth <span class="text-secondary">- fills the front and the rear</span></label>
-</div>
+<div data-rack-in="rack">
+    <div class="form-check form-switch mt-2">
+        <input class="form-check-input" type="checkbox" name="full_depth" value="1" id="rackItemFullDepth" <?= $unit_full_depth ? 'checked' : '' ?>>
+        <label class="form-check-label" for="rackItemFullDepth">Full depth <span class="text-secondary">- fills the front and the rear</span></label>
+    </div>
 
-<div class="itflow-rack-fit small mt-2 mb-3" id="rackItemFit" aria-live="polite"></div>
+    <div class="itflow-rack-fit small mt-2 mb-3" id="rackItemFit" aria-live="polite"></div>
+
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="holds" value="1" id="rackItemHolds" <?= $unit_slots ? 'checked' : '' ?><?= $unit_children ? ' disabled' : '' ?>>
+        <label class="form-check-label" for="rackItemHolds">Holds devices side by side <span class="text-secondary">- a bracket, shelf or chassis</span></label>
+        <?php if ($unit_children) { ?>
+            <input type="hidden" name="holds" value="1">
+        <?php } ?>
+    </div>
+    <div class="mt-2 mb-3" id="rackItemSlotsRow">
+        <div class="input-group itflow-rack-slots-input">
+            <span class="input-group-text"><i class="fas fa-fw fa-th"></i></span>
+            <input type="number" class="form-control" name="slots" id="rackItemSlots" min="1" max="<?= RACK_SLOTS_MAX ?>" value="<?= $unit_slots ?: 2 ?>">
+            <span class="input-group-text">across</span>
+        </div>
+        <div class="form-text">
+            How many fit side by side - more than that wrap onto another row, for stacks.
+            <?php if ($unit_children) { ?>
+                It holds <?= rackDeviceCount($unit_children) ?> now.
+            <?php } ?>
+        </div>
+    </div>
+</div>
 
 <div class="row g-3">
     <div class="col-sm-5">
@@ -153,6 +232,7 @@ $item_types = rackItemTypes();
 <script>
 (function () {
     var others = <?= json_encode($rack_other_units, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    var holders = <?= json_encode((object) $rack_holders, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     var rackUnits = <?= intval($rack_units) ?>;
 
     var form = document.getElementById('rackItemFit').closest('form');
@@ -163,6 +243,11 @@ $item_types = rackItemTypes();
     var nameInput = form.querySelector('#rackItemName');
     var assetSelect = form.querySelector('#rackItemAsset');
     var typeSelect = form.querySelector('#rackItemType');
+    var holderSelect = form.querySelector('#rackItemHolder');
+    var slot = form.querySelector('#rackItemSlot');
+    var slotFit = form.querySelector('#rackItemSlotFit');
+    var holds = form.querySelector('#rackItemHolds');
+    var slotsRow = form.querySelector('#rackItemSlotsRow');
 
     // Things that sit at the front and leave the back free, as a starting point
     var halfDepthTypes = ['Patch Panel', 'Cable Management', 'Blanking Panel'];
@@ -181,7 +266,7 @@ $item_types = rackItemTypes();
     }
 
     function setText(el, icon, cls, text) {
-        el.className = 'itflow-rack-fit small mt-2 mb-3 ' + cls;
+        el.className = 'itflow-rack-fit small mt-2' + (el === fit ? ' mb-3 ' : ' ') + cls;
         el.textContent = '';
         var i = document.createElement('i');
         i.className = 'fas fa-fw me-1 ' + icon;
@@ -214,6 +299,62 @@ $item_types = rackItemTypes();
         }
     }
 
+    // The holder it goes in, or null for the rack itself
+    function holder() {
+        return holderSelect && holders[holderSelect.value] ? holders[holderSelect.value] : null;
+    }
+
+    // The first slot nothing is in
+    function firstFree(h) {
+        for (var n = 1; n <= h.limit; n++) {
+            if (!h.taken[n]) {
+                return n;
+            }
+        }
+        return h.limit;
+    }
+
+    function checkSlot() {
+        var h = holder();
+        if (!h) {
+            return;
+        }
+        var n = parseInt(slot.value, 10);
+        if (!n) {
+            slotFit.textContent = '';
+            slotFit.className = 'itflow-rack-fit small mt-2';
+            return;
+        }
+        if (n < 1 || n > h.limit) {
+            setText(slotFit, 'fa-times-circle', 'text-danger', h.name + ' has slots 1 to ' + h.limit);
+        } else if (h.taken[n]) {
+            setText(slotFit, 'fa-times-circle', 'text-danger', 'Slot ' + n + ' has ' + h.taken[n] + ' in it');
+        } else {
+            setText(slotFit, 'fa-check-circle', 'text-success', 'Slot ' + n + ' in ' + h.name + ' is free');
+        }
+    }
+
+    // In a holder the units, face and depth are the holder's, and it can't hold devices of its own
+    function applyPlace() {
+        var h = holder();
+        form.querySelectorAll('[data-rack-in]').forEach(function (el) {
+            el.classList.toggle('d-none', el.getAttribute('data-rack-in') !== (h ? 'holder' : 'rack'));
+        });
+        start.required = !h;
+        height.required = !h;
+        if (slot) {
+            slot.required = !!h;
+            if (h) {
+                slot.max = h.limit;
+                if (!slot.value || (h.taken[parseInt(slot.value, 10)] && slot.dataset.picked !== '1')) {
+                    slot.value = firstFree(h);
+                }
+            }
+        }
+        slotsRow.classList.toggle('d-none', !holds.checked || !!h);
+        checkSlot();
+    }
+
     function applyKind() {
         var k = kind();
         form.querySelectorAll('[data-rack-kind]').forEach(function (el) {
@@ -235,6 +376,19 @@ $item_types = rackItemTypes();
     form.querySelectorAll('input[name="face"]').forEach(function (r) {
         r.addEventListener('change', check);
     });
+    holds.addEventListener('change', applyPlace);
+    if (holderSelect) {
+        holderSelect.addEventListener('change', function () {
+            slot.value = '';
+            applyPlace();
+        });
+        ['input', 'change'].forEach(function (type) {
+            slot.addEventListener(type, function () {
+                slot.dataset.picked = '1';
+                checkSlot();
+            });
+        });
+    }
 
     <?php if ($unit_id === 0) { ?>
     // A new item: suggest the depth from what it is. Editing keeps what was saved.
@@ -264,6 +418,7 @@ $item_types = rackItemTypes();
     });
 
     applyKind();
+    applyPlace();
     check();
 })();
 </script>

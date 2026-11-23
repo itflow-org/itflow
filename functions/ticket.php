@@ -1901,7 +1901,8 @@ function ticketActivityHtml($reply, $row) {
 function ticketSourceIcon($source) {
     $icons = ['Email' => ['fa-envelope', 'Came in by email'], 'Portal' => ['fa-globe', 'Raised in the client portal'],
         'Recurring' => ['fa-redo-alt', 'Raised by a recurring ticket'], 'API' => ['fa-plug', 'Raised through the API'],
-        'Project' => ['fa-project-diagram', 'From a project template'], 'Text' => ['fa-sms', 'Came in by text'], 'RMM' => ['fa-laptop-medical', 'Opened by an RMM alert']];
+        'Project' => ['fa-project-diagram', 'From a project template'], 'Text' => ['fa-sms', 'Came in by text'], 'RMM' => ['fa-laptop-medical', 'Opened by an RMM alert'],
+        'Phone' => ['fa-phone', 'From a phone call']];
     foreach ($icons as $match => [$icon, $title]) {
         if (stripos((string) $source, $match) !== false) {
             return '<i class="fas fa-fw ' . $icon . '" title="' . $title . '"></i>';

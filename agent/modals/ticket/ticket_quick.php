@@ -25,6 +25,13 @@ $from_call = !empty($_GET['call']);
 if ($client_id && !hasClientAccess($client_id)) {
     $client_id = 0;
 }
+// From a call popping up (js/phone_pop.js) - its contact picked, and no timer: the call's talk time goes on it when it ends
+$contact_id = $client_id ? intval($_GET['contact_id'] ?? 0) : 0;
+$phone_pop_call = function_exists('phonePopKey') ? phonePopKey($_GET['phone_call'] ?? '') : '';
+if ($phone_pop_call !== '') {
+    $quick['timer'] = 'off';
+    $from_call = false;
+}
 $assignee = quickTicketAssignee();
 $assignee_name = $assignee && $assignee !== intval($session_user_id) ? (string) getFieldById('users', $assignee, 'user_name') : '';
 $status = isset(ticketPickableStatuses()[$quick['status']]) ? $quick['status'] : 0;
@@ -36,12 +43,15 @@ ob_start();
     <h5 class="modal-title"><i class="fas fa-fw fa-plus-circle me-2"></i>Quick Ticket</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<form action="/agent/post.php" method="post" autocomplete="off" id="quickTicketForm" data-timer="<?= escapeHtml($quick['timer']) ?>" data-call="<?= $from_call ? 1 : 0 ?>" data-primary="<?= $quick['primary'] ? 1 : 0 ?>" data-open-tickets="<?= $quick['open_tickets'] ? 1 : 0 ?>">
+<form action="/agent/post.php" method="post" autocomplete="off" id="quickTicketForm" data-timer="<?= escapeHtml($quick['timer']) ?>" data-call="<?= $from_call ? 1 : 0 ?>" data-primary="<?= $quick['primary'] ? 1 : 0 ?>" data-open-tickets="<?= $quick['open_tickets'] ? 1 : 0 ?>" data-contact="<?= $contact_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="quick_ticket" value="1">
     <input type="hidden" name="quick_ticket_timer" value="" id="quickTicketTimer">
     <input type="hidden" name="quick_ticket_paused" value="" id="quickTicketPaused">
     <input type="hidden" name="quick_ticket_call" value="<?= $from_call ? 1 : 0 ?>">
+    <?php if ($phone_pop_call !== '') { ?>
+        <input type="hidden" name="phone_pop_call" value="<?= $phone_pop_call ?>">
+    <?php } ?>
     <input type="hidden" name="status" value="<?= $status ?>">
     <input type="hidden" name="category_id" value="<?= intval($quick['category']) ?>">
     <input type="hidden" name="billable" value="<?= quickTicketBillable() ? 1 : 0 ?>">
@@ -113,7 +123,9 @@ ob_start();
             </div>
         </div>
 
-        <?php if ($from_call) { ?>
+        <?php if ($phone_pop_call !== '') { ?>
+            <div class="small text-body-secondary"><i class="fas fa-fw fa-phone-volume me-1"></i>When the call ends, its talk time can go on the ticket - from the call's window.</div>
+        <?php } elseif ($from_call) { ?>
             <div class="small text-body-secondary"><i class="fas fa-fw fa-stopwatch me-1"></i>Its timer carries on from the one you started<span data-call-time></span>.</div>
         <?php } elseif ($quick['timer'] !== 'off') { ?>
             <div class="small text-body-secondary"><i class="fas fa-fw fa-stopwatch me-1"></i>Its timer starts <?= $quick['timer'] === 'open' ? 'from when this window opened' : 'as it is made' ?>.</div>

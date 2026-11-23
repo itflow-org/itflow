@@ -6,7 +6,7 @@ enforceUserPermission('module_support', 2);
 
 $rack_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_name, rack_units FROM racks WHERE rack_id = $rack_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_name, rack_units, rack_units_descending FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 if (!$row) {
@@ -15,11 +15,13 @@ if (!$row) {
 }
 $rack_name = escapeHtml($row['rack_name']);
 $rack_units = intval($row['rack_units']);
+$rack_units_descending = intval($row['rack_units_descending']);
 $client_id = intval($row['rack_client_id']);
 
 enforceClientAccess();
 
-// A new item. Clicking an empty U on the rack page passes where it was.
+// A new item. Clicking an empty U on the rack page passes where it was - an
+// empty slot in a holder passes the holder and the slot.
 $unit_id = 0;
 $unit_asset_id = 0;
 $unit_device = '';
@@ -30,6 +32,9 @@ $unit_face = ($_GET['face'] ?? '') === 'rear' ? 'rear' : 'front';
 $unit_full_depth = 1;
 $unit_power_watts = 0;
 $unit_notes = '';
+$unit_holder_id = intval($_GET['holder'] ?? 0);
+$unit_slot = max(0, intval($_GET['slot'] ?? 0));
+$unit_slots = 0;
 
 // "Rack it" on the rack page, or an asset dragged onto it, passes the asset - start from what that kind of kit usually is
 $unit_asset_id = intval($_GET['asset_id'] ?? 0);

@@ -9,6 +9,8 @@
  * gap a full-depth item could still go in, power against the budget), the
  * rack's details and photos, the item list for print and search, the
  * client's network gear that isn't racked anywhere yet, and its history.
+ * A holder (a bracket, shelf or chassis) draws the devices in it side by side,
+ * and lists them under it.
  * Items drag to another position, and the gear not racked yet drags onto
  * the rack (agent/js/rack_drag.js, move_rack_unit in agent/post/rack.php).
  */
@@ -184,7 +186,7 @@ if (mysqli_num_rows($sql) == 0) {
                 <div class="card-body">
                     <div class="itflow-rack-pair">
                         <?php
-                        $elevation_items = $rack_items;
+                        $elevation_items = rackNestItems($rack_items);
                         $elevation_rack_units = $rack_units;
                         $elevation_descending = $rack_units_descending;
                         $elevation_can_edit = $can_edit && !$rack_archived_at;
@@ -228,15 +230,26 @@ if (mysqli_num_rows($sql) == 0) {
                             </thead>
                             <tbody>
                                 <?php
-                                // Top of the rack first, the way you read it standing in front of it
-                                $table_items = $rack_items;
-                                usort($table_items, function ($a, $b) use ($rack_units_descending) {
+                                // Top of the rack first, the way you read it standing in front of it - what is in a holder right under it
+                                $table_tops = rackNestItems($rack_items);
+                                usort($table_tops, function ($a, $b) use ($rack_units_descending) {
                                     return $rack_units_descending ? $a['start'] <=> $b['start'] : $b['end'] <=> $a['end'];
                                 });
+                                $table_items = [];
+                                foreach ($table_tops as $table_top) {
+                                    $table_items[] = $table_top;
+                                    foreach ($table_top['children'] as $table_child) {
+                                        $table_items[] = $table_child;
+                                    }
+                                }
                                 foreach ($table_items as $item) { ?>
                                     <tr>
-                                        <td class="ps-3 text-nowrap font-monospace small"><?= $item['position'] ?></td>
-                                        <td>
+                                        <?php if ($item['parent_id']) { ?>
+                                            <td class="ps-3 text-nowrap small text-body-secondary"><i class="fas fa-fw fa-level-up-alt fa-rotate-90 me-1 opacity-50"></i>Slot <?= $item['slot'] ?></td>
+                                        <?php } else { ?>
+                                            <td class="ps-3 text-nowrap font-monospace small"><?= $item['position'] ?></td>
+                                        <?php } ?>
+                                        <td<?= $item['parent_id'] ? ' class="ps-4"' : '' ?>>
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="itflow-rack-chip itflow-rack-tone-<?= $item['tone'] ?>"><i class="fas fa-fw <?= $item['icon'] ?>"></i></span>
                                                 <div class="min-w-0">
@@ -247,6 +260,7 @@ if (mysqli_num_rows($sql) == 0) {
                                                     <?php } ?>
                                                     <div class="small text-body-secondary">
                                                         <?= $item['type_label'] ?>
+                                                        <?php if ($item['slots']) { ?>&middot; holds <?= $item['slots'] ?> across<?php } ?>
                                                         <?php if ($item['asset_id'] && $item['label']) { ?>&middot; <?= $item['label'] ?><?php } ?>
                                                         <?php if ($item['notes']) { ?>&middot; <?= $item['notes'] ?><?php } ?>
                                                     </div>
@@ -465,6 +479,8 @@ if (mysqli_num_rows($sql) == 0) {
             <input type="hidden" name="unit_id">
             <input type="hidden" name="unit_start">
             <input type="hidden" name="face">
+            <input type="hidden" name="holder">
+            <input type="hidden" name="slot">
         </form>
         <script src="<?= staticFileUrl('/agent/js/rack_drag.js') ?>" data-rack-id="<?= $rack_id ?>"></script>
     <?php } ?>

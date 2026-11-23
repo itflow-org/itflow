@@ -182,7 +182,7 @@ $audit_url = function (array $query) use ($dates_query) {
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-5">
-                    <input type="text" id="dateFilter" class="form-control" autocomplete="off" title="When" aria-label="When">
+                    <input type="text" id="dateFilter" value="<?= escapeHtml(dateFilterLabel($dtf ?? '', $dtt ?? '')) ?>" class="form-control" autocomplete="off" title="When" aria-label="When">
                     <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml(is_string($_GET['canned_date'] ?? null) ? $_GET['canned_date'] : '') ?>">
                     <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                     <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">

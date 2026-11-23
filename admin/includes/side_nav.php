@@ -139,11 +139,28 @@
                 </li>
                 <?php // Its setup, and the texts sent and received once it's set up (adminNavGroups()) ?>
                 <?= adminNavGroupItemHtml('text') ?>
+                <?php // A provider's clients page is its family's - a network platform's sites are under Network Platforms
+                $nav_rmm_page = basename($_SERVER['PHP_SELF']);
+                $nav_rmm_family = $nav_rmm_page === 'rmm_clients.php' && function_exists('rmmFamily') ? rmmFamily(rmmProviderRow($_GET['provider_id'] ?? 0) ?? '') : ''; ?>
                 <li class="nav-item">
                     <a href="/admin/rmm_providers.php"
-                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['rmm_providers.php', 'rmm_clients.php']) ? 'active' : '') ?>">
+                    class="nav-link <?= ($nav_rmm_page === 'rmm_providers.php' || ($nav_rmm_page === 'rmm_clients.php' && $nav_rmm_family !== 'network') ? 'active' : '') ?>">
                         <i class="nav-icon fas fa-laptop-medical"></i>
                         <p>RMM Providers</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/network_platforms.php"
+                    class="nav-link <?= ($nav_rmm_page === 'network_platforms.php' || ($nav_rmm_page === 'rmm_clients.php' && $nav_rmm_family === 'network') ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-network-wired"></i>
+                        <p>Network Platforms</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/phone_systems.php"
+                    class="nav-link <?= (in_array(basename($_SERVER['PHP_SELF']), ['phone_systems.php', 'phone_domains.php']) ? 'active' : '') ?>">
+                        <i class="nav-icon fas fa-phone-volume"></i>
+                        <p>Phone Systems</p>
                     </a>
                 </li>
                 <li class="nav-item">

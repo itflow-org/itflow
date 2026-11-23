@@ -48,6 +48,10 @@ header("X-Frame-Options: DENY");
              footer.php is what actually loads it. */ ?>
     <link rel="preload" as="script" href="<?= staticFileUrl('/js/itflow_select.js') ?>">
 
+    <?php /* Takes the dashes off "- Anyone -" choices as the page is read, so the plain <select>
+             painted before the picker runs already says "Anyone" (js/itflow_select_early.js) */ ?>
+    <script src="<?= staticFileUrl('/js/itflow_select_early.js') ?>"></script>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?= staticFileUrl('/libs/fontawesome-free/css/all.min.css') ?>">
 

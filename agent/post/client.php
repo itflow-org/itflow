@@ -453,6 +453,12 @@ if (isset($_GET['delete_client'])) {
     }
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
+    // Their calls and phones go, and their phone system domains are no longer linked (functions/phone.php)
+    if (phoneTablesReady()) {
+        mysqli_query($mysqli, "DELETE FROM phone_calls WHERE phone_call_client_id = $client_id");
+        mysqli_query($mysqli, "DELETE FROM phone_devices WHERE phone_device_client_id = $client_id");
+        mysqli_query($mysqli, "UPDATE phone_domains SET phone_domain_client_id = 0 WHERE phone_domain_client_id = $client_id");
+    }
     mysqli_query($mysqli, "DELETE FROM contracts WHERE contract_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
 

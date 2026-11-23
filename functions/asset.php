@@ -527,7 +527,7 @@ function assetDetailsText($asset_id) {
     $add('In the building', $row['asset_physical_location']);
     $rack = rackPositionForAsset($asset_id);
     if ($rack) {
-        $add('Rack', $rack['rack_name'] . ', ' . html_entity_decode(rackPositionLabel($rack['unit_start_number'], $rack['unit_end_number'])) . ' (' . $rack['unit_face'] . ')');
+        $add('Rack', $rack['rack_name'] . ', ' . html_entity_decode(rackPositionLabel($rack['unit_start_number'], $rack['unit_end_number'])) . ' (' . $rack['unit_face'] . ')' . rackSlotText($rack['holder_name'], $rack['unit_position']));
     }
     $add('Used by', $row['contact_name']);
 

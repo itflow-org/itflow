@@ -279,6 +279,9 @@ if (isset($_GET['client_id'])) {
         // The trips this agent may see - all of them with Financial access, else their own
         [$num_trips] = tripTotalsFor('trip_client_id', $client_id);
 
+        // Calls from the phone systems in the last 30 days (functions/phone.php) - the menu shows Calls once there are any
+        $num_phone_calls = phoneSystemsExist() ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM phone_calls WHERE phone_call_client_id = $client_id AND phone_call_started_at >= NOW() - INTERVAL 30 DAY"))[0]) : 0;
+
     }
 }
 

@@ -69,7 +69,7 @@ if (isset($_POST['add_rack']) || isset($_POST['edit_rack'])) {
         // Shrinking the rack under an item would leave it hanging off the top
         $sql = mysqli_query($mysqli, "SELECT unit_device, unit_type, unit_end_number, asset_name FROM rack_units
             LEFT JOIN assets ON asset_id = unit_asset_id
-            WHERE unit_rack_id = $rack_id AND unit_end_number > $units
+            WHERE unit_rack_id = $rack_id AND unit_end_number > $units AND unit_parent_id IS NULL
             ORDER BY unit_end_number DESC LIMIT 1");
         if ($row = mysqli_fetch_assoc($sql)) {
             $blocking_name = rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type']);
@@ -206,14 +206,13 @@ if (isset($_POST['add_rack_unit']) || isset($_POST['edit_rack_unit'])) {
         $rack_id = intval($_POST['rack_id']);
     }
 
-    $sql = mysqli_query($mysqli, "SELECT rack_name, rack_client_id, rack_units FROM racks WHERE rack_id = $rack_id");
+    $sql = mysqli_query($mysqli, "SELECT rack_name, rack_client_id FROM racks WHERE rack_id = $rack_id");
     $rack_row = mysqli_fetch_assoc($sql);
     if (!$rack_row) {
         flashAlert("That rack no longer exists", 'error');
         redirect();
     }
     $rack_name = escapeSql($rack_row['rack_name']);
-    $rack_units = intval($rack_row['rack_units']);
     $client_id = intval($rack_row['rack_client_id']);
 
     enforceClientAccess();
@@ -230,11 +229,9 @@ if (isset($_POST['add_rack_unit']) || isset($_POST['edit_rack_unit'])) {
     $power_watts = intval($_POST['power_watts'] ?? 0);
     $power_watts_sql = $power_watts > 0 ? $power_watts : "NULL";
     $notes = escapeSql($_POST['notes'] ?? '');
-
-    if ($start < 1 || $end > $rack_units) {
-        flashAlert("That doesn't fit - this rack runs from U1 to U$rack_units", 'error');
-        redirect();
-    }
+    // In one of the rack's holders, at a slot - or in the rack, holding devices side by side if it says so
+    $holder_id = intval($_POST['holder'] ?? 0);
+    $slots = !$holder_id && intval($_POST['holds'] ?? 0) === 1 ? max(1, intval($_POST['slots'] ?? 1)) : 0;
 
     // The asset has to be this client's, and in one place at a time
     $asset_name = '';
@@ -259,9 +256,11 @@ if (isset($_POST['add_rack_unit']) || isset($_POST['edit_rack_unit'])) {
         redirect();
     }
 
-    $conflict = rackUnitConflict($rack_id, $start, $end, $face, $full_depth, $unit_id);
-    if ($conflict) {
-        flashAlert(html_entity_decode(rackPositionLabel($start, $end)) . " on the $face is taken by <strong>" . strip_tags($conflict['name']) . "</strong> (" . html_entity_decode(rackPositionLabel($conflict['start'], $conflict['end'])) . ")", 'error');
+    // Units, overlaps and slots - functions/rack.php
+    $place = rackPlacement($rack_id, $unit_id, ['holder' => $holder_id, 'position' => intval($_POST['slot'] ?? 0),
+        'start' => $start, 'end' => $end, 'face' => $face, 'full_depth' => $full_depth, 'slots' => $slots]);
+    if (isset($place['error'])) {
+        flashAlert($place['error'], 'error');
         redirect();
     }
 
@@ -269,23 +268,34 @@ if (isset($_POST['add_rack_unit']) || isset($_POST['edit_rack_unit'])) {
     // A linked asset is drawn by its own asset type, so only unlinked items keep one
     $unit_type_sql = $asset_id ? "NULL" : "'" . escapeSql($unit_type) . "'";
 
-    $set = "unit_device = '$label', unit_asset_id = $asset_sql, unit_type = $unit_type_sql,
-        unit_start_number = $start, unit_end_number = $end, unit_face = '$face', unit_full_depth = $full_depth,
-        unit_power_watts = $power_watts_sql, unit_notes = '$notes'";
+    $set = "unit_device = '$label', unit_asset_id = $asset_sql, unit_type = $unit_type_sql, " . rackPlacementSet($place) . ",
+        unit_slots = " . intval($place['slots']) . ", unit_power_watts = $power_watts_sql, unit_notes = '$notes'";
 
     $item_name = rackUnitName($asset_name, $_POST['name'] ?? '', $unit_type);
     $item_name_sql = escapeSql($item_name);
     $item_name_display = strip_tags($item_name);
-    $position = html_entity_decode(rackPositionLabel($start, $end));
+    $face = $place['face'];
+    $position = html_entity_decode(rackPositionLabel($place['start'], $place['end']));
+    if ($place['holder']) {
+        $where_log = escapeSql("in slot {$place['position']} of {$place['holder_name']} at $position");
+        $where_display = "in slot {$place['position']} of <strong>" . strip_tags($place['holder_name']) . "</strong>";
+    } else {
+        $where_log = "at $position";
+        $where_display = "at $position";
+    }
 
     if ($is_edit) {
         mysqli_query($mysqli, "UPDATE rack_units SET $set WHERE unit_id = $unit_id");
-        logAudit("Rack", "Edit", "$session_name updated $item_name_sql at $position ($face) in rack $rack_name", $client_id, $rack_id);
-        flashAlert("<strong>$item_name_display</strong> saved at $position");
+        // What it holds goes where it went
+        if ($place['slots']) {
+            rackSyncChildren($unit_id);
+        }
+        logAudit("Rack", "Edit", "$session_name updated $item_name_sql $where_log ($face) in rack $rack_name", $client_id, $rack_id);
+        flashAlert("<strong>$item_name_display</strong> saved $where_display");
     } else {
         mysqli_query($mysqli, "INSERT INTO rack_units SET $set, unit_rack_id = $rack_id");
-        logAudit("Rack", "Edit", "$session_name added $item_name_sql at $position ($face) to rack $rack_name", $client_id, $rack_id);
-        flashAlert("<strong>$item_name_display</strong> added at $position");
+        logAudit("Rack", "Edit", "$session_name added $item_name_sql $where_log ($face) to rack $rack_name", $client_id, $rack_id);
+        flashAlert("<strong>$item_name_display</strong> added $where_display");
     }
 
     redirect();
@@ -293,7 +303,9 @@ if (isset($_POST['add_rack_unit']) || isset($_POST['edit_rack_unit'])) {
 }
 
 // Dragged to another position on the rack page (agent/js/rack_drag.js) - the
-// same item, keeping its height and depth, at a new start and face
+// same item, keeping its height and depth, at a new start and face. Dropped on
+// an empty slot in a holder instead (holder and slot), it goes in there - a
+// holder takes what is in it along wherever it goes.
 if (isset($_POST['move_rack_unit'])) {
 
     validateCSRFToken();
@@ -303,7 +315,7 @@ if (isset($_POST['move_rack_unit'])) {
     $unit_id = intval($_POST['unit_id'] ?? 0);
 
     $sql = mysqli_query($mysqli, "SELECT unit_rack_id, unit_start_number, unit_end_number, unit_face, unit_full_depth, unit_device, unit_type,
-            asset_name, rack_name, rack_client_id, rack_units, rack_archived_at
+            unit_slots, unit_parent_id, unit_position, asset_name, rack_name, rack_client_id, rack_units, rack_archived_at
         FROM rack_units
         JOIN racks ON rack_id = unit_rack_id
         LEFT JOIN assets ON asset_id = unit_asset_id
@@ -325,6 +337,42 @@ if (isset($_POST['move_rack_unit'])) {
     $rack_id = intval($row['unit_rack_id']);
     $rack_name = escapeSql($row['rack_name']);
     $rack_units = intval($row['rack_units']);
+    $parent_id = intval($row['unit_parent_id']);
+    $holder_id = intval($_POST['holder'] ?? 0);
+
+    // Into a slot
+    if ($holder_id) {
+        $item_name = rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type']);
+        $place = rackPlacement($rack_id, $unit_id, ['holder' => $holder_id, 'position' => max(1, intval($_POST['slot'] ?? 1))]);
+        if (isset($place['error'])) {
+            flashAlert($place['error'], 'error');
+            redirect();
+        }
+        if ($place['holder'] === $parent_id && $place['position'] === intval($row['unit_position'])) {
+            redirect();
+        }
+
+        mysqli_query($mysqli, "UPDATE rack_units SET " . rackPlacementSet($place) . " WHERE unit_id = $unit_id");
+
+        logAudit("Rack", "Edit", "$session_name moved " . escapeSql($item_name) . " to slot {$place['position']} of " . escapeSql($place['holder_name']) . " in rack $rack_name", $client_id, $rack_id);
+
+        flashAlert("<strong>" . strip_tags($item_name) . "</strong> moved to slot {$place['position']} of <strong>" . strip_tags($place['holder_name']) . "</strong>");
+        $was = $parent_id
+            ? "in slot " . intval($row['unit_position']) . " of <strong>" . escapeHtml(strip_tags(rackHolderName($parent_id))) . "</strong>"
+            : "at " . rackPositionLabel($row['unit_start_number'], $row['unit_end_number']) . " on the {$row['unit_face']}";
+        undoOffer("<strong>" . escapeHtml(strip_tags($item_name)) . "</strong> is back $was",
+            [['rack_place', $unit_id, [$parent_id, intval($row['unit_position']), intval($row['unit_start_number']), intval($row['unit_end_number']), $row['unit_face'], intval($row['unit_full_depth'])],
+                [$place['holder'], $place['position']]]], 'module_support');
+
+        redirect();
+    }
+
+    // Something in a holder moves to another slot, or out through Edit - it has no units of its own to drag to
+    if ($parent_id) {
+        flashAlert("<strong>" . strip_tags(rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type'])) . "</strong> is in <strong>" . strip_tags(rackHolderName($parent_id)) . "</strong> - drop it on an empty slot, or take it out with Edit", 'error');
+        redirect();
+    }
+
     $height = max(1, intval($row['unit_end_number']) - intval($row['unit_start_number']) + 1);
     $start = intval($_POST['unit_start'] ?? 0);
     $end = $start + $height - 1;
@@ -349,6 +397,9 @@ if (isset($_POST['move_rack_unit'])) {
     }
 
     mysqli_query($mysqli, "UPDATE rack_units SET unit_start_number = $start, unit_end_number = $end, unit_face = '$face' WHERE unit_id = $unit_id");
+    if (intval($row['unit_slots'])) {
+        rackSyncChildren($unit_id);
+    }
 
     logAudit("Rack", "Edit", "$session_name moved " . escapeSql($item_name) . " to $position ($face) in rack $rack_name", $client_id, $rack_id);
 
@@ -384,11 +435,15 @@ if (isset($_GET['remove_rack_unit'])) {
 
     enforceClientAccess();
 
+    // What is in a holder comes out with it (the key cascades) - the assets stay
+    $children = rackChildCount($unit_id);
+    $with = $children ? ' and the ' . rackDeviceCount($children) . ' in it' : '';
+
     mysqli_query($mysqli, "DELETE FROM rack_units WHERE unit_id = $unit_id");
 
-    logAudit("Rack", "Edit", "$session_name removed " . escapeSql($item_name) . " from rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Edit", "$session_name removed " . escapeSql($item_name) . "$with from rack $rack_name", $client_id, $rack_id);
 
-    flashAlert("<strong>" . strip_tags($item_name) . "</strong> removed from the rack", 'error');
+    flashAlert("<strong>" . strip_tags($item_name) . "</strong>$with removed from the rack", 'error');
 
     redirect();
 

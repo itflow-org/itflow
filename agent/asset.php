@@ -133,12 +133,17 @@ if (mysqli_num_rows($sql) == 0) {
     // Its alerts that are open, with their tickets
     $rmm_open_alerts = rmmOpenAlertsForDevices(array_column($rmm_devices, 'rmm_device_id'));
 
-    // The rack it sits in, if any
+    // The rack it sits in, if any - in a holder, its slot there and the holder; a holder (a chassis), what is in it
     $asset_rack = rackPositionForAsset($asset_id);
+    $asset_holds = null;
     if ($asset_rack) {
         $asset_rack_id = intval($asset_rack['rack_id']);
         $asset_rack_name = escapeHtml($asset_rack['rack_name']);
-        $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front');
+        $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front')
+            . rackSlotHtml($asset_rack, $client_id);
+        if (intval($asset_rack['unit_slots']) && !$asset_rack['holder_id']) {
+            $asset_holds = rackHolderChildren($asset_rack['unit_id']);
+        }
     }
 
     // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
@@ -415,12 +420,26 @@ if (mysqli_num_rows($sql) == 0) {
                 $rmm_each_name = rmmProviderName($rmm_each);
                 $rmm_each_kind = rmmKind($rmm_each);
                 $rmm_each_urls = $rmm_each !== $rmm_device && $rmm_state['key'] !== 'removed' ? rmmDeviceUrls($rmm_each) : [];
-                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id; ?>
+                $rmm_elsewhere = intval($rmm_each['rmm_client_client_id'] ?? 0) && intval($rmm_each['rmm_client_client_id']) !== $client_id;
+                // Who is signed in, when they are one of the client's contacts and the asset has nobody yet - offered once
+                $rmm_user_contact = $can_edit && !$asset_contact_id && empty($rmm_suggested) && $rmm_state['key'] !== 'removed'
+                    ? rmmUserContact($client_id, (string) $rmm_each['rmm_device_logged_user']) : null;
+                $rmm_suggested = !empty($rmm_suggested) || $rmm_user_contact; ?>
                 <div class="card mb-3" data-rmm-card="<?= escapeHtml($rmm_state['key']) ?>">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0"><i class="<?= escapeHtml($rmm_each_kind['icon'] ?? 'fas fa-laptop-medical') ?> fa-fw text-secondary me-2"></i><?= escapeHtml($rmm_each_name) ?></h3>
                         <?php if (isset($rmm_each_urls['open'])) { ?>
                             <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($rmm_each_urls['open']) ?>" target="_blank" rel="noopener noreferrer" title="<?= escapeHtml(($rmm_each_kind['links']['open'] ?? 'Open') . " - $rmm_each_name") ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php } ?>
+                        <?php if ($can_edit && $rmm_state['key'] !== 'removed') { ?>
+                            <div class="dropdown <?= isset($rmm_each_urls['open']) ? 'ps-1' : 'ms-auto' ?>">
+                                <button class="btn btn-sm btn-link text-secondary p-0 px-1" type="button" data-bs-toggle="dropdown" title="More" aria-label="More"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_rmm_link.php?device_id=<?= intval($rmm_each['rmm_device_id']) ?>">
+                                        <i class="fas fa-fw fa-link me-2"></i>Link to another asset
+                                    </a>
+                                </div>
+                            </div>
                         <?php } ?>
                     </div>
                     <div class="card-body">
@@ -436,7 +455,16 @@ if (mysqli_num_rows($sql) == 0) {
                                 </dd>
                                 <?php if ((string) $rmm_each['rmm_device_logged_user'] !== '') { ?>
                                     <dt><?= $rmm_state['key'] === 'online' ? 'Signed in' : 'Last user' ?></dt>
-                                    <dd><?= escapeHtml($rmm_each['rmm_device_logged_user']) ?></dd>
+                                    <dd><?= escapeHtml($rmm_each['rmm_device_logged_user']) ?>
+                                        <?php if ($rmm_user_contact) { ?>
+                                            <form class="d-inline" action="post.php" method="post">
+                                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
+                                                <input type="hidden" name="contact_id" value="<?= intval($rmm_user_contact['contact_id']) ?>">
+                                                <button type="submit" name="rmm_assign_contact" class="btn btn-link btn-sm p-0 ms-1 align-baseline" data-rmm-assign-contact title="Make <?= escapeHtml($rmm_user_contact['contact_name']) ?> this asset's contact"><i class="fas fa-user-check me-1"></i>Assign <?= escapeHtml($rmm_user_contact['contact_name']) ?></button>
+                                            </form>
+                                        <?php } ?>
+                                    </dd>
                                 <?php } ?>
                                 <?php if ($rmm_each['rmm_device_boot_at'] && $rmm_state['key'] === 'online') { ?>
                                     <dt>Up since</dt>
@@ -480,8 +508,99 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php if ($rmm_elsewhere) { ?>
                                 <div class="small text-warning-emphasis mt-2"><i class="fas fa-fw fa-exclamation-triangle me-1"></i><?= escapeHtml($rmm_each_name) ?> has it under <?= escapeHtml($rmm_each['rmm_client_name']) ?>, which is linked to another client.</div>
                             <?php } ?>
+                            <?php // A network platform's switch or access point - the client's assets seen on it lately (functions/rmm_network.php)
+                            $rmm_via = rmmFamily($rmm_each) === 'network' ? rmmSeenVia($rmm_each) : [];
+                            if ($rmm_via) {
+                                $rmm_via_wired = count(array_filter($rmm_via, function ($row) { return intval($row['rmm_seen_wired']) === 1; })); ?>
+                                <div class="mt-3" data-rmm-seen-via="<?= count($rmm_via) ?>">
+                                    <div class="small fw-semibold mb-1"><?= $rmm_via_wired === count($rmm_via) ? 'Plugged in here' : ($rmm_via_wired ? 'Plugged in and on its Wi-Fi' : 'On its Wi-Fi') ?> <span class="text-body-secondary fw-normal">&middot; <?= count($rmm_via) ?></span></div>
+                                    <ul class="list-unstyled small mb-0">
+                                        <?php foreach (array_slice($rmm_via, 0, 12) as $via_row) { ?>
+                                            <li class="d-flex gap-2<?= intval($via_row['now']) ? '' : ' text-body-secondary' ?>" title="<?= intval($via_row['now']) ? 'There now' : 'Last seen there ' . escapeHtml(timeAgo($via_row['rmm_seen_at'])) ?>">
+                                                <span class="text-body-secondary text-nowrap text-truncate flex-shrink-0" style="width: 6rem;"><?= escapeHtml(intval($via_row['rmm_seen_wired']) || (string) $via_row['rmm_seen_ssid'] === '' ? rmmSeenPlace($via_row) : $via_row['rmm_seen_ssid']) ?></span>
+                                                <a class="text-truncate" href="asset.php?client_id=<?= intval($via_row['asset_client_id']) ?>&asset_id=<?= intval($via_row['rmm_seen_asset_id']) ?>"><?= escapeHtml($via_row['asset_name']) ?></a>
+                                            </li>
+                                        <?php } ?>
+                                        <?php if (count($rmm_via) > 12) { ?><li class="text-body-secondary">and <?= count($rmm_via) - 12 ?> more</li><?php } ?>
+                                    </ul>
+                                </div>
+                            <?php } ?>
                         <?php } ?>
                         <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $rmm_each['rmm_device_synced_at']) ?>">As <?= escapeHtml($rmm_each_kind['short'] ?? $rmm_each_name) ?> said <?= escapeHtml(timeAgo($rmm_each['rmm_device_synced_at'])) ?>.</div>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php // Where it plugs in, as a network platform last saw it (functions/rmm_network.php)
+            $seen_rows = rmmSeenForAsset($asset_id);
+            if ($seen_rows) {
+                $seen = $seen_rows[0];
+                $seen_short = rmmKind($seen)['short'] ?? rmmProviderName($seen);
+                $seen_wired = intval($seen['rmm_seen_wired']) === 1;
+                $seen_via = (string) ($seen['via_asset_name'] ?? '') !== '' ? '<a href="asset.php?client_id=' . $client_id . '&asset_id=' . intval($seen['via_asset_id']) . '">' . escapeHtml($seen['via_asset_name']) . '</a>'
+                    : escapeHtml((string) ($seen['via_name'] ?? '') !== '' ? $seen['via_name'] : ($seen_wired ? 'A switch' : 'An access point') . " $seen_short doesn't list"); ?>
+                <div class="card mb-3" data-rmm-seen="<?= intval($seen['now']) ? 'now' : 'before' ?>">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-fw <?= $seen_wired ? 'fa-ethernet' : 'fa-wifi' ?> text-secondary me-2"></i>Connection</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="itflow-asset-dl mb-0">
+                            <dt><?= $seen_wired ? 'Plugged into' : 'On' ?></dt>
+                            <dd><?= $seen_via ?><div class="small text-body-secondary"><?= escapeHtml(rmmSeenPlace($seen)) ?></div></dd>
+                            <?php if ((string) $seen['rmm_seen_ip'] !== '') { ?>
+                                <dt>IP</dt>
+                                <dd><span class="font-monospace"><?= escapeHtml($seen['rmm_seen_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= escapeHtml($seen['rmm_seen_ip']) ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ((string) $seen['rmm_seen_network'] !== '' || intval($seen['rmm_seen_vlan'])) { ?>
+                                <dt>Network</dt>
+                                <dd><?= escapeHtml(trim($seen['rmm_seen_network'] . (intval($seen['rmm_seen_vlan']) ? ' · VLAN ' . intval($seen['rmm_seen_vlan']) : ''), ' ·')) ?></dd>
+                            <?php } ?>
+                        </dl>
+                        <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $seen['rmm_seen_at']) ?>"><?= intval($seen['now']) ? 'Connected now - as ' . escapeHtml(rmmProviderName($seen)) . ' said ' . escapeHtml(timeAgo($seen['rmm_seen_at'])) : 'Last seen there ' . escapeHtml(timeAgo($seen['rmm_seen_at'])) . ', by ' . escapeHtml(rmmProviderName($seen)) ?>.</div>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php // The desk phone it is, as the phone last told its phone system's ITFlow (functions/phone.php)
+            foreach (phoneDevicesForAsset($asset_id) as $phone_device) {
+                $phone_status = phoneDeviceStatuses()[$phone_device['phone_device_status']] ?? phoneDeviceStatuses()[''];
+                $phone_web = phoneWebUrl($phone_device);
+                $phone_short = phoneKind($phone_device)['short'] ?? 'the phone system'; ?>
+                <div class="card mb-3" data-phone-device="<?= escapeHtml($phone_device['phone_device_status']) ?>">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0"><i class="<?= escapeHtml(phoneKind($phone_device)['icon'] ?? 'fas fa-phone-volume') ?> fa-fw text-secondary me-2"></i><?= escapeHtml(phoneSystemName($phone_device)) ?></h3>
+                        <?php if ($phone_web !== '') { ?>
+                            <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($phone_web) ?>" target="_blank" rel="noopener noreferrer" title="Open <?= escapeHtml($phone_short) ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php } ?>
+                    </div>
+                    <div class="card-body">
+                        <dl class="itflow-asset-dl mb-0">
+                            <dt>Status</dt>
+                            <dd><span class="text-<?= $phone_status[2] ?>-emphasis fw-semibold"><i class="fas fa-fw <?= $phone_status[1] ?> me-1"></i><?= escapeHtml($phone_status[0]) ?></span>
+                                <?php if ($phone_device['phone_device_status_at']) { ?>
+                                    <span class="small text-body-secondary">- since <span title="<?= formatDateTime($phone_device['phone_device_status_at']) ?>"><?= escapeHtml(timeAgo($phone_device['phone_device_status_at'])) ?></span></span>
+                                <?php } ?>
+                            </dd>
+                            <?php if ((string) $phone_device['phone_device_line'] !== '') { ?>
+                                <dt>Line</dt>
+                                <dd><?= escapeHtml(phoneNumberText($phone_device['phone_device_line']) ?: $phone_device['phone_device_line']) ?><?php if ((string) $phone_device['phone_domain_name'] !== '') { ?> <span class="small text-body-secondary">on <?= escapeHtml($phone_device['phone_domain_name']) ?></span><?php } ?></dd>
+                            <?php } ?>
+                            <?php // What the asset shows already isn't said again - only where the phone says otherwise
+                            $phone_model = trim($phone_device['phone_device_vendor'] . ' ' . $phone_device['phone_device_model']);
+                            if ((string) $phone_device['phone_device_ip'] !== '' && $phone_device['phone_device_ip'] !== (string) $asset_row['interface_ip']) { ?>
+                                <dt>IP address</dt>
+                                <dd><span class="font-monospace"><?= escapeHtml($phone_device['phone_device_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy IP address" data-clipboard-text="<?= escapeHtml($phone_device['phone_device_ip']) ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ((string) $phone_device['phone_device_model'] !== '' && $phone_device['phone_device_model'] !== (string) $asset_row['asset_model']) { ?>
+                                <dt>Model</dt>
+                                <dd><?= escapeHtml($phone_model) ?></dd>
+                            <?php } ?>
+                            <?php if ((string) $phone_device['phone_device_firmware'] !== '' && $phone_device['phone_device_firmware'] !== (string) $asset_row['asset_os']) { ?>
+                                <dt>Firmware</dt>
+                                <dd class="small"><?= escapeHtml($phone_device['phone_device_firmware']) ?></dd>
+                            <?php } ?>
+                        </dl>
+                        <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $phone_device['phone_device_heard_at']) ?>">As the phone said <?= escapeHtml(timeAgo($phone_device['phone_device_heard_at'])) ?> - a phone only says something when it starts up, registers or has a call, so this can be out of date.</div>
                     </div>
                 </div>
             <?php } ?>
@@ -634,6 +753,40 @@ if (mysqli_num_rows($sql) == 0) {
                     </dl>
                 </div>
             </div>
+
+            <?php if ($asset_holds !== null) { ?>
+                <!-- What is in it, when it holds devices in the rack - a chassis and its nodes -->
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-th text-secondary me-2"></i>Devices in it <span class="text-body-secondary fw-normal">(<?= count($asset_holds) ?>)</span></h3>
+                        <span class="small text-body-secondary"><?= intval($asset_rack['unit_slots']) ?> across</span>
+                    </div>
+                    <?php if ($asset_holds) { ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($asset_holds as $held) { ?>
+                                <div class="list-group-item d-flex align-items-center gap-2">
+                                    <span class="itflow-rack-chip itflow-rack-tone-<?= $held['tone'] ?>"><i class="fas fa-fw <?= $held['icon'] ?>"></i></span>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <?php if ($held['asset_id']) { ?>
+                                            <a class="fw-semibold d-block text-truncate<?= $held['asset_archived'] ? ' text-decoration-line-through' : '' ?>" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $held['asset_id'] ?>"><?= $held['name'] ?></a>
+                                        <?php } else { ?>
+                                            <span class="fw-semibold d-block text-truncate"><?= $held['name'] ?></span>
+                                        <?php } ?>
+                                        <div class="small text-body-secondary text-truncate">Slot <?= $held['slot'] ?> &middot; <?= $held['make_model'] ?: $held['type_label'] ?></div>
+                                    </div>
+                                    <?php if ($held['ip']) { ?>
+                                        <span class="small font-monospace text-body-secondary flex-shrink-0"><?= $held['ip'] ?></span>
+                                    <?php } ?>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    <?php } else { ?>
+                        <div class="card-body small text-body-secondary">
+                            Nothing in it yet - add devices to its slots on <a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a>.
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
 
             <div class="card mb-3">
                 <div class="card-header">

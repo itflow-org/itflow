@@ -1119,6 +1119,13 @@ select.select2[multiple]:not(.itflow-select-native) {
 @keyframes itflowRevealUninitSelect {
     to { visibility: visible; }
 }
+/* A single one showing its "nothing" choice - "Anyone", its dashes already taken off by
+   js/itflow_select_early.js - is in the quieter colour the picker gives it, so nothing about
+   it changes when the picker takes over */
+select.select2:not([multiple]):not(.itflow-select-native):has(option:checked[data-none="1"]),
+select.select2:not([multiple]):not(.itflow-select-native):has(option:checked[value=""]) {
+    color: var(--bs-secondary-color);
+}
 
 .itflow-select {
     position: relative;
@@ -4006,14 +4013,165 @@ button.itflow-rack-item-body:hover {
     cursor: default;
 }
 
+/* A holder - a bracket, shelf or chassis - with the devices in it side by side,
+   in rows when it wraps. Its tab at the left is the holder itself; each slot is
+   a device, or an empty "add here". */
+.itflow-rack-item.is-holder {
+    display: flex;
+}
+.itflow-rack-holder-tab {
+    display: flex;
+    flex: 0 0 1.4rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid rgba(0, 0, 0, .25);
+    background: transparent;
+    font-size: .7rem;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-rack-holder-tab:hover,
+button.itflow-rack-holder-tab:hover {
+    color: inherit;
+    background-color: rgba(255, 255, 255, .1);
+}
+.itflow-rack-holder-tab:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+.itflow-rack-holder-slots {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 2px;
+    padding: 2px;
+}
+.itflow-rack-cell {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: .2rem;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 1px 1px rgba(0, 0, 0, .35);
+    container-type: inline-size;
+}
+.itflow-rack-cell.is-empty {
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px dashed rgba(255, 255, 255, .22);
+    background-color: rgba(0, 0, 0, .25);
+    box-shadow: none;
+    font-size: .6rem;
+    color: rgba(255, 255, 255, .8);
+}
+.itflow-rack-cell.is-empty i {
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+button.itflow-rack-cell.is-empty:hover,
+button.itflow-rack-cell.is-empty:focus-visible {
+    border-color: rgba(255, 255, 255, .5);
+    background-color: rgba(255, 255, 255, .1);
+    outline: 0;
+}
+button.itflow-rack-cell.is-empty:hover i,
+button.itflow-rack-cell.is-empty:focus-visible i,
+.itflow-rack-dragging .itflow-rack-cell.is-empty i {
+    opacity: 1;
+}
+.itflow-rack-cell.is-target {
+    border: 2px dashed rgba(117, 214, 157, .9);
+    background-color: rgba(117, 214, 157, .25);
+}
+.itflow-rack-cell-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    padding: 0 .3rem;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    line-height: 1.1;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-rack-cell-body:hover,
+button.itflow-rack-cell-body:hover {
+    color: inherit;
+    background-color: rgba(255, 255, 255, .1);
+}
+.itflow-rack-cell-body:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+.itflow-rack-cell-name,
+.itflow-rack-cell-meta {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-rack-cell-name {
+    font-size: .66rem;
+    font-weight: 600;
+}
+.itflow-rack-cell-meta {
+    font-size: .6rem;
+    opacity: .78;
+}
+.itflow-rack-cell-edit {
+    position: absolute;
+    top: 50%;
+    right: .15rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.05rem;
+    margin-top: -.525rem;
+    padding: 0;
+    border: 0;
+    border-radius: .2rem;
+    background-color: rgba(0, 0, 0, .4);
+    font-size: .55rem;
+    color: #fff;
+}
+.itflow-rack-cell-edit:hover {
+    background-color: rgba(0, 0, 0, .6);
+}
+/* The pen only where the slot is wide enough for it and the name */
+@container (min-width: 4.5rem) {
+    .itflow-rack-cell:hover .itflow-rack-cell-edit,
+    .itflow-rack-cell:focus-within .itflow-rack-cell-edit {
+        display: flex;
+    }
+}
+.itflow-rack-cell.is-archived {
+    opacity: .55;
+}
+.itflow-rack-cell.is-archived .itflow-rack-cell-name {
+    text-decoration: line-through;
+}
+
 /* Dragging kit into place (agent/js/rack_drag.js): where it would go, red
    where something is in the way, and the item being moved faded */
 .itflow-rack-item[draggable="true"] {
     cursor: grab;
 }
 .itflow-rack-item.is-dragging,
+.itflow-rack-cell.is-dragging,
 .itflow-rack-unracked.is-dragging {
     opacity: .45;
+}
+.itflow-rack-cell[draggable="true"] {
+    cursor: grab;
 }
 .itflow-rack-unracked[draggable="true"] {
     cursor: grab;
@@ -4151,6 +4309,69 @@ button.itflow-rack-item-body:hover {
 .itflow-rack-fit:empty {
     display: none;
 }
+.itflow-rack-slots-input {
+    max-width: 14rem;
+}
+
+/* Calls (agent/calls.php) - each one's direction, or how it ended, in a round badge */
+.itflow-phone-call-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: .8rem;
+}
+
+/* Screen pops - calls on your desk phone, at the bottom right (js/phone_pop.js). Under modals, so one opened from a pop covers it */
+.itflow-phone-pop-stack {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    z-index: 1045;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    width: min(22rem, calc(100vw - 2rem));
+    pointer-events: none;
+}
+.itflow-phone-pop {
+    margin: 0;
+    pointer-events: auto;
+}
+.itflow-phone-pop.is-new {
+    animation: itflow-phone-pop-in .25s ease-out both;
+}
+@keyframes itflow-phone-pop-in {
+    from { opacity: 0; transform: translateY(.75rem); }
+    to { opacity: 1; transform: none; }
+}
+.itflow-phone-pop-ring {
+    animation: itflow-phone-pop-ring 1.2s ease-in-out infinite;
+}
+@keyframes itflow-phone-pop-ring {
+    0%, 50%, 100% { transform: rotate(0); }
+    10%, 30% { transform: rotate(-14deg); }
+    20%, 40% { transform: rotate(14deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .itflow-phone-pop.is-new,
+    .itflow-phone-pop-ring {
+        animation: none;
+    }
+}
+
+/* Phone systems - the lines their setup window gives to copy (admin/modals/phone/phone_system_setup.php) */
+.itflow-phone-snippet {
+    padding: .6rem 2.75rem .6rem .75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
 
 /* Listing cards: the whole card opens the rack, the menu sits above that link */
 .itflow-rack-card {
@@ -4189,6 +4410,7 @@ button.itflow-rack-item-body:hover {
     .itflow-rack-frame,
     .itflow-rack-bay,
     .itflow-rack-item,
+    .itflow-rack-cell,
     .itflow-rack-chip,
     .itflow-rack-swatch,
     .itflow-rack-head-icon {
@@ -4196,7 +4418,9 @@ button.itflow-rack-item-body:hover {
         print-color-adjust: exact;
     }
     .itflow-rack-slot span,
-    .itflow-rack-item-edit {
+    .itflow-rack-item-edit,
+    .itflow-rack-cell-edit,
+    .itflow-rack-cell.is-empty i {
         display: none;
     }
     .itflow-rack {
@@ -4410,6 +4634,15 @@ tr:hover .itflow-copy,
 .itflow-asset-pills .nav-link.active .badge {
     background-color: rgba(255, 255, 255, .25);
     color: inherit;
+}
+/* The tabs along the top of the lists and on a record's page: one that isn't picked darkens
+   its text under the pointer or keyboard focus. Their colour is set above, so Bootstrap's own
+   hover colour never showed. .nav on the pills outranks the greyed text of an empty tab. */
+.itflow-asset-tabs .nav-link:not(.active):hover,
+.itflow-asset-tabs .nav-link:not(.active):focus-visible,
+.nav.itflow-asset-pills .nav-link:not(.active):hover,
+.nav.itflow-asset-pills .nav-link:not(.active):focus-visible {
+    color: var(--bs-emphasis-color);
 }
 .itflow-asset-pane-bar {
     display: flex;
@@ -6795,6 +7028,67 @@ a.itflow-report-stat:focus-visible {
 .itflow-report-stat-sub {
     font-size: .8rem;
     color: var(--bs-secondary-color);
+}
+
+/* A report's quarters on its Quarterly view (reportQuarterCards()) - a card each, in the same
+   strip as the figures along the top: the quarter's lines with the change on last year's.
+   Four across where they fit, two by two where they don't, one a row on a phone - never three
+   and one. By the strip's own width, as the side menu changes how much there is */
+.itflow-report-quarters-wrap {
+    container-type: inline-size;
+}
+.itflow-report-quarters {
+    grid-template-columns: minmax(0, 1fr);
+}
+@container (min-width: 30rem) {
+    .itflow-report-quarters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@container (min-width: 60rem) {
+    .itflow-report-quarters {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+.itflow-report-quarter {
+    justify-content: flex-start;
+    gap: .45rem;
+}
+.itflow-report-quarter-head {
+    display: flex;
+    align-items: baseline;
+    gap: .45rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-report-quarter-head strong {
+    font-size: 1rem;
+    color: var(--bs-body-color);
+}
+.itflow-report-quarter-rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    gap: .2rem .5rem;
+    font-size: .875rem;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-report-quarter-rows > span {
+    white-space: nowrap;
+}
+.itflow-report-quarter-rows > span:nth-child(3n+1) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.itflow-report-quarter-rows > span:nth-child(3n) {
+    font-size: .8rem;
+}
+.itflow-report-quarter-foot {
+    font-size: .75rem;
+    color: var(--bs-tertiary-color);
+}
+.itflow-report-quarter.is-later {
+    opacity: .55;
 }
 
 .itflow-report-chart {

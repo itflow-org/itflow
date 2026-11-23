@@ -137,6 +137,12 @@
         // first click starts a fresh selection.
         var allTimeActive = initialKey === ALL_TIME_START + '|' + ALL_TIME_END;
 
+        // The page wrote the words in the box already (dateFilterLabel() in functions/format.php),
+        // so it isn't empty until this runs. Flatpickr would try to read them as dates, so the box
+        // is emptied for it here - setDisplay() at the end puts the same words back in this same
+        // step, before the browser draws again, so nothing is seen to change.
+        input.value = '';
+
         flatpickr(input, {
             mode: 'range',
             dateFormat: 'Y-m-d',

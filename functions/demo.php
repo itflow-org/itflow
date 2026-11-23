@@ -141,7 +141,7 @@ const DEMO_MODE_LOCKED_PAGES = [
     '/admin/users.php' => true, '/admin/roles.php' => true, '/admin/api_keys.php' => true, '/admin/backup.php' => true, '/admin/update.php' => true,
     '/admin/settings_mail.php' => true, '/admin/settings_security.php' => true, '/admin/identity_providers.php' => true, '/admin/settings_telemetry.php' => true,
     '/admin/cron.php' => true, '/admin/payment_providers.php' => true, '/admin/saved_payment_methods.php' => true, '/admin/ai_providers.php' => true,
-    '/admin/ai_models.php' => true, '/admin/text_messaging.php' => true, '/admin/rmm_providers.php' => true, '/admin/rmm_clients.php' => true, '/admin/managed_by.php' => true, '/admin/managed_instances.php' => true,
+    '/admin/ai_models.php' => true, '/admin/text_messaging.php' => true, '/admin/rmm_providers.php' => true, '/admin/network_platforms.php' => true, '/admin/rmm_clients.php' => true, '/admin/managed_by.php' => true, '/admin/managed_instances.php' => true,
     '/admin/managed_instance.php' => true, '/admin/settings_logs.php' => true, '/admin/settings_company.php' => true, '/admin/settings_module.php' => true,
     '/admin/settings_client_portal.php' => true, '/admin/custom_links.php' => true, '/admin/starter_content.php' => true, '/admin/getting_started.php' => true,
     '/agent/user/user_details.php' => true, '/agent/user/user_security.php' => false, '/client/profile.php' => false,

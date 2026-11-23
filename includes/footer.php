@@ -122,6 +122,17 @@ if ($itflow_pulse) { ?>
 <script src="<?= staticFileUrl('/js/quick_add.js') ?>"></script>
 <?php } ?>
 <script src="<?= staticFileUrl('/js/ticket_timers.js') ?>"></script>
+<?php
+// Calls on your desk phone pop up (functions/phone.php) - on agent pages, for agents who have set one
+try {
+    $itflow_phone_pop = !empty($session_user_id) && basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'agent' && function_exists('phoneLineForUser')
+        && phoneLineForUser(intval($session_user_id)) !== '' && lookupUserPermission('module_support') >= 1;
+} catch (Throwable $e) {
+    $itflow_phone_pop = false;
+}
+if ($itflow_phone_pop) { ?>
+<script src="<?= staticFileUrl('/js/phone_pop.js') ?>" data-user="<?= intval($session_user_id) ?>"></script>
+<?php } ?>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <script src="<?= staticFileUrl('/js/settings.js') ?>"></script>
 <?php } ?>

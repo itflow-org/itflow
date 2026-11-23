@@ -6,7 +6,8 @@
  * provider off and on, Delete, and on a provider's Clients page linking its clients to
  * ITFlow's - one at a time, the suggested ones, unlinking, and bringing back devices whose
  * assets were deleted (functions/rmm.php). What changed is in the audit log - keys and
- * secrets only as changed.
+ * secrets only as changed. Network platforms (Admin > Network Platforms) are the same, in
+ * their family's words (rmmFamilyWords()).
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -18,6 +19,7 @@ if (isset($_POST['check_rmm_provider']) || isset($_POST['add_rmm_provider']) || 
     $checking = isset($_POST['check_rmm_provider']);
     $provider_id = intval($_POST['provider_id'] ?? 0);
     $before = $provider_id ? rmmProviderRow($provider_id) : null;
+    $words = rmmFamilyWords($before ? rmmFamily($before) : (rmmKind((string) ($_POST['kind'] ?? '')) ? rmmFamily((string) $_POST['kind']) : (($_POST['family'] ?? '') === 'network' ? 'network' : 'rmm')));
 
     $refuse = function ($text) use ($checking) {
         if ($checking) {
@@ -26,10 +28,10 @@ if (isset($_POST['check_rmm_provider']) || isset($_POST['add_rmm_provider']) || 
             exit;
         }
         flashAlert(escapeHtml($text), 'error');
-        redirect('rmm_providers.php');
+        redirect($words['page']);
     };
     if ($provider_id && !$before) {
-        $refuse('That RMM provider no longer exists - close this and look again.');
+        $refuse('That ' . $words['full'] . ' no longer exists - close this and look again.');
     }
     if ($before && !rmmKind($before)) {
         $refuse('This ITFlow doesn\'t know that provider\'s kind of RMM.');
@@ -58,10 +60,10 @@ if (isset($_POST['check_rmm_provider']) || isset($_POST['add_rmm_provider']) || 
             redirect();
         }
         rmmProviderWrite($after, $provider_id);
-        logAudit("RMM Provider", "Edit", "$session_name changed RMM provider " . escapeSql(rmmProviderName($before) . ': ' . implode('; ', $lines)), 0, $provider_id);
+        logAudit($words['audit'], "Edit", "$session_name changed {$words['full']} " . escapeSql(rmmProviderName($before) . ': ' . implode('; ', $lines)), 0, $provider_id);
     } else {
         $provider_id = rmmProviderWrite($after);
-        logAudit("RMM Provider", "Create", "$session_name added RMM provider " . escapeSql($name . ($name !== $kind['name'] ? " ({$kind['name']})" : '') . ($after['rmm_provider_api_url'] !== '' ? ' at ' . $after['rmm_provider_api_url'] : '')), 0, $provider_id);
+        logAudit($words['audit'], "Create", "$session_name added {$words['full']} " . escapeSql($name . ($name !== $kind['name'] ? " ({$kind['name']})" : '') . ($after['rmm_provider_api_url'] !== '' ? ' at ' . $after['rmm_provider_api_url'] : '')), 0, $provider_id);
     }
 
     // Try it - and, connected, bring in its clients so they can be linked
@@ -77,7 +79,7 @@ if (isset($_POST['check_rmm_provider']) || isset($_POST['add_rmm_provider']) || 
         redirect($back);
     }
     rmmSync($provider, 0, 60);
-    flashAlert('<strong>' . escapeHtml($name) . '</strong> saved. ' . escapeHtml($test['text']) . ($before ? '' : ' Now link its clients to yours.'));
+    flashAlert('<strong>' . escapeHtml($name) . '</strong> saved. ' . escapeHtml($test['text']) . ($before ? '' : ' Now link its ' . $words['clients'] . ' to your clients.'));
     redirect($back);
 
 }
@@ -89,7 +91,7 @@ if (isset($_GET['test_rmm_provider'])) {
 
     $provider = rmmProviderRow($_GET['test_rmm_provider']);
     if (!$provider) {
-        flashAlert('That RMM provider no longer exists.', 'error');
+        flashAlert('That provider or platform no longer exists.', 'error');
         redirect('rmm_providers.php');
     }
     $test = rmmTest($provider);
@@ -105,7 +107,7 @@ if (isset($_GET['sync_rmm'])) {
 
     $provider = rmmProviderRow($_GET['sync_rmm']);
     if (!rmmProviderUsable($provider)) {
-        flashAlert('That RMM provider isn\'t set up, or is turned off.', 'error');
+        flashAlert('That provider or platform isn\'t set up, or is turned off.', 'error');
         redirect();
     }
     set_time_limit(180);
@@ -123,15 +125,16 @@ if (isset($_GET['turn_rmm_provider_off']) || isset($_GET['turn_rmm_provider_on']
     $on = isset($_GET['turn_rmm_provider_on']);
     $provider = rmmProviderRow($on ? $_GET['turn_rmm_provider_on'] : $_GET['turn_rmm_provider_off']);
     if (!$provider) {
-        flashAlert('That RMM provider no longer exists.', 'error');
+        flashAlert('That provider or platform no longer exists.', 'error');
         redirect('rmm_providers.php');
     }
     $provider_id = intval($provider['rmm_provider_id']);
     $name = rmmProviderName($provider);
+    $words = rmmFamilyWords(rmmFamily($provider));
     // Back on, the alerts open then are taken as known - not a ticket each for all that came up while it was off
     mysqli_query($mysqli, "UPDATE rmm_providers SET rmm_provider_active = " . ($on ? 1 : 0) . ($on && intval($provider['rmm_provider_active']) === 0 && rmmAlertsReady() ? ', rmm_provider_alerts_since = NULL' : '') . " WHERE rmm_provider_id = $provider_id");
-    logAudit("RMM Provider", "Edit", "$session_name turned RMM provider " . escapeSql($name) . ($on ? ' on' : ' off'), 0, $provider_id);
-    flashAlert('<strong>' . escapeHtml($name) . '</strong> is ' . ($on ? 'on - the linked clients\' devices come in again with the next sync' : 'off - nothing is brought in'));
+    logAudit($words['audit'], "Edit", "$session_name turned {$words['full']} " . escapeSql($name) . ($on ? ' on' : ' off'), 0, $provider_id);
+    flashAlert('<strong>' . escapeHtml($name) . '</strong> is ' . ($on ? 'on - the linked ' . $words['clients'] . '\' devices come in again with the next sync' : 'off - nothing is brought in'));
     redirect();
 
 }
@@ -143,21 +146,28 @@ if (isset($_GET['delete_rmm_provider'])) {
 
     $provider = rmmProviderRow($_GET['delete_rmm_provider']);
     if (!$provider) {
-        flashAlert('That RMM provider no longer exists.', 'error');
+        flashAlert('That provider or platform no longer exists.', 'error');
         redirect('rmm_providers.php');
     }
     $provider_id = intval($provider['rmm_provider_id']);
     $name = rmmProviderName($provider);
+    $words = rmmFamilyWords(rmmFamily($provider));
     $devices = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = $provider_id AND rmm_device_asset_id > 0"))[0]);
     mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_provider_id = $provider_id");
+    if (rmmNetworksReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_networks WHERE rmm_network_provider_id = $provider_id");
+    }
+    if (rmmSeenReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_seen WHERE rmm_seen_provider_id = $provider_id");
+    }
     if (rmmAlertsReady()) {
         mysqli_query($mysqli, "DELETE FROM rmm_alerts WHERE rmm_alert_provider_id = $provider_id");
     }
     mysqli_query($mysqli, "DELETE FROM rmm_clients WHERE rmm_client_provider_id = $provider_id");
     mysqli_query($mysqli, "DELETE FROM rmm_providers WHERE rmm_provider_id = $provider_id");
-    logAudit("RMM Provider", "Delete", "$session_name deleted RMM provider " . escapeSql($name) . " - the $devices assets it brought in stay, no longer kept up", 0, $provider_id);
+    logAudit($words['audit'], "Delete", "$session_name deleted {$words['full']} " . escapeSql($name) . " - the $devices assets it brought in stay, no longer kept up", 0, $provider_id);
     flashAlert('<strong>' . escapeHtml($name) . '</strong> deleted - the ' . number_format($devices) . ' asset' . ($devices === 1 ? '' : 's') . ' it brought in stay, as they are', 'error');
-    redirect('rmm_providers.php');
+    redirect($words['page']);
 
 }
 
@@ -172,18 +182,12 @@ $rmm_link_client = function (array $rmm_client, int $client_id) use ($mysqli, &$
     $name = rmmProviderName($rmm_client);
     $left = 0;
     if ($before && $before !== $client_id) {
-        $sql = mysqli_query($mysqli, "SELECT rmm_device_asset_id FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_asset_id > 0");
-        while ($device = mysqli_fetch_row($sql)) {
-            if (rmmAssetCurrent(intval($device[0]))) {
-                rmmAssetHistory(intval($device[0]), $name, 'no longer keeps it up - its client there was linked to another one');
-                $left++;
-            }
-        }
-        mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id");
+        $left = rmmForgetClientDevices($rmm_client_id, $name, 'its client there was linked to another one');
     }
     mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_client_id = $client_id, rmm_client_synced_at = NULL WHERE rmm_client_id = $rmm_client_id");
     $client_name = (string) getFieldById('clients', $client_id, 'client_name');
-    logAudit("RMM Provider", "Link", "$session_name linked " . escapeSql("$name client {$rmm_client['rmm_client_name']} to $client_name"), $client_id, intval($rmm_client['rmm_client_provider_id']));
+    $words = rmmFamilyWords(rmmFamily($rmm_client));
+    logAudit($words['audit'], "Link", "$session_name linked " . escapeSql("$name {$words['client']} {$rmm_client['rmm_client_name']} to $client_name"), $client_id, intval($rmm_client['rmm_client_provider_id']));
     return ['client_name' => $client_name, 'left' => $left, 'before_name' => $before ? (string) getFieldById('clients', $before, 'client_name') : ''];
 };
 
@@ -195,7 +199,7 @@ if (isset($_POST['link_rmm_client'])) {
     $client_id = intval($_POST['client_id'] ?? 0);
     $client = $client_id ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_id, client_archived_at FROM clients WHERE client_id = $client_id")) : null;
     if (!$rmm_client || $rmm_client['rmm_client_removed_at'] !== null) {
-        flashAlert('Its RMM no longer has that client - sync again.', 'error');
+        flashAlert('It is no longer listed there - sync again.', 'error');
         redirect();
     }
     $back = 'rmm_clients.php?provider_id=' . intval($rmm_client['rmm_client_provider_id']);
@@ -224,10 +228,11 @@ if (isset($_GET['link_rmm_suggested'])) {
 
     $provider = rmmProviderRow($_GET['provider_id'] ?? 0);
     if (!$provider) {
-        flashAlert('That RMM provider no longer exists.', 'error');
+        flashAlert('That provider or platform no longer exists.', 'error');
         redirect('rmm_providers.php');
     }
     $provider_id = intval($provider['rmm_provider_id']);
+    $words = rmmFamilyWords(rmmFamily($provider));
     $back = "rmm_clients.php?provider_id=$provider_id";
     $suggestions = rmmClientSuggestions($provider_id);
     if ($_GET['link_rmm_suggested'] !== 'all') {
@@ -243,12 +248,12 @@ if (isset($_GET['link_rmm_suggested'])) {
     }
     set_time_limit(180);
     $sync = rmmSync($provider, count($suggestions) === 1 ? intval(array_key_first($suggestions)) : 0, 150);
-    flashAlert(count($suggestions) . ' client' . (count($suggestions) === 1 ? '' : 's') . ' linked - ' . escapeHtml($sync['note']), $sync['ok'] ? 'success' : 'warning');
+    flashAlert(count($suggestions) . ' ' . $words['client'] . (count($suggestions) === 1 ? '' : 's') . ' linked - ' . escapeHtml($sync['note']), $sync['ok'] ? 'success' : 'warning');
     redirect($back);
 
 }
 
-// Unlink - its devices stop coming in; their assets stay
+// Unlink - its devices stop coming in; their assets stay, no longer in the RMM
 if (isset($_GET['unlink_rmm_client'])) {
 
     validateCSRFToken();
@@ -259,8 +264,10 @@ if (isset($_GET['unlink_rmm_client'])) {
         redirect();
     }
     $rmm_client_id = intval($rmm_client['rmm_client_id']);
+    $words = rmmFamilyWords(rmmFamily($rmm_client));
+    rmmForgetClientDevices($rmm_client_id, rmmProviderName($rmm_client), "its {$words['client']} there was unlinked");
     mysqli_query($mysqli, "UPDATE rmm_clients SET rmm_client_client_id = 0, rmm_client_synced_at = NULL WHERE rmm_client_id = $rmm_client_id");
-    logAudit("RMM Provider", "Unlink", "$session_name unlinked " . escapeSql(rmmProviderName($rmm_client) . " client {$rmm_client['rmm_client_name']} from " . $rmm_client['client_name']), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
+    logAudit($words['audit'], "Unlink", "$session_name unlinked " . escapeSql(rmmProviderName($rmm_client) . " {$words['client']} {$rmm_client['rmm_client_name']} from " . $rmm_client['client_name']), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
     flashAlert('<strong>' . escapeHtml($rmm_client['rmm_client_name']) . '</strong> unlinked - its devices no longer come in. Their assets stay.', 'error');
     redirect('rmm_clients.php?provider_id=' . intval($rmm_client['rmm_client_provider_id']));
 
@@ -279,9 +286,16 @@ if (isset($_GET['rmm_bring_back'])) {
     $rmm_client_id = intval($rmm_client['rmm_client_id']);
     mysqli_query($mysqli, "DELETE FROM rmm_devices WHERE rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_asset_id = 0");
     $brought = mysqli_affected_rows($mysqli);
+    $brought_networks = 0;
+    if (rmmNetworksReady()) {
+        mysqli_query($mysqli, "DELETE FROM rmm_networks WHERE rmm_network_rmm_client_id = $rmm_client_id AND rmm_network_network_id = 0");
+        $brought_networks = mysqli_affected_rows($mysqli);
+    }
     set_time_limit(180);
     $sync = rmmSync(rmmProviderRow($rmm_client['rmm_client_provider_id']), $rmm_client_id, 150);
-    logAudit("RMM Provider", "Edit", "$session_name brought back $brought deleted devices of " . escapeSql(rmmProviderName($rmm_client) . " client {$rmm_client['rmm_client_name']}"), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
+    $words = rmmFamilyWords(rmmFamily($rmm_client));
+    $brought_words = implode(' and ', array_filter([$brought || !$brought_networks ? "$brought deleted device" . ($brought === 1 ? '' : 's') : '', $brought_networks ? "$brought_networks deleted network" . ($brought_networks === 1 ? '' : 's') : '']));
+    logAudit($words['audit'], "Edit", "$session_name brought back $brought_words of " . escapeSql(rmmProviderName($rmm_client) . " {$words['client']} {$rmm_client['rmm_client_name']}"), intval($rmm_client['rmm_client_client_id']), intval($rmm_client['rmm_client_provider_id']));
     flashAlert('<strong>' . escapeHtml($rmm_client['rmm_client_name']) . '</strong> - ' . escapeHtml($sync['note']), $sync['ok'] ? 'success' : 'warning');
     redirect('rmm_clients.php?provider_id=' . intval($rmm_client['rmm_client_provider_id']));
 

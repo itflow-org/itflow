@@ -509,6 +509,24 @@ function validateDate($date) {
     return date('Y-m-d'); // Fallback
 }
 
+/**
+ * What a list's date filter box (#dateFilter, js/date_filter.js) says for the range in its
+ * hidden dtf and dtt fields - "All Time", or "2026-11-01 — 2026-11-21". Written into the box by
+ * the page, so it isn't empty until the script fills in the same words. Worked out the way the
+ * script does: a date that isn't one is no bound, and 1970-01-01 to 2099-12-31 is All Time.
+ */
+function dateFilterLabel($dtf, $dtt) {
+    $day = function ($value, $fallback) {
+        if (!preg_match('/^(\d+)-(\d+)-(\d+)$/', trim((string) $value), $m)) {
+            return $fallback;
+        }
+        return date('Y-m-d', mktime(0, 0, 0, intval($m[2]), intval($m[3]), intval($m[1])));
+    };
+    $from = $day($dtf, '1970-01-01');
+    $to = $day($dtt, '2099-12-31');
+    return $from === '1970-01-01' && $to === '2099-12-31' ? 'All Time' : "$from \u{2014} $to";
+}
+
 /*
  * Validates a recurring invoice frequency against the values the UI offers -
  * month, quarter and year, each also a MySQL interval unit. A whitelist is the

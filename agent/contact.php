@@ -176,10 +176,14 @@ while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
 // Its history, from the audit log
 $history = auditLogHistory('Contact', $contact_id);
 
+// Their calls from the phone systems (functions/phone.php) - the latest, with how many there are
+$contact_calls = $can_support && phoneSystemsExist() ? phoneCallsFor("phone_call_contact_id = $contact_id", 15) : null;
+
 $contact_tabs = [
     'assets' => ['label' => 'Assets', 'icon' => 'fa-desktop', 'count' => $asset_count],
     'credentials' => ['label' => 'Credentials', 'icon' => 'fa-key', 'count' => $credential_count],
     'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => $ticket_count, 'badge' => $ticket_open_count],
+    'calls' => ['label' => 'Calls', 'icon' => 'fa-phone-volume', 'count' => $contact_calls['count'] ?? 0],
     'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'count' => $recurring_ticket_count],
     'licenses' => ['label' => 'Licenses', 'icon' => 'fa-cube', 'count' => $software_count],
     'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => $document_count],
@@ -190,6 +194,9 @@ $contact_tabs = [
 ];
 if (!$can_credentials) {
     unset($contact_tabs['credentials']);
+}
+if ($contact_calls === null) {
+    unset($contact_tabs['calls']);
 }
 if (!$can_support) {
     // Assets and documentation are Support's too
@@ -616,6 +623,23 @@ if (!$can_support) {
                         <div class="itflow-asset-empty">No tickets yet.</div>
                     <?php } ?>
                 </div>
+
+                <?php if ($contact_calls !== null) { ?>
+                    <!-- Calls from the phone systems -->
+                    <div class="tab-pane fade" id="contact-pane-calls" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Calls with them, newest first.</span>
+                            <?php if ($contact_calls['count'] > count($contact_calls['rows'])) { ?>
+                                <a class="btn btn-sm btn-light" href="calls.php?client_id=<?= $client_id ?>&amp;contact_id=<?= $contact_id ?>"><i class="fas fa-list me-2"></i>All <?= number_format($contact_calls['count']) ?></a>
+                            <?php } ?>
+                        </div>
+                        <?php if ($contact_calls['rows']) { ?>
+                            <?= phoneCallsTableHtml($contact_calls['rows'], $can_support_edit) ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">No calls yet.</div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
 
                 <!-- Recurring tickets -->
                 <div class="tab-pane fade" id="contact-pane-recurring" role="tabpanel">

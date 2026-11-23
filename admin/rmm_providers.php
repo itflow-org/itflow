@@ -7,6 +7,9 @@
  * last sync went. Its clients are
  * linked on its Clients page (rmm_clients.php). Add and Edit are one window
  * (modals/rmm/rmm_provider_edit.php); the rest are admin/post/rmm.php.
+ *
+ * Admin > Network Platforms (network_platforms.php) is this page for the network family's
+ * kinds - UniFi - in its words (rmmFamilyWords()): platforms and their sites.
  */
 
 // Default Column Sortby Filter
@@ -15,15 +18,23 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-// The tables arrive with the 3.6.7 database update
-if (!rmmTablesReady()) { ?>
-    <div class="alert alert-warning"><i class="fas fa-fw fa-exclamation-triangle me-2"></i>RMM Providers arrive with a database update - run it in <a href="update.php">Maintenance &gt; Update</a> first.</div>
+$rmm_family = ($rmm_family ?? 'rmm') === 'network' ? 'network' : 'rmm';
+$words = rmmFamilyWords($rmm_family);
+
+// The tables arrive with the 3.6.7 database update - and network platforms' columns with 4.1.5
+if (!rmmTablesReady() || ($rmm_family === 'network' && !rmmNetworkReady())) { ?>
+    <div class="alert alert-warning"><i class="fas fa-fw fa-exclamation-triangle me-2"></i><?= $words['title'] ?> arrive with a database update - run it in <a href="update.php">Maintenance &gt; Update</a> first.</div>
     <?php
     require_once "../includes/footer.php";
     exit;
 }
 
-$kinds = rmmProviderKinds();
+$kinds = rmmProviderKinds($rmm_family);
+// Only this family's - one of a kind ITFlow doesn't know shows with the RMMs
+$network_kinds = array_keys(rmmProviderKinds('network'));
+$family_sql = $rmm_family === 'network'
+    ? "AND rmm_provider_kind IN ('" . implode("', '", array_map('escapeSql', array_keys($kinds))) . "')"
+    : ($network_kinds ? "AND rmm_provider_kind NOT IN ('" . implode("', '", array_map('escapeSql', $network_kinds)) . "')" : '');
 
 // Only these sort - an unknown column would take the page down
 $sortable_columns = [
@@ -43,8 +54,10 @@ $kinds_found = array_keys(array_filter($kinds, function ($kind) use ($q) {
 }));
 $kind_search = $kinds_found ? " OR rmm_provider_kind IN ('" . implode("', '", array_map('escapeSql', $kinds_found)) . "')" : '';
 
-// Alerts open tickets once the 3.6.8 database update is in - and their open ones, with tickets
-$alerts_ready = rmmAlertsReady();
+// Alerts open tickets once the 3.6.8 database update is in - and their open ones, with tickets. A family none of whose kinds has alerts has no column for them
+$alerts_ready = rmmAlertsReady() && array_filter($kinds, function ($kind) {
+    return isset($kind['alerts'], $kind['alert']);
+});
 $alerts_sql = $alerts_ready ? ", (SELECT COUNT(*) FROM rmm_alerts WHERE rmm_alert_provider_id = rmm_provider_id AND rmm_alert_cleared_at IS NULL AND rmm_alert_ticket_id > 0) AS alerts_open" : '';
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS rmm_providers.*,
@@ -54,29 +67,29 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS rmm_providers.*,
     (SELECT COUNT(*) FROM rmm_devices WHERE rmm_device_provider_id = rmm_provider_id AND rmm_device_removed_at IS NULL AND rmm_device_asset_id > 0 AND rmm_device_status = 'overdue') AS devices_overdue
     $alerts_sql
     FROM rmm_providers
-    WHERE (rmm_provider_name LIKE '%$q%' OR rmm_provider_api_url LIKE '%$q%' OR rmm_provider_kind LIKE '%$q%'$kind_search)
+    WHERE (rmm_provider_name LIKE '%$q%' OR rmm_provider_api_url LIKE '%$q%' OR rmm_provider_kind LIKE '%$q%'$kind_search) $family_sql
     ORDER BY {$sortable_columns[$sort]}, rmm_provider_id ASC
     LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 // Syncing needs cron - say so while a provider is on and it isn't running
-$any_on = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_providers WHERE rmm_provider_active = 1"))[0]) > 0;
+$any_on = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM rmm_providers WHERE rmm_provider_active = 1 $family_sql"))[0]) > 0;
 $cron_on = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_enable_cron FROM settings WHERE company_id = 1"))[0] ?? 0) === 1;
 $job = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_enabled FROM cron_jobs WHERE cron_job_name = 'rmm_sync' LIMIT 1"));
 $job_on = !$job || intval($job['cron_job_enabled']) === 1;
 
 
-$add_url = 'modals/rmm/rmm_provider_add.php';
+$add_url = 'modals/rmm/rmm_provider_add.php' . ($rmm_family === 'network' ? '?family=network' : '');
 $csrf = $_SESSION['csrf_token'];
 
 ?>
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-laptop-medical me-2"></i>RMM Providers</h3>
+        <h3 class="card-title mt-2"><i class="<?= $words['icon'] ?> fa-fw me-2"></i><?= $words['title'] ?></h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Provider</span></button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New <?= $words['One'] ?></span></button>
         </div>
     </div>
     <?php if ($any_on && (!$cron_on || !$job_on)) { ?>
@@ -89,7 +102,7 @@ $csrf = $_SESSION['csrf_token'];
             <div class="row g-2 align-items-center">
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search RMM providers..." title="Name, kind or API address">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= strtolower($words['title']) ?>..." title="Name, kind or address">
                         <button class="btn btn-dark" title="Search"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
@@ -100,9 +113,9 @@ $csrf = $_SESSION['csrf_token'];
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-nowrap <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th class="ps-3"><?= sortLink('rmm_provider_name', 'Provider') ?></th>
+                <th class="ps-3"><?= sortLink('rmm_provider_name', $words['One']) ?></th>
                 <th class="d-none d-lg-table-cell"><?= sortLink('rmm_provider_kind', 'Kind') ?></th>
-                <th class="d-none d-md-table-cell"><?= sortLink('clients_linked', 'Clients') ?></th>
+                <th class="d-none d-md-table-cell"><?= sortLink('clients_linked', $words['Clients']) ?></th>
                 <th class="d-none d-md-table-cell"><?= sortLink('devices_in', 'Devices') ?></th>
                 <?php if ($alerts_ready) { ?><th class="d-none d-lg-table-cell">Alerts</th><?php } ?>
                 <th class="d-none d-sm-table-cell"><?= sortLink('rmm_provider_sync_at', 'Last sync') ?></th>
@@ -131,7 +144,7 @@ $csrf = $_SESSION['csrf_token'];
                 <tr data-rmm-provider-id="<?= $provider_id ?>" class="<?= $on ? '' : 'text-body-secondary' ?>">
                     <td class="ps-3">
                         <div class="d-flex align-items-center gap-3">
-                            <span class="d-none d-sm-inline-flex itflow-asset-icon itflow-asset-tone-other" aria-hidden="true"><i class="<?= escapeHtml($kind['icon'] ?? 'fas fa-laptop-medical') ?>"></i></span>
+                            <span class="d-none d-sm-inline-flex itflow-asset-icon itflow-asset-tone-other" aria-hidden="true"><i class="<?= escapeHtml($kind['icon'] ?? $words['icon']) ?>"></i></span>
                             <div class="min-w-0">
                                 <a class="fw-semibold text-body" href="<?= $clients_url ?>"><?= escapeHtml($name) ?></a>
                                 <?php if (!$kind) { ?>
@@ -141,7 +154,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <?php } ?>
                                 <div class="small text-body-secondary text-truncate"><span class="d-lg-none"><?= escapeHtml($kind['name'] ?? $row['rmm_provider_kind']) ?><?= $host !== '' ? ' &middot; ' : '' ?></span><?= escapeHtml($host) ?></div>
                                 <!-- On smaller screens its clients and devices come along under the name -->
-                                <div class="d-md-none small text-body-secondary"><?= $linked ?> of <?= $total ?> clients linked &middot; <?= number_format($devices) ?> devices</div>
+                                <div class="d-md-none small text-body-secondary"><?= $linked ?> of <?= $total ?> <?= $words['clients'] ?> linked &middot; <?= number_format($devices) ?> devices</div>
                             </div>
                         </div>
                     </td>
@@ -149,7 +162,7 @@ $csrf = $_SESSION['csrf_token'];
                     <td class="d-none d-md-table-cell small text-nowrap">
                         <a class="text-reset" href="<?= $clients_url ?>"><?= $linked ?> of <?= $total ?> linked</a>
                         <?php if ($suggested) { ?>
-                            <div><a class="text-body-secondary" href="<?= $clients_url ?>&amp;show=unlinked" data-rmm-suggested="<?= $suggested ?>" title="Your clients of the same name - link them on its Clients page"><?= $suggested ?> to link</a></div>
+                            <div><a class="text-body-secondary" href="<?= $clients_url ?>&amp;show=unlinked" data-rmm-suggested="<?= $suggested ?>" title="Your clients of the same name - link them on its <?= $words['Clients'] ?> page"><?= $suggested ?> to link</a></div>
                         <?php } ?>
                     </td>
                     <td class="d-none d-md-table-cell small text-nowrap">
@@ -188,12 +201,12 @@ $csrf = $_SESSION['csrf_token'];
                         <div class="dropdown dropstart">
                             <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="<?= $clients_url ?>"><i class="fas fa-fw fa-users text-secondary me-2"></i>Clients</a>
+                                <a class="dropdown-item" href="<?= $clients_url ?>"><i class="fas fa-fw <?= $rmm_family === 'network' ? 'fa-map-marker-alt' : 'fa-users' ?> text-secondary me-2"></i><?= $words['Clients'] ?></a>
                                 <?php if ($kind) { ?>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $edit_url ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
                                 <?php } ?>
                                 <?php if ($usable) { ?>
-                                    <a class="dropdown-item" href="post.php?sync_rmm=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>" data-rmm-sync title="Bring in its linked clients' devices now"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Sync Now</a>
+                                    <a class="dropdown-item" href="post.php?sync_rmm=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>" data-rmm-sync title="Bring in its linked <?= $words['clients'] ?>' devices now"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Sync Now</a>
                                 <?php } ?>
                                 <?php if ($kind) { ?>
                                     <a class="dropdown-item" href="post.php?test_rmm_provider=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-vial text-secondary me-2"></i>Test the Connection</a>
@@ -213,7 +226,7 @@ $csrf = $_SESSION['csrf_token'];
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_rmm_provider=<?= $provider_id ?>&amp;csrf_token=<?= $csrf ?>"
                                     data-confirm-title="Delete <?= escapeHtml($name) ?>?" data-confirm-button="Delete"
-                                    data-confirm-text="The links between its clients and yours are forgotten, and assets no longer show what it says about them. The <?= number_format($devices) ?> asset<?= $devices === 1 ? '' : 's' ?> it brought in stay, as they are.<?= $billed_lines ? ' ' . $billed_lines . ' recurring invoice line' . ($billed_lines === 1 ? ' bills' : 's bill') . ' its managed devices - look at ' . ($billed_lines === 1 ? 'it' : 'them') . ' after, as its devices no longer count.' : '' ?>">
+                                    data-confirm-text="The links between its <?= $words['clients'] ?> and your clients are forgotten, and assets no longer show what it says about them. The <?= number_format($devices) ?> asset<?= $devices === 1 ? '' : 's' ?> it brought in stay, as they are.<?= $billed_lines ? ' ' . $billed_lines . ' recurring invoice line' . ($billed_lines === 1 ? ' bills' : 's bill') . ' its managed devices - look at ' . ($billed_lines === 1 ? 'it' : 'them') . ' after, as its devices no longer count.' : '' ?>">
                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             </div>
@@ -225,7 +238,12 @@ $csrf = $_SESSION['csrf_token'];
         </table>
     </div>
     <?php
-    $empty_state = [
+    $empty_state = $rmm_family === 'network' ? [
+        'thing' => 'network platforms',
+        'icon' => 'fa-network-wired',
+        'text' => 'Add your UniFi controller, a UniFi console, or every console your UI account has through Site Manager, and link its sites to your clients: their gateways, switches and access points come in as assets, matched to the ones you have by MAC address, and each shows whether it is online and whether its firmware is out of date - kept up every 15 minutes.',
+        'actions' => [['label' => 'New Platform', 'modal' => $add_url]],
+    ] : [
         'thing' => 'RMM providers',
         'icon' => 'fa-laptop-medical',
         'text' => 'Add ' . escapeHtml(implode(' or ', array_column($kinds, 'name'))) . ' and link its clients to yours: their devices come in as assets, matched to the ones you have, and each asset shows whether it is online, who is signed in and what needs attention - kept up every 15 minutes.',

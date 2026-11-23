@@ -30,6 +30,7 @@ $overview_contacts = clientOverviewContacts($client_id);
 $favorites = clientOverviewFavorites($client_id, $access);
 $upcoming = clientOverviewUpcoming($client_id, $access);
 $asset_summary = $access['docs'] ? clientOverviewAssets($client_id) : null;
+$rmm_summary = $access['docs'] ? rmmClientSummary($client_id) : null;
 $shared_items = clientOverviewSharedItems($client_id);
 $activity = clientOverviewActivity($client_id);
 $money = $access['financial'] ? clientOverviewMoney($client_id, $balance, $recurring_monthly) : null;
@@ -463,6 +464,37 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                     </div>
                     <div class="card-footer small text-body-secondary py-2">
                         Warranty: <?= $asset_summary['warranty_active'] ?> covered<?php if ($asset_summary['warranty_expired']) { ?>, <span class="text-danger-emphasis"><?= $asset_summary['warranty_expired'] ?> expired</span><?php } ?><?php if ($asset_summary['warranty_unknown']) { ?>, <?= $asset_summary['warranty_unknown'] ?> not recorded<?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($rmm_summary) {
+            $rmm_title = rmmListLabel('rmm') === 'an RMM' ? 'RMM' : rmmListLabel('rmm');
+            $rmm_rows = [
+                'online' => ['Online', 'fa-circle', 'success'], 'offline' => ['Offline', 'fa-circle', 'secondary'], 'overdue' => ['Overdue', 'fa-circle', 'danger'],
+                'reboot' => ['Need a reboot', 'fa-redo-alt', 'warning'], 'patches' => ['Patches waiting', 'fa-download', 'warning'], 'checks' => ['Checks failing', 'fa-exclamation-triangle', 'danger'],
+            ]; ?>
+            <div class="col-md-6 col-xl-4" data-rmm-summary>
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto"><?= escapeHtml($rmm_title) ?></h3>
+                        <a class="small" href="assets.php?client_id=<?= $client_id ?>&rmm=any">View all <?= $rmm_summary['total'] ?></a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($rmm_rows as $rmm_key => [$rmm_label, $rmm_icon, $rmm_tone]) {
+                            if (!$rmm_summary[$rmm_key]) {
+                                continue;
+                            } ?>
+                            <a href="assets.php?client_id=<?= $client_id ?>&rmm=<?= $rmm_key ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2" data-rmm-summary-row="<?= $rmm_key ?>">
+                                <i class="fas fa-fw <?= $rmm_icon ?> text-<?= $rmm_tone ?>" aria-hidden="true"></i>
+                                <span class="flex-grow-1"><?= $rmm_label ?></span>
+                                <span class="fw-semibold"><?= $rmm_summary[$rmm_key] ?></span>
+                            </a>
+                        <?php } ?>
+                    </div>
+                    <div class="card-footer small text-body-secondary py-2" title="<?= escapeHtml((string) $rmm_summary['synced_at']) ?>">
+                        As <?= escapeHtml($rmm_title) ?> said <?= escapeHtml(timeAgo($rmm_summary['synced_at'])) ?>
                     </div>
                 </div>
             </div>

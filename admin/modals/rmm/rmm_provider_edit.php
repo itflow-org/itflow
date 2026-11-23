@@ -5,9 +5,11 @@
  * picked when it is added and stays; each kind brings its own fields (rmmProviderKinds() in
  * functions/rmm.php) - addresses, a key, a secret. A key or secret is never put back into the
  * page, so left empty it stays. A kind that has alerts can have them open tickets, from the
- * level picked, in a category. Save asks first (check_rmm_provider, admin/post/rmm.php): what
+ * level picked, in a category. Desktops, laptops, servers and virtual machines each come in as
+ * the asset type picked for them (rmmProviderAssetTypes()). Save asks first (check_rmm_provider, admin/post/rmm.php): what
  * is wrong shows beside each field and the window stays open; once all is right it saves, and
- * tries the connection.
+ * tries the connection. A network platform's window (family=network, or one being edited)
+ * offers the network kinds - UniFi - in its words.
  */
 
 require_once '../../includes/modal_header.php';
@@ -15,7 +17,7 @@ require_once '../../includes/modal_header.php';
 $provider_id = intval($_GET['id'] ?? 0);
 $row = $provider_id ? rmmProviderRow($provider_id) : null;
 if ($provider_id && !$row) {
-    echo json_encode(['error' => 'That RMM provider no longer exists.']);
+    echo json_encode(['error' => 'That provider or platform no longer exists.']);
     exit;
 }
 if ($row && !rmmKind($row)) {
@@ -23,13 +25,15 @@ if ($row && !rmmKind($row)) {
     exit;
 }
 
-$kinds = rmmProviderKinds();
+$family = $row ? rmmFamily($row) : (($_GET['family'] ?? '') === 'network' && rmmNetworkReady() ? 'network' : 'rmm');
+$words = rmmFamilyWords($family);
+$kinds = rmmProviderKinds($family);
 $kind_key = $row ? (string) $row['rmm_provider_kind'] : (string) array_key_first($kinds);
 $kind = $kinds[$kind_key];
 
 // What the window's script needs of each kind - its name, to follow the kind picked, and whether it has alerts
 $kinds_js = array_map(function ($info) {
-    return ['name' => $info['name'], 'alerts' => isset($info['alerts'], $info['alert']), 'alertsHelp' => (string) ($info['alerts_help'] ?? '')];
+    return ['name' => $info['default_name'] ?? $info['name'], 'alerts' => isset($info['alerts'], $info['alert']), 'alertsHelp' => (string) ($info['alerts_help'] ?? '')];
 }, $kinds);
 
 // Alerts open tickets - once the 3.6.8 database update is in, with ticketing on
@@ -46,12 +50,13 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2" data-rmm-kind-icon></i><?= $row ? '<strong>' . escapeHtml(rmmProviderName($row)) . '</strong>' : 'New RMM Provider' ?></h5>
+    <h5 class="modal-title"><i class="<?= escapeHtml($kind['icon']) ?> fa-fw me-2" data-rmm-kind-icon></i><?= $row ? '<strong>' . escapeHtml(rmmProviderName($row)) . '</strong>' : 'New ' . ucwords($words['full']) ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off" novalidate data-rmm-provider-form data-kinds="<?= escapeHtml(json_encode($kinds_js)) ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="provider_id" value="<?= $provider_id ?>">
+    <input type="hidden" name="family" value="<?= $family ?>">
 
     <div class="modal-body">
 
@@ -59,14 +64,14 @@ ob_start();
             <div class="mb-3">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="active" value="1" id="rmmProviderActive" <?= intval($row['rmm_provider_active']) ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="rmmProviderActive">On - the linked clients' devices come in</label>
+                    <label class="form-check-label" for="rmmProviderActive">On - the linked <?= $words['clients'] ?>' devices come in</label>
                 </div>
                 <div class="form-text ps-5">Off, nothing is brought in, and assets keep what it last said about them.</div>
             </div>
         <?php } ?>
 
         <div class="mb-3">
-            <label class="form-label" for="rmmProviderKind">RMM <?= $row ? '' : '<strong class="text-danger">*</strong>' ?></label>
+            <label class="form-label" for="rmmProviderKind"><?= $words['kind'] ?> <?= $row ? '' : '<strong class="text-danger">*</strong>' ?></label>
             <div class="input-group has-validation">
                 <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
                 <select class="form-select select2" name="kind" id="rmmProviderKind" data-rmm-kind <?= $row ? 'disabled' : '' ?>>
@@ -76,17 +81,17 @@ ob_start();
                 </select>
             </div>
             <?= $error_for('kind') ?>
-            <?php if ($row) { ?><div class="form-text">Which RMM it is stays - add another provider for another one.</div><?php } ?>
+            <?php if ($row) { ?><div class="form-text"><?= $family === 'network' ? 'Which kind it is stays - add another platform for another one.' : 'Which RMM it is stays - add another provider for another one.' ?></div><?php } ?>
         </div>
 
         <div class="mb-3">
             <label class="form-label" for="rmmProviderName">Name <strong class="text-danger">*</strong></label>
             <div class="input-group has-validation">
                 <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
-                <input type="text" class="form-control" name="name" id="rmmProviderName" maxlength="100" value="<?= escapeHtml($row ? $row['rmm_provider_name'] : $kind['name']) ?>" placeholder="What you call it">
+                <input type="text" class="form-control" name="name" id="rmmProviderName" maxlength="100" value="<?= escapeHtml($row ? $row['rmm_provider_name'] : ($kind['default_name'] ?? $kind['name'])) ?>" placeholder="What you call it">
             </div>
             <?= $error_for('name') ?>
-            <div class="form-text">What assets and the audit log call it. Two of the same RMM need names of their own.</div>
+            <div class="form-text">What assets and the audit log call it. Two of the same kind need names of their own.</div>
         </div>
 
         <?php foreach ($kinds as $key => $info) {
@@ -94,8 +99,19 @@ ob_start();
             <div data-rmm-kind-fields="<?= escapeHtml($key) ?>" class="<?= $shown ? '' : 'd-none' ?>">
                 <?php foreach ($info['fields'] as $field => $about) {
                     $id = 'rmmProvider' . ucfirst($key) . str_replace('_', '', ucwords($field, '_'));
-                    $saved = $row && $shown ? (string) $row["rmm_provider_$field"] : '';
+                    $saved = $row && $shown ? (string) ($row["rmm_provider_$field"] ?? '') : '';
                     $secret = $about['type'] === 'secret';
+                    if ($about['type'] === 'switch') { ?>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" name="<?= $field ?>" value="1" id="<?= $id ?>" <?= intval($saved) ? 'checked' : '' ?> <?= $shown ? '' : 'disabled' ?>>
+                                <label class="form-check-label" for="<?= $id ?>"><?= escapeHtml($about['label']) ?></label>
+                            </div>
+                            <?= $error_for($field) ?>
+                            <div class="form-text ps-5"><?= escapeHtml($about['help']) ?></div>
+                        </div>
+                        <?php continue;
+                    }
                     $placeholder = $secret ? ($saved !== '' ? 'Saved - type a new one to replace it' : '') : $about['placeholder'];
                     if ($field === 'web_url' && $row && $shown && isset($info['dashboard'])) {
                         // The address it works out when this is left empty
@@ -107,6 +123,8 @@ ob_start();
                             <span class="input-group-text"><i class="fas fa-fw <?= escapeHtml($about['icon']) ?>"></i></span>
                             <?php if ($secret) { ?>
                                 <input type="password" class="form-control font-monospace" name="<?= $field ?>" id="<?= $id ?>" maxlength="500" spellcheck="false" autocomplete="new-password" placeholder="<?= escapeHtml($placeholder) ?>" <?= $shown ? '' : 'disabled' ?>>
+                            <?php } elseif ($about['type'] === 'text') { ?>
+                                <input type="text" class="form-control" name="<?= $field ?>" id="<?= $id ?>" maxlength="255" spellcheck="false" autocomplete="off" placeholder="<?= escapeHtml($placeholder) ?>" value="<?= escapeHtml($saved) ?>" <?= $shown ? '' : 'disabled' ?>>
                             <?php } else { ?>
                                 <input type="url" class="form-control" name="<?= $field ?>" id="<?= $id ?>" maxlength="500" spellcheck="false" placeholder="<?= escapeHtml($placeholder) ?>" value="<?= escapeHtml($saved) ?>" <?= $shown ? '' : 'disabled' ?>>
                             <?php } ?>
@@ -133,7 +151,7 @@ ob_start();
                         </select>
                     </div>
                     <?= $error_for('alert_level') ?>
-                    <div class="form-text">A new alert on a device of a linked client opens a ticket on its asset - High for an error, Medium for a warning, Low for the rest - and the same alert again goes on that ticket while it is open. When the alert clears, the ticket is resolved unless someone has written on it. Alerts already open when this is turned on don't open tickets.
+                    <div class="form-text">A new alert on a device of a linked <?= $words['client'] ?> opens a ticket on its asset - High for an error, Medium for a warning, Low for the rest - and the same alert again goes on that ticket while it is open. When the alert clears, the ticket is resolved unless someone has written on it. Alerts already open when this is turned on don't open tickets.
                         <span data-rmm-alerts-help><?= escapeHtml((string) ($kind['alerts_help'] ?? '')) ?></span></div>
                 </div>
                 <div class="mb-3 <?= $alert_level === '' ? 'd-none' : '' ?>" data-rmm-alert-more>
@@ -147,6 +165,31 @@ ob_start();
                         <?= categoryAddButtonHtml('Ticket') ?>
                     </div>
                 </div>
+            </div>
+        <?php } ?>
+
+        <?php if (rmmAssetTypesReady()) {
+            $device_types = rmmProviderAssetTypes($row, $kind); ?>
+            <div class="mb-3" data-rmm-asset-types>
+                <label class="form-label">Asset types</label>
+                <div class="row g-2">
+                    <?php foreach (rmmDeviceKinds($kind) as $guessed => $kind_label) {
+                        $type_id = 'rmmProviderType' . str_replace(' ', '', $guessed); ?>
+                        <div class="col-sm-6">
+                            <label class="form-label small text-body-secondary mb-1" for="<?= $type_id ?>"><?= escapeHtml($kind_label) ?></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-fw <?= escapeHtml(assetTypeInfo($guessed)['icon']) ?>"></i></span>
+                                <select class="form-select select2" name="asset_types[<?= escapeHtml($guessed) ?>]" id="<?= $type_id ?>">
+                                    <?php foreach (assetTypePicker($device_types[$guessed]) as $type_name => $type_icon) { ?>
+                                        <option <?= $type_name === $device_types[$guessed] ? 'selected' : '' ?><?= selectOptionData(['icon' => "fas $type_icon"]) ?>><?= escapeHtml($type_name) ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+                <?= $error_for('asset_types') ?>
+                <div class="form-text">What its devices come in as. A device the sync typed follows a change here at the next sync; one whose type you changed on the asset keeps yours.<?= $family === 'rmm' ? ' Recurring invoice lines that count managed devices by type count these.' : '' ?></div>
             </div>
         <?php } ?>
 

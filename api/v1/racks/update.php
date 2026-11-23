@@ -33,7 +33,7 @@ if ($rack) {
         $units = intval($rack_set['rack_units']);
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT unit_device, unit_type, unit_end_number, asset_name FROM rack_units
             LEFT JOIN assets ON asset_id = unit_asset_id
-            WHERE unit_rack_id = $rack_id AND unit_end_number > $units ORDER BY unit_end_number DESC LIMIT 1"));
+            WHERE unit_rack_id = $rack_id AND unit_end_number > $units AND unit_parent_id IS NULL ORDER BY unit_end_number DESC LIMIT 1"));
         if ($row) {
             $rack_refuse("Can't shrink the rack to {$units}U - " . rackUnitName($row['asset_name'], $row['unit_device'], $row['unit_type']) . " is mounted up to U" . intval($row['unit_end_number']) . ". Move or remove it first.");
         }

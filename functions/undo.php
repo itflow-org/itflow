@@ -17,6 +17,8 @@
  *   ['recurring_on', recurring invoice id]                  a recurring invoice the change stopped, running again
  *   ['folder', folder id, parent before, parent after, client id]  a folder back under its parent
  *   ['rack', unit id, start, end, face, start after, face after]   a rack item back where it was, if that's free
+ *   ['rack_place', unit id, [holder, slot, start, end, face, full depth] before, [holder, slot] after]
+ *                                                           a rack item back in the slot - or the units - it came from
  *   ['ticket_priority', ticket id, before, after]           through ticketChangePriority(), as the picker
  *   ['ticket_category', ticket id, before, after]           with the ticket's history line, as the bulk change
  *   ['ticket_project', ticket id, before, after]            the same
@@ -386,7 +388,28 @@ function undoStep(array $step) {
                 return false;
             }
             mysqli_query($mysqli, "UPDATE rack_units SET unit_start_number = " . intval($start) . ", unit_end_number = " . intval($end) . ", unit_face = " . undoSqlValue($face) . " WHERE unit_id = " . intval($unit_id));
+            rackSyncChildren($unit_id);
             logAudit("Rack", "Edit", "$session_name moved an item back to " . html_entity_decode(rackPositionLabel($start, $end)) . " ($face)", intval($row['rack_client_id']), intval($row['unit_rack_id']));
+            return true;
+
+        case 'rack_place':
+            [, $unit_id, $before, $after] = $step;
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT unit_rack_id, unit_parent_id, unit_position, rack_client_id, rack_archived_at FROM rack_units
+                JOIN racks ON rack_id = unit_rack_id WHERE unit_id = " . intval($unit_id)));
+            if (!$row || $row['rack_archived_at'] || !hasClientAccess($row['rack_client_id'])
+                || intval($row['unit_parent_id']) !== intval($after[0]) || intval($row['unit_position']) !== intval($after[1])) {
+                return false;
+            }
+            [$holder, $slot, $start, $end, $face, $full_depth] = $before;
+            $place = rackPlacement(intval($row['unit_rack_id']), $unit_id, ['holder' => $holder, 'position' => max(1, intval($slot)),
+                'start' => $start, 'end' => $end, 'face' => $face, 'full_depth' => $full_depth]);
+            if (isset($place['error'])) {
+                return false;
+            }
+            mysqli_query($mysqli, "UPDATE rack_units SET " . rackPlacementSet($place) . " WHERE unit_id = " . intval($unit_id));
+            logAudit("Rack", "Edit", "$session_name moved an item back " . escapeSql($place['holder']
+                ? "to slot {$place['position']} of {$place['holder_name']}"
+                : 'to ' . html_entity_decode(rackPositionLabel($place['start'], $place['end'])) . " ({$place['face']})"), intval($row['rack_client_id']), intval($row['unit_rack_id']));
             return true;
 
         case 'ticket_priority':

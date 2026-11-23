@@ -37,8 +37,10 @@ reportCategoryRows('Expense', $expenses_prev);
 
 $income_total = reportGridTotals($income);
 $expense_total = reportGridTotals($expenses);
-$income_prev_total = reportGridTotals($income_prev)['total'];
-$expense_prev_total = reportGridTotals($expenses_prev)['total'];
+$income_prev_grid = reportGridTotals($income_prev);
+$expense_prev_grid = reportGridTotals($expenses_prev);
+$income_prev_total = $income_prev_grid['total'];
+$expense_prev_total = $expense_prev_grid['total'];
 
 $profit = $income_total['total'] - $expense_total['total'];
 $profit_prev = $income_prev_total - $expense_prev_total;
@@ -102,16 +104,30 @@ if (reportExporting()) {
     reportCsv("Profit and Loss $year", $csv_columns, $csv_rows);
 }
 
-// The chart goes a month at a time, whichever way the table is split
-$months_shown = $current_year ? intval(date('n')) : 12;
-$chart = ['income' => [], 'expenses' => [], 'profit' => []];
-for ($m = 1; $m <= 12; $m++) {
-    $in = round($income_total['months'][$m], 2);
-    $out = round($expense_total['months'][$m], 2);
-    $chart['income'][] = $m <= $months_shown ? $in : null;
-    $chart['expenses'][] = $m <= $months_shown ? $out : null;
-    $chart['profit'][] = $m <= $months_shown ? round($in - $out, 2) : null;
+// Quarterly has a card for each quarter in place of the chart - each against the same quarter last year
+$quarters = $view === 'quarter' ? reportQuarters($year, $current_year) : [];
+foreach ($quarters as &$quarter) {
+    $in = reportQuarterSum($income_total['months'], $quarter);
+    $out = reportQuarterSum($expense_total['months'], $quarter);
+    $in_prev = reportQuarterSum($income_prev_grid['months'], $quarter);
+    $out_prev = reportQuarterSum($expense_prev_grid['months'], $quarter);
+    $quarter['rows'] = [
+        ['label' => 'Income', 'now' => $in, 'prev' => $in_prev, 'good' => 'up'],
+        ['label' => 'Expenses', 'now' => $out, 'prev' => $out_prev, 'good' => 'down'],
+        ['label' => 'Net profit', 'now' => $in - $out, 'prev' => $in_prev - $out_prev, 'good' => 'up', 'strong' => true],
+    ];
 }
+unset($quarter);
+
+// The chart, on Monthly - nothing for the months still to come
+$months_shown = $current_year ? intval(date('n')) : 12;
+$chart = [
+    'income' => reportChartColumns($income_total['months'], $columns, $months_shown),
+    'expenses' => reportChartColumns($expense_total['months'], $columns, $months_shown),
+];
+$chart['profit'] = array_map(function ($in, $out) {
+    return $in === null ? null : round($in - $out, 2);
+}, $chart['income'], $chart['expenses']);
 
 require_once "includes/inc_report_layout.php";
 
@@ -162,20 +178,24 @@ $span = count($columns) + 4;
             'sub' => $margin_prev === null ? '<span class="text-body-tertiary">Nothing before to compare</span>' : escapeHtml(reportPercent($margin_prev)) . ' <span class="text-body-tertiary">' . escapeHtml($current_year ? 'same time last year' : 'in ' . ($year - 1)) . '</span>'],
     ]) ?>
 
-    <?= reportSectionOpen('Income, expenses and profit by month', escapeHtml((string) $year)) ?>
-        <div class="card-body">
-            <?= reportChart([
-                'type' => 'bar',
-                'labels' => array_map(function ($m) { return date('M', mktime(0, 0, 0, $m, 1)); }, range(1, 12)),
-                'series' => [
-                    ['label' => 'Income', 'data' => $chart['income'], 'tone' => 'success'],
-                    ['label' => 'Expenses', 'data' => $chart['expenses'], 'tone' => 'danger'],
-                    ['label' => 'Net profit', 'data' => $chart['profit'], 'tone' => 'accent', 'type' => 'line'],
-                ],
-                'format' => 'money',
-            ], 'lg', 'Income, expenses and net profit per month') ?>
+    <?php if ($quarters) { ?>
+        <?= reportQuarterCards($quarters, true) ?>
+    <?php } else { ?>
+        <?= reportSectionOpen('Income, expenses and profit by month', escapeHtml((string) $year)) ?>
+            <div class="card-body">
+                <?= reportChart([
+                    'type' => 'bar',
+                    'labels' => array_column($columns, 0),
+                    'series' => [
+                        ['label' => 'Income', 'data' => $chart['income'], 'tone' => 'success'],
+                        ['label' => 'Expenses', 'data' => $chart['expenses'], 'tone' => 'danger'],
+                        ['label' => 'Net profit', 'data' => $chart['profit'], 'tone' => 'accent', 'type' => 'line'],
+                    ],
+                    'format' => 'money',
+                ], 'lg', 'Income, expenses and net profit per month') ?>
+            </div>
         </div>
-    </div>
+    <?php } ?>
 
     <?= reportSectionOpen('Statement', escapeHtml($current_year ? 'Last year is ' . ($year - 1) . ' to ' . date('M j', strtotime($prev_to)) : 'Last year is ' . ($year - 1)), 'itflow-report-long') ?>
         <div class="table-responsive">
