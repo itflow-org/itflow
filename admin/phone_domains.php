@@ -59,6 +59,7 @@ $filter_url = function (array $change) {
 $sortable_columns = [
     'phone_domain_name' => "phone_domain_name $order",
     'calls_month' => "calls_month $order, phone_domain_name ASC",
+    'phones' => "phones $order, phone_domain_name ASC",
     'client_name' => "client_name IS NULL, client_name $order, phone_domain_name ASC",
     'phone_domain_seen_at' => "phone_domain_seen_at IS NULL, phone_domain_seen_at $order, phone_domain_name ASC",
 ];
@@ -67,7 +68,8 @@ if (!isset($sortable_columns[$sort])) {
 }
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS phone_domains.*, client_name, client_abbreviation, client_archived_at,
-    (SELECT COUNT(*) FROM phone_calls WHERE phone_call_domain_id = phone_domains.phone_domain_id AND phone_call_started_at >= NOW() - INTERVAL 30 DAY) AS calls_month
+    (SELECT COUNT(*) FROM phone_calls WHERE phone_call_domain_id = phone_domains.phone_domain_id AND phone_call_started_at >= NOW() - INTERVAL 30 DAY) AS calls_month,
+    (SELECT COUNT(*) FROM phone_devices WHERE phone_device_domain_id = phone_domains.phone_domain_id) AS phones
     FROM phone_domains
     LEFT JOIN clients ON client_id = phone_domain_client_id AND phone_domain_client_id > 0
     WHERE phone_domain_system_id = $phone_system_id AND {$shows[$show]['sql']}
@@ -170,6 +172,7 @@ $own_client = intval($config_internal_client_id ?? 0);
             <tr>
                 <th class="ps-3"><?= sortLink('phone_domain_name', 'Domain') ?></th>
                 <th class="d-none d-md-table-cell"><?= sortLink('calls_month', 'Calls, 30 days') ?></th>
+                <th class="d-none d-lg-table-cell"><?= sortLink('phones', 'Phones') ?></th>
                 <th><?= sortLink('client_name', 'ITFlow client') ?></th>
                 <th class="d-none d-lg-table-cell"><?= sortLink('phone_domain_seen_at', 'Last heard from') ?></th>
                 <th></th>
@@ -186,7 +189,7 @@ $own_client = intval($config_internal_client_id ?? 0);
                 <tr data-phone-domain-id="<?= $phone_domain_id ?>">
                     <td class="ps-3">
                         <div class="fw-semibold font-monospace small"><?= escapeHtml($row['phone_domain_name']) ?></div>
-                        <div class="d-md-none small text-body-secondary"><?= number_format(intval($row['calls_month'])) ?> calls</div>
+                        <div class="d-md-none small text-body-secondary"><?= number_format(intval($row['calls_month'])) ?> calls<?= intval($row['phones']) ? ' &middot; ' . number_format(intval($row['phones'])) . ' phones' : '' ?></div>
                     </td>
                     <td class="d-none d-md-table-cell text-nowrap">
                         <?php if ($linked && intval($row['calls_month'])) { ?>
@@ -196,6 +199,7 @@ $own_client = intval($config_internal_client_id ?? 0);
                             <?= number_format(intval($row['calls_month'])) ?>
                         <?php } ?>
                     </td>
+                    <td class="d-none d-lg-table-cell" title="Desk phones on it that told ITFlow about themselves"><?= number_format(intval($row['phones'])) ?></td>
                     <td>
                         <?php if ($linked) { ?>
                             <div class="d-flex align-items-center gap-2">

@@ -514,6 +514,50 @@ if (mysqli_num_rows($sql) == 0) {
                 </div>
             <?php } ?>
 
+            <?php // The desk phone it is, as the phone last told its phone system's ITFlow (functions/phone.php)
+            foreach (phoneDevicesForAsset($asset_id) as $phone_device) {
+                $phone_status = phoneDeviceStatuses()[$phone_device['phone_device_status']] ?? phoneDeviceStatuses()[''];
+                $phone_web = phoneWebUrl($phone_device);
+                $phone_short = phoneKind($phone_device)['short'] ?? 'the phone system'; ?>
+                <div class="card mb-3" data-phone-device="<?= escapeHtml($phone_device['phone_device_status']) ?>">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0"><i class="<?= escapeHtml(phoneKind($phone_device)['icon'] ?? 'fas fa-phone-volume') ?> fa-fw text-secondary me-2"></i><?= escapeHtml(phoneSystemName($phone_device)) ?></h3>
+                        <?php if ($phone_web !== '') { ?>
+                            <a class="ms-auto ps-2 text-secondary" href="<?= escapeHtml($phone_web) ?>" target="_blank" rel="noopener noreferrer" title="Open <?= escapeHtml($phone_short) ?>"><i class="fas fa-fw fa-external-link-alt"></i></a>
+                        <?php } ?>
+                    </div>
+                    <div class="card-body">
+                        <dl class="itflow-asset-dl mb-0">
+                            <dt>Status</dt>
+                            <dd><span class="text-<?= $phone_status[2] ?>-emphasis fw-semibold"><i class="fas fa-fw <?= $phone_status[1] ?> me-1"></i><?= escapeHtml($phone_status[0]) ?></span>
+                                <?php if ($phone_device['phone_device_status_at']) { ?>
+                                    <span class="small text-body-secondary">- since <span title="<?= formatDateTime($phone_device['phone_device_status_at']) ?>"><?= escapeHtml(timeAgo($phone_device['phone_device_status_at'])) ?></span></span>
+                                <?php } ?>
+                            </dd>
+                            <?php if ((string) $phone_device['phone_device_line'] !== '') { ?>
+                                <dt>Line</dt>
+                                <dd><?= escapeHtml(phoneNumberText($phone_device['phone_device_line']) ?: $phone_device['phone_device_line']) ?><?php if ((string) $phone_device['phone_domain_name'] !== '') { ?> <span class="small text-body-secondary">on <?= escapeHtml($phone_device['phone_domain_name']) ?></span><?php } ?></dd>
+                            <?php } ?>
+                            <?php // What the asset shows already isn't said again - only where the phone says otherwise
+                            $phone_model = trim($phone_device['phone_device_vendor'] . ' ' . $phone_device['phone_device_model']);
+                            if ((string) $phone_device['phone_device_ip'] !== '' && $phone_device['phone_device_ip'] !== (string) $asset_row['interface_ip']) { ?>
+                                <dt>IP address</dt>
+                                <dd><span class="font-monospace"><?= escapeHtml($phone_device['phone_device_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy IP address" data-clipboard-text="<?= escapeHtml($phone_device['phone_device_ip']) ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ((string) $phone_device['phone_device_model'] !== '' && $phone_device['phone_device_model'] !== (string) $asset_row['asset_model']) { ?>
+                                <dt>Model</dt>
+                                <dd><?= escapeHtml($phone_model) ?></dd>
+                            <?php } ?>
+                            <?php if ((string) $phone_device['phone_device_firmware'] !== '' && $phone_device['phone_device_firmware'] !== (string) $asset_row['asset_os']) { ?>
+                                <dt>Firmware</dt>
+                                <dd class="small"><?= escapeHtml($phone_device['phone_device_firmware']) ?></dd>
+                            <?php } ?>
+                        </dl>
+                        <div class="small text-body-secondary mt-2" title="<?= escapeHtml((string) $phone_device['phone_device_heard_at']) ?>">As the phone said <?= escapeHtml(timeAgo($phone_device['phone_device_heard_at'])) ?> - a phone only says something when it starts up, registers or has a call, so this can be out of date.</div>
+                    </div>
+                </div>
+            <?php } ?>
+
             <?php if ($asset_ip || $asset_ipv6 || $asset_nat_ip || $asset_mac || $network_name) { ?>
                 <div class="card mb-3">
                     <div class="card-header">
