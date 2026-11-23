@@ -4325,6 +4325,44 @@ button.itflow-rack-cell-body:hover {
     font-size: .8rem;
 }
 
+/* Screen pops - calls on your desk phone, at the bottom right (js/phone_pop.js). Under modals, so one opened from a pop covers it */
+.itflow-phone-pop-stack {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    z-index: 1045;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    width: min(22rem, calc(100vw - 2rem));
+    pointer-events: none;
+}
+.itflow-phone-pop {
+    margin: 0;
+    pointer-events: auto;
+}
+.itflow-phone-pop.is-new {
+    animation: itflow-phone-pop-in .25s ease-out both;
+}
+@keyframes itflow-phone-pop-in {
+    from { opacity: 0; transform: translateY(.75rem); }
+    to { opacity: 1; transform: none; }
+}
+.itflow-phone-pop-ring {
+    animation: itflow-phone-pop-ring 1.2s ease-in-out infinite;
+}
+@keyframes itflow-phone-pop-ring {
+    0%, 50%, 100% { transform: rotate(0); }
+    10%, 30% { transform: rotate(-14deg); }
+    20%, 40% { transform: rotate(14deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .itflow-phone-pop.is-new,
+    .itflow-phone-pop-ring {
+        animation: none;
+    }
+}
+
 /* Phone systems - the lines their setup window gives to copy (admin/modals/phone/phone_system_setup.php) */
 .itflow-phone-snippet {
     padding: .6rem 2.75rem .6rem .75rem;

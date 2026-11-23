@@ -1058,6 +1058,24 @@ if (isset($_GET['ticket_reply_peek'])) {
 }
 
 /*
+ * Screen pops (js/phone_pop.js, every few seconds while a page is in view): the calls on this
+ * agent's desk phone to show - phonePopCalls(), functions/phone.php. The session is let go of
+ * first, so the asking never holds up the agent's other pages.
+ */
+if (isset($_GET['phone_pop'])) {
+    header('Content-Type: application/json');
+    header('Cache-Control: no-store');
+    $phone_pop_made = (array) ($_SESSION['phone_pop_tickets'] ?? []);
+    session_write_close();
+    if (phoneLineForUser(intval($session_user_id)) === '' || lookupUserPermission('module_support') < 1) {
+        echo json_encode(['ok' => true, 'line' => false, 'calls' => []]);
+        exit;
+    }
+    echo json_encode(['ok' => true, 'line' => true, 'calls' => phonePopCalls(intval($session_user_id), $phone_pop_made)]);
+    exit;
+}
+
+/*
  * For the browser tab's title and desktop notifications, from every agent page (js/ticket_pulse.js,
  * once a minute per browser): how many open tickets are assigned to this agent - the Mine count.
  * With desktop=1 also the tickets not yet closed that are assigned to them, for the page to work

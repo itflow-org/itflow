@@ -5,8 +5,9 @@
  * its lines register, and as calls ring, start and end (its action URLs, with e= the event and the
  * phone's own variables - the system's setup window in Admin > Phone Systems has them); a Polycom
  * phone posts its telephony notifications here as XML. Each phone is kept by its MAC address, and
- * becomes a Phone asset of its domain's client (phoneDeviceSave(), functions/phone.php). Anything
- * that isn't from a phone is turned down (400).
+ * becomes a Phone asset of its domain's client (phoneDeviceSave(), functions/phone.php). A call on
+ * an agent's desk phone pops up for them in ITFlow (phoneEventSave()). Anything that isn't from a
+ * phone is turned down (400).
  */
 
 require_once __DIR__ . '/phone_system.php';
@@ -20,6 +21,8 @@ if ($phone_event['mac'] === '') {
     $phone_reply(400, 'No MAC address');
 }
 
-phoneDeviceSave($phone_system, $phone_event);
+$phone_device = phoneDeviceSave($phone_system, $phone_event);
+// A call ringing, answered or ended - for the agents whose desk phone it is (screen pops)
+phoneEventSave($phone_system, $phone_event, $phone_device);
 
 $phone_reply(200, 'OK');

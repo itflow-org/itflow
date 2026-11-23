@@ -121,6 +121,9 @@ ob_start();
         <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
+    <?php if (function_exists('phonePopKey') && phonePopKey($_GET['phone_pop_call'] ?? '') !== '') { ?>
+        <input type="hidden" name="phone_pop_call" value="<?= phonePopKey($_GET['phone_pop_call']) ?>">
+    <?php } ?>
     <?php if ($phone_call) { ?>
         <input type="hidden" name="phone_call_id" value="<?= intval($phone_call['phone_call_id']) ?>">
     <?php } ?>

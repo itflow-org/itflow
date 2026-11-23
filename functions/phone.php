@@ -10,7 +10,9 @@
  *   cid.php   the name for a caller ID, asked for as a call comes in (mod_cidlookup) - so desk
  *             phones show the contact and their client
  *   hook.php  desk phones saying what they are and what they are doing (Yealink action URLs,
- *             Polycom telephony notifications) - a phone_devices row, and a Phone asset
+ *             Polycom telephony notifications) - a phone_devices row, and a Phone asset; and as a
+ *             call rings, is answered and ends, a phone_events row for the agent whose desk phone
+ *             it is (Your account > Preferences), which pops up in ITFlow (js/phone_pop.js)
  *
  * Each domain (a FusionPBX tenant) it names is a phone_domains row, linked on the system's Domains
  * page (admin/phone_domains.php) to the client it is. A call on a client's domain is that client's,
@@ -453,16 +455,103 @@ function phoneCallerName($number, int $domain_client_id): string
 /** The agent whose desk phone an extension on a domain is (user_config_phone_line, extension@domain) - 0 for nobody */
 function phoneUserForLine(string $extension, string $domain_name): int
 {
+    return phoneUsersForLine($extension, $domain_name)[0] ?? 0;
+}
+
+/** Every agent whose desk phone a line is - a phone at a desk two share is both of theirs */
+function phoneUsersForLine(string $extension, string $domain_name): array
+{
     global $mysqli;
     if ($extension === '' || $domain_name === '') {
-        return 0;
+        return [];
     }
     $line = escapeSql(strtolower("$extension@$domain_name"));
-    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_settings.user_id FROM user_settings
+    $sql = mysqli_query($mysqli, "SELECT user_settings.user_id FROM user_settings
         JOIN users ON users.user_id = user_settings.user_id
         WHERE LOWER(user_config_phone_line) = '$line' AND user_archived_at IS NULL
-        LIMIT 1"));
-    return intval($row[0] ?? 0);
+        ORDER BY user_settings.user_id ASC");
+    return array_map('intval', array_column(mysqli_fetch_all($sql), 0));
+}
+
+/** A desk phone line as an agent sets it - "101@pbx.example.com", lower case - or '' */
+function phoneLineValue($raw): string
+{
+    $raw = strtolower(trim((string) $raw));
+    if (!preg_match('/^([a-z0-9_.+*#-]{1,50})@(.+)$/', $raw, $m)) {
+        return '';
+    }
+    $domain = phoneDomainName($m[2]);
+    return $domain !== '' ? mb_substr("$m[1]@$domain", 0, 255) : '';
+}
+
+/** An agent's desk phone line - '' for none, or before database 4.1.4 */
+function phoneLineForUser(int $user_id): string
+{
+    global $mysqli;
+    static $lines = [];
+    if (!$user_id || !phoneTablesReady()) {
+        return '';
+    }
+    if (!isset($lines[$user_id])) {
+        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT user_config_phone_line FROM user_settings WHERE user_id = $user_id"));
+        $lines[$user_id] = (string) ($row[0] ?? '');
+    }
+    return $lines[$user_id];
+}
+
+/**
+ * The lines an agent can pick for their desk phone - [line => [label, description]]: those the
+ * phones said they are, then extensions in calls these last 90 days. The description says whose
+ * client it is, the phone, and the agents who have it already.
+ */
+function phoneLineChoices(): array
+{
+    global $mysqli;
+    if (!phoneTablesReady()) {
+        return [];
+    }
+    $choices = [];
+    $add = function (string $line, string $domain, array $about) use (&$choices) {
+        $value = phoneLineValue("$line@$domain");
+        if ($value === '') {
+            return;
+        }
+        if (!isset($choices[$value])) {
+            $choices[$value] = ['label' => (phoneNumberText($line) ?: $line) . " on $domain", 'about' => []];
+        }
+        foreach (array_filter($about) as $each) {
+            if (!in_array($each, $choices[$value]['about'], true)) {
+                $choices[$value]['about'][] = $each;
+            }
+        }
+    };
+    $sql = mysqli_query($mysqli, "SELECT phone_device_line, phone_domain_name, phone_device_vendor, phone_device_model, client_name FROM phone_devices
+        JOIN phone_domains ON phone_domain_id = phone_device_domain_id
+        LEFT JOIN clients ON client_id = phone_domain_client_id AND phone_domain_client_id > 0
+        WHERE phone_device_line <> '' ORDER BY phone_domain_name, phone_device_line");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $add((string) $row['phone_device_line'], (string) $row['phone_domain_name'], [(string) $row['client_name'], trim($row['phone_device_vendor'] . ' ' . $row['phone_device_model'])]);
+    }
+    $sql = mysqli_query($mysqli, "SELECT DISTINCT phone_call_extension, phone_domain_name, client_name FROM phone_calls
+        JOIN phone_domains ON phone_domain_id = phone_call_domain_id
+        LEFT JOIN clients ON client_id = phone_domain_client_id AND phone_domain_client_id > 0
+        WHERE phone_call_extension <> '' AND phone_call_started_at >= NOW() - INTERVAL 90 DAY
+        ORDER BY phone_domain_name, phone_call_extension LIMIT 2000");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $add((string) $row['phone_call_extension'], (string) $row['phone_domain_name'], [(string) $row['client_name']]);
+    }
+    $sql = mysqli_query($mysqli, "SELECT LOWER(user_config_phone_line) AS line, user_name FROM user_settings
+        JOIN users ON users.user_id = user_settings.user_id
+        WHERE user_config_phone_line IS NOT NULL AND user_config_phone_line <> '' AND user_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        if (isset($choices[$row['line']])) {
+            $choices[$row['line']]['about'][] = $row['user_name'] . "'s";
+        }
+    }
+    ksort($choices, SORT_NATURAL);
+    return array_map(function ($choice) {
+        return [$choice['label'], implode(' - ', $choice['about'])];
+    }, $choices);
 }
 
 /* ------------------------------------------------------------------ Calls */
@@ -1369,6 +1458,219 @@ function phoneDeviceAssetFollow(array $device, array $before, ?array $asset): ar
         mysqli_query($mysqli, "UPDATE assets SET " . implode(', ', $sets) . " WHERE asset_id = $asset_id");
     }
     return $changed;
+}
+
+/*
+ * Screen pops - a call ringing on an agent's desk phone pops up wherever they are in ITFlow
+ * (js/phone_pop.js, asking agent/ajax.php?phone_pop every few seconds): who it is, their client and
+ * open tickets, and New Ticket. Answered, it stays up while they talk; ended, it offers to put the
+ * call on a ticket once its record is in. The phone says what happens (phoneHookEvent()), and
+ * phoneEventSave() keeps it for each agent whose desk phone the line is.
+ */
+
+/** How long a call ringing, or being dialled, stays up without another word from the phone - seconds */
+const PHONE_POP_RINGING_SECONDS = 90;
+/** How long an ended call stays up, to put it on a ticket - seconds */
+const PHONE_POP_ENDED_SECONDS = 600;
+
+/**
+ * Keep a phone's call event for the agents whose desk phone it is - only calls with the outside
+ * world, and only lines someone has. How many it kept.
+ */
+function phoneEventSave(array $system, array $event, ?array $device): int
+{
+    global $mysqli;
+    if (!in_array($event['kind'], ['ringing', 'outgoing', 'answered', 'ended', 'missed'], true)) {
+        return 0;
+    }
+    $number = $event['number'];
+    if ($number === '' || phoneIsExtension($number)) {
+        return 0;
+    }
+    // The line - as the event says it, else as the phone last did
+    $line = $event['line'];
+    $domain_name = $event['domain'] !== '' && !filter_var(preg_replace('/:\d+$/', '', $event['domain']), FILTER_VALIDATE_IP) ? phoneDomainName($event['domain']) : '';
+    if ($line === '' || $domain_name === '') {
+        $line = $line !== '' ? $line : (string) ($device['phone_device_line'] ?? '');
+        $domain_name = (string) ($device['phone_domain_name'] ?? '');
+    }
+    $users = phoneUsersForLine($line, $domain_name);
+    if (!$users) {
+        return 0;
+    }
+    $domain = phoneDomain($system, $domain_name);
+    $domain_client_id = intval($domain['phone_domain_client_id'] ?? 0);
+    $who = phoneWho($number, $domain_client_id);
+    $client_id = $domain_client_id && $domain_client_id !== intval($GLOBALS['config_internal_client_id'] ?? 0) ? $domain_client_id : ($who['client_id'] ?: $domain_client_id);
+    $set = "phone_event_system_id = " . intval($system['phone_system_id']) . ", phone_event_domain_id = " . intval($domain['phone_domain_id'] ?? 0) . ",
+        phone_event_line = '" . escapeSql($line) . "', phone_event_kind = '" . escapeSql($event['kind']) . "',
+        phone_event_call = '" . escapeSql($event['call']) . "', phone_event_number = '" . escapeSql($number) . "',
+        phone_event_name = '" . escapeSql($event['name']) . "', phone_event_contact_id = " . intval($who['contact_id']) . ", phone_event_client_id = $client_id";
+    foreach ($users as $user_id) {
+        mysqli_query($mysqli, "INSERT INTO phone_events SET phone_event_user_id = $user_id, $set");
+    }
+    return count($users);
+}
+
+/**
+ * An agent's calls to show (js/phone_pop.js) - newest first, at most two: ringing or being
+ * dialled (for PHONE_POP_RINGING_SECONDS after the phone last said so), answered (until it ends),
+ * or ended in the last PHONE_POP_ENDED_SECONDS. Events are one call by the phone's call id, or by
+ * the number when it gave none. Each is what the page draws - who, their client and open tickets,
+ * the ticket made for it from the pop ($made, [call key => ticket id]) and, ended, its record.
+ */
+function phonePopCalls(int $user_id, array $made = []): array
+{
+    global $mysqli;
+    if (!$user_id || !phoneTablesReady()) {
+        return [];
+    }
+    $sql = mysqli_query($mysqli, "SELECT phone_events.*, TIMESTAMPDIFF(SECOND, phone_event_at, NOW()) AS age FROM phone_events
+        WHERE phone_event_user_id = $user_id AND phone_event_at >= NOW() - INTERVAL 4 HOUR
+        ORDER BY phone_event_id ASC LIMIT 1000");
+    $groups = [];
+    $open = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $match = $row['phone_event_call'] !== '' ? 'c' . $row['phone_event_call'] : 'n' . $row['phone_event_number'] . '|' . $row['phone_event_line'];
+        if (!isset($open[$match])) {
+            $open[$match] = count($groups);
+            $groups[] = ['key' => 'e' . $row['phone_event_id'], 'first' => $row, 'answered' => null, 'name' => '', 'contact_id' => 0, 'client_id' => 0];
+        }
+        $group = &$groups[$open[$match]];
+        $group['last'] = $row;
+        if ($row['phone_event_kind'] === 'answered' && !$group['answered']) {
+            $group['answered'] = $row;
+        }
+        $group['name'] = $group['name'] !== '' ? $group['name'] : (string) $row['phone_event_name'];
+        $group['contact_id'] = $group['contact_id'] ?: intval($row['phone_event_contact_id']);
+        $group['client_id'] = $group['client_id'] ?: intval($row['phone_event_client_id']);
+        unset($group);
+        if (in_array($row['phone_event_kind'], ['ended', 'missed'], true)) {
+            unset($open[$match]);
+        }
+    }
+
+    $calls = [];
+    foreach (array_reverse($groups) as $group) {
+        $last = $group['last'];
+        $kind = $last['phone_event_kind'];
+        $state = in_array($kind, ['ended', 'missed'], true) ? 'ended' : $kind;
+        $age = intval($last['age']);
+        if (($state === 'ended' && $age > PHONE_POP_ENDED_SECONDS) || (in_array($state, ['ringing', 'outgoing'], true) && $age > PHONE_POP_RINGING_SECONDS)) {
+            continue;
+        }
+        $calls[] = phonePopCall($user_id, $group, $state, intval($made[$group['key']] ?? 0));
+        if (count($calls) === 2) {
+            break;
+        }
+    }
+    return $calls;
+}
+
+/** A pop's call key as a page sends it back - "e123" - or '' */
+function phonePopKey($raw): string
+{
+    $raw = (string) $raw;
+    return preg_match('/^e\d{1,11}$/', $raw) ? $raw : '';
+}
+
+/** Remember the ticket made from a pop for its call, for Add to Ticket when it ends - the last few, in the session */
+function phonePopTicketMade(string $key, int $ticket_id): void
+{
+    if ($key === '' || !$ticket_id || session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+    $made = (array) ($_SESSION['phone_pop_tickets'] ?? []);
+    $made[$key] = $ticket_id;
+    $_SESSION['phone_pop_tickets'] = array_slice($made, -10, null, true);
+}
+
+/** One call as the pop draws it (phonePopCalls()) - names and links only for clients the agent can reach */
+function phonePopCall(int $user_id, array $group, string $state, int $made_ticket_id): array
+{
+    global $mysqli;
+    $first = $group['first'];
+    $number = (string) $first['phone_event_number'];
+    $outbound = $first['phone_event_kind'] === 'outgoing';
+    $client_id = $group['client_id'] && hasClientAccess($group['client_id']) ? $group['client_id'] : 0;
+    $support = lookupUserPermission('module_support') >= 1;
+    $call = [
+        'key' => $group['key'],
+        'state' => $state,
+        'direction' => $outbound ? 'outbound' : 'inbound',
+        'number' => $number,
+        'number_text' => phoneNumberText($number),
+        'name' => $group['name'],
+        'seconds' => intval($first['age']),
+        'talk_seconds' => null,
+        'contact' => null,
+        'client' => null,
+        'tickets' => [],
+        'ticket' => null,
+        'record' => null,
+        'new_ticket' => '',
+        'add' => '',
+    ];
+    if ($group['answered']) {
+        $call['talk_seconds'] = $state === 'ended' ? max(0, intval($group['answered']['age']) - intval($group['last']['age'])) : intval($group['answered']['age']);
+    }
+    if ($client_id) {
+        $client = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id"));
+        if ($client) {
+            $call['client'] = ['id' => $client_id, 'name' => (string) $client['client_name'], 'url' => "/agent/client_overview.php?client_id=$client_id"];
+        }
+        $contact = $group['contact_id'] ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title FROM contacts
+            WHERE contact_id = " . intval($group['contact_id']) . " AND contact_client_id = $client_id")) : null;
+        if ($contact) {
+            $call['contact'] = ['id' => intval($contact['contact_id']), 'name' => (string) $contact['contact_name'], 'title' => (string) $contact['contact_title'],
+                'url' => "/agent/contact.php?client_id=$client_id&contact_id=" . intval($contact['contact_id'])];
+        }
+        // Their open tickets - the contact's first
+        if ($support) {
+            $contact_id = intval($call['contact']['id'] ?? 0);
+            $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id FROM tickets
+                WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_resolved_at IS NULL
+                ORDER BY ticket_contact_id = $contact_id DESC, COALESCE(ticket_updated_at, ticket_created_at) DESC LIMIT 3");
+            while ($row = mysqli_fetch_assoc($sql)) {
+                $call['tickets'][] = ['id' => intval($row['ticket_id']), 'ref' => ticketReference($row), 'subject' => (string) $row['ticket_subject'], 'url' => '/agent/' . ticketUrl($row['ticket_id'], $row['ticket_client_id'])];
+            }
+        }
+    }
+    if ($made_ticket_id && $support) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_client_id FROM tickets WHERE ticket_id = $made_ticket_id"));
+        if ($row && (!intval($row['ticket_client_id']) || hasClientAccess($row['ticket_client_id']))) {
+            $call['ticket'] = ['id' => $made_ticket_id, 'ref' => ticketReference($row), 'url' => '/agent/' . ticketUrl($row['ticket_id'], $row['ticket_client_id'])];
+        }
+    }
+    // New Ticket - Quick Ticket, or New Ticket when that is off - with the client and contact in it
+    $can_edit = lookupUserPermission('module_support') >= 2;
+    if ($can_edit && !$call['ticket']) {
+        $who = $call['contact']['name'] ?? ($call['name'] !== '' ? $call['name'] : $call['number_text']);
+        $call['new_ticket'] = function_exists('quickTicketCan') && quickTicketCan()
+            ? '/agent/modals/ticket/ticket_quick.php?' . http_build_query(array_filter(['client_id' => $client_id ?: null, 'contact_id' => $call['contact']['id'] ?? null, 'phone_call' => $group['key']]))
+            : '/agent/modals/ticket/ticket_add.php?' . http_build_query(array_filter(['client_id' => $client_id ?: null, 'contact_id' => $call['contact']['id'] ?? null,
+                'subject' => ($outbound ? 'Call to ' : 'Call from ') . $who, 'phone_pop_call' => $group['key']]));
+    }
+
+    // Ended: the call's record, once FreeSWITCH has sent it - the same number on this line, about then
+    if ($state === 'ended') {
+        $line = escapeSql((string) $first['phone_event_line']);
+        $number_sql = escapeSql($number);
+        $from = intval($first['age']) + 180;
+        $to = max(0, intval($group['last']['age']) - 60);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT phone_call_id, phone_call_status, phone_call_talk_seconds, phone_call_ticket_id, phone_call_client_id, phone_call_contact_id FROM phone_calls
+            WHERE phone_call_number = '$number_sql' AND (phone_call_user_id = $user_id OR phone_call_extension = '$line')
+            AND phone_call_started_at BETWEEN NOW() - INTERVAL $from SECOND AND NOW() - INTERVAL $to SECOND
+            ORDER BY ABS(TIMESTAMPDIFF(SECOND, phone_call_started_at, NOW() - INTERVAL " . intval($first['age']) . " SECOND)) ASC LIMIT 1"));
+        if ($row && (!phoneCallClientFor($row) || hasClientAccess($row['phone_call_client_id']))) {
+            $call['record'] = ['id' => intval($row['phone_call_id']), 'answered' => $row['phone_call_status'] === 'answered',
+                'talk' => phoneSecondsText($row['phone_call_talk_seconds']), 'on_ticket' => intval($row['phone_call_ticket_id']) > 0];
+            if ($can_edit && !$call['record']['on_ticket']) {
+                $call['add'] = '/agent/modals/phone/phone_call_ticket.php?id=' . intval($row['phone_call_id']) . ($call['ticket'] ? '&ticket_id=' . $call['ticket']['id'] : '');
+            }
+        }
+    }
+    return $call;
 }
 
 /** Each night (cron/nightly_tasks.php): calls older than PHONE_CALLS_KEEP_DAYS that aren't on a ticket go */

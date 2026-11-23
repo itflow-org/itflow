@@ -3,8 +3,9 @@
 /*
  * Your account > Preferences - how ITFlow looks and behaves for you: light
  * or dark, compact rows, the day calendars start on, your time zone, your
- * colour on the calendar, how many rows a list shows, and your reminders
- * before work booked for you (functions/calendar_reminders.php).
+ * colour on the calendar, how many rows a list shows, your reminders
+ * before work booked for you (functions/calendar_reminders.php), and your
+ * desk phone, whose calls pop up in ITFlow (functions/phone.php).
  */
 
 require_once "includes/inc_all_user.php";
@@ -15,6 +16,8 @@ $per_page = intval($me['user_config_records_per_page']) ?: 10;
 $compact_rows = intval($me['user_config_compact_rows'] ?? 0);
 $booking_reminder = isset($me['user_config_booking_reminder']) && $me['user_config_booking_reminder'] !== null ? intval($me['user_config_booking_reminder']) : null;
 $reminder_email = intval($me['user_config_reminder_email'] ?? 0);
+$phone_lines = phoneSystemsExist() ? phoneLineChoices() : [];
+$phone_line = phoneLineForUser(intval($session_user_id));
 
 ?>
 
@@ -98,6 +101,25 @@ $reminder_email = intval($me['user_config_reminder_email'] ?? 0);
                             <label class="form-check-label" for="reminderEmail">Email me reminders too</label>
                         </div>
                         <div class="form-text">They always come as a notification.</div>
+                    </div>
+                <?php } ?>
+
+                <?php if (phoneSystemsExist()) { ?>
+                    <div class="col-md-6">
+                        <label class="form-label">My desk phone</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-fw fa-phone"></i></span>
+                            <select class="form-select select2" name="phone_line">
+                                <option value="">- None -</option>
+                                <?php if ($phone_line !== '' && !isset($phone_lines[$phone_line])) { ?>
+                                    <option value="<?= escapeHtml($phone_line) ?>" selected><?= escapeHtml($phone_line) ?></option>
+                                <?php } ?>
+                                <?php foreach ($phone_lines as $line => [$label, $about]) { ?>
+                                    <option value="<?= escapeHtml($line) ?>" <?= $line === $phone_line ? 'selected' : '' ?><?= selectOptionData(['description' => $about]) ?>><?= escapeHtml($label) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <div class="form-text">Calls on it pop up with who's calling, their client and open tickets, wherever you are in ITFlow.</div>
                     </div>
                 <?php } ?>
             </div>

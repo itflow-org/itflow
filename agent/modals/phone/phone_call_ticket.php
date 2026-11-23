@@ -37,6 +37,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $tickets[] = $row;
 }
 $picked = intval($call['phone_call_ticket_id']) ?: (($tickets && $contact_id && intval($tickets[0]['ticket_contact_id']) === $contact_id) ? intval($tickets[0]['ticket_id']) : 0);
+// The ticket made for it while it rang (js/phone_pop.js)
+$asked = intval($_GET['ticket_id'] ?? 0);
+if ($asked && in_array($asked, array_map('intval', array_column($tickets, 'ticket_id')), true)) {
+    $picked = $asked;
+}
 
 // New Ticket, with the call in it
 $who = phoneCallWho($call);

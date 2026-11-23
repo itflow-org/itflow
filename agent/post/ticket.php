@@ -154,6 +154,13 @@ if (isset($_POST['add_ticket'])) {
         logTicketHistory($ticket_id, escapeSql("Opened from a phone call: " . phoneCallSentence($phone_call)));
     }
 
+    // Made from a call popping up (js/phone_pop.js) - remembered, so the call can go on it when it ends
+    $phone_pop_call = phonePopKey($_POST['phone_pop_call'] ?? '');
+    if ($phone_pop_call !== '') {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_source = 'Phone' WHERE ticket_id = $ticket_id");
+        phonePopTicketMade($phone_pop_call, $ticket_id);
+    }
+
     // E-mail the client and the watchers - a quick ticket's contact only when its setting says so
     if (intval($config_ticket_client_general_notifications) === 1) {
         if (!$quick_ticket || quickTicketSettings()['email_client']) {

@@ -134,8 +134,10 @@
                 contact.add(option);
             });
             contact.disabled = false;
-            const primary = form.dataset.primary === '1' ? contacts.find(function (row) { return row.contact_primary == '1'; }) : null;
-            contact.value = primary ? String(primary.contact_id) : '0';
+            // The contact it was opened with (a call popping up, js/phone_pop.js), else the primary when the setting says so
+            const asked = form.dataset.contact && form.dataset.contact !== '0' ? contacts.find(function (row) { return String(row.contact_id) === form.dataset.contact; }) : null;
+            const primary = !asked && form.dataset.primary === '1' ? contacts.find(function (row) { return row.contact_primary == '1'; }) : null;
+            contact.value = asked ? String(asked.contact_id) : (primary ? String(primary.contact_id) : '0');
             loadOpen();
         });
     }
