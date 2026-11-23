@@ -4,7 +4,7 @@ This file documents all notable changes made to ITFlow.
 
 ## [26.12.1]
 
-### Upgrading
+### Upgrading to 26.12.1
 
 Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's six database changes (4.1.1 to 4.1.7) in the same pass. They add a column to RMM providers for the asset type each kind of device comes in as, three to rack items for devices side by side in a holder, the tables for phone systems, and two columns and two tables for network platforms, their networks and where devices plug in, and change nothing that is there. Nothing else is required.
 
