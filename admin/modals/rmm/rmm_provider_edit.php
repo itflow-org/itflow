@@ -151,7 +151,7 @@ ob_start();
                         </select>
                     </div>
                     <?= $error_for('alert_level') ?>
-                    <div class="form-text">A new alert on a device of a linked client opens a ticket on its asset - High for an error, Medium for a warning, Low for the rest - and the same alert again goes on that ticket while it is open. When the alert clears, the ticket is resolved unless someone has written on it. Alerts already open when this is turned on don't open tickets.
+                    <div class="form-text">A new alert on a device of a linked <?= $words['client'] ?> opens a ticket on its asset - High for an error, Medium for a warning, Low for the rest - and the same alert again goes on that ticket while it is open. When the alert clears, the ticket is resolved unless someone has written on it. Alerts already open when this is turned on don't open tickets.
                         <span data-rmm-alerts-help><?= escapeHtml((string) ($kind['alerts_help'] ?? '')) ?></span></div>
                 </div>
                 <div class="mb-3 <?= $alert_level === '' ? 'd-none' : '' ?>" data-rmm-alert-more>

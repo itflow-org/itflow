@@ -59,6 +59,9 @@ function rmmUnifiKind(string $key): array
         'devices' => 'rmmUnifiDevices',
         'networks' => 'rmmUnifiNetworks',
         'seen' => 'rmmUnifiSeen',
+        'alerts' => 'rmmUnifiAlerts',
+        'alert' => 'rmmUnifiAlert',
+        'alerts_help' => 'UniFi has no alerts to read, so ITFlow asks it every minute which devices are offline - a gateway or switch is an error, an access point or anything else a warning. A site whose gateway is offline has the one ticket, for the gateway.',
         'dashboard' => 'rmmUnifiDashboard',
         'docs_url' => 'https://help.ui.com/hc/en-us/articles/30076656117655',
     ];
@@ -296,24 +299,39 @@ function rmmUnifiNetwork(array $provider, string $path, array $query = [], strin
     return ['ok' => true, 'data' => $items, 'total' => count($items), 'error' => '', 'code' => 200];
 }
 
-/** The consoles a Site Manager key reaches (unifi_cloud) - ['ok', 'consoles' => [id => name], 'skipped', 'error']. */
+/**
+ * The consoles a Site Manager key reaches (unifi_cloud) - ['ok', 'consoles' => [id => name], 'down' => [id => since], 'skipped', 'error'].
+ * down - the ones Site Manager says aren't connected, with when that changed. Asked once a request.
+ */
 function rmmUnifiConsoles(array $provider): array
+{
+    static $asked = [];
+    $id = intval($provider['rmm_provider_id'] ?? 0);
+    if (isset($asked[$id]) && $asked[$id]['ok']) {
+        return $asked[$id];
+    }
+    return $asked[$id] = rmmUnifiConsolesAsk($provider);
+}
+
+/** The consoles, asked of Site Manager - as rmmUnifiConsoles() gives them. */
+function rmmUnifiConsolesAsk(array $provider): array
 {
     $key = rmmSecret($provider, 'api_key');
     if ($key === '') {
-        return ['ok' => false, 'consoles' => [], 'skipped' => 0, 'error' => 'Its Site Manager API key isn\'t set' . ((string) ($provider['rmm_provider_api_key'] ?? '') !== '' ? ' - it can\'t be read, so paste it again' : '') . '.'];
+        return ['ok' => false, 'consoles' => [], 'down' => [], 'skipped' => 0, 'error' => 'Its Site Manager API key isn\'t set' . ((string) ($provider['rmm_provider_api_key'] ?? '') !== '' ? ' - it can\'t be read, so paste it again' : '') . '.'];
     }
     $consoles = [];
+    $down = [];
     $skipped = 0;
     $next = '';
     for ($page = 0; $page < 50; $page++) {
         $query = ['pageSize' => 200] + ($next !== '' ? ['nextToken' => $next] : []);
         $answer = rmmHttp($provider, 'GET', rtrim(UNIFI_SITE_MANAGER_URL, '/') . '/v1/hosts?' . http_build_query($query, '', '&'), ['X-API-KEY: ' . $key]);
         if (!$answer['ok']) {
-            return ['ok' => false, 'consoles' => [], 'skipped' => 0, 'error' => $answer['error']];
+            return ['ok' => false, 'consoles' => [], 'down' => [], 'skipped' => 0, 'error' => $answer['error']];
         }
         if (!rmmIsList($answer['json']['data'] ?? null)) {
-            return ['ok' => false, 'consoles' => [], 'skipped' => 0, 'error' => 'Site Manager answered, but not with a list of consoles - nothing was changed'];
+            return ['ok' => false, 'consoles' => [], 'down' => [], 'skipped' => 0, 'error' => 'Site Manager answered, but not with a list of consoles - nothing was changed'];
         }
         foreach ($answer['json']['data'] as $host) {
             if (!is_array($host) || !isset($host['id'])) {
@@ -327,13 +345,17 @@ function rmmUnifiConsoles(array $provider): array
             $state = is_array($host['reportedState'] ?? null) ? $host['reportedState'] : [];
             $name = rmmText($state['name'] ?? $state['hostname'] ?? '', 150);
             $consoles[(string) $host['id']] = $name !== '' ? $name : 'Console ' . substr((string) $host['id'], 0, 8);
+            if (isset($state['state']) && strtolower((string) $state['state']) !== 'connected') {
+                $since = strtotime((string) ($host['lastConnectionStateChange'] ?? ''));
+                $down[(string) $host['id']] = $since ?: time();
+            }
         }
         $next = (string) ($answer['json']['nextToken'] ?? '');
         if ($next === '') {
             break;
         }
     }
-    return ['ok' => true, 'consoles' => $consoles, 'skipped' => $skipped, 'error' => ''];
+    return ['ok' => true, 'consoles' => $consoles, 'down' => $down, 'skipped' => $skipped, 'error' => ''];
 }
 
 /*
@@ -350,7 +372,6 @@ function rmmUnifiCloudSites(?array $set = null): array
     return $sites;
 }
 
-/** A platform's sites - ['ok', 'clients' => [id, name, sites, devices], 'error', 'about'], as a kind's clients function gives them. */
 /** A controller or console with only its Default site goes by the platform's name instead. */
 function rmmUnifiLoneDefault(array $provider, array $sites): array
 {
@@ -360,6 +381,7 @@ function rmmUnifiLoneDefault(array $provider, array $sites): array
     return $sites;
 }
 
+/** A platform's sites - ['ok', 'clients' => [id, name, sites, devices], 'error', 'about'], as a kind's clients function gives them. */
 function rmmUnifiSites(array $provider): array
 {
     $sites = [];
@@ -499,7 +521,14 @@ function rmmUnifiSiteWhere(array $provider, string $site): ?array
     }
     $map = rmmUnifiCloudSites();
     if (!isset($map[$site])) {
-        rmmUnifiSites($provider);
+        // Its id is its console's, hashed, and its own - the consoles list says which console that is
+        [$key, $site_id] = array_pad(explode('.', $site, 2), 2, '');
+        $consoles = preg_match('/^[a-f0-9]{16}$/', $key) && preg_match('/^[A-Za-z0-9-]{1,60}$/', $site_id) ? rmmUnifiConsoles($provider) : ['ok' => false, 'consoles' => []];
+        foreach ($consoles['consoles'] as $console => $console_name) {
+            if (substr(md5((string) $console), 0, 16) === $key) {
+                rmmUnifiCloudSites([$site => [(string) $console, $site_id]]);
+            }
+        }
         $map = rmmUnifiCloudSites();
     }
     return $map[$site] ?? null;
@@ -681,6 +710,143 @@ function rmmUnifiSeen(array $provider, string $site): array
         ];
     }
     return ['ok' => true, 'seen' => $seen, 'error' => ''];
+}
+
+/*
+ * ------------------------------------------------------------------ Offline alerts
+ *
+ * UniFi has no alerts the API reads, so its kinds make them: a device of a linked site that is
+ * offline is an alert, until it is online again. One is "off:<mac>:<when>" - when it went offline,
+ * by the controller's last_seen, or when ITFlow first saw it offline - and stays that while it is
+ * open, so the same device going offline again is a new alert on the same ticket (about offline).
+ */
+
+/** What the last look at a platform's sites found - [devices' statuses by MAC, sites asked: rmm_client_id => bool]. $set keeps it. */
+function rmmUnifiAlertLook(array $provider, ?array $set = null): array
+{
+    static $looks = [];
+    $id = intval($provider['rmm_provider_id'] ?? 0);
+    if ($set !== null) {
+        $looks[$id] = $set;
+    }
+    return $looks[$id] ?? [[], []];
+}
+
+/** An offline device as an alert - $message what it says, the device's name going offline when it is ''. */
+function rmmUnifiAlertShape(string $remote_id, array $device, ?string $cleared_at, string $message = ''): array
+{
+    $type = (string) ($device['asset']['type'] ?? '');
+    $onset = explode(':', $remote_id)[2] ?? '';
+    return [
+        'remote_id' => $remote_id,
+        'device_remote_id' => (string) $device['remote_id'],
+        'type' => 'offline',
+        'about' => 'offline',
+        'severity' => in_array($type, ['Firewall/Router', 'Switch'], true) ? 'error' : 'warning',
+        'message' => $message !== '' ? $message : rmmText($device['hostname'] ?? '', 200) . ' went offline',
+        'raised_at' => ctype_digit($onset) ? date('Y-m-d H:i:s', intval($onset)) : null,
+        'snoozed' => false,
+        'cleared_at' => $cleared_at,
+    ];
+}
+
+/** The id of the offline alert a device has open - or a new one, from when it went offline. */
+function rmmUnifiAlertId(int $provider_id, string $mac, int $since): string
+{
+    global $mysqli;
+    $open = mysqli_fetch_row(mysqli_query($mysqli, "SELECT rmm_alert_remote_id FROM rmm_alerts JOIN rmm_devices ON rmm_device_id = rmm_alert_device_id
+        WHERE rmm_alert_provider_id = $provider_id AND rmm_device_remote_id = '" . escapeSql($mac) . "' AND rmm_alert_about = 'offline' AND rmm_alert_cleared_at IS NULL
+        ORDER BY rmm_alert_id DESC LIMIT 1"));
+    return $open ? (string) $open[0] : "off:$mac:$since";
+}
+
+/**
+ * The devices of a platform's linked sites that are offline now, as alerts (functions/rmm.php, Alerts),
+ * asked of UniFi a site at a time. A site whose gateway is offline has the one alert, on the gateway -
+ * the rest are offline because of it. Through Site Manager, a console it says isn't connected can't be
+ * asked: its site has an alert on its gateway, from what the last sync brought in.
+ */
+function rmmUnifiAlerts(array $provider): array
+{
+    global $mysqli;
+    $provider_id = intval($provider['rmm_provider_id']);
+    $cloud = $provider['rmm_provider_kind'] === 'unifi_cloud';
+    $alerts = [];
+    $statuses = [];
+    $asked = [];
+    $errors = [];
+    foreach (rmmLinkedClients($provider_id) as $rmm_client) {
+        if ($rmm_client['client_archived_at'] !== null) {
+            continue;
+        }
+        $rmm_client_id = intval($rmm_client['rmm_client_id']);
+        $answer = rmmUnifiDevices($provider, (string) $rmm_client['rmm_client_remote_id']);
+        $asked[$rmm_client_id] = $answer['ok'];
+        if (!$answer['ok']) {
+            // A console Site Manager says is offline - the alert goes on its gateway, as ITFlow has it
+            $where = $cloud ? rmmUnifiSiteWhere($provider, (string) $rmm_client['rmm_client_remote_id']) : null;
+            $consoles = $where ? rmmUnifiConsoles($provider) : ['down' => [], 'consoles' => []];
+            if ($where && isset($consoles['down'][$where[0]])) {
+                $gateway_type = escapeSql(rmmProviderAssetTypes($provider)['Firewall/Router'] ?? 'Firewall/Router');
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT rmm_device_remote_id, rmm_device_hostname, asset_type FROM rmm_devices
+                    LEFT JOIN assets ON asset_id = rmm_device_asset_id AND rmm_device_asset_id > 0
+                    WHERE rmm_device_provider_id = $provider_id AND rmm_device_rmm_client_id = $rmm_client_id AND rmm_device_removed_at IS NULL
+                    ORDER BY asset_type = '$gateway_type' DESC, rmm_device_hostname LIMIT 1"));
+                if ($row) {
+                    $mac = (string) $row['rmm_device_remote_id'];
+                    $console_name = $consoles['consoles'][$where[0]] ?? $row['rmm_device_hostname'];
+                    $alerts[] = rmmUnifiAlertShape(rmmUnifiAlertId($provider_id, $mac, intval($consoles['down'][$where[0]])),
+                        ['remote_id' => $mac, 'hostname' => $row['rmm_device_hostname'], 'asset' => ['type' => 'Firewall/Router']], null,
+                        "$console_name went offline - Site Manager can't reach it");
+                    continue;
+                }
+            }
+            $errors[] = $rmm_client['rmm_client_name'] . ': ' . $answer['error'];
+            continue;
+        }
+        $offline = [];
+        foreach ($answer['devices'] as $device) {
+            $statuses[(string) $device['remote_id']] = ['status' => (string) $device['status'], 'device' => $device];
+            if ($device['status'] === 'offline') {
+                $offline[] = $device;
+            }
+        }
+        $gateways = array_values(array_filter($offline, function ($device) {
+            return ($device['asset']['type'] ?? '') === 'Firewall/Router';
+        }));
+        foreach ($gateways ?: $offline as $device) {
+            $mac = (string) $device['remote_id'];
+            $since = !empty($device['last_seen_at']) ? intval(strtotime($device['last_seen_at'])) : time();
+            $more = $gateways ? count($offline) - count($gateways) : 0;
+            $alerts[] = rmmUnifiAlertShape(rmmUnifiAlertId($provider_id, $mac, $since), $device, null,
+                $more ? rmmText($device['hostname'] ?? '', 200) . " went offline, and $more more of the site's devices with it" : '');
+        }
+    }
+    rmmUnifiAlertLook($provider, [$statuses, $asked]);
+    if ($errors && !$statuses && !$alerts) {
+        return ['ok' => false, 'alerts' => [], 'error' => $errors[0]];
+    }
+    return ['ok' => true, 'alerts' => $alerts, 'error' => ''];
+}
+
+/**
+ * One offline alert, by its id - cleared once its device is online again, null once UniFi no longer
+ * has the device or its site isn't linked. A device of a site that couldn't be asked is still offline.
+ */
+function rmmUnifiAlert(array $provider, string $remote_id): array
+{
+    global $mysqli;
+    $mac = explode(':', $remote_id)[1] ?? '';
+    [$statuses, $asked] = rmmUnifiAlertLook($provider);
+    if (isset($statuses[$mac])) {
+        return ['ok' => true, 'alert' => rmmUnifiAlertShape($remote_id, $statuses[$mac]['device'], $statuses[$mac]['status'] === 'offline' ? null : date('Y-m-d H:i:s')), 'error' => ''];
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT rmm_device_rmm_client_id, rmm_device_hostname, rmm_device_remote_id FROM rmm_devices
+        WHERE rmm_device_provider_id = " . intval($provider['rmm_provider_id']) . " AND rmm_device_remote_id = '" . escapeSql($mac) . "' LIMIT 1"));
+    if ($row && isset($asked[intval($row['rmm_device_rmm_client_id'])]) && !$asked[intval($row['rmm_device_rmm_client_id'])]) {
+        return ['ok' => true, 'alert' => rmmUnifiAlertShape($remote_id, ['remote_id' => $mac, 'hostname' => $row['rmm_device_hostname']], null), 'error' => ''];
+    }
+    return ['ok' => true, 'alert' => null, 'error' => ''];
 }
 
 /** A controller's device (stat/device) as a device. */

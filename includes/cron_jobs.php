@@ -106,7 +106,7 @@ function cronJobRegistry(): array
             'label' => 'RMM Alerts',
             'icon' => 'fa-bell',
             'script' => 'rmm_alerts.php',
-            'description' => 'Opens a ticket for each new alert from an RMM provider whose alerts open tickets in Admin > RMM Providers, and resolves it when the alert clears.',
+            'description' => 'Opens a ticket for each new alert from an RMM provider whose alerts open tickets in Admin > RMM Providers, or for each device that goes offline on a network platform in Admin > Network Platforms, and resolves it when the alert clears.',
             'schedule' => 'Interval',
             'interval_minutes' => 1,
         ],

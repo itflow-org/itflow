@@ -1353,7 +1353,7 @@ function rmmAlertDetailsHtml(array $provider, array $device, array $alert): stri
 {
     $name = rmmProviderName($provider);
     $severities = ['error' => 'Error', 'warning' => 'Warning', 'info' => 'Informational'];
-    $types = ['availability' => 'Not checking in', 'check' => 'Check', 'task' => 'Task', 'custom' => 'Custom'];
+    $types = ['availability' => 'Not checking in', 'check' => 'Check', 'task' => 'Task', 'custom' => 'Custom', 'offline' => 'Offline'];
     $facts = [
         'Severity' => $severities[$alert['severity']] ?? ucfirst((string) $alert['severity']),
         'Kind' => $types[$alert['type']] ?? ucfirst((string) $alert['type']),
