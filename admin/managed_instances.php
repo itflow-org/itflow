@@ -40,6 +40,12 @@ $sortable_columns = [
     'managed_instance_last_checkin_at' => "managed_instance_last_checkin_at IS NULL, managed_instance_last_checkin_at $order, managed_instance_name ASC",
     'client_name' => "client_name IS NULL, client_name $order, managed_instance_name ASC",
 ];
+// Its use over the last 30 days - tickets opened, from its history (managedStatsRecord())
+$usage_ready = managedUsageReady();
+if ($usage_ready) {
+    $sortable_columns['usage_tickets'] = "(SELECT COALESCE(SUM(managed_stat_tickets_opened), 0) FROM managed_instance_stats
+        WHERE managed_stat_instance_id = managed_instance_id AND managed_stat_date > CURDATE() - INTERVAL 30 DAY) $order, managed_instance_name ASC";
+}
 if (!isset($sortable_columns[$sort])) {
     $sort = 'managed_instance_name';
 }
@@ -101,12 +107,23 @@ $csrf = $_SESSION['csrf_token'];
                 <th class="d-none d-md-table-cell"><?= sortLink('managed_instance_version', 'Version') ?></th>
                 <th class="d-none d-lg-table-cell">Health</th>
                 <th class="d-none d-xl-table-cell">Agents</th>
+                <?php if ($usage_ready) { ?><th class="d-none d-xl-table-cell"><?= sortLink('usage_tickets', 'Last 30 days') ?></th><?php } ?>
                 <th class="d-none d-sm-table-cell"><?= sortLink('managed_instance_last_checkin_at', 'Last check-in') ?></th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <?php while ($row = mysqli_fetch_assoc($sql)) {
+            <?php
+            // Each instance's last 30 days - tickets opened and API calls, and whether it counted any
+            $usage_30d = [];
+            if ($usage_ready) {
+                $result = mysqli_query($mysqli, "SELECT managed_stat_instance_id, SUM(managed_stat_tickets_opened), SUM(managed_stat_api_calls), COUNT(managed_stat_tickets_opened)
+                    FROM managed_instance_stats WHERE managed_stat_date > CURDATE() - INTERVAL 30 DAY GROUP BY managed_stat_instance_id");
+                while ($usage_row = mysqli_fetch_row($result)) {
+                    $usage_30d[intval($usage_row[0])] = ['tickets' => intval($usage_row[1]), 'api_calls' => intval($usage_row[2]), 'counted' => intval($usage_row[3]) > 0];
+                }
+            }
+            while ($row = mysqli_fetch_assoc($sql)) {
                 $instance_id = intval($row['managed_instance_id']);
                 $name = escapeHtml($row['managed_instance_name']);
                 $health = managedInstanceHealth($row);
@@ -155,7 +172,7 @@ $csrf = $_SESSION['csrf_token'];
                             <span class="text-body-secondary">-</span>
                         <?php } ?>
                     </td>
-                    <td class="d-none d-lg-table-cell small text-nowrap">
+                    <td class="d-none d-lg-table-cell small" style="min-width: 14rem">
                         <?php if ($health['state'] === 'pending') { ?>
                             <span class="text-body-secondary">-</span>
                         <?php } elseif (!$health['issues']) { ?>
@@ -175,6 +192,26 @@ $csrf = $_SESSION['csrf_token'];
                             <span class="text-body-secondary">-</span>
                         <?php } ?>
                     </td>
+                    <?php if ($usage_ready) {
+                        $usage = $usage_30d[$instance_id] ?? null;
+                        // The last time any of its agents signed in, from its agents list
+                        $signed_in = max(array_map(function ($agent) {
+                            return is_array($agent) && empty($agent['invited']) && !empty($agent['last_login']) ? strtotime((string) $agent['last_login']) : 0;
+                        }, (array) ($agents['list'] ?? [])) ?: [0]);
+                        $agents_30d = isset($report['usage']['agents_30d']) ? intval($report['usage']['agents_30d']) : null; ?>
+                        <td class="d-none d-xl-table-cell small text-nowrap" data-managed-usage-30d>
+                            <?php if (!$usage || !$usage['counted']) { ?>
+                                <span class="text-body-secondary" title="It shows once it runs a version that counts it">-</span>
+                            <?php } else { ?>
+                                <div class="fw-semibold"><?= number_format($usage['tickets']) ?> ticket<?= $usage['tickets'] === 1 ? '' : 's' ?></div>
+                                <?php if ($agents_30d !== null) { ?>
+                                    <div class="text-body-secondary"><?= $agents_30d ?><?= !empty($agents['active']) ? ' of ' . intval($agents['active']) : '' ?> agent<?= $agents_30d === 1 && empty($agents['active']) ? '' : 's' ?> signed in</div>
+                                <?php } ?>
+                                <?php if ($signed_in) { ?><div class="text-body-secondary" title="<?= date('M j, Y g:i A', $signed_in) ?>">Last sign-in <?= escapeHtml(timeAgo(date('Y-m-d H:i:s', $signed_in))) ?></div><?php } ?>
+                                <?php if ($usage['api_calls']) { ?><div class="text-body-secondary"><?= number_format($usage['api_calls']) ?> API calls</div><?php } ?>
+                            <?php } ?>
+                        </td>
+                    <?php } ?>
                     <td class="d-none d-sm-table-cell small text-nowrap"><?= $last_html ?></td>
                     <td class="text-end">
                         <div class="dropdown dropstart">

@@ -39,6 +39,10 @@ const MANAGED_OFFLINE_MINUTES = 10;
 // How long a problem lasts before it opens a ticket - so a blip doesn't (managerIssueTickets())
 const MANAGED_ISSUE_GRACE_MINUTES = 10;
 
+// The usage figures an instance counts each day (managedUsage()), each a managed_instance_stats column
+const MANAGED_USAGE_FIGURES = ['tickets_opened', 'tickets_email', 'tickets_resolved', 'replies', 'invoices', 'payments',
+    'agent_signins', 'portal_signins', 'emails_sent', 'emails_failed', 'api_calls'];
+
 /* A support sign-in link works this long; the session it opens, this long */
 const MANAGED_SUPPORT_LINK_SECONDS = 120;
 const MANAGED_SUPPORT_SESSION_HOURS = 2;
@@ -169,6 +173,7 @@ function managedHttpJson(string $url, array $body, array $headers = []): array
  *   report_encoding                         how the manager reads a report - 'base64url', or '' for plain JSON
  *   acks                                    answers to commands, sent with the next check-in
  *   metrics                                 disk and database size, measured every half hour
+ *   usage                                   how much it was used today and yesterday, counted every ten minutes (managedUsage())
  *   white_label_applied                     the key the manager put in, if it did
  *   nonces                                  support links already used, until they expire
  */
@@ -443,9 +448,87 @@ function managedDirMb(string $dir): float
 }
 
 /*
+ * How much this ITFlow was used today and yesterday, by its own date - counts only, never what
+ * any of it says: tickets opened (and those by email) and resolved, agents' replies, invoices
+ * made, payments recorded, agents who signed in (not the support user) and client portal
+ * sign-ins, emails sent and failed, and API calls - in all, and under each key's name. With
+ * them, how many agents signed in over the last 30 days. ['days' => [date => counts],
+ * 'agents_30d' => n] - each part that can't be counted (a table not there yet) left out.
+ */
+function managedUsage(): array
+{
+    global $mysqli;
+
+    $since = date('Y-m-d', strtotime('-1 day'));
+    $days = [date('Y-m-d') => [], $since => []];
+    $support = managedSupportUserId();
+    $not_support = $support ? " AND log_user_id <> $support" : '';
+    // Each count, by day - a query giving the day and its figures, each figure under its key
+    $count = function (string $sql, array $keys) use ($mysqli, &$days) {
+        try {
+            $result = mysqli_query($mysqli, $sql);
+            while ($result && ($row = mysqli_fetch_row($result))) {
+                if (isset($days[$row[0]])) {
+                    foreach ($keys as $i => $key) {
+                        $days[$row[0]][$key] = intval($row[$i + 1]);
+                    }
+                }
+            }
+            // A day with none is 0, not missing
+            foreach ($days as $day => $figures) {
+                foreach ($keys as $key) {
+                    $days[$day][$key] = $days[$day][$key] ?? 0;
+                }
+            }
+        } catch (Throwable $e) {
+            // Not counted - left out
+        }
+    };
+    $count("SELECT DATE(ticket_created_at) d, COUNT(*), SUM(ticket_source = 'Email') FROM tickets WHERE ticket_created_at >= '$since' GROUP BY d", ['tickets_opened', 'tickets_email']);
+    $count("SELECT DATE(ticket_resolved_at) d, COUNT(*) FROM tickets WHERE ticket_resolved_at >= '$since' GROUP BY d", ['tickets_resolved']);
+    $count("SELECT DATE(ticket_reply_created_at) d, COUNT(*) FROM ticket_replies WHERE ticket_reply_by > 0 AND ticket_reply_type <> 'Client' AND ticket_reply_created_at >= '$since' GROUP BY d", ['replies']);
+    $count("SELECT DATE(invoice_created_at) d, COUNT(*) FROM invoices WHERE invoice_created_at >= '$since' GROUP BY d", ['invoices']);
+    $count("SELECT DATE(payment_created_at) d, COUNT(*) FROM payments WHERE payment_created_at >= '$since' GROUP BY d", ['payments']);
+    $count("SELECT DATE(log_created_at) d, COUNT(DISTINCT log_user_id) FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_created_at >= '$since'$not_support GROUP BY d", ['agent_signins']);
+    $count("SELECT DATE(log_created_at) d, COUNT(*) FROM logs WHERE log_type = 'Client Login' AND log_action = 'Success' AND log_created_at >= '$since' GROUP BY d", ['portal_signins']);
+    $count("SELECT DATE(email_sent_at) d, COUNT(*) FROM email_queue WHERE email_status = 3 AND email_sent_at >= '$since' GROUP BY d", ['emails_sent']);
+    $count("SELECT DATE(email_failed_at) d, COUNT(*) FROM email_queue WHERE email_status = 2 AND email_failed_at >= '$since' GROUP BY d", ['emails_failed']);
+
+    // API calls, in all and under each key's name - the ten most used
+    try {
+        $result = mysqli_query($mysqli, "SELECT api_key_usage_date, COALESCE(api_key_name, 'A deleted key'), SUM(api_key_usage_calls) AS calls FROM api_key_usage
+            LEFT JOIN api_keys ON api_key_id = api_key_usage_key_id WHERE api_key_usage_date >= '$since' GROUP BY api_key_usage_date, api_key_usage_key_id ORDER BY calls DESC");
+        foreach ($days as $day => $figures) {
+            $days[$day]['api_calls'] = 0;
+            $days[$day]['api_keys'] = [];
+        }
+        while ($result && ($row = mysqli_fetch_row($result))) {
+            if (isset($days[$row[0]])) {
+                $days[$row[0]]['api_calls'] += intval($row[2]);
+                if (count($days[$row[0]]['api_keys']) < 10) {
+                    $name = mb_substr((string) $row[1], 0, 100);
+                    $days[$row[0]]['api_keys'][$name] = ($days[$row[0]]['api_keys'][$name] ?? 0) + intval($row[2]);
+                }
+            }
+        }
+        foreach ($days as $day => $figures) {
+            $days[$day]['api_keys'] = (object) $days[$day]['api_keys'];
+        }
+    } catch (Throwable $e) {
+        // No API usage table yet - left out
+    }
+
+    $agents_30d = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT log_user_id) FROM logs
+        WHERE log_type = 'Login' AND log_action = 'Success' AND log_created_at > NOW() - INTERVAL 30 DAY$not_support"))[0] ?? 0);
+
+    return ['days' => $days, 'agents_30d' => $agents_30d];
+}
+
+/*
  * How this ITFlow is doing, for its manager - versions, updates, cron, backups, errors,
- * agents against the seat limit and who they are, and disk and database size (measured every half hour,
- * as walking the uploads folder isn't free). Times carry their offset (managedIsoTime()).
+ * agents against the seat limit and who they are, disk and database size (measured every
+ * half hour, as walking the uploads folder isn't free), and how much it is used (counted every
+ * ten minutes - managedUsage()). Times carry their offset (managedIsoTime()).
  */
 function managedReport(): array
 {
@@ -532,6 +615,14 @@ function managedReport(): array
         managedConfigSave($config);
     }
 
+    // How much it's used - today and yesterday, by its own date - every ten minutes
+    $usage = (array) ($config['usage'] ?? []);
+    if (empty($usage['measured_at']) || strtotime($usage['measured_at']) < strtotime('-10 minutes')) {
+        $usage = managedUsage() + ['measured_at' => date('Y-m-d H:i:s')];
+        $config['usage'] = $usage;
+        managedConfigSave($config);
+    }
+
     return [
         'url' => (string) ($config['self_url'] ?? ''),
         'company' => $company,
@@ -580,6 +671,8 @@ function managedReport(): array
         ],
         'clients' => $clients,
         'disk' => ['measured_at' => managedIsoTime($metrics['measured_at'] ?? null)] + $metrics,
+        // An object even when empty - {} rather than []
+        'usage' => ['days' => (object) ($usage['days'] ?? []), 'agents_30d' => intval($usage['agents_30d'] ?? 0), 'measured_at' => managedIsoTime($usage['measured_at'] ?? null)],
         'mode' => managedMode(),
     ];
 }
@@ -1517,6 +1610,46 @@ function managedStatsRecord(array $row, array $report): void
         mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_outages = '" . mysqli_real_escape_string($mysqli, (string) json_encode(array_slice($outages, -50))) . "'
             WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'");
     }
+
+    // How much it was used - each day it counted (its today and yesterday, by its own date) on
+    // that day's row, when there is one; an instance too old to count sends none
+    if (!managedUsageReady() || !is_array($report['usage'] ?? null)) {
+        return;
+    }
+    $usage = $report['usage'];
+    foreach ((array) ($usage['days'] ?? []) as $date => $figures) {
+        if (!is_array($figures) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date) || $date > $today || $date < date('Y-m-d', strtotime('-3 days'))) {
+            continue;
+        }
+        $set = [];
+        foreach (MANAGED_USAGE_FIGURES as $figure) {
+            $set[] = "managed_stat_$figure = " . (array_key_exists($figure, $figures) ? max(0, intval($figures[$figure])) : 'NULL');
+        }
+        $keys = [];
+        foreach ((array) ($figures['api_keys'] ?? []) as $name => $calls) {
+            $keys[mb_substr((string) $name, 0, 100)] = max(0, intval($calls));
+        }
+        $set[] = "managed_stat_api_keys = " . (array_key_exists('api_keys', $figures) ? "'" . mysqli_real_escape_string($mysqli, (string) json_encode((object) array_slice($keys, 0, 10, true))) . "'" : 'NULL');
+        mysqli_query($mysqli, "UPDATE managed_instance_stats SET " . implode(', ', $set) . "
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '" . escapeSql($date) . "'");
+    }
+    mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_agents_30d = " . max(0, intval($usage['agents_30d'] ?? 0)) . "
+        WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'");
+}
+
+/** Whether the history has its usage columns - they arrive with the 4.2.0 database update. */
+function managedUsageReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            $ready = (bool) mysqli_query($mysqli, "SELECT managed_stat_agents_30d FROM managed_instance_stats LIMIT 1");
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
 }
 
 /**
@@ -1526,7 +1659,9 @@ function managedStatsRecord(array $row, array $report): void
  * where there's nothing for that day. With them: since (its first day, or null with no history yet), the
  * gaps in the period, newest first (from, to, ongoing), uptime over the period, the backups
  * made and failed, the errors and their categories over the period, most first, and the
- * storage unit (MB, or GB from 2 GB).
+ * storage unit (MB, or GB from 2 GB). Usage, when it reports it: each day's figures
+ * (MANAGED_USAGE_FIGURES - null for a day it didn't), their totals over the period (usage - null
+ * when there were none), the API keys' calls over it, most first, and agents_30d, the latest.
  */
 function managedInstanceHistory(array $row, int $days): array
 {
@@ -1534,7 +1669,7 @@ function managedInstanceHistory(array $row, int $days): array
 
     $instance_id = intval($row['managed_instance_id']);
     $history = ['since' => null, 'days' => [], 'gaps' => [], 'uptime' => null, 'backups' => ['ok' => 0, 'failed' => 0, 'days' => 0],
-        'errors' => 0, 'categories' => [], 'unit' => 'MB'];
+        'errors' => 0, 'categories' => [], 'unit' => 'MB', 'usage' => null, 'api_keys' => [], 'agents_30d' => null];
     if (!managedStatsReady()) {
         return $history;
     }
@@ -1547,8 +1682,10 @@ function managedInstanceHistory(array $row, int $days): array
     $from = max($since, date('Y-m-d', strtotime('-' . ($days - 1) . ' days')));
 
     $rows = [];
+    $usage_ready = managedUsageReady();
+    $usage_columns = $usage_ready ? ', managed_stat_' . implode(', managed_stat_', MANAGED_USAGE_FIGURES) . ', managed_stat_api_keys, managed_stat_agents_30d' : '';
     $result = mysqli_query($mysqli, "SELECT managed_stat_date, managed_stat_agents, managed_stat_invites, managed_stat_seat_limit, managed_stat_clients,
-        managed_stat_uploads_mb, managed_stat_db_mb, managed_stat_errors, managed_stat_error_categories, managed_stat_backup, managed_stat_outages
+        managed_stat_uploads_mb, managed_stat_db_mb, managed_stat_errors, managed_stat_error_categories, managed_stat_backup, managed_stat_outages$usage_columns
         FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id AND managed_stat_date >= '$from' ORDER BY managed_stat_date");
     while ($stat = mysqli_fetch_assoc($result)) {
         $rows[$stat['managed_stat_date']] = $stat;
@@ -1602,6 +1739,9 @@ function managedInstanceHistory(array $row, int $days): array
             'down' => $stat || $down > 0 ? (int) round(min($down, $length) / 60) : null,
             'agents' => null, 'invites' => null, 'limit' => null, 'clients' => null, 'uploads' => null, 'db' => null, 'errors' => null, 'backup' => null,
         ];
+        foreach (MANAGED_USAGE_FIGURES as $figure) {
+            $entry[$figure] = null;
+        }
         if ($stat) {
             $entry = array_merge($entry, [
                 'agents' => intval($stat['managed_stat_agents']),
@@ -1618,6 +1758,19 @@ function managedInstanceHistory(array $row, int $days): array
             foreach (json_decode((string) $stat['managed_stat_error_categories'], true) ?: [] as $category => $logged) {
                 $history['categories'][$category] = ($history['categories'][$category] ?? 0) + intval($logged);
             }
+            // How much it was used, when it said - totals over the period, and the API keys' calls
+            foreach (MANAGED_USAGE_FIGURES as $figure) {
+                if (isset($stat["managed_stat_$figure"])) {
+                    $entry[$figure] = intval($stat["managed_stat_$figure"]);
+                    $history['usage'][$figure] = ($history['usage'][$figure] ?? 0) + $entry[$figure];
+                }
+            }
+            foreach (json_decode((string) ($stat['managed_stat_api_keys'] ?? ''), true) ?: [] as $name => $calls) {
+                $history['api_keys'][$name] = ($history['api_keys'][$name] ?? 0) + intval($calls);
+            }
+            if (isset($stat['managed_stat_agents_30d'])) {
+                $history['agents_30d'] = intval($stat['managed_stat_agents_30d']);
+            }
             $history['backups']['days']++;
             if ($entry['backup'] === 'ok') {
                 $history['backups']['ok']++;
@@ -1629,6 +1782,7 @@ function managedInstanceHistory(array $row, int $days): array
         $day->modify('+1 day');
     }
     arsort($history['categories']);
+    arsort($history['api_keys']);
     $history['uptime'] = $minutes_total ? round(100 * (1 - $down_total / $minutes_total), 2) : null;
     $history['unit'] = $mb >= 2048 ? 'GB' : 'MB';
     return $history;

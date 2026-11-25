@@ -411,7 +411,7 @@ if ($error_count > 0) {
                     return $values ? array_sum($values) : null;
                 };
                 $backups = array_filter(array_column($week, 'backup'), function ($v) { return $v !== null; });
-                $history_bars[] = [
+                $bucket = [
                     'label' => $week[0]['label'],
                     'title' => $week[0]['label'] . ' - ' . end($week)['label'],
                     'errors' => $sum('errors'),
@@ -420,6 +420,12 @@ if ($error_count > 0) {
                     'made' => count(array_keys($backups, 'ok', true)),
                     'heard' => count($backups),
                 ];
+                // Usage adds up over the week - but agents signed in is the most on any one day of it
+                foreach (MANAGED_USAGE_FIGURES as $figure) {
+                    $values = array_filter(array_column($week, $figure), function ($v) { return $v !== null; });
+                    $bucket[$figure] = !$values ? null : ($figure === 'agent_signins' ? max($values) : array_sum($values));
+                }
+                $history_bars[] = $bucket;
             }
         }
         $bar_labels = array_column($history_bars, 'label');
@@ -556,6 +562,70 @@ if ($error_count > 0) {
                         echo $history_block('Backups', $figure, $strip);
                         ?>
                     </div>
+
+                    <?php
+                    // How much it's used - counts only, as it reports them, by its own date
+                    $usage = $history['usage'];
+                    $total = function ($figure) use ($usage) {
+                        return number_format(intval($usage[$figure] ?? 0));
+                    };
+                    $bars = function ($figure) use ($history_bars) {
+                        return array_column($history_bars, $figure);
+                    };
+                    ?>
+                    <div class="d-flex flex-wrap align-items-baseline gap-2 border-top pt-3 mt-4 mb-3">
+                        <h4 class="h6 mb-0">Usage</h4>
+                        <span class="small text-body-secondary">How much it's used - counts only, by its own date</span>
+                    </div>
+                    <?php if ($usage === null) { ?>
+                        <div class="small text-body-secondary" data-managed-usage-none>Its usage shows once it runs a version that counts it.</div>
+                    <?php } else { ?>
+                        <div class="row g-4" data-managed-usage>
+                            <?php
+                            // Tickets opened and resolved
+                            $figure = $total('tickets_opened') . ' opened, ' . $total('tickets_resolved') . ' resolved' . (intval($usage['tickets_email'] ?? 0) ? ' - ' . $total('tickets_email') . ' came in by email' : '');
+                            echo $history_block('Tickets', $figure, reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'series' => [
+                                ['label' => "Opened$bar_period", 'data' => $bars('tickets_opened'), 'tone' => 'accent'],
+                                ['label' => "Resolved$bar_period", 'data' => $bars('tickets_resolved'), 'tone' => 'muted'],
+                            ]], 'sm', 'Tickets opened and resolved'));
+
+                            // Agents' replies
+                            echo $history_block('Replies', $total('replies') . ' replies and notes by agents', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                                'series' => [['label' => "Replies and notes$bar_period", 'data' => $bars('replies'), 'tone' => 'accent']]], 'sm', 'Replies by agents'));
+
+                            // Who signs in - agents each day, against the agents it has
+                            $figure = ($history['agents_30d'] !== null ? $history['agents_30d'] . ($history_now ? ' of ' . intval($history_now['agents']) : '') . ' agents signed in over the last 30 days' : 'Agents who signed in')
+                                . ' - ' . $total('portal_signins') . ' client portal sign-ins';
+                            echo $history_block('Signing in', $figure, reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                                'series' => [['label' => $history_weekly ? 'Most agents signed in on a day that week' : 'Agents signed in', 'data' => $bars('agent_signins'), 'tone' => 'accent']]], 'sm', 'Agents signed in'));
+
+                            // Invoices made and payments recorded
+                            echo $history_block('Billing', $total('invoices') . ' invoices made, ' . $total('payments') . ' payments recorded', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'series' => [
+                                ['label' => "Invoices$bar_period", 'data' => $bars('invoices'), 'tone' => 'accent'],
+                                ['label' => "Payments$bar_period", 'data' => $bars('payments'), 'tone' => 'muted'],
+                            ]], 'sm', 'Invoices and payments'));
+
+                            // Email sent, and what failed
+                            echo $history_block('Email', $total('emails_sent') . ' sent - ' . $total('emails_failed') . ' failed', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'series' => [
+                                ['label' => "Sent$bar_period", 'data' => $bars('emails_sent'), 'tone' => 'accent'],
+                                ['label' => "Failed$bar_period", 'data' => $bars('emails_failed'), 'tone' => 'danger'],
+                            ]], 'sm', 'Email sent and failed'));
+
+                            // API calls, and the keys making them
+                            $keys_html = '';
+                            if ($history['api_keys']) {
+                                $named = [];
+                                foreach (array_slice($history['api_keys'], 0, 5, true) as $name => $calls) {
+                                    $named[] = escapeHtml($name) . ' <span class="text-body-secondary">' . number_format($calls) . '</span>';
+                                }
+                                $more = count($history['api_keys']) - count($named);
+                                $keys_html = '<div class="small mt-2">' . implode(' &middot; ', $named) . ($more > 0 ? " <span class=\"text-body-secondary\">and $more more</span>" : '') . '</div>';
+                            }
+                            echo $history_block('API calls', $total('api_calls') . ' calls', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                                'series' => [['label' => "Calls$bar_period", 'data' => $bars('api_calls'), 'tone' => 'accent']]], 'sm', 'API calls') . $keys_html);
+                            ?>
+                        </div>
+                    <?php } ?>
                 </div>
             <?php } ?>
         </div>
