@@ -195,7 +195,7 @@ $lock = '<i class="fas fa-fw fa-lock text-body-secondary ms-1" title="Set by ' .
                         <li>its address, company name and time zone</li>
                         <li>its version, database version, PHP version and branch, and whether an update is waiting</li>
                         <li>how the last update went, whether cron is running, and when the last backup was</li>
-                        <li>how many errors were logged today, how many agents and clients it has, and its storage</li>
+                        <li>how many errors were logged today and the categories they were logged under - never what they say - how many agents and clients it has, and its storage</li>
                     </ul>
                     <p class="mb-0 text-body-secondary">No tickets, documents, credentials, invoices or contacts.</p>
                 </div>

@@ -95,6 +95,26 @@ $size = function ($mb) {
     return $mb >= 1024 ? round($mb / 1024, 1) . ' GB' : round($mb) . ' MB';
 };
 
+// Errors today, and the categories they were logged under - each opening its error log on the
+// instance, signed in as support. Only once it sends the categories: an older instance would
+// land on its start page
+$error_count = intval($report['errors_24h'] ?? 0);
+$error_log_link = $can_act && array_key_exists('errors_by_category', $report);
+$error_link = function (string $text_html, string $category = '') use ($instance_id, $csrf, $error_log_link) {
+    if (!$error_log_link) {
+        return $text_html;
+    }
+    $href = "post.php?managed_support_sign_in=$instance_id&to=errors" . ($category !== '' ? '&category=' . rawurlencode($category) : '') . "&csrf_token=$csrf";
+    return '<a href="' . escapeHtml($href) . '" target="_blank" rel="noopener" title="Opens its error log in a new tab, signed in as its support user">' . $text_html . '</a>';
+};
+$errors_html = '0';
+if ($error_count > 0) {
+    $errors_html = '<span class="text-warning-emphasis fw-semibold">' . $error_link((string) $error_count) . '</span>';
+    foreach (managedInstanceErrorCategories($report) as $category => $logged) {
+        $errors_html .= '<div class="text-body-secondary">' . $error_link(escapeHtml($category !== '' ? $category : 'No category'), $category) . ' &middot; ' . intval($logged) . '</div>';
+    }
+}
+
 ?>
 
 <nav class="mb-2 small"><a href="managed_instances.php<?= $removed ? '?show=removed' : '' ?>" class="text-body-secondary"><i class="fas fa-fw fa-arrow-left me-1"></i>Managed Instances</a></nav>
@@ -375,7 +395,7 @@ $size = function ($mb) {
                     <?= $fact('Clients', intval($report['clients'] ?? 0)) ?>
                     <?= $fact('Last backup', $when($backup['last_ok_at'] ?? null, 'None')) ?>
                     <?= $fact('Cron', empty($cron['enabled']) ? '<span class="text-danger-emphasis">Switched off</span>' : 'Last ran ' . $when($cron['last_dispatch_at'] ?? null)) ?>
-                    <?= $fact('Errors today', intval($report['errors_24h'] ?? 0) > 0 ? '<span class="text-warning-emphasis">' . intval($report['errors_24h']) . '</span>' : '0') ?>
+                    <?= $fact('Errors today', $errors_html) ?>
                     <?php if (!empty($disk['measured_at'])) { ?>
                         <?= $fact('Storage', $size($disk['uploads_mb'] ?? 0) . ' uploads<div class="text-body-secondary">' . $size($disk['db_mb'] ?? 0) . ' database</div>') ?>
                     <?php } ?>

@@ -184,14 +184,21 @@ if (isset($_GET['managed_support_sign_in'])) {
     $instance_id = intval($row['managed_instance_id']);
     $me = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = " . intval($session_user_id))) ?: [];
 
+    // Straight to its error log, or one category of it - from Errors today on its page
+    $page = '';
+    if (($_GET['to'] ?? '') === 'errors') {
+        $category = is_string($_GET['category'] ?? null) ? mb_substr(trim($_GET['category']), 0, 100) : '';
+        $page = 'admin/app_logs.php?' . http_build_query(array_filter(['view' => 'error', 'category' => $category], 'strlen'));
+    }
+
     try {
-        $link = managedSupportLink($row, (string) ($me['user_name'] ?? ''), (string) ($me['user_email'] ?? ''));
+        $link = managedSupportLink($row, (string) ($me['user_name'] ?? ''), (string) ($me['user_email'] ?? ''), $page);
     } catch (Throwable $e) {
         flashAlert(escapeHtml($e->getMessage()), 'error');
         redirect("managed_instance.php?id=$instance_id");
     }
 
-    logAudit("Managed Instance", "Support", "$session_name signed in to " . escapeSql($row['managed_instance_name']) . " as support", intval($row['managed_instance_client_id']), $instance_id);
+    logAudit("Managed Instance", "Support", "$session_name signed in to " . escapeSql($row['managed_instance_name']) . " as support" . ($page !== '' ? ' to look at its errors' : ''), intval($row['managed_instance_client_id']), $instance_id);
 
     redirect($link);
 

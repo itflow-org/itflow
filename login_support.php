@@ -75,5 +75,9 @@ $session_user_id = $support_user_id;
 logAudit("Login", "Support", escapeSql("Support sign-in from $support_manager" . ($support_label !== '' ? " - $support_label" : '')), 0, $support_user_id);
 appNotify("Management", escapeSql(($support_label !== '' ? $support_label : 'Support') . " from $support_manager signed in for support"), "/admin/audit_logs.php", 0, $support_user_id);
 
+// The page the manager sent them to (its error log, say), else the start page
+if ($support_who['page'] !== '') {
+    redirect('/' . $support_who['page']);
+}
 $support_start_page = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_start_page FROM settings WHERE company_id = 1"))[0] ?? '');
 redirect("/agent/" . (preg_match('/^[a-z0-9_\/.?=&-]+$/i', $support_start_page) ? $support_start_page : 'clients.php'));

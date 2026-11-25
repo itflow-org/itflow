@@ -473,6 +473,16 @@ function managedReport(): array
         WHERE backup_status IN ('Complete', 'Failed') ORDER BY backup_created_at DESC LIMIT 1")) ?: [];
     $backup_ok = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(backup_completed_at) FROM backups WHERE backup_status = 'Complete'"))[0] ?? null;
     $errors = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM app_logs WHERE app_log_type = 'error' AND app_log_created_at > NOW() - INTERVAL 1 DAY"))[0] ?? 0);
+    // The categories they were logged under, the most first - names only, never what they say,
+    // which can hold client details (a mail error has the address and subject)
+    $error_categories = [];
+    if ($errors) {
+        $result = mysqli_query($mysqli, "SELECT COALESCE(app_log_category, '') AS category, COUNT(*) AS logged FROM app_logs
+            WHERE app_log_type = 'error' AND app_log_created_at > NOW() - INTERVAL 1 DAY GROUP BY category ORDER BY logged DESC, category ASC LIMIT 10");
+        while ($category = mysqli_fetch_assoc($result)) {
+            $error_categories[mb_substr((string) $category['category'], 0, 100)] = intval($category['logged']);
+        }
+    }
     $clients = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM clients WHERE client_archived_at IS NULL AND client_lead = 0"))[0] ?? 0);
     $company = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1"))[0] ?? '');
 
@@ -523,6 +533,8 @@ function managedReport(): array
             'last_ok_at' => managedIsoTime($backup_ok),
         ],
         'errors_24h' => $errors,
+        // An object even when empty - {} rather than []
+        'errors_by_category' => (object) $error_categories,
         'agents' => [
             'active' => getActiveAgentUserCount(),
             'invites' => function_exists('userInvitesHoldingSeats') ? userInvitesHoldingSeats() : 0,
@@ -697,9 +709,13 @@ function managedVerifySupportToken(string $token, &$error = ''): ?array
     $config['nonces'] = $nonces;
     managedConfigSave($config);
 
+    // A page to land on instead of the start page - one of this ITFlow's own, as a path
+    $page = (string) ($payload['p'] ?? '');
+
     return [
         'name' => mb_substr(trim((string) ($payload['n'] ?? '')), 0, 120),
         'email' => mb_substr(trim((string) ($payload['e'] ?? '')), 0, 200),
+        'page' => preg_match('#^(admin|agent)/[a-z0-9_]+\.php(\?[a-z0-9_=&%.+-]*)?$#i', $page) ? $page : '',
     ];
 }
 
@@ -969,6 +985,22 @@ function managedInstanceReport(array $row): array
 }
 
 /*
+ * The categories an instance's errors today were logged under, the most first - [category =>
+ * how many], '' for none. Empty from an instance too old to send them; it sends the count alone.
+ */
+function managedInstanceErrorCategories(array $report): array
+{
+    $categories = [];
+    foreach ((array) ($report['errors_by_category'] ?? []) as $category => $logged) {
+        if (intval($logged) > 0) {
+            $categories[mb_substr((string) $category, 0, 100)] = intval($logged);
+        }
+    }
+    arsort($categories);
+    return $categories;
+}
+
+/*
  * How an instance is doing, from its last report - state (pending: never connected;
  * waiting: connected, but its cron has never run - a new install whose cron job isn't in
  * yet; offline; online), what needs a look (issues, worst first, each [tone, text]), and
@@ -1022,8 +1054,17 @@ function managedInstanceHealth(array $row): array
         } elseif (strtotime($backup['last_ok_at']) < strtotime('-3 days')) {
             $issues[] = ['warning', 'No backup for ' . str_replace(' ago', '', timeAgo($backup['last_ok_at']))];
         }
-        if (intval($report['errors_24h'] ?? 0) > 0) {
-            $issues[] = ['warning', intval($report['errors_24h']) . ' error' . (intval($report['errors_24h']) === 1 ? '' : 's') . ' logged today'];
+        $error_count = intval($report['errors_24h'] ?? 0);
+        if ($error_count > 0) {
+            // Under which categories, the most first - three named, then how many more
+            $error_categories = managedInstanceErrorCategories($report);
+            $named = [];
+            foreach (array_slice($error_categories, 0, 3, true) as $category => $logged) {
+                $named[] = ($category !== '' ? $category : 'No category') . " ($logged)";
+            }
+            $more = count($error_categories) - count($named);
+            $issues[] = ['warning', "$error_count error" . ($error_count === 1 ? '' : 's') . ' logged today'
+                . ($named ? ' - ' . implode(', ', $named) . ($more > 0 ? " and $more more" : '') : '')];
         }
         $agents = (array) ($report['agents'] ?? []);
         if (intval($agents['limit'] ?? 0) > 0 && intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) >= intval($agents['limit'])) {
@@ -1414,17 +1455,23 @@ function managerCheckin(string $authorization, array $body, string $ip): array
 
 /*
  * A link that signs the person asking into an instance as its support user - signed with this
- * ITFlow's key, for that instance only, good for two minutes and once.
+ * ITFlow's key, for that instance only, good for two minutes and once. $page lands it on one of
+ * the instance's pages (admin/app_logs.php?view=error) instead of its start page - an instance
+ * too old to know it lands on its start page.
  */
-function managedSupportLink(array $row, string $name, string $email): string
+function managedSupportLink(array $row, string $name, string $email, string $page = ''): string
 {
-    $token = managerSign([
+    $payload = [
         'i' => $row['managed_instance_uuid'],
         'n' => $name,
         'e' => $email,
         'x' => time() + MANAGED_SUPPORT_LINK_SECONDS,
         'j' => bin2hex(random_bytes(16)),
-    ]);
+    ];
+    if ($page !== '') {
+        $payload['p'] = $page;
+    }
+    $token = managerSign($payload);
 
     return rtrim((string) $row['managed_instance_url'], '/') . '/login_support.php?token=' . rawurlencode($token);
 }
