@@ -441,7 +441,7 @@ function managedDirMb(string $dir): float
 
 /*
  * How this ITFlow is doing, for its manager - versions, updates, cron, backups, errors,
- * agents against the seat limit, and disk and database size (measured every half hour,
+ * agents against the seat limit and who they are, and disk and database size (measured every half hour,
  * as walking the uploads folder isn't free). Times carry their offset (managedIsoTime()).
  */
 function managedReport(): array
@@ -484,6 +484,40 @@ function managedReport(): array
         }
     }
     $clients = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM clients WHERE client_archived_at IS NULL AND client_lead = 0"))[0] ?? 0);
+
+    // Who holds the seats - the active agents (not the support user, which takes none), then the
+    // invites waiting in date - as getAgentSeatsTaken() counts them
+    $agent_list = [];
+    $support_user_id = managedSupportUserId();
+    $service = function_exists('serviceAccountsReady') && serviceAccountsReady();
+    $result = mysqli_query($mysqli, "SELECT user_name, user_email, user_token, role_name" . ($service ? ', user_service_account' : '') . ",
+            (SELECT MAX(log_created_at) FROM logs WHERE log_user_id = users.user_id AND log_type = 'Login' AND log_action = 'Success') AS last_login
+        FROM users LEFT JOIN user_roles ON role_id = user_role_id
+        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL" . ($support_user_id ? " AND user_id <> $support_user_id" : '') . "
+        ORDER BY user_name ASC LIMIT 500");
+    while ($user = mysqli_fetch_assoc($result)) {
+        $agent_list[] = [
+            'name' => mb_substr((string) $user['user_name'], 0, 120),
+            'email' => mb_substr((string) $user['user_email'], 0, 200),
+            'role' => mb_substr((string) ($user['role_name'] ?? ''), 0, 100),
+            'mfa' => trim((string) ($user['user_token'] ?? '')) !== '',
+            'service' => !empty($user['user_service_account']),
+            'last_login' => managedIsoTime($user['last_login']),
+        ];
+    }
+    if (function_exists('userInvitesReady') && userInvitesReady()) {
+        $result = mysqli_query($mysqli, "SELECT invite_name, invite_email, role_name, invite_expires_at FROM user_invites LEFT JOIN user_roles ON role_id = invite_role_id
+            WHERE invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND invite_expires_at > NOW() ORDER BY invite_created_at ASC LIMIT 500");
+        while ($invite = mysqli_fetch_assoc($result)) {
+            $agent_list[] = [
+                'name' => mb_substr((string) $invite['invite_name'], 0, 120),
+                'email' => mb_substr((string) $invite['invite_email'], 0, 200),
+                'role' => mb_substr((string) ($invite['role_name'] ?? ''), 0, 100),
+                'invited' => true,
+                'expires_at' => managedIsoTime($invite['invite_expires_at']),
+            ];
+        }
+    }
     $company = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1"))[0] ?? '');
 
     // Disk and database size, every half hour
@@ -539,6 +573,7 @@ function managedReport(): array
             'active' => getActiveAgentUserCount(),
             'invites' => function_exists('userInvitesHoldingSeats') ? userInvitesHoldingSeats() : 0,
             'limit' => getAgentUserLimit(),
+            'list' => $agent_list,
         ],
         'clients' => $clients,
         'disk' => ['measured_at' => managedIsoTime($metrics['measured_at'] ?? null)] + $metrics,

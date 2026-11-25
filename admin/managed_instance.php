@@ -310,6 +310,68 @@ if ($error_count > 0) {
                     </div>
                 <?php } ?>
             </div>
+
+            <!-- Who holds its seats - its active agents, then the invites waiting -->
+            <div class="card mb-3" data-managed-agents>
+                <div class="card-header py-3">
+                    <h3 class="card-title"><i class="fas fa-fw fa-users me-2"></i>Agents</h3>
+                    <?php if ($agents) { ?>
+                        <div class="card-tools small text-body-secondary pt-1"><?= intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) ?><?= intval($agents['limit'] ?? 0) > 0 ? ' of ' . intval($agents['limit']) : '' ?> seats taken</div>
+                    <?php } ?>
+                </div>
+                <?php if (!is_array($agents['list'] ?? null)) { ?>
+                    <div class="card-body text-body-secondary small">Who they are shows once it runs a version that sends them - until then, only how many.</div>
+                <?php } elseif (!$agents['list']) { ?>
+                    <div class="card-body text-body-secondary small">No agents yet.</div>
+                <?php } else { ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0 small">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Agent</th>
+                                <th>Role</th>
+                                <th class="text-center">MFA</th>
+                                <th class="d-none d-md-table-cell">Last signed in</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($agents['list'] as $agent) {
+                                if (!is_array($agent)) {
+                                    continue;
+                                }
+                                $invited = !empty($agent['invited']); ?>
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="fw-semibold"><?= escapeHtml((string) ($agent['name'] ?? '')) ?>
+                                            <?php if ($invited) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle fw-normal ms-1">Invited</span><?php } ?>
+                                            <?php if (!empty($agent['service'])) { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal ms-1">API account</span><?php } ?>
+                                        </div>
+                                        <div class="text-body-secondary text-break"><?= escapeHtml((string) ($agent['email'] ?? '')) ?></div>
+                                    </td>
+                                    <td><?= escapeHtml((string) ($agent['role'] ?? '')) ?></td>
+                                    <td class="text-center">
+                                        <?php if ($invited) { ?>
+                                            <span class="text-body-secondary">-</span>
+                                        <?php } elseif (!empty($agent['mfa'])) { ?>
+                                            <i class="fas fa-fw fa-lock text-success" title="Signs in with MFA"></i>
+                                        <?php } else { ?>
+                                            <i class="fas fa-fw fa-unlock text-warning" title="No MFA"></i>
+                                        <?php } ?>
+                                    </td>
+                                    <td class="d-none d-md-table-cell text-nowrap">
+                                        <?php if ($invited) { ?>
+                                            <span class="text-body-secondary"><?= !empty($agent['expires_at']) ? 'Invite runs out ' . escapeHtml(date('M j', strtotime((string) $agent['expires_at']))) : 'Invite waiting' ?></span>
+                                        <?php } else { ?>
+                                            <?= $when($agent['last_login'] ?? null) ?>
+                                        <?php } ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php } ?>
+            </div>
         <?php } ?>
 
         <!-- What it has been asked, and how that went -->
