@@ -1440,6 +1440,201 @@ function managedInstanceIssueTickets(int $instance_id): array
 }
 
 /*
+ * ---------- History ----------
+ * One managed_instance_stats row per instance per day, by this ITFlow's own date, kept up at
+ * each check-in from its report (managedStatsRecord()): agents, invites and the seat limit,
+ * clients, storage, the errors of the last 24 hours under their categories - at the day's last
+ * check-in, that day's own - whether a backup was made, and the version. With them, how many
+ * times it checked in, and each gap between check-ins of more than MANAGED_OFFLINE_MINUTES,
+ * on the day it ended - its uptime is worked out from those. Kept for good: a row a day is
+ * small. managedInstanceHistory() reads a period of it for the instance's page.
+ */
+
+/** Whether the history table is there - it arrives with the 4.1.9 database update. */
+function managedStatsReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            $ready = (bool) mysqli_query($mysqli, "SELECT 1 FROM managed_instance_stats LIMIT 1");
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/** Today's history row for an instance, from the report it just sent - $row as it was before this check-in. */
+function managedStatsRecord(array $row, array $report): void
+{
+    global $mysqli;
+
+    if (!managedStatsReady()) {
+        return;
+    }
+    $instance_id = intval($row['managed_instance_id']);
+    $today = date('Y-m-d');
+    $agents = (array) ($report['agents'] ?? []);
+    $disk = (array) ($report['disk'] ?? []);
+    $backup = (array) ($report['backup'] ?? []);
+    $app = (array) ($report['app'] ?? []);
+
+    $categories = [];
+    foreach ((array) ($report['errors_by_category'] ?? []) as $category => $logged) {
+        $categories[mb_substr((string) $category, 0, 100)] = intval($logged);
+    }
+    $day_of = function ($iso) {
+        $time = $iso ? strtotime((string) $iso) : false;
+        return $time ? date('Y-m-d', $time) : '';
+    };
+    // A backup made today - or one that failed today, unless one was made too
+    $made = $day_of($backup['last_ok_at'] ?? null);
+    $backed = $made === $today ? 'ok' : (($backup['last_status'] ?? '') === 'Failed' && $day_of($backup['last_at'] ?? null) === $today ? 'failed' : '');
+
+    $set = "managed_stat_agents = " . intval($agents['active'] ?? 0) . ", managed_stat_invites = " . intval($agents['invites'] ?? 0) . ",
+        managed_stat_seat_limit = " . intval($agents['limit'] ?? 0) . ", managed_stat_clients = " . intval($report['clients'] ?? 0) . ",
+        managed_stat_uploads_mb = " . round(floatval($disk['uploads_mb'] ?? 0), 1) . ", managed_stat_db_mb = " . round(floatval($disk['db_mb'] ?? 0), 1) . ",
+        managed_stat_errors = " . intval($report['errors_24h'] ?? 0) . ", managed_stat_error_categories = '" . mysqli_real_escape_string($mysqli, (string) json_encode((object) $categories)) . "',
+        managed_stat_version = '" . mysqli_real_escape_string($mysqli, mb_substr((string) ($app['version'] ?? ''), 0, 20)) . "'";
+    mysqli_query($mysqli, "INSERT INTO managed_instance_stats SET managed_stat_instance_id = $instance_id, managed_stat_date = '$today', $set,
+        managed_stat_backup = '$backed', managed_stat_checkins = 1
+        ON DUPLICATE KEY UPDATE $set, managed_stat_checkins = managed_stat_checkins + 1,
+        managed_stat_backup = IF('$backed' = 'ok' OR managed_stat_backup = '', '$backed', managed_stat_backup)");
+
+    // A backup made just before midnight, first reported after it, goes on its own day
+    if ($made !== '' && $made !== $today && $made >= date('Y-m-d', strtotime('-2 days'))) {
+        mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_backup = 'ok'
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$made' AND managed_stat_backup <> 'ok'");
+    }
+
+    // Back after a gap - kept on today's row, from its last check-in to now
+    $last = $row['managed_instance_last_checkin_at'] ?? null;
+    if ($last && strtotime($last) < time() - MANAGED_OFFLINE_MINUTES * 60) {
+        $outages = json_decode((string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT managed_stat_outages FROM managed_instance_stats
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'"))[0] ?? ''), true) ?: [];
+        $outages[] = ['from' => date('Y-m-d H:i:s', strtotime($last)), 'to' => date('Y-m-d H:i:s')];
+        mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_outages = '" . mysqli_real_escape_string($mysqli, (string) json_encode(array_slice($outages, -50))) . "'
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'");
+    }
+}
+
+/**
+ * An instance's history for its page - the last $days days, from the first it has. Each day
+ * has its label and agents, invites, seat limit, clients, uploads and database size, errors,
+ * backup, uptime (a percentage) and minutes down - from the gaps that overlap it - null
+ * where there's nothing for that day. With them: since (its first day, or null with no history yet), the
+ * gaps in the period, newest first (from, to, ongoing), uptime over the period, the backups
+ * made and failed, the errors and their categories over the period, most first, and the
+ * storage unit (MB, or GB from 2 GB).
+ */
+function managedInstanceHistory(array $row, int $days): array
+{
+    global $mysqli;
+
+    $instance_id = intval($row['managed_instance_id']);
+    $history = ['since' => null, 'days' => [], 'gaps' => [], 'uptime' => null, 'backups' => ['ok' => 0, 'failed' => 0, 'days' => 0],
+        'errors' => 0, 'categories' => [], 'unit' => 'MB'];
+    if (!managedStatsReady()) {
+        return $history;
+    }
+    $since = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MIN(managed_stat_date) FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id"))[0] ?? null;
+    if (!$since) {
+        return $history;
+    }
+    $history['since'] = $since;
+    $today = date('Y-m-d');
+    $from = max($since, date('Y-m-d', strtotime('-' . ($days - 1) . ' days')));
+
+    $rows = [];
+    $result = mysqli_query($mysqli, "SELECT managed_stat_date, managed_stat_agents, managed_stat_invites, managed_stat_seat_limit, managed_stat_clients,
+        managed_stat_uploads_mb, managed_stat_db_mb, managed_stat_errors, managed_stat_error_categories, managed_stat_backup, managed_stat_outages
+        FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id AND managed_stat_date >= '$from' ORDER BY managed_stat_date");
+    while ($stat = mysqli_fetch_assoc($result)) {
+        $rows[$stat['managed_stat_date']] = $stat;
+    }
+
+    // The gaps - each kept on the day it ended, so a gap that began before the period is here
+    // too - and the one going on now, if it has stopped checking in
+    $now = time();
+    $period_start = strtotime($from);
+    $gaps = [];
+    foreach ($rows as $stat) {
+        foreach (json_decode((string) $stat['managed_stat_outages'], true) ?: [] as $gap) {
+            $gaps[] = ['from' => strtotime((string) ($gap['from'] ?? '')), 'to' => strtotime((string) ($gap['to'] ?? '')), 'ongoing' => false];
+        }
+    }
+    $last = $row['managed_instance_last_checkin_at'] ?? null;
+    $watched = !empty($row['managed_instance_secret_hash']) && empty($row['managed_instance_archived_at']);
+    if ($watched && $last && strtotime($last) < $now - MANAGED_OFFLINE_MINUTES * 60) {
+        $gaps[] = ['from' => strtotime($last), 'to' => $now, 'ongoing' => true];
+    }
+    $gaps = array_values(array_filter($gaps, function ($gap) use ($period_start) {
+        return $gap['from'] && $gap['to'] > $gap['from'] && $gap['to'] > $period_start;
+    }));
+    usort($gaps, function ($a, $b) {
+        return $b['from'] <=> $a['from'];
+    });
+    $history['gaps'] = $gaps;
+
+    $mb = 0.0;
+    $down_total = 0;
+    $minutes_total = 0;
+    $day = new DateTime($from);
+    while ($day->format('Y-m-d') <= $today) {
+        $date = $day->format('Y-m-d');
+        $start = $day->getTimestamp();
+        $end = min((clone $day)->modify('+1 day')->getTimestamp(), $now);
+        $down = 0;
+        foreach ($gaps as $gap) {
+            $down += max(0, min($end, $gap['to']) - max($start, max($gap['from'], $period_start)));
+        }
+        $stat = $rows[$date] ?? null;
+        $length = max(1, $end - $start);
+        if ($stat || $down > 0) {
+            $down_total += min($down, $length);
+            $minutes_total += $length;
+        }
+        $entry = [
+            'label' => $day->format('M j'),
+            'date' => $date,
+            'uptime' => $stat || $down > 0 ? round(max(0, 100 * (1 - $down / $length)), 1) : null,
+            'down' => $stat || $down > 0 ? (int) round(min($down, $length) / 60) : null,
+            'agents' => null, 'invites' => null, 'limit' => null, 'clients' => null, 'uploads' => null, 'db' => null, 'errors' => null, 'backup' => null,
+        ];
+        if ($stat) {
+            $entry = array_merge($entry, [
+                'agents' => intval($stat['managed_stat_agents']),
+                'invites' => intval($stat['managed_stat_invites']),
+                'limit' => intval($stat['managed_stat_seat_limit']),
+                'clients' => intval($stat['managed_stat_clients']),
+                'uploads' => floatval($stat['managed_stat_uploads_mb']),
+                'db' => floatval($stat['managed_stat_db_mb']),
+                'errors' => intval($stat['managed_stat_errors']),
+                'backup' => (string) $stat['managed_stat_backup'],
+            ]);
+            $mb = max($mb, $entry['uploads'] + $entry['db']);
+            $history['errors'] += $entry['errors'];
+            foreach (json_decode((string) $stat['managed_stat_error_categories'], true) ?: [] as $category => $logged) {
+                $history['categories'][$category] = ($history['categories'][$category] ?? 0) + intval($logged);
+            }
+            $history['backups']['days']++;
+            if ($entry['backup'] === 'ok') {
+                $history['backups']['ok']++;
+            } elseif ($entry['backup'] === 'failed') {
+                $history['backups']['failed']++;
+            }
+        }
+        $history['days'][] = $entry;
+        $day->modify('+1 day');
+    }
+    arsort($history['categories']);
+    $history['uptime'] = $minutes_total ? round(100 * (1 - $down_total / $minutes_total), 2) : null;
+    $history['unit'] = $mb >= 2048 ? 'GB' : 'MB';
+    return $history;
+}
+
+/*
  * A new connection code for an instance - the old one stops working. The code carries this
  * ITFlow's address and a token that works once, for a week; the manager keeps only its hash.
  */
@@ -1749,6 +1944,9 @@ function managerCheckin(string $authorization, array $body, string $ip): array
         $row['managed_instance_update_seen_at'] = date('Y-m-d H:i:s');
     }
     mysqli_query($mysqli, "UPDATE managed_instances SET " . implode(', ', $set) . " WHERE managed_instance_id = $instance_id");
+
+    // Today's line of its history - with the gap it is back from, if any
+    managedStatsRecord($row, $body);
 
     // The commands it answered
     foreach ($acks as $ack) {

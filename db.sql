@@ -2331,6 +2331,34 @@ CREATE TABLE `managed_instance_issues` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `managed_instance_stats`
+--
+
+DROP TABLE IF EXISTS `managed_instance_stats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instance_stats` (
+  `managed_stat_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_stat_instance_id` int(11) NOT NULL,
+  `managed_stat_date` date NOT NULL,
+  `managed_stat_agents` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_invites` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_seat_limit` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_clients` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_uploads_mb` decimal(12,1) NOT NULL DEFAULT 0.0,
+  `managed_stat_db_mb` decimal(12,1) NOT NULL DEFAULT 0.0,
+  `managed_stat_errors` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_error_categories` text DEFAULT NULL,
+  `managed_stat_backup` varchar(10) NOT NULL DEFAULT '',
+  `managed_stat_version` varchar(20) NOT NULL DEFAULT '',
+  `managed_stat_checkins` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_outages` text DEFAULT NULL,
+  PRIMARY KEY (`managed_stat_id`),
+  UNIQUE KEY `managed_stat_day` (`managed_stat_instance_id`,`managed_stat_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `managed_instances`
 --
 

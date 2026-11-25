@@ -7111,6 +7111,37 @@ a.itflow-report-stat:focus-visible {
     }
 }
 
+/* A managed instance's backups, a day a cell (admin/managed_instance.php) - a year's run together */
+.itflow-history-strip {
+    display: flex;
+    gap: 2px;
+    height: 18px;
+}
+.itflow-history-strip.is-dense {
+    gap: 0;
+}
+.itflow-history-strip > span {
+    flex: 1 1 0;
+    min-width: 1px;
+    border-radius: 2px;
+}
+.itflow-history-strip.is-dense > span {
+    min-width: 0;
+    border-radius: 0;
+}
+.itflow-history-strip > .is-empty {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--bs-border-color);
+}
+.itflow-history-key {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: .35rem;
+    vertical-align: -1px;
+}
+
 /* Tables: sortable headings, and a totals row that reads as one */
 .itflow-report-table > tfoot > tr > td {
     border-top: 2px solid var(--bs-border-color);

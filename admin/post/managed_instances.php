@@ -263,6 +263,12 @@ if (isset($_GET['delete_managed_instance'])) {
     $instance_id = intval($row['managed_instance_id']);
 
     mysqli_query($mysqli, "DELETE FROM managed_instance_commands WHERE managed_command_instance_id = $instance_id");
+    if (managerTicketsReady()) {
+        mysqli_query($mysqli, "DELETE FROM managed_instance_issues WHERE managed_issue_instance_id = $instance_id");
+    }
+    if (managedStatsReady()) {
+        mysqli_query($mysqli, "DELETE FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id");
+    }
     mysqli_query($mysqli, "DELETE FROM managed_instances WHERE managed_instance_id = $instance_id");
 
     logAudit("Managed Instance", "Delete", "$session_name deleted managed instance " . escapeSql($row['managed_instance_name']), intval($row['managed_instance_client_id']), $instance_id);
