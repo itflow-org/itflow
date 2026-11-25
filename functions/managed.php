@@ -40,6 +40,14 @@ const MANAGED_OFFLINE_MINUTES = 10;
 const MANAGED_SUPPORT_LINK_SECONDS = 120;
 const MANAGED_SUPPORT_SESSION_HOURS = 2;
 
+/*
+ * How a check-in's report can travel: as one base64url string of its JSON, for a manager that
+ * says it reads that (report_encoding in its answers). A web application firewall in front of a
+ * manager - ModSecurity's Core Rule Set, say - reads the plain report's cron command
+ * (/usr/bin/php ... cron.php) and any error text in it as an attack and answers 403.
+ */
+const MANAGED_REPORT_ENCODING = 'base64url';
+
 /* The cron jobs that keep running while an instance is read-only or suspended */
 const MANAGED_KEEP_JOBS = [
     'read_only' => ['manager_checkin', 'update_check', 'app_update', 'backup', 'mail_queue'],
@@ -155,6 +163,7 @@ function managedHttpJson(string $url, array $body, array $headers = []): array
  *   state                                   what the manager last set (managedState())
  *   support_user_id                         the user support signs in as
  *   last_checkin_at, last_error             how the last check-in went
+ *   report_encoding                         how the manager reads a report - 'base64url', or '' for plain JSON
  *   acks                                    answers to commands, sent with the next check-in
  *   metrics                                 disk and database size, measured every half hour
  *   white_label_applied                     the key the manager put in, if it did
@@ -329,6 +338,8 @@ function managedEnroll(string $code, string $self_url, &$error = ''): bool
         'self_url' => rtrim($self_url, '/'),
         'connected_at' => date('Y-m-d H:i:s'),
         'state' => is_array($json['state'] ?? null) ? $json['state'] : [],
+        // So the first check-in, just below, is already sent the way the manager reads it
+        'report_encoding' => ($json['report_encoding'] ?? '') === MANAGED_REPORT_ENCODING ? MANAGED_REPORT_ENCODING : '',
     ]);
     managedApplyState();
 
@@ -539,10 +550,15 @@ function managedCheckin(): array
     $report = managedReport();
     $config = managedConfig(true);
     $report['acks'] = array_values((array) ($config['acks'] ?? []));
+    // To a manager that reads it, the report goes as one base64url string, which a firewall in
+    // front of the manager has nothing to read as an attack (MANAGED_REPORT_ENCODING)
+    $body = ($config['report_encoding'] ?? '') === MANAGED_REPORT_ENCODING
+        ? ['report' => managedBase64UrlEncode((string) json_encode($report))]
+        : $report;
     // In the body as well as the header - some web servers drop Authorization before PHP sees it
-    $report['auth'] = $config['uuid'] . ':' . $config['secret'];
+    $body['auth'] = $config['uuid'] . ':' . $config['secret'];
 
-    $response = managedHttpJson($config['manager_url'] . '/api/managed/checkin.php', $report,
+    $response = managedHttpJson($config['manager_url'] . '/api/managed/checkin.php', $body,
         ['Authorization: Bearer ' . $config['uuid'] . ':' . $config['secret']]);
 
     if ($response['code'] === 410 && !empty($response['json']['released'])) {
@@ -566,6 +582,8 @@ function managedCheckin(): array
         $config['manager_name'] = $config['state']['manager_name'];
     }
     $config['last_checkin_at'] = date('Y-m-d H:i:s');
+    // How the manager reads the next report - a manager that stops saying gets plain JSON again
+    $config['report_encoding'] = ($json['report_encoding'] ?? '') === MANAGED_REPORT_ENCODING ? MANAGED_REPORT_ENCODING : '';
     unset($config['last_error'], $config['last_error_at']);
     $config['acks'] = [];
     managedConfigSave($config);
@@ -1241,6 +1259,8 @@ function managerEnroll(array $body, string $ip): array
         'secret' => $secret,
         'manager' => ['name' => $identity['name'], 'public_key' => managerKeys()['public']],
         'state' => managerStateFor($row),
+        // Reports may come encoded (managedCheckin())
+        'report_encoding' => MANAGED_REPORT_ENCODING,
     ]];
 }
 
@@ -1280,6 +1300,19 @@ function managerCheckin(string $authorization, array $body, string $ip): array
         logAudit("Managed Instance", "Disconnect", escapeSql("$name disconnected itself from management"), $client_id, $instance_id);
         appNotify("Managed Instance", escapeSql("$name disconnected itself from management"), "/admin/managed_instance.php?id=$instance_id", $client_id, $instance_id);
         return [200, ['disconnected' => true]];
+    }
+
+    // A report sent encoded (MANAGED_REPORT_ENCODING) - one base64url string of the same JSON
+    if (array_key_exists('report', $body)) {
+        $encoded = is_string($body['report']) ? $body['report'] : '';
+        if (strlen($encoded) > 360000) {
+            return [413, ['error' => 'Report too large']];
+        }
+        $decoded = json_decode(managedBase64UrlDecode($encoded), true);
+        if (!is_array($decoded)) {
+            return [400, ['error' => "The report couldn't be read"]];
+        }
+        $body = $decoded;
     }
 
     // The report, kept as sent - checked for shape where it's read
@@ -1376,7 +1409,7 @@ function managerCheckin(string $authorization, array $body, string $ip): array
         mysqli_query($mysqli, "UPDATE managed_instance_commands SET managed_command_status = 'sent', managed_command_sent_at = NOW() WHERE managed_command_id = " . intval($command['managed_command_id']));
     }
 
-    return [200, ['state' => managerStateFor($row), 'commands' => $commands]];
+    return [200, ['state' => managerStateFor($row), 'commands' => $commands, 'report_encoding' => MANAGED_REPORT_ENCODING]];
 }
 
 /*
