@@ -32,6 +32,8 @@ $name = escapeHtml($row['managed_instance_name']);
 $page_title = $row['managed_instance_name'];
 $removed = !empty($row['managed_instance_archived_at']);
 $health = managedInstanceHealth($row);
+// The tickets its problems are on (managerIssueTickets())
+$issue_tickets = managedInstanceIssueTickets($instance_id);
 $state = $health['state'];
 $report = $health['report'];
 $app = (array) ($report['app'] ?? []);
@@ -295,10 +297,14 @@ if ($error_count > 0) {
                     <div class="card-body text-success-emphasis"><i class="fas fa-fw fa-check-circle me-2"></i>All good - cron is running, it's up to date, backups are recent and nothing has gone wrong today.</div>
                 <?php } else { ?>
                     <ul class="list-group list-group-flush" data-managed-issues>
-                        <?php foreach ($health['issues'] as [$tone, $text]) { ?>
+                        <?php foreach ($health['issues'] as [$tone, $text, $key]) { ?>
                             <li class="list-group-item d-flex gap-2 align-items-start">
                                 <i class="fas fa-fw fa-<?= $tone === 'info' ? 'info-circle' : 'exclamation-circle' ?> text-<?= $tone ?>-emphasis mt-1"></i>
-                                <span><?= escapeHtml($text) ?></span>
+                                <span class="flex-grow-1"><?= escapeHtml($text) ?></span>
+                                <?php if (isset($issue_tickets[$key])) { ?>
+                                    <a class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal text-decoration-none mt-1" data-managed-issue-ticket
+                                        href="/agent/<?= ticketUrl($issue_tickets[$key]['ticket_id'], $issue_tickets[$key]['client_id']) ?>" title="The ticket this opened"><i class="fas fa-fw fa-ticket-alt me-1"></i><?= escapeHtml($issue_tickets[$key]['reference']) ?></a>
+                                <?php } ?>
                             </li>
                         <?php } ?>
                     </ul>

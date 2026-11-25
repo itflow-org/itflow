@@ -2309,6 +2309,28 @@ CREATE TABLE `managed_instance_commands` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `managed_instance_issues`
+--
+
+DROP TABLE IF EXISTS `managed_instance_issues`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instance_issues` (
+  `managed_issue_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_issue_instance_id` int(11) NOT NULL,
+  `managed_issue_key` varchar(30) NOT NULL,
+  `managed_issue_tone` varchar(20) NOT NULL DEFAULT '',
+  `managed_issue_text` varchar(255) NOT NULL DEFAULT '',
+  `managed_issue_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `managed_issue_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `managed_issue_cleared_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`managed_issue_id`),
+  KEY `managed_issue_instance` (`managed_issue_instance_id`,`managed_issue_cleared_at`),
+  KEY `managed_issue_ticket_id` (`managed_issue_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `managed_instances`
 --
 
@@ -4105,6 +4127,8 @@ CREATE TABLE `settings` (
   `config_update_details` mediumtext DEFAULT NULL,
   `config_manager_keys` text DEFAULT NULL,
   `config_managed` mediumtext DEFAULT NULL,
+  `config_manager_ticket_level` varchar(20) NOT NULL DEFAULT '',
+  `config_manager_ticket_category_id` int(11) NOT NULL DEFAULT 0,
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,

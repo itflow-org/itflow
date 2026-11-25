@@ -6,7 +6,9 @@
  * For an ITFlow that manages others (Admin > Managed Instances): notices what the instances
  * don't say themselves. An instance that has stopped checking in gets one notification, until
  * it's back (the check-in clears it - managerCheckin()); a request it took and never answered,
- * or an update that never said it finished, is closed as failed rather than left waiting.
+ * or an update that never said it finished, is closed as failed rather than left waiting. When
+ * Admin > Managed Instances says to, an instance's problems open tickets, and clear them
+ * (managerIssueTickets()).
  */
 
 // Set working directory to the directory this cron script lives at.
@@ -91,4 +93,10 @@ while ($managed_instance = mysqli_fetch_assoc($managed_instances_stuck)) {
 
     appNotify("Managed Instance", escapeSql("The update on " . $managed_instance['managed_instance_name'] . " hasn't finished in two hours"),
         "/admin/managed_instance.php?id=" . intval($managed_instance['managed_instance_id']), intval($managed_instance['managed_instance_client_id']), intval($managed_instance['managed_instance_id']));
+}
+
+// Problems that have lasted open tickets, and those gone clear theirs - when it's set to
+$managed_issue_counts = managerIssueTickets();
+if (array_sum($managed_issue_counts) > 0) {
+    echo "Problem tickets - opened {$managed_issue_counts['opened']}, back again {$managed_issue_counts['again']}, cleared {$managed_issue_counts['cleared']}, resolved {$managed_issue_counts['resolved']}\n";
 }

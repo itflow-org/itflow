@@ -36,6 +36,9 @@ const MANAGED_ENROLL_DAYS = 7;
 /* No check-in for this long and the manager calls an instance offline */
 const MANAGED_OFFLINE_MINUTES = 10;
 
+// How long a problem lasts before it opens a ticket - so a blip doesn't (managerIssueTickets())
+const MANAGED_ISSUE_GRACE_MINUTES = 10;
+
 /* A support sign-in link works this long; the session it opens, this long */
 const MANAGED_SUPPORT_LINK_SECONDS = 120;
 const MANAGED_SUPPORT_SESSION_HOURS = 2;
@@ -1038,8 +1041,9 @@ function managedInstanceErrorCategories(array $report): array
 /*
  * How an instance is doing, from its last report - state (pending: never connected;
  * waiting: connected, but its cron has never run - a new install whose cron job isn't in
- * yet; offline; online), what needs a look (issues, worst first, each [tone, text]), and
- * what the list shows of it.
+ * yet; offline; online), what needs a look (issues, worst first, each [tone, text, key] - the
+ * key stays the same while the text changes, so a ticket follows one problem), and what the
+ * list shows of it.
  */
 function managedInstanceHealth(array $row): array
 {
@@ -1060,34 +1064,35 @@ function managedInstanceHealth(array $row): array
 
     $issues = [];
     if ($state === 'waiting') {
-        $issues[] = ['warning', 'Waiting for its cron job - add it in its hosting control panel'];
+        $issues[] = ['warning', 'Waiting for its cron job - add it in its hosting control panel', 'waiting'];
     } elseif ($state === 'offline') {
-        $issues[] = ['danger', $last ? 'Not checked in for ' . str_replace(' ago', '', timeAgo($last)) : 'Connected, but never checked in'];
+        $issues[] = ['danger', $last ? 'Not checked in for ' . str_replace(' ago', '', timeAgo($last)) : 'Connected, but never checked in', 'offline'];
     }
     if ($report && $state !== 'waiting') {
         if (empty($cron['enabled'])) {
-            $issues[] = ['danger', 'Cron is switched off'];
+            $issues[] = ['danger', 'Cron is switched off', 'cron'];
         } elseif (empty($cron['last_dispatch_at']) || strtotime($cron['last_dispatch_at']) < strtotime((string) ($report['reported_at'] ?? 'now')) - 600) {
-            $issues[] = ['danger', 'Cron isn\'t running'];
+            $issues[] = ['danger', 'Cron isn\'t running', 'cron'];
         }
         $app = (array) ($report['app'] ?? []);
         if (!empty($app['db_latest']) && !empty($app['db_version']) && version_compare($app['db_latest'], $app['db_version'], '>')) {
-            $issues[] = ['danger', 'Database update not applied'];
+            $issues[] = ['danger', 'Database update not applied', 'db_update'];
         }
         $update = (array) ($report['update'] ?? []);
         if (!empty($update['last']['error'])) {
-            $issues[] = ['danger', 'The last update failed'];
+            $issues[] = ['danger', 'The last update failed', 'update_failed'];
         }
         if (!empty($update['available'])) {
-            $issues[] = [!empty($update['security']) ? 'danger' : 'info', (!empty($update['security']) ? 'Security update' : 'Update') . ' available' . (!empty($update['release']) ? ' - ' . $update['release'] : '')];
+            $issues[] = [!empty($update['security']) ? 'danger' : 'info', (!empty($update['security']) ? 'Security update' : 'Update') . ' available' . (!empty($update['release']) ? ' - ' . $update['release'] : ''),
+                !empty($update['security']) ? 'security_update' : 'update'];
         }
         $backup = (array) ($report['backup'] ?? []);
         if (($backup['last_status'] ?? '') === 'Failed') {
-            $issues[] = ['warning', 'The last backup failed'];
+            $issues[] = ['warning', 'The last backup failed', 'backup'];
         } elseif (empty($backup['last_ok_at'])) {
-            $issues[] = ['warning', 'No backups made'];
+            $issues[] = ['warning', 'No backups made', 'backup'];
         } elseif (strtotime($backup['last_ok_at']) < strtotime('-3 days')) {
-            $issues[] = ['warning', 'No backup for ' . str_replace(' ago', '', timeAgo($backup['last_ok_at']))];
+            $issues[] = ['warning', 'No backup for ' . str_replace(' ago', '', timeAgo($backup['last_ok_at'])), 'backup'];
         }
         $error_count = intval($report['errors_24h'] ?? 0);
         if ($error_count > 0) {
@@ -1099,11 +1104,11 @@ function managedInstanceHealth(array $row): array
             }
             $more = count($error_categories) - count($named);
             $issues[] = ['warning', "$error_count error" . ($error_count === 1 ? '' : 's') . ' logged today'
-                . ($named ? ' - ' . implode(', ', $named) . ($more > 0 ? " and $more more" : '') : '')];
+                . ($named ? ' - ' . implode(', ', $named) . ($more > 0 ? " and $more more" : '') : ''), 'errors'];
         }
         $agents = (array) ($report['agents'] ?? []);
         if (intval($agents['limit'] ?? 0) > 0 && intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) >= intval($agents['limit'])) {
-            $issues[] = ['info', 'Every seat is taken'];
+            $issues[] = ['info', 'Every seat is taken', 'seats'];
         }
     }
 
@@ -1113,6 +1118,325 @@ function managedInstanceHealth(array $row): array
     });
 
     return ['state' => $state, 'issues' => $issues, 'report' => $report];
+}
+
+/*
+ * ---------- Problems that open tickets ----------
+ * When Admin > Managed Instances says to (managerTicketSettings()), a problem an instance has -
+ * one of managedInstanceHealth()'s issues - opens a ticket on its client, or on your own company
+ * when it has none, once it has lasted MANAGED_ISSUE_GRACE_MINUTES. The same problem again goes
+ * on that ticket while it isn't closed, reopened if it was resolved. When it clears, the ticket
+ * gets a note and is resolved, unless someone has written on it. Each problem is a
+ * managed_instance_issues row from when it is first seen - ticket 0 until it opens one.
+ */
+
+/** Which problems open tickets - level => what it is called. */
+function managerTicketLevels(): array
+{
+    return ['' => 'Off', 'danger' => 'Problems', 'warning' => 'Problems and warnings'];
+}
+
+/** Whether the problems table is there - it arrives with the 4.1.8 database update. */
+function managerTicketsReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            $ready = (bool) mysqli_query($mysqli, "SELECT 1 FROM managed_instance_issues LIMIT 1");
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/** What Admin > Managed Instances sets for tickets - ['level', 'category_id', 'ticketing']. */
+function managerTicketSettings(): array
+{
+    global $mysqli;
+    $settings = ['level' => '', 'category_id' => 0, 'ticketing' => false];
+    if (!managerTicketsReady()) {
+        return $settings;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_manager_ticket_level, config_manager_ticket_category_id, config_module_enable_ticketing FROM settings WHERE company_id = 1"));
+    $level = (string) ($row['config_manager_ticket_level'] ?? '');
+    $settings['level'] = isset(managerTicketLevels()[$level]) ? $level : '';
+    $settings['category_id'] = intval($row['config_manager_ticket_category_id'] ?? 0);
+    $settings['ticketing'] = !empty($row['config_module_enable_ticketing']);
+    return $settings;
+}
+
+/**
+ * Whether a problem opens a ticket at $level. Waiting for its cron job is setting it up, not a
+ * problem; a security update is one only when it isn't updated automatically - when it is, a
+ * failed update is the problem.
+ */
+function managedIssueOpensTicket(array $row, string $key, string $tone, string $level): bool
+{
+    $rank = ['info' => 1, 'warning' => 2, 'danger' => 3];
+    if (!isset($rank[$tone], $rank[$level]) || $rank[$tone] < $rank[$level]) {
+        return false;
+    }
+    return $key !== 'waiting' && !($key === 'security_update' && $row['managed_instance_update_policy'] === 'auto');
+}
+
+/** A problem's ticket subject - words that don't change while it lasts. */
+function managedIssueTitle(string $key, string $text): string
+{
+    if ($key === 'offline') {
+        return 'Stopped checking in';
+    }
+    if ($key === 'errors') {
+        return 'Errors being logged';
+    }
+    if ($key === 'backup' && strpos($text, 'No backup for') === 0) {
+        return 'No recent backup';
+    }
+    return $text;
+}
+
+/** What a problem's ticket says - HTML. */
+function managedIssueDetailsHtml(array $row, string $key, string $text): string
+{
+    $report = managedInstanceReport($row);
+    $app = (array) ($report['app'] ?? []);
+    $last = $row['managed_instance_last_checkin_at'] ?? null;
+    $what_now = [
+        'offline' => 'Look at whether its server is up and its cron job is running - its Admin > Managed By page says why a check-in failed.',
+        'cron' => 'Its cron job runs cron/cron.php - look at it in its hosting control panel, and at Maintenance > Cron on it.',
+        'db_update' => 'Sign in to it as support and apply the database update from Maintenance > Update.',
+        'update_failed' => 'Its page in Managed Instances has what the update stopped with.',
+        'security_update' => 'Update it from its page in Managed Instances.',
+        'backup' => 'Sign in to it as support and look at Maintenance > Backup.',
+        'errors' => 'Its page in Managed Instances links each category to its error log.',
+    ];
+    $facts = [
+        'Instance' => (string) $row['managed_instance_name'],
+        'Address' => (string) $row['managed_instance_url'],
+        'Version' => trim((string) ($app['version'] ?? '') . (!empty($app['branch']) ? ' (' . $app['branch'] . ')' : '')),
+        'Last checked in' => $last ? date('M j, Y g:i A', strtotime($last)) : 'Never',
+    ];
+    $html = '<p><strong>' . escapeHtml($text) . '</strong></p><p>';
+    foreach (array_filter($facts, 'strlen') as $label => $value) {
+        $html .= escapeHtml($label) . ': ' . escapeHtml($value) . '<br>';
+    }
+    $html .= '</p>';
+    if (isset($what_now[$key])) {
+        $html .= '<p>' . escapeHtml($what_now[$key]) . '</p>';
+    }
+    $html .= '<p><a href="' . escapeHtml(managedRequestBaseUrl() . '/admin/managed_instance.php?id=' . intval($row['managed_instance_id'])) . '">Open it in Managed Instances</a></p>';
+    return $html;
+}
+
+/** A ticket for a problem of an instance, on $client_id - its id. */
+function managedIssueTicketOpen(array $row, string $key, string $tone, string $text, int $client_id, int $category_id): int
+{
+    global $mysqli, $session_name;
+
+    $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_ticket_prefix, config_ticket_default_billable FROM settings WHERE company_id = 1"));
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+    $ticket_number = intval(mysqli_insert_id($mysqli));
+
+    $name = (string) $row['managed_instance_name'];
+    $subject = mb_strimwidth("$name: " . managedIssueTitle($key, $text), 0, 200, '...');
+    $prefix = escapeSql((string) $settings['config_ticket_prefix']);
+    $billable = intval($settings['config_ticket_default_billable']) ? 1 : 0;
+    $category = ticketCategoryId($category_id);
+    $priority = $tone === 'danger' ? 'High' : 'Medium';
+    $details = mysqli_real_escape_string($mysqli, managedIssueDetailsHtml($row, $key, $text));
+
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$prefix', ticket_number = $ticket_number, ticket_source = 'Managed', ticket_category = $category,
+        ticket_subject = '" . escapeSql($subject) . "', ticket_details = '$details', ticket_priority = '$priority', ticket_status = " . TICKET_STATUS_NEW . ",
+        ticket_billable = $billable, ticket_created_by = 0, ticket_contact_id = 0, ticket_url_key = '" . randomString(32) . "', ticket_client_id = $client_id");
+    $ticket_id = intval(mysqli_insert_id($mysqli));
+    applyTicketSla($ticket_id);
+
+    $reference = $settings['config_ticket_prefix'] . $ticket_number;
+    logAudit('Ticket', 'Create', "$session_name opened ticket " . escapeSql("$reference for a problem on $name - $text"), $client_id, $ticket_id);
+    logTicketHistory($ticket_id, "Opened by $session_name for a problem on " . escapeSql($name));
+    ticketMailNewTicketAddress($ticket_id, 'managed');
+    triggerCustomAction('ticket_create', $ticket_id);
+    return $ticket_id;
+}
+
+/**
+ * A problem that has lasted - on the ticket the same problem had, if that isn't closed (reopened
+ * if it was resolved), or a new one. 'again' or 'opened', or '' when there is no client to put
+ * it on yet.
+ */
+function managedIssueTicket(array $row, array $issue, int $category_id): string
+{
+    global $mysqli, $config_internal_client_id;
+
+    $instance_id = intval($row['managed_instance_id']);
+    $issue_id = intval($issue['managed_issue_id']);
+    $key = (string) $issue['managed_issue_key'];
+    $name = (string) $row['managed_instance_name'];
+
+    $existing = mysqli_fetch_row(mysqli_query($mysqli, "SELECT managed_issue_ticket_id FROM managed_instance_issues
+        JOIN tickets ON ticket_id = managed_issue_ticket_id
+        WHERE managed_issue_instance_id = $instance_id AND managed_issue_key = '" . escapeSql($key) . "' AND managed_issue_id <> $issue_id
+        AND ticket_status <> " . TICKET_STATUS_CLOSED . " AND ticket_archived_at IS NULL
+        ORDER BY managed_issue_id DESC LIMIT 1"));
+    if ($existing) {
+        $ticket_id = intval($existing[0]);
+        mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_ticket_id = $ticket_id WHERE managed_issue_id = $issue_id");
+        rmmTicketNote($ticket_id, "$name: back again - " . $issue['managed_issue_text']);
+        $ticket = ticketRow($ticket_id);
+        if ($ticket && intval($ticket['ticket_status']) === TICKET_STATUS_RESOLVED) {
+            ticketReopen($ticket, TICKET_STATUS_OPEN, ' - the problem came back');
+        } else {
+            logTicketHistory($ticket_id, escapeSql("$name: the problem came back"));
+        }
+        return 'again';
+    }
+
+    // Its client's, or your own company's when it has none - with neither, it waits for one
+    $client_id = intval($row['managed_instance_client_id']);
+    if (!$client_id || !mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id AND client_archived_at IS NULL"))) {
+        $client_id = intval($config_internal_client_id ?? 0);
+    }
+    if (!$client_id) {
+        return '';
+    }
+
+    $ticket_id = managedIssueTicketOpen($row, $key, (string) $issue['managed_issue_tone'], (string) $issue['managed_issue_text'], $client_id, $category_id);
+    mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_ticket_id = $ticket_id WHERE managed_issue_id = $issue_id");
+    return 'opened';
+}
+
+/** A problem that has cleared - a note on its ticket, which is resolved when nothing else keeps it open. True when it was resolved. */
+function managedIssueCleared(array $row, array $issue): bool
+{
+    $ticket_id = intval($issue['managed_issue_ticket_id']);
+    $ticket = $ticket_id ? ticketRow($ticket_id) : null;
+    if (!$ticket || intval($ticket['ticket_status']) === TICKET_STATUS_CLOSED || $ticket['ticket_archived_at'] !== null) {
+        return false;
+    }
+    $name = (string) $row['managed_instance_name'];
+    rmmTicketNote($ticket_id, "$name: this has cleared - " . $issue['managed_issue_text']);
+
+    $status = intval($ticket['ticket_status']);
+    $left = !in_array($status, [TICKET_STATUS_NEW, TICKET_STATUS_OPEN], true) ? 'left ' . getTicketStatusName($status)
+        : (rmmTicketWorked($ticket_id) ? 'left open, as someone has written on it' : '');
+    if ($left !== '') {
+        logTicketHistory($ticket_id, escapeSql("$name: the problem cleared - $left"));
+        return false;
+    }
+    ticketResolve($ticket, ' - the problem cleared');
+    return true;
+}
+
+/**
+ * Look at every connected instance's problems - those first seen open a row, those that have
+ * lasted open tickets, those gone clear theirs. Off with the level off, or ticketing off. Returns
+ * ['opened', 'again', 'cleared', 'resolved'].
+ */
+function managerIssueTickets(): array
+{
+    global $mysqli, $session_name;
+
+    $counts = ['opened' => 0, 'again' => 0, 'cleared' => 0, 'resolved' => 0];
+    $settings = managerTicketSettings();
+    if ($settings['level'] === '' || !$settings['ticketing']) {
+        return $counts;
+    }
+
+    $signed_in_name = $session_name ?? null;
+    $session_name = 'Managed Instances';
+
+    // Gone from here - removed, or no longer connected: its problems are no longer watched
+    mysqli_query($mysqli, "UPDATE managed_instance_issues JOIN managed_instances ON managed_instance_id = managed_issue_instance_id
+        SET managed_issue_cleared_at = NOW()
+        WHERE managed_issue_cleared_at IS NULL AND (managed_instance_archived_at IS NOT NULL OR managed_instance_secret_hash IS NULL)");
+    mysqli_query($mysqli, "UPDATE managed_instance_issues LEFT JOIN managed_instances ON managed_instance_id = managed_issue_instance_id
+        SET managed_issue_cleared_at = NOW() WHERE managed_issue_cleared_at IS NULL AND managed_instance_id IS NULL");
+
+    $instances = mysqli_query($mysqli, "SELECT managed_instance_id, managed_instance_name, managed_instance_client_id, managed_instance_url, managed_instance_mode,
+        managed_instance_update_policy, managed_instance_secret_hash, managed_instance_report, managed_instance_last_checkin_at
+        FROM managed_instances WHERE managed_instance_archived_at IS NULL AND managed_instance_secret_hash IS NOT NULL ORDER BY managed_instance_id");
+    while ($row = mysqli_fetch_assoc($instances)) {
+        $instance_id = intval($row['managed_instance_id']);
+
+        // What it has now, by key - every one, so a problem the level doesn't watch isn't taken as cleared
+        $now = [];
+        foreach (managedInstanceHealth($row)['issues'] as [$tone, $text, $key]) {
+            $now[$key] = $now[$key] ?? [$tone, $text];
+        }
+
+        $open = [];
+        $result = mysqli_query($mysqli, "SELECT managed_issue_id, managed_issue_key, managed_issue_tone, managed_issue_text, managed_issue_ticket_id, managed_issue_created_at
+            FROM managed_instance_issues WHERE managed_issue_instance_id = $instance_id AND managed_issue_cleared_at IS NULL");
+        while ($issue = mysqli_fetch_assoc($result)) {
+            $open[$issue['managed_issue_key']] = $issue;
+        }
+
+        // Cleared - a problem that never lasted long enough for a ticket leaves no trace
+        foreach ($open as $key => $issue) {
+            if (isset($now[$key])) {
+                continue;
+            }
+            if (intval($issue['managed_issue_ticket_id']) === 0) {
+                mysqli_query($mysqli, "DELETE FROM managed_instance_issues WHERE managed_issue_id = " . intval($issue['managed_issue_id']));
+                continue;
+            }
+            mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_cleared_at = NOW() WHERE managed_issue_id = " . intval($issue['managed_issue_id']));
+            $counts['cleared']++;
+            if (managedIssueCleared($row, $issue)) {
+                $counts['resolved']++;
+            }
+        }
+
+        // A suspended instance is left alone - nobody is using it
+        if ($row['managed_instance_mode'] === 'suspended') {
+            continue;
+        }
+
+        foreach ($now as $key => [$tone, $text]) {
+            if (!managedIssueOpensTicket($row, (string) $key, $tone, $settings['level'])) {
+                continue;
+            }
+            // First seen - a ticket once it has lasted
+            if (!isset($open[$key])) {
+                mysqli_query($mysqli, "INSERT INTO managed_instance_issues SET managed_issue_instance_id = $instance_id, managed_issue_key = '" . escapeSql($key) . "',
+                    managed_issue_tone = '" . escapeSql($tone) . "', managed_issue_text = '" . escapeSql(mb_substr($text, 0, 255)) . "'");
+                continue;
+            }
+            $issue = $open[$key];
+            if (intval($issue['managed_issue_ticket_id']) === 0 && strtotime($issue['managed_issue_created_at']) <= strtotime('-' . MANAGED_ISSUE_GRACE_MINUTES . ' minutes')) {
+                // As it is now - the words may have moved on since it was first seen
+                $issue['managed_issue_tone'] = $tone;
+                $issue['managed_issue_text'] = mb_substr($text, 0, 255);
+                mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_tone = '" . escapeSql($tone) . "', managed_issue_text = '" . escapeSql($issue['managed_issue_text']) . "'
+                    WHERE managed_issue_id = " . intval($issue['managed_issue_id']));
+                $done = managedIssueTicket($row, $issue, $settings['category_id']);
+                if ($done !== '') {
+                    $counts[$done]++;
+                }
+            }
+        }
+    }
+
+    $session_name = $signed_in_name ?? $session_name;
+    return $counts;
+}
+
+/** The tickets an instance's problems are on now - key => ['ticket_id', 'reference', 'client_id'], for its page. */
+function managedInstanceIssueTickets(int $instance_id): array
+{
+    global $mysqli;
+    if (!managerTicketsReady()) {
+        return [];
+    }
+    $tickets = [];
+    $result = mysqli_query($mysqli, "SELECT managed_issue_key, ticket_id, ticket_prefix, ticket_number, ticket_client_id FROM managed_instance_issues
+        JOIN tickets ON ticket_id = managed_issue_ticket_id
+        WHERE managed_issue_instance_id = $instance_id AND managed_issue_cleared_at IS NULL AND ticket_archived_at IS NULL AND ticket_status <> " . TICKET_STATUS_CLOSED);
+    while ($ticket = mysqli_fetch_assoc($result)) {
+        $tickets[$ticket['managed_issue_key']] = ['ticket_id' => intval($ticket['ticket_id']), 'reference' => $ticket['ticket_prefix'] . $ticket['ticket_number'], 'client_id' => intval($ticket['ticket_client_id'])];
+    }
+    return $tickets;
 }
 
 /*

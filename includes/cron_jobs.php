@@ -151,7 +151,7 @@ function cronJobRegistry(): array
             'label' => 'Managed Instances',
             'icon' => 'fa-server',
             'script' => 'managed_instances.php',
-            'description' => 'For an ITFlow that manages others (Admin > Managed Instances): notifies when one stops checking in, and closes requests that were never answered.',
+            'description' => 'For an ITFlow that manages others (Admin > Managed Instances): notifies when one stops checking in, opens tickets for their problems when set to, and closes requests that were never answered.',
             'schedule' => 'Interval',
             'interval_minutes' => 5,
         ],

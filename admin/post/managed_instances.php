@@ -114,6 +114,32 @@ if (isset($_POST['edit_managed_instance'])) {
 
 }
 
+if (isset($_POST['edit_managed_instance_tickets'])) {
+
+    validateCSRFToken();
+
+    if (!managerTicketsReady()) {
+        flashAlert("Problem tickets need this install's database update - apply it from Maintenance &gt; Update first", 'error');
+        redirect('managed_instances.php');
+    }
+
+    $level = (string) ($_POST['ticket_level'] ?? '');
+    $levels = managerTicketLevels();
+    if (!isset($levels[$level])) {
+        $level = '';
+    }
+    $category_id = ticketCategoryId($_POST['ticket_category_id'] ?? 0);
+
+    mysqli_query($mysqli, "UPDATE settings SET config_manager_ticket_level = '" . escapeSql($level) . "', config_manager_ticket_category_id = $category_id WHERE company_id = 1");
+
+    logAudit("Managed Instance", "Edit", "$session_name set the problems that open tickets to " . escapeSql($levels[$level]));
+
+    flashAlert($level === '' ? "Problems no longer open tickets" : "<strong>" . escapeHtml($levels[$level]) . "</strong> now open tickets");
+
+    redirect('managed_instances.php');
+
+}
+
 if (isset($_GET['managed_instance_new_code'])) {
 
     validateCSRFToken();

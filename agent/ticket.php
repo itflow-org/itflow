@@ -446,6 +446,8 @@ if (isset($_GET['ticket_id'])) {
             $ticket_opened_wording = "Came in by text $ticket_created_at_ago";
         } elseif ($ticket_source == 'RMM') {
             $ticket_opened_wording = "Opened $ticket_created_at_ago by an RMM alert";
+        } elseif ($ticket_source == 'Managed') {
+            $ticket_opened_wording = "Opened $ticket_created_at_ago by a problem on a managed instance";
         } elseif ($ticket_source && $ticket_source !== 'Agent') {
             $ticket_opened_wording = "Opened $ticket_created_at_ago via $ticket_source";
         } else {

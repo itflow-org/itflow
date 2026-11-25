@@ -67,6 +67,11 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired me-2"></i>Managed Instances</h3>
         <div class="card-tools">
+            <?php if (managerTicketsReady()) {
+                $ticket_level = managerTicketSettings()['level']; ?>
+                <button type="button" class="btn btn-outline-light ajax-modal me-1" data-modal-url="modals/managed_instance/managed_instance_tickets.php"
+                    title="<?= $ticket_level === '' ? 'Problems open no tickets' : escapeHtml(managerTicketLevels()[$ticket_level]) . ' open tickets' ?>"><i class="fas fa-fw fa-ticket-alt"></i><span class="d-none d-lg-inline ms-2">Problem Tickets<?= $ticket_level === '' ? ' - Off' : '' ?></span></button>
+            <?php } ?>
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/managed_instance/managed_instance_form.php"><i class="fas fa-plus me-2"></i>New Instance</button>
         </div>
     </div>
