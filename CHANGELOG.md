@@ -2,6 +2,34 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.12.2]
+
+### Upgrading
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database change (4.1.8) in the same pass. It adds a table for the problems of instances you manage and two settings for which of them open tickets, and changes nothing that is there. Nothing else is required.
+
+If you manage other ITFlow installs, the manager and its instances can be updated in either order. An instance sends its check-ins encoded only once both are on this version, so a web application firewall in front of the manager may need its exclusion for check-ins until then. An instance shows its agents and error categories once it is updated.
+
+### New Features & Updates
+
+- Managed Instances: problems on the instances you manage can open tickets. **Problem Tickets** on Admin > Managed Instances picks which - **Problems**, at High: an instance that has stopped checking in, cron not running, a failed update, a database update not applied, or a security update waiting on one that doesn't update itself; or **Problems and warnings**, which adds backups failing or none for three days and errors being logged, at Medium - and the category they get. A problem opens a ticket once it has lasted ten minutes, so a blip doesn't, on the instance's client or on your own client record when it has none. The ticket says what's wrong, with the instance's address, version and last check-in, what to look at, and a link to its page. The same problem again goes on its ticket while that's open, reopening it if it was resolved, and when it clears the ticket is resolved unless someone has written on it. A suspended instance, or a new one waiting for its cron job, opens none. Each problem under Health on an instance's page links to its ticket. Off until you turn it on.
+- Managed Instances: an instance's page has an Agents card - who holds its seats, with each agent's name, email, role, whether they sign in with MFA and when they last signed in, then the invites waiting and the day each runs out. API accounts are marked. The support user takes no seat and isn't listed. Managed By, on the instance, lists this among what it tells its manager.
+- Managed Instances: errors logged on an instance now say which categories they were logged under, in its health line and under Errors today, where the count and each category sign you in to it as support on its App Logs, showing just those errors. Only how many there are under each category is sent - never what an error says, which can hold a client's email address or a ticket's subject.
+
+### Bug Fixes
+
+- Managed Instances: a manager behind a web application firewall - ModSecurity with the OWASP Core Rule Set, say - could answer an instance's check-ins with 403, as the cron command and error text in its report looked like an attack, and the instance's Managed By page said "The manager answered 403". Check-ins are now sent encoded, so nothing needs excluding. An instance sends them that way once its manager says it reads them, and a manager still reads a plain check-in, so either side can be updated first.
+
+### Developer Updates
+
+- Check-in encoding: `MANAGED_REPORT_ENCODING` (`base64url`). The manager's connect and check-in answers carry `report_encoding`, which the instance keeps in `config_managed`; from then `managedCheckin()` sends `{"report": <base64url of the JSON report>, "auth": ...}`. `managerCheckin()` decodes `report` before storing it as before - 413 when it is over 360,000 characters, 400 when it isn't a JSON object - and still reads a plain report.
+- Error categories: `managedReport()` adds `errors_by_category` - up to ten `app_log_category` values of the day's errors with their counts, and none of their text. `managedInstanceErrorCategories($report)` reads them, most first, for `managedInstanceHealth()` and `admin/managed_instance.php`. `managedSupportLink($row, $name, $email, $page)` signs a page as `p`, which `managedVerifySupportToken()` returns only when it is `admin/` or `agent/` and a `.php` file with a plain query, and `login_support.php` redirects there. `managed_support_sign_in` with `to=errors` and `category` builds `admin/app_logs.php?view=error&category=`. An instance from before this ignores `p` and lands on its start page.
+- Agents: `managedReport()` adds `agents.list` - up to 500 active agents, not `managedSupportUserId()`, each with `name`, `email`, `role`, `mfa` (a `user_token` set), `service` (`user_service_account`, when `serviceAccountsReady()`) and `last_login` (the latest successful `Login` log), then up to 500 invites waiting and in date, with `invited` and `expires_at`. The manager's card shows them only when the report has `agents.list`.
+- Database 4.1.8: `settings.config_manager_ticket_level` (`''` off, `danger` or `warning`) and `config_manager_ticket_category_id`, and `managed_instance_issues` - one problem an instance had: `managed_issue_key`, `_tone`, `_text`, `_ticket_id` (0 until it opens one), `_created_at` and `_cleared_at`. Re-runnable.
+- `managedInstanceHealth()` issues are `[tone, text, key]` - the key stays the same while the text changes: `offline`, `waiting`, `cron`, `db_update`, `update_failed`, `update`, `security_update`, `backup`, `errors` and `seats`.
+- `managerIssueTickets()`, run by `cron/managed_instances.php`, records a key when it is first seen, opens a ticket once the row is `MANAGED_ISSUE_GRACE_MINUTES` (10) old and `managedIssueOpensTicket()` passes it at the level, deletes a row that clears before then, and clears the rest through `managedIssueCleared()`, which resolves the ticket unless `rmmTicketWorked()`. `managedIssueTicket()` puts a key that comes back on its last ticket that isn't closed, reopening it if resolved. A key still there but no longer watched at the level isn't taken as cleared, and the rows of an instance removed or disconnected are cleared without touching their tickets. It does nothing with the level off or ticketing off. `managerTicketsReady()`, `managerTicketLevels()` and `managerTicketSettings()` read the settings.
+- Tickets it opens have `ticket_source = 'Managed'`, with an icon in `ticketSourceIcon()`, wording on the ticket page and `managed` in `ticketMailNewTicketAddress()`. `managedInstanceIssueTickets($instance_id)` gives an instance's open ones by key for the Health card. The window is `admin/modals/managed_instance/managed_instance_tickets.php`, posting `edit_managed_instance_tickets`.
+
 ## [26.12.1]
 
 ### Upgrading to 26.12.1
