@@ -22,6 +22,7 @@ If you manage other ITFlow installs, the manager and its instances can be update
 
 - Managed Instances: a manager behind a web application firewall - ModSecurity with the OWASP Core Rule Set, say - could answer an instance's check-ins with 403, as the cron command and error text in its report looked like an attack, and the instance's Managed By page said "The manager answered 403". Check-ins are now sent encoded, so nothing needs excluding. An instance sends them that way once its manager says it reads them, and a manager still reads a plain check-in, so either side can be updated first.
 - Racks: on a rack's drawing, clicking an asset opens its page, and the pen for editing it there - to move it or take it out of the rack - only showed while you pointed at it, at the far right. It was easy to miss, and on a touch screen it never showed. The pen is now always on each asset, in a holder's slot too when the slot is wide enough, and an asset's own page has Edit or remove under Rack, in Where & who.
+- Interfaces: adding several ports at once dropped the space at the end of the name before the number, so Port 01, Port 02 were made as Port01, Port02 - though the window showed them with the space. They are now made as the window shows them.
 
 ### Developer Updates
 
