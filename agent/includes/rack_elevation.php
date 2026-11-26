@@ -86,6 +86,10 @@ $elevation_rail = $elevation_descending ? range(1, $elevation_rack_units) : rang
                 if ($block['asset_archived']) {
                     $block_classes .= ' is-archived';
                 }
+                // An asset opens its page, so its pen is the way to edit or remove it - always shown, with room kept for it
+                if ($elevation_can_edit && $block['asset_id'] && !$block['ghost'] && !$block['slots']) {
+                    $block_classes .= ' has-edit';
+                }
                 $block_title = $block['name'] . ' - ' . html_entity_decode($block['position']) . ($block['meta'] ? " - {$block['meta']}" : '');
                 $block_drags = $elevation_can_edit && !$block['ghost'];
                 if ($block_drags) {
@@ -140,7 +144,7 @@ $elevation_rail = $elevation_descending ? range(1, $elevation_rack_units) : rang
                                     $child_close = '</div>';
                                 }
                                 ?>
-                                <div class="itflow-rack-cell itflow-rack-tone-<?= $child['tone'] ?><?= $child['asset_archived'] ? ' is-archived' : '' ?>" style="<?= $cell_place ?>"
+                                <div class="itflow-rack-cell itflow-rack-tone-<?= $child['tone'] ?><?= $child['asset_archived'] ? ' is-archived' : '' ?><?= $elevation_can_edit && $child['asset_id'] ? ' has-edit' : '' ?>" style="<?= $cell_place ?>"
                                     <?php if ($elevation_can_edit) { ?>draggable="true" data-rack-drag="unit" data-rack-child="1" data-rack-id="<?= $child['id'] ?>" data-rack-holder="<?= $block['id'] ?>" data-rack-slot="<?= $cell['slot'] ?>" data-rack-height="<?= $block['height'] ?>" data-rack-full="<?= $block['full_depth'] ? 1 : 0 ?>" data-rack-from="<?= $block['face'] ?>" data-rack-start="<?= $block['start'] ?>"<?php } ?>>
                                     <?= $child_open ?>
                                         <span class="itflow-rack-cell-name"><?= $child['name'] ?></span>
