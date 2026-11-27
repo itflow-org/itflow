@@ -2,7 +2,7 @@
 
 /*
  * ITFlow - sending log entries on to a syslog server or SIEM as they are
- * written (Admin > Settings > Logs). Each audit log entry - from logAudit()
+ * written (Admin > Logs > Settings). Each audit log entry - from logAudit()
  * and the few places that write to logs themselves - and each app log entry
  * at or above the level picked (logApp()) goes out as an RFC 5424 syslog
  * message, over UDP, TCP or TLS, with the entry as JSON, CEF or plain text.
@@ -576,7 +576,7 @@ function logForwardAppMessage(array $row, $format) {
  */
 function logForwardTest(array $settings, $by = '') {
     $now = date('Y-m-d H:i:s');
-    $text = 'Test message from ITFlow' . ($by !== '' ? " - sent by $by" : '') . ' from Admin > Settings > Logs';
+    $text = 'Test message from ITFlow' . ($by !== '' ? " - sent by $by" : '') . ' from Admin > Logs > Settings';
     if ($settings['format'] === 'cef') {
         $message = logForwardCefStart('test', 'Test message', 6) . logForwardCefExtensions(['rt' => time() * 1000, 'msg' => $text, 'dvchost' => logForwardHostname()]);
     } elseif ($settings['format'] === 'plain') {

@@ -247,7 +247,10 @@
 
                 <!-- SETTINGS Section - the pages are listed in functions/settings.php, as the overview shows them -->
                 <?php
-                $settings_nav_pages = settingsPages();
+                // Not the ones that are a tab of another entry - Log Settings is under Logs
+                $settings_nav_pages = array_filter(settingsPages(), function ($settings_nav_page) {
+                    return empty($settings_nav_page['under']);
+                });
                 $settings_nav_current = basename($_SERVER['PHP_SELF']);
                 $settings_nav_open = $settings_nav_current === 'settings.php' || in_array($settings_nav_current, array_column($settings_nav_pages, 'url'), true);
                 ?>

@@ -13,8 +13,6 @@ $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_name, compan
     FROM companies WHERE company_id = 1")) ?: [];
 $localization = settingsLocalizationArrays();
 $themes = settingsThemes();
-$retention = appLogRetention();
-$forward = logForwardSettings();
 $on_off = function ($on) {
     return $on ? 'on' : 'off';
 };
@@ -58,7 +56,6 @@ $summaries = [
     'client_portal' => 'Two-step sign-in ' . ($config_client_portal_require_mfa ? 'required' : 'optional'),
     'identity' => 'Microsoft Entra ' . ($config_azure_client_id ? 'set up' : 'not set up'),
     'module' => $modules_on ? escapeHtml(implode(', ', $modules_on)) : 'None in use',
-    'logs' => 'Audit log ' . ($retention['audit'] ? 'kept ' . $days($retention['audit']) : 'kept forever') . ' · ' . ($forward['enabled'] ? 'sent to ' . escapeHtml($forward['host']) : 'not sent on'),
     'telemetry' => $config_telemetry ? 'Nightly report on' : 'Off',
 ];
 
@@ -139,7 +136,8 @@ $groups = settingsGroups();
             <h2 class="h6 text-uppercase text-body-secondary fw-semibold mb-2"><?= escapeHtml($group_title) ?></h2>
             <div class="itflow-settings-tiles">
                 <?php foreach ($pages as $page_key => $page) {
-                    if ($page['group'] !== $group_key) {
+                    // A tab of another menu entry (Log Settings, under Logs) is found by Find a setting, not here
+                    if ($page['group'] !== $group_key || !empty($page['under'])) {
                         continue;
                     }
                     $available = settingsPageAvailable($page); ?>

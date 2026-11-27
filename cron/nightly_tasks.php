@@ -193,7 +193,7 @@ mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_
 // delete the archive it was supposed to replace.
 backupRunRetention($mysqli);
 
-// Cleanup old logs - each kept for its own number of days, 0 for keep forever (Admin > Settings > Logs, functions/app_log.php)
+// Cleanup old logs - each kept for its own number of days, 0 for keep forever (Admin > Logs > Settings, functions/app_log.php)
 $log_retention = appLogRetention();
 
 // The audit log, and API key and AI use with it

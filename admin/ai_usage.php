@@ -8,7 +8,7 @@
  * it worked - why not, when it didn't. Totals for what is shown sit above.
  * Searched, and filtered by date, provider, model, feature and who; views for
  * the failed ones, the ones secrets were taken out of, and tests. Kept as long
- * as the audit log is (Admin > Settings > Logs).
+ * as the audit log is (Admin > Logs > Settings).
  */
 
 // Default Column Sortby Filter

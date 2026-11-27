@@ -1,7 +1,7 @@
 <?php
 
 /*
- * ITFlow - POST handler for Admin > Settings > Logs: how long each log is
+ * ITFlow - POST handler for Admin > Logs > Settings: how long each log is
  * kept, and sending entries on to a syslog server or SIEM. Save and send a
  * test saves first, then sends one test message with what was saved
  * (logForwardTest(), functions/log_forward.php). What changed is in the audit
