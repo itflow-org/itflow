@@ -456,6 +456,9 @@ if (isExportRequest('export_credentials')) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $row['credential_username'] = decryptCredentialEntry($row['credential_username']);
             $row['credential_password'] = decryptCredentialEntry($row['credential_password']);
+            if (isset($row['credential_otp_secret'])) {
+                $row['credential_otp_secret'] = credentialOtpSecret($row['credential_otp_secret']);
+            }
             addExportRow($export, $row);
         }
 

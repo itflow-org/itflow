@@ -708,7 +708,7 @@ function clientExportRows($dataset, $client_id, $options) {
                 }
                 $rows[] = ['id' => $id, 'name' => $row['credential_name'], 'description' => $row['credential_description'], 'uri' => $row['credential_uri'],
                     'uri_2' => $row['credential_uri_2'], 'username' => credentialUsername($row), 'password' => $password,
-                    'otp_secret' => $options['secrets'] ? (string) $row['credential_otp_secret'] : '', 'has_2fa' => clientExportYes(trim((string) $row['credential_otp_secret']) !== ''),
+                    'otp_secret' => $options['secrets'] ? credentialOtpSecret($row['credential_otp_secret']) : '', 'has_2fa' => clientExportYes(trim((string) $row['credential_otp_secret']) !== ''),
                     'contact' => $name('contact', $row['credential_contact_id']), 'asset' => $name('asset', $row['credential_asset_id']),
                     'password_changed' => clientExportDate($row['credential_password_changed_at']), 'tags' => $tags[$id] ?? '', 'note' => $row['credential_note'],
                     'created' => $row['credential_created_at'], 'archived' => clientExportDate($row['credential_archived_at'])];

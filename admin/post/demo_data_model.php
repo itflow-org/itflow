@@ -1549,7 +1549,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
                 'credential_note' => $credential[4],
                 'credential_favorite' => $credential[6],
                 // A 2FA seed on the logins that have one, so the codes count down like the real thing
-                'credential_otp_secret' => !empty($credential[7]) ? demoTotpSeed($profile['abbreviation'] . $credential[0]) : '',
+                'credential_otp_secret' => !empty($credential[7]) ? (string) credentialOtpEncrypt(demoTotpSeed($profile['abbreviation'] . $credential[0])) : '',
                 'credential_client_id' => $client_id,
                 'credential_created_at' => demoMonthDateTime($months, 8, 16, 10),
                 // Some changed lately, some due, one well over a year - never before the client was taken on

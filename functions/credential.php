@@ -131,7 +131,8 @@ function credentialAgePill($age, $short = false) {
  * A 2FA seed as it is stored - the base32 secret, uppercase, without spaces
  * or dashes - from what was pasted: the secret as an app shows it ("abcd efgh
  * ...") or a whole otpauth:// link from the QR code. '' for nothing, false
- * when it is not a seed.
+ * when it is not a seed - real ones are 16 to about 64 characters, and over
+ * 256 would not fit the column once encrypted.
  */
 function credentialOtpSeed($input) {
     $input = trim((string) $input);
@@ -145,15 +146,104 @@ function credentialOtpSeed($input) {
     }
     $seed = strtoupper(preg_replace('/[\s\-]+/', '', $input));
     $seed = rtrim($seed, '=');
-    if ($seed === '' || !preg_match('/^[A-Z2-7]+$/', $seed) || strlen($seed) < 16) {
+    if ($seed === '' || !preg_match('/^[A-Z2-7]+$/', $seed) || strlen($seed) < 16 || strlen($seed) > 256) {
         return false;
     }
     return $seed;
 }
 
+/*
+ * A 2FA key is kept encrypted with the vault, as the username and password are: this, then the
+ * IV and ciphertext encryptCredentialEntry() gives. A key without it was saved before they were
+ * encrypted - it still works, and credentialOtpVaultStored() encrypts it. Nothing a key can be
+ * (base32, or an otpauth:// link) starts with this.
+ */
+define('CREDENTIAL_OTP_VAULT', 'vault:');
+
+/** A 2FA key to store - '' for none, false when the vault is not open with this session. */
+function credentialOtpEncrypt($seed) {
+    $seed = (string) $seed;
+    if ($seed === '') {
+        return '';
+    }
+    $ciphertext = encryptCredentialEntry($seed);
+    return $ciphertext === false ? false : CREDENTIAL_OTP_VAULT . $ciphertext;
+}
+
+/** The same with an API key's decrypt password (api/v1/credentials). */
+function apiCredentialOtpEncrypt($seed, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
+    $seed = (string) $seed;
+    return $seed === '' ? '' : CREDENTIAL_OTP_VAULT . apiEncryptCredentialEntry($seed, $api_key_decrypt_hash, $api_key_decrypt_password);
+}
+
+/**
+ * A stored 2FA key as it was saved - decrypted with this session's vault, or as it is when it
+ * was saved before keys were encrypted. '' for none, or when it will not decrypt.
+ */
+function credentialOtpSecret($stored) {
+    $stored = (string) $stored;
+    if (strpos($stored, CREDENTIAL_OTP_VAULT) !== 0) {
+        return $stored;
+    }
+    $seed = decryptCredentialEntry(substr($stored, strlen(CREDENTIAL_OTP_VAULT)));
+    return is_string($seed) ? $seed : '';
+}
+
+/** The same with an API key's decrypt password. */
+function apiCredentialOtpSecret($stored, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
+    $stored = (string) $stored;
+    if (strpos($stored, CREDENTIAL_OTP_VAULT) !== 0) {
+        return $stored;
+    }
+    $seed = apiDecryptCredentialEntry(substr($stored, strlen(CREDENTIAL_OTP_VAULT)), $api_key_decrypt_hash, $api_key_decrypt_password);
+    return is_string($seed) ? $seed : '';
+}
+
+/*
+ * Encrypt the 2FA keys saved before keys were encrypted, with this session's vault - $limit at a
+ * time, from includes/check_login.php, once a session until there are none left. A session whose
+ * vault doesn't open (vaultSessionOpens()) leaves them for the next agent. Each is tidied as a
+ * new one is (credentialOtpSeed() - or kept as it is when it isn't a seed), written only when it
+ * decrypts back to that, and only over the key it read, so two sessions at once can't both do one.
+ */
+function credentialOtpVaultStored($limit = 500) {
+    global $mysqli;
+    if (!empty($_SESSION['credential_otp_vaulted'])) {
+        return;
+    }
+    // Once a session either way - done, or no vault to do it with
+    $_SESSION['credential_otp_vaulted'] = true;
+    if (!vaultSessionOpens()) {
+        return;
+    }
+    $prefix = escapeSql(CREDENTIAL_OTP_VAULT);
+    $sql = mysqli_query($mysqli, "SELECT credential_id, credential_otp_secret FROM credentials
+        WHERE credential_otp_secret <> '' AND credential_otp_secret NOT LIKE '$prefix%' LIMIT " . intval($limit));
+    $done = 0;
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $stored = (string) $row['credential_otp_secret'];
+        $seed = credentialOtpSeed($stored);
+        $seed = is_string($seed) ? $seed : trim($stored);
+        $sealed = credentialOtpEncrypt($seed);
+        if ($sealed === false || ($seed !== '' && credentialOtpSecret($sealed) !== $seed)) {
+            return;
+        }
+        mysqli_query($mysqli, "UPDATE credentials SET credential_otp_secret = '" . escapeSql($sealed) . "'
+            WHERE credential_id = " . intval($row['credential_id']) . " AND credential_otp_secret = '" . escapeSql($stored) . "'");
+        $done += mysqli_affected_rows($mysqli) > 0 ? 1 : 0;
+    }
+    if ($done) {
+        logAudit("Credential", "Encrypt", "Encrypted $done 2FA key" . ($done === 1 ? '' : 's') . " saved before 2FA keys were kept encrypted");
+    }
+    // More than one batch - the next page does the next
+    if (mysqli_num_rows($sql) >= $limit) {
+        unset($_SESSION['credential_otp_vaulted']);
+    }
+}
+
 /**
  * The credential fields a New / Edit form posts, as a SQL SET list - the
- * username and password encrypted, the 2FA seed tidied, only the client's
+ * username, password and 2FA seed encrypted (the seed tidied first), only the client's
  * own contact and asset. Null with $error set when it cannot be saved: no
  * name, a field too long, a 2FA seed that is not one, or a vault that did
  * not open with this session (encrypting would otherwise write nothing over
@@ -176,7 +266,8 @@ function credentialFormSet($post, $client_id, &$error = '') {
     }
     $username = encryptCredentialEntry(trim((string) ($post['username'] ?? '')));
     $password = encryptCredentialEntry(trim((string) ($post['password'] ?? '')));
-    if ($username === false || $password === false) {
+    $otp = credentialOtpEncrypt($otp);
+    if ($username === false || $password === false || $otp === false) {
         $error = 'Your vault session has expired, so the login could not be encrypted - sign out and back in, then try again.';
         return null;
     }

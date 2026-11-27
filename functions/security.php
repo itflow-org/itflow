@@ -181,6 +181,24 @@ function encryptCredentialEntry($credential_password_cleartext) {
     return $iv . $ciphertext;
 }
 
+/*
+ * Does this session's vault open to a master key that looks right - the 16 characters an
+ * install's master key is? A session cookie that doesn't match decrypts to nothing or, now and
+ * then, to rubbish of another length, and anything encrypted under that could never be read
+ * back. For work on many credentials at once (credentialOtpVaultStored()), which is left
+ * undone rather than risked.
+ */
+function vaultSessionOpens() {
+    $ciphertext = $_SESSION['user_encryption_session_ciphertext'] ?? '';
+    $iv = base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
+    $key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
+    if ($ciphertext === '' || strlen($iv) !== 16 || $key === '') {
+        return false;
+    }
+    $master = openssl_decrypt($ciphertext, 'aes-128-cbc', $key, 0, $iv);
+    return is_string($master) && strlen($master) === 16;
+}
+
 function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
     // Split the Credential entry (username/password) into IV and Ciphertext

@@ -31,8 +31,8 @@ if (isset($_POST['api_key_decrypt_password'])) {
     $api_key_decrypt_password = $_POST['api_key_decrypt_password']; // No sanitization
 }
 
-// A wrong decrypt password would save the username and password where nothing can read them back
-if ($api_key_decrypt_password !== '' && (isset($_POST['credential_username']) || isset($_POST['credential_password'])) && !apiDecryptPasswordOpens($api_key_decrypt_hash, $api_key_decrypt_password)) {
+// A wrong decrypt password would save the username, password and 2FA key where nothing can read them back
+if ($api_key_decrypt_password !== '' && (isset($_POST['credential_username']) || isset($_POST['credential_password']) || isset($_POST['credential_otp_secret'])) && !apiDecryptPasswordOpens($api_key_decrypt_hash, $api_key_decrypt_password)) {
     $return_arr['success'] = "False";
     $return_arr['message'] = "api_key_decrypt_password is not the one set for this API key - nothing was saved.";
     echo json_encode($return_arr);
@@ -93,9 +93,9 @@ if (isset($_POST['credential_password'])) {
 }
 
 if (isset($_POST['credential_otp_secret'])) {
-    // Stored the way the agent side stores it - spaces and dashes out, an otpauth:// link down to its secret
+    // Stored the way the agent side stores it - spaces and dashes out, an otpauth:// link down to its secret - and encrypted
     $otp_seed = credentialOtpSeed($_POST['credential_otp_secret']);
-    $otp_secret = escapeSql($otp_seed === false ? trim((string) $_POST['credential_otp_secret']) : $otp_seed);
+    $otp_secret = escapeSql(apiCredentialOtpEncrypt($otp_seed === false ? trim((string) $_POST['credential_otp_secret']) : $otp_seed, $api_key_decrypt_hash, $api_key_decrypt_password));
 } elseif (isset($credential_row) && isset($credential_row['credential_otp_secret'])) {
     $otp_secret = mysqli_real_escape_string($mysqli, $credential_row['credential_otp_secret']);
 } else {

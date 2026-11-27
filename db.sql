@@ -1381,7 +1381,7 @@ CREATE TABLE `credentials` (
   `credential_uri_2` varchar(500) DEFAULT NULL,
   `credential_username` varchar(500) DEFAULT NULL,
   `credential_password` varchar(500) DEFAULT NULL,
-  `credential_otp_secret` varchar(200) DEFAULT NULL,
+  `credential_otp_secret` varchar(500) DEFAULT NULL,
   `credential_note` text DEFAULT NULL,
   `credential_favorite` tinyint(1) NOT NULL DEFAULT 0,
   `credential_created_at` datetime NOT NULL DEFAULT current_timestamp(),

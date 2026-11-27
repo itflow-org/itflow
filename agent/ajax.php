@@ -1938,7 +1938,7 @@ if (isset($_GET['get_totp_token_via_id'])) {
         exit;
     }
     $name = escapeSql($sql['credential_name']);
-    $totp_secret = $sql['credential_otp_secret'];
+    $totp_secret = credentialOtpSecret($sql['credential_otp_secret']);
     $client_id = intval($sql['credential_client_id']);
 
     enforceClientAccess();

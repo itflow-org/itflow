@@ -455,7 +455,7 @@ function shareCreate(array $in, &$error = '') {
             return null;
         }
         $name = (string) $credential['credential_name'];
-        $otp = !empty($in['otp']) ? (string) credentialOtpSeed($credential['credential_otp_secret']) : '';
+        $otp = !empty($in['otp']) ? (string) credentialOtpSeed(credentialOtpSecret($credential['credential_otp_secret'])) : '';
         $payload = shareSeal([
             'name' => $name,
             'uri' => (string) $credential['credential_uri'],
