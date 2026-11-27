@@ -3983,15 +3983,16 @@ button.itflow-rack-item-body:hover {
     background-color: rgba(0, 0, 0, .35);
     font-size: .6rem;
     color: #fff;
-    opacity: 0;
+    opacity: .75;
     transition: opacity .12s ease-in-out;
 }
 .itflow-rack-item:hover .itflow-rack-item-edit,
 .itflow-rack-item:focus-within .itflow-rack-item-edit {
     opacity: 1;
 }
-.itflow-rack-item:has(.itflow-rack-item-edit):hover .itflow-rack-item-pos {
-    visibility: hidden;
+/* An asset's pen is always there - clicking the asset opens its page - so its position sits clear of it */
+.itflow-rack-item.has-edit .itflow-rack-item-body {
+    padding-right: 2rem;
 }
 .itflow-rack-item-edit:hover {
     background-color: rgba(0, 0, 0, .55);
@@ -4142,15 +4143,22 @@ button.itflow-rack-cell-body:hover {
     background-color: rgba(0, 0, 0, .4);
     font-size: .55rem;
     color: #fff;
+    opacity: .75;
+}
+.itflow-rack-cell:hover .itflow-rack-cell-edit,
+.itflow-rack-cell:focus-within .itflow-rack-cell-edit {
+    opacity: 1;
 }
 .itflow-rack-cell-edit:hover {
     background-color: rgba(0, 0, 0, .6);
 }
-/* The pen only where the slot is wide enough for it and the name */
+/* The pen, always there, where the slot is wide enough for it and the name - the name kept clear of it */
 @container (min-width: 4.5rem) {
-    .itflow-rack-cell:hover .itflow-rack-cell-edit,
-    .itflow-rack-cell:focus-within .itflow-rack-cell-edit {
+    .itflow-rack-cell-edit {
         display: flex;
+    }
+    .itflow-rack-cell.has-edit .itflow-rack-cell-body {
+        padding-right: 1.45rem;
     }
 }
 .itflow-rack-cell.is-archived {
@@ -7109,6 +7117,37 @@ a.itflow-report-stat:focus-visible {
     .itflow-report-chart-lg {
         height: 240px;
     }
+}
+
+/* A managed instance's backups, a day a cell (admin/managed_instance.php) - a year's run together */
+.itflow-history-strip {
+    display: flex;
+    gap: 2px;
+    height: 18px;
+}
+.itflow-history-strip.is-dense {
+    gap: 0;
+}
+.itflow-history-strip > span {
+    flex: 1 1 0;
+    min-width: 1px;
+    border-radius: 2px;
+}
+.itflow-history-strip.is-dense > span {
+    min-width: 0;
+    border-radius: 0;
+}
+.itflow-history-strip > .is-empty {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--bs-border-color);
+}
+.itflow-history-key {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: .35rem;
+    vertical-align: -1px;
 }
 
 /* Tables: sortable headings, and a totals row that reads as one */

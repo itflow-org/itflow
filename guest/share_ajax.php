@@ -298,7 +298,8 @@ if ($action === 'reveal') {
         }
         $content += ['name' => $data['name'], 'uri' => $data['uri'], 'username' => $data['username'], 'password' => $data['password'], 'has_otp' => $data['otp'] !== ''];
     } elseif ($type === 'Credential') {
-        // A link made before 2.9.0 - the login under the ek in the link, the rest live
+        // A link made before 2.9.0 - the login under the ek in the link, the rest live. Its 2FA code
+        // only while the key is not yet encrypted: a guest has no vault to decrypt it with
         $credential = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_uri, credential_otp_secret FROM credentials WHERE credential_id = " . intval($row['item_related_id']) . " AND credential_client_id = " . intval($row['item_client_id']) . " LIMIT 1"));
         $legacy = function ($stored) use ($legacy_ek) {
             $stored = (string) $stored;

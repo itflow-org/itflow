@@ -4,8 +4,10 @@
  * Admin > Managed Instances > one instance. At the top, how it is - waiting to connect,
  * checking in or gone quiet - with what can be done to it: sign in as support, update it,
  * check for updates, make it read-only or suspend it. Under that, what needs a look from its
- * last report, the connection code while it's waiting for one, and what it has been asked and
- * how that went; alongside, what this manager sets for it and what it reported about itself.
+ * last report, the connection code while it's waiting for one, who holds its seats, its history
+ * a day at a time over 30 days, 90 days or a year (managedInstanceHistory()), and what it has
+ * been asked and how that went; alongside, what this manager sets for it and what it reported
+ * about itself.
  *
  * A connection code shows once, on the page its making redirects to - only its hash is kept
  * (managedInstanceNewCode()). The handlers are admin/post/managed_instances.php.
@@ -32,6 +34,8 @@ $name = escapeHtml($row['managed_instance_name']);
 $page_title = $row['managed_instance_name'];
 $removed = !empty($row['managed_instance_archived_at']);
 $health = managedInstanceHealth($row);
+// The tickets its problems are on (managerIssueTickets())
+$issue_tickets = managedInstanceIssueTickets($instance_id);
 $state = $health['state'];
 $report = $health['report'];
 $app = (array) ($report['app'] ?? []);
@@ -94,6 +98,26 @@ $size = function ($mb) {
     $mb = floatval($mb);
     return $mb >= 1024 ? round($mb / 1024, 1) . ' GB' : round($mb) . ' MB';
 };
+
+// Errors today, and the categories they were logged under - each opening its error log on the
+// instance, signed in as support. Only once it sends the categories: an older instance would
+// land on its start page
+$error_count = intval($report['errors_24h'] ?? 0);
+$error_log_link = $can_act && array_key_exists('errors_by_category', $report);
+$error_link = function (string $text_html, string $category = '') use ($instance_id, $csrf, $error_log_link) {
+    if (!$error_log_link) {
+        return $text_html;
+    }
+    $href = "post.php?managed_support_sign_in=$instance_id&to=errors" . ($category !== '' ? '&category=' . rawurlencode($category) : '') . "&csrf_token=$csrf";
+    return '<a href="' . escapeHtml($href) . '" target="_blank" rel="noopener" title="Opens its error log in a new tab, signed in as its support user">' . $text_html . '</a>';
+};
+$errors_html = '0';
+if ($error_count > 0) {
+    $errors_html = '<span class="text-warning-emphasis fw-semibold">' . $error_link((string) $error_count) . '</span>';
+    foreach (managedInstanceErrorCategories($report) as $category => $logged) {
+        $errors_html .= '<div class="text-body-secondary">' . $error_link(escapeHtml($category !== '' ? $category : 'No category'), $category) . ' &middot; ' . intval($logged) . '</div>';
+    }
+}
 
 ?>
 
@@ -275,10 +299,14 @@ $size = function ($mb) {
                     <div class="card-body text-success-emphasis"><i class="fas fa-fw fa-check-circle me-2"></i>All good - cron is running, it's up to date, backups are recent and nothing has gone wrong today.</div>
                 <?php } else { ?>
                     <ul class="list-group list-group-flush" data-managed-issues>
-                        <?php foreach ($health['issues'] as [$tone, $text]) { ?>
+                        <?php foreach ($health['issues'] as [$tone, $text, $key]) { ?>
                             <li class="list-group-item d-flex gap-2 align-items-start">
                                 <i class="fas fa-fw fa-<?= $tone === 'info' ? 'info-circle' : 'exclamation-circle' ?> text-<?= $tone ?>-emphasis mt-1"></i>
-                                <span><?= escapeHtml($text) ?></span>
+                                <span class="flex-grow-1"><?= escapeHtml($text) ?></span>
+                                <?php if (isset($issue_tickets[$key])) { ?>
+                                    <a class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal text-decoration-none mt-1" data-managed-issue-ticket
+                                        href="/agent/<?= ticketUrl($issue_tickets[$key]['ticket_id'], $issue_tickets[$key]['client_id']) ?>" title="The ticket this opened"><i class="fas fa-fw fa-ticket-alt me-1"></i><?= escapeHtml($issue_tickets[$key]['reference']) ?></a>
+                                <?php } ?>
                             </li>
                         <?php } ?>
                     </ul>
@@ -290,7 +318,317 @@ $size = function ($mb) {
                     </div>
                 <?php } ?>
             </div>
+
+            <!-- Who holds its seats - its active agents, then the invites waiting -->
+            <div class="card mb-3" data-managed-agents>
+                <div class="card-header py-3">
+                    <h3 class="card-title"><i class="fas fa-fw fa-users me-2"></i>Agents</h3>
+                    <?php if ($agents) { ?>
+                        <div class="card-tools small text-body-secondary pt-1"><?= intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) ?><?= intval($agents['limit'] ?? 0) > 0 ? ' of ' . intval($agents['limit']) : '' ?> seats taken</div>
+                    <?php } ?>
+                </div>
+                <?php if (!is_array($agents['list'] ?? null)) { ?>
+                    <div class="card-body text-body-secondary small">Who they are shows once it runs a version that sends them - until then, only how many.</div>
+                <?php } elseif (!$agents['list']) { ?>
+                    <div class="card-body text-body-secondary small">No agents yet.</div>
+                <?php } else { ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0 small">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Agent</th>
+                                <th>Role</th>
+                                <th class="text-center">MFA</th>
+                                <th class="d-none d-md-table-cell">Last signed in</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($agents['list'] as $agent) {
+                                if (!is_array($agent)) {
+                                    continue;
+                                }
+                                $invited = !empty($agent['invited']); ?>
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="fw-semibold"><?= escapeHtml((string) ($agent['name'] ?? '')) ?>
+                                            <?php if ($invited) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle fw-normal ms-1">Invited</span><?php } ?>
+                                            <?php if (!empty($agent['service'])) { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-normal ms-1">API account</span><?php } ?>
+                                        </div>
+                                        <div class="text-body-secondary text-break"><?= escapeHtml((string) ($agent['email'] ?? '')) ?></div>
+                                    </td>
+                                    <td><?= escapeHtml((string) ($agent['role'] ?? '')) ?></td>
+                                    <td class="text-center">
+                                        <?php if ($invited) { ?>
+                                            <span class="text-body-secondary">-</span>
+                                        <?php } elseif (!empty($agent['mfa'])) { ?>
+                                            <i class="fas fa-fw fa-lock text-success" title="Signs in with MFA"></i>
+                                        <?php } else { ?>
+                                            <i class="fas fa-fw fa-unlock text-warning" title="No MFA"></i>
+                                        <?php } ?>
+                                    </td>
+                                    <td class="d-none d-md-table-cell text-nowrap">
+                                        <?php if ($invited) { ?>
+                                            <span class="text-body-secondary"><?= !empty($agent['expires_at']) ? 'Invite runs out ' . escapeHtml(date('M j', strtotime((string) $agent['expires_at']))) : 'Invite waiting' ?></span>
+                                        <?php } else { ?>
+                                            <?= $when($agent['last_login'] ?? null) ?>
+                                        <?php } ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php } ?>
+            </div>
         <?php } ?>
+
+        <?php
+        // Its history, a day at a time, over the period picked (managedInstanceHistory())
+        $history_periods = [30 => '30 days', 90 => '90 days', 365 => '1 year'];
+        $history_days = intval($_GET['history'] ?? 30);
+        $history_days = isset($history_periods[$history_days]) ? $history_days : 30;
+        $history = managedInstanceHistory($row, $history_days);
+        $history_list = $history['days'];
+        $history_now = [];
+        foreach (array_reverse($history_list) as $history_day) {
+            if ($history_day['agents'] !== null) {
+                $history_now = $history_day;
+                break;
+            }
+        }
+        $history_column = function ($key) use ($history_list) {
+            return array_column($history_list, $key);
+        };
+        $history_labels = $history_column('label');
+        // Over a year the bars and the backup strip go by the week, so each stays readable
+        $history_weekly = count($history_list) > 120;
+        $history_bars = $history_list;
+        if ($history_weekly) {
+            $history_bars = [];
+            foreach (array_chunk($history_list, 7) as $week) {
+                $sum = function ($key) use ($week) {
+                    $values = array_filter(array_column($week, $key), function ($v) { return $v !== null; });
+                    return $values ? array_sum($values) : null;
+                };
+                $backups = array_filter(array_column($week, 'backup'), function ($v) { return $v !== null; });
+                $bucket = [
+                    'label' => $week[0]['label'],
+                    'title' => $week[0]['label'] . ' - ' . end($week)['label'],
+                    'errors' => $sum('errors'),
+                    'down' => $sum('down'),
+                    'backup' => !$backups ? null : (in_array('failed', $backups, true) ? 'failed' : (in_array('', $backups, true) ? '' : 'ok')),
+                    'made' => count(array_keys($backups, 'ok', true)),
+                    'heard' => count($backups),
+                ];
+                // Usage adds up over the week - but agents signed in is the most on any one day of it
+                foreach (MANAGED_USAGE_FIGURES as $figure) {
+                    $values = array_filter(array_column($week, $figure), function ($v) { return $v !== null; });
+                    $bucket[$figure] = !$values ? null : ($figure === 'agent_signins' ? max($values) : array_sum($values));
+                }
+                $history_bars[] = $bucket;
+            }
+        }
+        $bar_labels = array_column($history_bars, 'label');
+        $bar_period = $history_weekly ? ' that week' : '';
+        $history_block = function ($title, $figure, $body) {
+            return '<div class="col-md-6"><div class="fw-semibold small">' . escapeHtml($title) . '</div>'
+                . '<div class="small text-body-secondary mb-2">' . $figure . '</div>' . $body . '</div>';
+        };
+        $history_span = function ($seconds) {
+            $minutes = max(1, (int) round($seconds / 60));
+            if ($minutes < 90) {
+                return $minutes . ' minute' . ($minutes === 1 ? '' : 's');
+            }
+            $hours = round($minutes / 60, 1);
+            return $hours < 48 ? rtrim(rtrim(number_format($hours, 1), '0'), '.') . ' hours' : round($hours / 24) . ' days';
+        };
+        ?>
+
+        <!-- How it has done, day by day -->
+        <div class="card mb-3" id="history" data-managed-history>
+            <div class="card-header py-3">
+                <h3 class="card-title"><i class="fas fa-fw fa-chart-line me-2"></i>History</h3>
+                <?php if ($history['since']) { ?>
+                    <div class="card-tools">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Period">
+                            <?php foreach ($history_periods as $period_days => $period_label) { ?>
+                                <a class="btn btn-<?= $period_days === $history_days ? 'secondary' : 'outline-secondary' ?>" href="?id=<?= $instance_id ?>&history=<?= $period_days ?>#history"
+                                    <?= $period_days === $history_days ? 'aria-current="true"' : '' ?>><?= $period_label ?></a>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+            <?php if (!managedStatsReady()) { ?>
+                <div class="card-body text-body-secondary small">Its history needs this install's database update - apply it from Maintenance &gt; Update.</div>
+            <?php } elseif (!$history['since']) { ?>
+                <div class="card-body text-body-secondary small">Its history starts with its next check-in - a line a day of its agents, clients, storage, uptime, errors and backups, kept for good.</div>
+            <?php } else {
+                $since_shown = strtotime($history['since']) > strtotime('-' . ($history_days - 1) . ' days'); ?>
+                <div class="card-body">
+                    <?php if ($since_shown) { ?>
+                        <div class="small text-body-secondary mb-3"><i class="fas fa-fw fa-info-circle me-1"></i>Its history starts on <?= date('M j, Y', strtotime($history['since'])) ?>.</div>
+                    <?php } ?>
+                    <div class="row g-4">
+                        <?php
+                        // Agents, and seats taken with the invites, against the seat limit
+                        $series = [['label' => 'Agents', 'data' => $history_column('agents'), 'tone' => 'accent', 'fill' => true]];
+                        if (array_sum(array_map('intval', $history_column('invites'))) > 0) {
+                            $series[] = ['label' => 'With invites waiting', 'tone' => 'muted', 'data' => array_map(function ($d) {
+                                return $d['agents'] === null ? null : $d['agents'] + $d['invites'];
+                            }, $history_list)];
+                        }
+                        if (max(array_map('intval', $history_column('limit')) ?: [0]) > 0) {
+                            $series[] = ['label' => 'Seat limit', 'data' => array_map(function ($d) {
+                                return $d['limit'] ? $d['limit'] : null;
+                            }, $history_list), 'tone' => 'faint', 'dashed' => true];
+                        }
+                        $figure = $history_now ? intval($history_now['agents']) . ' agent' . (intval($history_now['agents']) === 1 ? '' : 's')
+                            . ($history_now['invites'] ? ', ' . intval($history_now['invites']) . ' invited' : '')
+                            . ($history_now['limit'] ? ' - ' . intval($history_now['limit']) . ' seats' : '') : '';
+                        echo $history_block('Agents', $figure, reportChart(['type' => 'line', 'labels' => $history_labels, 'series' => $series, 'format' => 'count'], 'sm', 'Agents by day'));
+
+                        // Clients
+                        $clients = array_values(array_filter($history_column('clients'), function ($v) { return $v !== null; }));
+                        $change = $clients ? end($clients) - $clients[0] : 0;
+                        $figure = $clients ? end($clients) . ' client' . (end($clients) === 1 ? '' : 's') . ($change ? ' - ' . ($change > 0 ? '+' : '') . $change . ' in this period' : '') : '';
+                        echo $history_block('Clients', $figure, reportChart(['type' => 'line', 'labels' => $history_labels, 'legend' => false,
+                            'series' => [['label' => 'Clients', 'data' => $history_column('clients'), 'tone' => 'accent', 'fill' => true]], 'format' => 'count'], 'sm', 'Clients by day'));
+
+                        // Storage - uploads and the database, in MB, or GB once it's 2 GB
+                        $unit = $history['unit'];
+                        $size = function ($mb) use ($unit) {
+                            return $mb === null ? null : round($unit === 'GB' ? $mb / 1024 : $mb, 1);
+                        };
+                        $figure = $history_now ? $size($history_now['uploads'] + $history_now['db']) . " $unit - " . $size($history_now['uploads']) . " $unit uploads, " . $size($history_now['db']) . " $unit database" : '';
+                        echo $history_block('Storage', $figure, reportChart(['type' => 'line', 'labels' => $history_labels, 'format' => 'number', 'series' => [
+                            ['label' => "Uploads ($unit)", 'data' => array_map($size, $history_column('uploads')), 'tone' => 'accent', 'fill' => true],
+                            ['label' => "Database ($unit)", 'data' => array_map($size, $history_column('db')), 'tone' => 'muted'],
+                        ]], 'sm', 'Storage by day'));
+
+                        // Uptime - the minutes each day it wasn't checking in, so the days it went quiet stand out
+                        $gaps_html = '';
+                        if ($history['gaps']) {
+                            $gaps_html .= '<ul class="list-unstyled small mt-2 mb-0" data-managed-gaps>';
+                            foreach (array_slice($history['gaps'], 0, 5) as $gap) {
+                                $same_day = date('Y-m-d', $gap['from']) === date('Y-m-d', $gap['to']);
+                                $gaps_html .= '<li class="d-flex gap-2"><i class="fas fa-fw fa-exclamation-circle text-danger-emphasis mt-1"></i><span>'
+                                    . ($gap['ongoing'] ? 'Since ' . date('M j, g:i A', $gap['from']) . ' - not checking in now'
+                                        : date('M j, g:i A', $gap['from']) . ' - ' . date($same_day ? 'g:i A' : 'M j, g:i A', $gap['to']))
+                                    . ' <span class="text-body-secondary">' . $history_span($gap['to'] - $gap['from']) . '</span></span></li>';
+                            }
+                            if (count($history['gaps']) > 5) {
+                                $gaps_html .= '<li class="text-body-secondary ps-4">and ' . (count($history['gaps']) - 5) . ' more</li>';
+                            }
+                            $gaps_html .= '</ul>';
+                        }
+                        $quiet = count($history['gaps']);
+                        $figure = $history['uptime'] !== null ? rtrim(rtrim(number_format($history['uptime'], 2), '0'), '.') . '% - '
+                            . ($quiet ? 'went quiet ' . ($quiet === 1 ? 'once' : "$quiet times") : 'never went quiet') : '';
+                        echo $history_block('Uptime', $figure, $quiet ? reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                            'series' => [['label' => "Minutes not checking in$bar_period", 'data' => array_column($history_bars, 'down'), 'tone' => 'danger']]], 'sm', 'Minutes not checking in') . $gaps_html
+                            : '<div class="small text-success-emphasis"><i class="fas fa-fw fa-check-circle me-1"></i>Checking in throughout - no gap of more than ' . MANAGED_OFFLINE_MINUTES . ' minutes.</div>');
+
+                        // Errors - each day's, and the categories they came under over the period
+                        $categories_html = '';
+                        if ($history['categories']) {
+                            $named = [];
+                            foreach (array_slice($history['categories'], 0, 5, true) as $category => $logged) {
+                                $named[] = escapeHtml($category !== '' ? $category : 'No category') . ' <span class="text-body-secondary">' . intval($logged) . '</span>';
+                            }
+                            $more = count($history['categories']) - count($named);
+                            $categories_html = '<div class="small mt-2">' . implode(' &middot; ', $named) . ($more > 0 ? " <span class=\"text-body-secondary\">and $more more</span>" : '') . '</div>';
+                        }
+                        $figure = $history['errors'] . ' error' . ($history['errors'] === 1 ? '' : 's') . ' in this period';
+                        echo $history_block('Errors', $figure, reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                            'series' => [['label' => "Errors$bar_period", 'data' => array_column($history_bars, 'errors'), 'tone' => 'accent']]], 'sm', 'Errors') . $categories_html);
+
+                        // Backups - a strip of the days (or weeks): made, failed, none, or nothing heard
+                        $backups = $history['backups'];
+                        $strip = '<div class="itflow-history-strip' . (count($history_bars) > 60 ? ' is-dense' : '') . '" role="img" aria-label="Backups: made on '
+                            . $backups['ok'] . ' of ' . $backups['days'] . ' days' . ($backups['failed'] ? ', failed on ' . $backups['failed'] : '') . '">';
+                        $words = ['ok' => ['bg-success', 'backed up'], 'failed' => ['bg-danger', 'a backup failed'], '' => ['bg-secondary bg-opacity-25', 'no backup']];
+                        foreach ($history_bars as $d) {
+                            [$class, $what] = $d['backup'] === null ? ['is-empty', 'nothing heard'] : $words[$d['backup']] ?? $words[''];
+                            $title = $history_weekly ? $d['title'] . ': ' . ($d['heard'] ? 'backed up on ' . $d['made'] . ' of ' . $d['heard'] . ' day' . ($d['heard'] === 1 ? '' : 's') . ($d['backup'] === 'failed' ? ', and one failed' : '') : $what)
+                                : $d['label'] . ': ' . $what;
+                            $strip .= '<span class="' . $class . '" title="' . escapeHtml($title) . '"></span>';
+                        }
+                        $strip .= '</div><div class="d-flex flex-wrap gap-3 small text-body-secondary mt-2">'
+                            . '<span><span class="itflow-history-key bg-success"></span>Backed up</span>'
+                            . '<span><span class="itflow-history-key bg-danger"></span>Failed</span>'
+                            . '<span><span class="itflow-history-key bg-secondary bg-opacity-25"></span>None</span></div>';
+                        $figure = 'Backed up on ' . $backups['ok'] . ' of ' . $backups['days'] . ' day' . ($backups['days'] === 1 ? '' : 's') . ($backups['failed'] ? ' - ' . $backups['failed'] . ' failed' : '');
+                        echo $history_block('Backups', $figure, $strip);
+                        ?>
+                    </div>
+
+                    <?php
+                    // How much it's used - counts only, as it reports them, by its own date
+                    $usage = $history['usage'];
+                    $total = function ($figure) use ($usage) {
+                        return number_format(intval($usage[$figure] ?? 0));
+                    };
+                    $bars = function ($figure) use ($history_bars) {
+                        return array_column($history_bars, $figure);
+                    };
+                    ?>
+                    <div class="d-flex flex-wrap align-items-baseline gap-2 border-top pt-3 mt-4 mb-3">
+                        <h4 class="h6 mb-0">Usage</h4>
+                        <span class="small text-body-secondary">How much it's used - counts only, by its own date</span>
+                    </div>
+                    <?php if ($usage === null) { ?>
+                        <div class="small text-body-secondary" data-managed-usage-none>Its usage shows once it runs a version that counts it.</div>
+                    <?php } else { ?>
+                        <div class="row g-4" data-managed-usage>
+                            <?php
+                            // Tickets opened and resolved
+                            $figure = $total('tickets_opened') . ' opened, ' . $total('tickets_resolved') . ' resolved' . (intval($usage['tickets_email'] ?? 0) ? ' - ' . $total('tickets_email') . ' came in by email' : '');
+                            echo $history_block('Tickets', $figure, reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'series' => [
+                                ['label' => "Opened$bar_period", 'data' => $bars('tickets_opened'), 'tone' => 'accent'],
+                                ['label' => "Resolved$bar_period", 'data' => $bars('tickets_resolved'), 'tone' => 'muted'],
+                            ]], 'sm', 'Tickets opened and resolved'));
+
+                            // Agents' replies
+                            echo $history_block('Replies', $total('replies') . ' replies and notes by agents', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                                'series' => [['label' => "Replies and notes$bar_period", 'data' => $bars('replies'), 'tone' => 'accent']]], 'sm', 'Replies by agents'));
+
+                            // Who signs in - agents each day, against the agents it has
+                            $figure = ($history['agents_30d'] !== null ? $history['agents_30d'] . ($history_now ? ' of ' . intval($history_now['agents']) : '') . ' agents signed in over the last 30 days' : 'Agents who signed in')
+                                . ' - ' . $total('portal_signins') . ' client portal sign-ins';
+                            echo $history_block('Signing in', $figure, reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                                'series' => [['label' => $history_weekly ? 'Most agents signed in on a day that week' : 'Agents signed in', 'data' => $bars('agent_signins'), 'tone' => 'accent']]], 'sm', 'Agents signed in'));
+
+                            // Invoices made and payments recorded
+                            echo $history_block('Billing', $total('invoices') . ' invoices made, ' . $total('payments') . ' payments recorded', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'series' => [
+                                ['label' => "Invoices$bar_period", 'data' => $bars('invoices'), 'tone' => 'accent'],
+                                ['label' => "Payments$bar_period", 'data' => $bars('payments'), 'tone' => 'muted'],
+                            ]], 'sm', 'Invoices and payments'));
+
+                            // Email sent, and what failed
+                            echo $history_block('Email', $total('emails_sent') . ' sent - ' . $total('emails_failed') . ' failed', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'series' => [
+                                ['label' => "Sent$bar_period", 'data' => $bars('emails_sent'), 'tone' => 'accent'],
+                                ['label' => "Failed$bar_period", 'data' => $bars('emails_failed'), 'tone' => 'danger'],
+                            ]], 'sm', 'Email sent and failed'));
+
+                            // API calls, and the keys making them
+                            $keys_html = '';
+                            if ($history['api_keys']) {
+                                $named = [];
+                                foreach (array_slice($history['api_keys'], 0, 5, true) as $name => $calls) {
+                                    $named[] = escapeHtml($name) . ' <span class="text-body-secondary">' . number_format($calls) . '</span>';
+                                }
+                                $more = count($history['api_keys']) - count($named);
+                                $keys_html = '<div class="small mt-2">' . implode(' &middot; ', $named) . ($more > 0 ? " <span class=\"text-body-secondary\">and $more more</span>" : '') . '</div>';
+                            }
+                            echo $history_block('API calls', $total('api_calls') . ' calls', reportChart(['type' => 'bar', 'labels' => $bar_labels, 'format' => 'count', 'legend' => false,
+                                'series' => [['label' => "Calls$bar_period", 'data' => $bars('api_calls'), 'tone' => 'accent']]], 'sm', 'API calls') . $keys_html);
+                            ?>
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+        </div>
 
         <!-- What it has been asked, and how that went -->
         <div class="card mb-3">
@@ -375,7 +713,7 @@ $size = function ($mb) {
                     <?= $fact('Clients', intval($report['clients'] ?? 0)) ?>
                     <?= $fact('Last backup', $when($backup['last_ok_at'] ?? null, 'None')) ?>
                     <?= $fact('Cron', empty($cron['enabled']) ? '<span class="text-danger-emphasis">Switched off</span>' : 'Last ran ' . $when($cron['last_dispatch_at'] ?? null)) ?>
-                    <?= $fact('Errors today', intval($report['errors_24h'] ?? 0) > 0 ? '<span class="text-warning-emphasis">' . intval($report['errors_24h']) . '</span>' : '0') ?>
+                    <?= $fact('Errors today', $errors_html) ?>
                     <?php if (!empty($disk['measured_at'])) { ?>
                         <?= $fact('Storage', $size($disk['uploads_mb'] ?? 0) . ' uploads<div class="text-body-secondary">' . $size($disk['db_mb'] ?? 0) . ' database</div>') ?>
                     <?php } ?>
@@ -406,3 +744,7 @@ $size = function ($mb) {
 
 <?php
 require_once "../includes/footer.php";
+// The History card's charts - drawn by the reports' chart code, after Chart.js in the footer
+if (!empty($history['since'])) { ?>
+    <script src="<?= staticFileUrl('/js/reports.js') ?>"></script>
+<?php }

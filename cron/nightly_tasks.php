@@ -193,7 +193,7 @@ mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_
 // delete the archive it was supposed to replace.
 backupRunRetention($mysqli);
 
-// Cleanup old logs - each kept for its own number of days, 0 for keep forever (Admin > Settings > Logs, functions/app_log.php)
+// Cleanup old logs - each kept for its own number of days, 0 for keep forever (Admin > Logs > Settings, functions/app_log.php)
 $log_retention = appLogRetention();
 
 // The audit log, and API key and AI use with it
@@ -502,14 +502,37 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
 
 /*
  * Payment reminders, on the schedule in the invoice settings (functions/billing_email.php,
- * billingReminderRules()): each open invoice whose day it is - before, on or after its due
- * date - gets one, to the client's primary and billing contacts, unless the client is left
- * out of reminders. One a recurring autopay will charge on its due date isn't reminded
- * before then. Agents hear about each one late, on its reminder days, and the late fee
- * still comes every 30 days late. At most one of each a day, however often this runs.
+ * billingReminderRules()), to the client's primary and billing contacts, unless the client is
+ * left out of reminders. Before and on its due date each invoice has its own; one a recurring
+ * autopay will charge on its due date isn't reminded before then. Once they are late, a
+ * client's invoices are reminded together: on the days of the oldest late one, one email lists
+ * everything they owe - or that invoice's own reminder, when it is the only one late. Agents
+ * hear about each one late, on its own reminder days, and the late fee still comes every 30
+ * days late. At most one of each a day, however often this runs.
  */
 $reminder_rules = billingReminderRules(true);
+$reminded_clients = [];
 if ($reminder_rules['enabled']) {
+
+    // One invoice's own reminder - emailed, texted, and written in its history
+    $remind_invoice = function (array $invoice, int $days, array $recipients) use ($reminder_rules) {
+        [$subject, $email] = billingInvoiceEmail($invoice, ['kind' => 'reminder']);
+        $attach = [];
+        if ($reminder_rules['attach_pdf'] && ($file = billingEmailPdf(billingPdf('invoice', $invoice)))) {
+            $attach[] = $file;
+        }
+        $sent = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
+        // Texted too, in the morning, to those of them who agreed to texts (functions/sms.php)
+        $texted = smsInvoiceNotify($invoice, 'reminder', $recipients);
+        billingLog('invoice', intval($invoice['invoice_id']), $invoice['invoice_status'], 'Reminder emailed to ' . implode(', ', $sent) . ' - ' . billingReminderWhen($days) . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
+    };
+    // Reminded already today, or tried and couldn't be
+    $reminded_today = function (int $invoice_id) {
+        return cronInvoiceHistoryToday($invoice_id, 'Reminder emailed') || cronInvoiceHistoryToday($invoice_id, 'Reminder not sent') || cronInvoiceHistoryToday($invoice_id, 'Cron Emailed Overdue Invoice');
+    };
+
+    // Late invoices by client, oldest first - reminded together below
+    $late_invoices = [];
 
     $earliest = min(0, $reminder_rules['days'] ? min($reminder_rules['days']) : 0);
     $sql_reminders = mysqli_query($mysqli, "SELECT invoice_id, DATEDIFF(CURDATE(), invoice_due) AS days_late, client_reminders,
@@ -546,17 +569,21 @@ if ($reminder_rules['enabled']) {
             }
         }
 
+        if ($days > 0) {
+            $late_invoices[intval($invoice['client_id'])][] = ['invoice' => $invoice, 'days' => $days, 'reminders' => intval($row['client_reminders'])];
+        }
+
         if (!billingReminderOnDay($days, $reminder_rules)) {
             continue;
         }
 
         if ($days > 0) {
             appNotify("Invoice Overdue", escapeSql("Invoice $number for {$invoice['client_name']} with a balance of " . billingMoney($balance, $invoice['invoice_currency_code']) . " is overdue by $days days"), "/agent/invoice.php?invoice_id=$invoice_id", intval($invoice['client_id']));
+            continue;
         }
 
-        // Left out, charged by autopay on the day, already reminded today, or no mail
-        if (!intval($row['client_reminders']) || ($days <= 0 && intval($row['autopay'])) || empty($config_smtp_provider)
-            || cronInvoiceHistoryToday($invoice_id, 'Reminder emailed') || cronInvoiceHistoryToday($invoice_id, 'Reminder not sent') || cronInvoiceHistoryToday($invoice_id, 'Cron Emailed Overdue Invoice')) {
+        // Before or on its due date - left out, charged by autopay on the day, already reminded today, or no mail
+        if (!intval($row['client_reminders']) || intval($row['autopay']) || empty($config_smtp_provider) || $reminded_today($invoice_id)) {
             continue;
         }
 
@@ -565,15 +592,52 @@ if ($reminder_rules['enabled']) {
             billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Reminder not sent - no primary or billing contact with an email address');
             continue;
         }
-        [$subject, $email] = billingInvoiceEmail($invoice, ['kind' => 'reminder']);
+        $remind_invoice($invoice, $days, $recipients);
+    }
+
+    // Late: one reminder a client, on the days of its oldest late invoice, listing all they owe
+    foreach ($late_invoices as $client_id => $invoices) {
+        $oldest_days = max(array_column($invoices, 'days'));
+        if (!billingReminderOnDay($oldest_days, $reminder_rules) || !$invoices[0]['reminders'] || empty($config_smtp_provider)) {
+            continue;
+        }
+        foreach ($invoices as $late) {
+            if ($reminded_today(intval($late['invoice']['invoice_id']))) {
+                continue 2;
+            }
+        }
+        $recipients = billingEmailRecipients($client_id);
+        if (!$recipients) {
+            foreach ($invoices as $late) {
+                billingLog('invoice', intval($late['invoice']['invoice_id']), $late['invoice']['invoice_status'], 'Reminder not sent - no primary or billing contact with an email address');
+            }
+            continue;
+        }
+
+        // Just the one late - its own reminder, as before
+        $statement = count($invoices) > 1 ? billingStatement($client_id) : null;
+        $statement_late = $statement ? count(array_filter($statement['invoices'], function ($invoice) {
+            return $invoice['balance'] > 0 && $invoice['days'] > 0;
+        })) : 0;
+        if ($statement_late < 2) {
+            $remind_invoice($invoices[0]['invoice'], $invoices[0]['days'], $recipients);
+            continue;
+        }
+
+        [$subject, $email] = billingOverdueEmail($statement);
         $attach = [];
-        if ($reminder_rules['attach_pdf'] && ($file = billingEmailPdf(billingPdf('invoice', $invoice)))) {
+        if ($reminder_rules['attach_pdf'] && ($file = billingEmailPdf(billingStatementPdf($statement)))) {
             $attach[] = $file;
         }
         $sent = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
-        // Texted too, in the morning, to those of them who agreed to texts (functions/sms.php)
-        $texted = smsInvoiceNotify($invoice, 'reminder', $recipients);
-        billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Reminder emailed to ' . implode(', ', $sent) . ' - ' . billingReminderWhen($days) . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
+        $texted = smsClientOverdueNotify($statement, $recipients);
+        $others = count($invoices) - 1;
+        foreach ($invoices as $late) {
+            billingLog('invoice', intval($late['invoice']['invoice_id']), $late['invoice']['invoice_status'], 'Reminder emailed to ' . implode(', ', $sent) . ' - ' . billingReminderWhen($late['days'])
+                . ", in one reminder with the client's $others other late invoice" . ($others === 1 ? '' : 's') . ($texted ? ' - and texted to ' . implode(', ', $texted) : ''));
+        }
+        // It lists all they owe, so no monthly statement as well today
+        $reminded_clients[$client_id] = true;
     }
 
     // Statements each month, on the day in the invoice settings, to every client with a balance
@@ -584,8 +648,11 @@ if ($reminder_rules['enabled']) {
         while ($row = mysqli_fetch_assoc($sql_statements)) {
             $client_id = intval($row['client_id']);
             $already = mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM logs WHERE log_type = 'Client' AND log_action = 'Statement' AND log_client_id = $client_id AND log_created_at >= CURDATE() LIMIT 1"));
+            if ($already || isset($reminded_clients[$client_id])) {
+                continue;
+            }
             $statement = billingStatement($client_id);
-            if ($already || $statement['total'] <= 0) {
+            if ($statement['total'] <= 0) {
                 continue;
             }
             $sent = billingStatementSend($statement, null, ['attach' => $reminder_rules['attach_pdf']]);

@@ -99,7 +99,7 @@ echo settingsPageStart('invoice');
                             </div>
                         </div>
                     </div>
-                    <div class="itflow-settings-note mt-3"><i class="fas fa-fw fa-bell me-1 text-body-secondary"></i>Reminders go <strong data-reminder-summary><?= escapeHtml(billingReminderScheduleText($reminder_rules)) ?></strong>. An invoice a recurring autopay charges on its due date isn't reminded before then.</div>
+                    <div class="itflow-settings-note mt-3"><i class="fas fa-fw fa-bell me-1 text-body-secondary"></i>Reminders go <strong data-reminder-summary><?= escapeHtml(billingReminderScheduleText($reminder_rules)) ?></strong>. An invoice a recurring autopay charges on its due date isn't reminded before then. A client with more than one invoice late gets one reminder listing all they owe, on the days of the oldest.</div>
                 </div>
 
                 <div class="row g-3 align-items-start itflow-settings-field">

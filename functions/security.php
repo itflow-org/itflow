@@ -54,30 +54,35 @@ function generateTotpSecret() {
     return $key;
 }
 
-// Called during initial setup
+/*
+ * A user's, API key's or invite's copy of the vault's master key, sealed under their password:
+ * "v2:", then base64 of a 16 byte salt, a 12 byte nonce, the 16 byte GCM tag and the
+ * ciphertext - AES-256-GCM, under PBKDF2-SHA256 of the password at VAULT_WRAP_ITERATIONS with
+ * its full 32 bytes. A copy without the prefix was made before (16 hex characters of a 100,000
+ * round PBKDF2 under AES-128-CBC - 64 bits): it still opens, and moves to this one at its next
+ * sign-in (vaultSignIn()) or API call (apiDecryptPasswordOpens()).
+ */
+define('VAULT_WRAP_FORMAT', 'v2:');
+define('VAULT_WRAP_ITERATIONS', 600000);
+
+// Called during initial setup, for new users, invites and when moving a copy to the current format
 // Encrypts the master key with the user's password
 function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
-    $iv = randomString();
-    $salt = randomString();
-
-    //Generate 128-bit (16 byte/char) kdhash of the users password
-    $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
-
-    //Encrypt the master key with the users kdf'd hash and the IV
-    $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
-
-    return $salt . $iv . $ciphertext;
+    $salt = random_bytes(16);
+    $nonce = random_bytes(12);
+    $key = hash_pbkdf2('sha256', (string) $user_password, $salt, VAULT_WRAP_ITERATIONS, 32, true);
+    $tag = '';
+    $ciphertext = openssl_encrypt((string) $site_encryption_master_key, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag, VAULT_WRAP_FORMAT);
+    return VAULT_WRAP_FORMAT . base64_encode($salt . $nonce . $tag . $ciphertext);
 }
 
 /*
  * For additional users / password changes (and now the API)
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
+ * False when this session's vault doesn't open - a copy of nothing would lock them out of it.
 */
 function encryptUserSpecificKey($user_password) {
-    $iv = randomString();
-    $salt = randomString();
-
     // Get the session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'] ?? '';
     $user_encryption_session_iv = base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
@@ -85,29 +90,110 @@ function encryptUserSpecificKey($user_password) {
 
     // Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+    if (!is_string($site_encryption_master_key) || $site_encryption_master_key === '') {
+        return false;
+    }
 
-    // Generate 128-bit (16 byte/char) kdhash of the users (new) password
-    $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
-
-    // Encrypt the master key with the users kdf'd hash and the IV
-    $ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
-
-    return $salt . $iv . $ciphertext;
+    return setupFirstUserSpecificKey($user_password, $site_encryption_master_key);
 }
 
 // Given a ciphertext (incl. IV) and the user's (or API key) password, returns the site master key
-// Ran at login, to facilitate generateUserSessionKey
+// Ran at login, to facilitate generateUserSessionKey - and on API calls, once a call (each key is slow to derive by design)
 function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
-    //Get the IV, salt and ciphertext
-    $salt = substr($user_encryption_ciphertext, 0, 16);
-    $iv = substr($user_encryption_ciphertext, 16, 16);
-    $ciphertext = substr($user_encryption_ciphertext, 32);
+    static $opened = [];
+    $user_encryption_ciphertext = (string) $user_encryption_ciphertext;
+    $memo = hash('sha256', $user_encryption_ciphertext . "\0" . $user_password);
+    if (isset($opened[$memo])) {
+        return $opened[$memo];
+    }
 
-    //Generate 128-bit (16 byte/char) kdhash of the users password
-    $user_password_kdhash = hash_pbkdf2('sha256', $user_password, $salt, 100000, 16);
+    if (strpos($user_encryption_ciphertext, VAULT_WRAP_FORMAT) === 0) {
+        $raw = base64_decode(substr($user_encryption_ciphertext, strlen(VAULT_WRAP_FORMAT)), true);
+        if ($raw === false || strlen($raw) < 45) {
+            return false;
+        }
+        $key = hash_pbkdf2('sha256', (string) $user_password, substr($raw, 0, 16), VAULT_WRAP_ITERATIONS, 32, true);
+        $master = openssl_decrypt(substr($raw, 44), 'aes-256-gcm', $key, OPENSSL_RAW_DATA, substr($raw, 16, 12), substr($raw, 28, 16), VAULT_WRAP_FORMAT);
+    } else {
+        //Get the IV, salt and ciphertext
+        $salt = substr($user_encryption_ciphertext, 0, 16);
+        $iv = substr($user_encryption_ciphertext, 16, 16);
+        $ciphertext = substr($user_encryption_ciphertext, 32);
 
-    //Use this hash to get the original/master key
-    return openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+        //Generate 128-bit (16 byte/char) kdhash of the users password
+        $user_password_kdhash = hash_pbkdf2('sha256', (string) $user_password, $salt, 100000, 16);
+
+        //Use this hash to get the original/master key
+        $master = openssl_decrypt($ciphertext, 'aes-128-cbc', $user_password_kdhash, 0, $iv);
+    }
+
+    if (is_string($master) && $master !== '') {
+        $opened[$memo] = $master;
+    }
+    return $master;
+}
+
+/** A copy of the master key in the format from before (setupFirstUserSpecificKey()) - '' is none at all. */
+function vaultWrapIsLegacy($ciphertext) {
+    $ciphertext = (string) $ciphertext;
+    return $ciphertext !== '' && strpos($ciphertext, VAULT_WRAP_FORMAT) !== 0;
+}
+
+/*
+ * Signing in, with the password in hand: open the user's copy of the master key, move it to the
+ * current format when it is in the old one - written only once the new copy is checked to open,
+ * and only over the copy it read - and start the vault session (generateUserSessionKey()).
+ * Whether the vault opened.
+ */
+function vaultSignIn($user_id, $ciphertext, $password) {
+    global $mysqli;
+    if (empty($ciphertext)) {
+        return false;
+    }
+    $master = decryptUserSpecificKey($ciphertext, $password);
+    if (!is_string($master) || $master === '') {
+        return false;
+    }
+    if (vaultWrapIsLegacy($ciphertext)) {
+        $rewrapped = setupFirstUserSpecificKey($password, $master);
+        if (decryptUserSpecificKey($rewrapped, $password) === $master) {
+            mysqli_query($mysqli, "UPDATE users SET user_specific_encryption_ciphertext = '" . escapeSql($rewrapped) . "'
+                WHERE user_id = " . intval($user_id) . " AND user_specific_encryption_ciphertext = '" . escapeSql($ciphertext) . "'");
+        }
+    }
+    generateUserSessionKey($master);
+    return true;
+}
+
+/*
+ * The copies of the master key, by format (Admin > Backup): 'old' - the agents' (id, name, email)
+ * and API keys' (id, name) still in the format from before - and how many there are in all and
+ * in the current one.
+ */
+function vaultCopies() {
+    global $mysqli;
+    $prefix = escapeSql(VAULT_WRAP_FORMAT);
+    $copies = ['users' => [], 'keys' => [], 'total' => 0, 'current' => 0];
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_email, user_specific_encryption_ciphertext LIKE '$prefix%' AS current FROM users
+        WHERE user_type = 1 AND user_specific_encryption_ciphertext <> '' ORDER BY user_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $copies['total']++;
+        if (intval($row['current'])) {
+            $copies['current']++;
+        } else {
+            $copies['users'][] = $row;
+        }
+    }
+    $sql = mysqli_query($mysqli, "SELECT api_key_id, api_key_name, api_key_decrypt_hash LIKE '$prefix%' AS current FROM api_keys WHERE api_key_decrypt_hash <> '' ORDER BY api_key_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $copies['total']++;
+        if (intval($row['current'])) {
+            $copies['current']++;
+        } else {
+            $copies['keys'][] = $row;
+        }
+    }
+    return $copies;
 }
 
 /*
@@ -181,6 +267,24 @@ function encryptCredentialEntry($credential_password_cleartext) {
     return $iv . $ciphertext;
 }
 
+/*
+ * Does this session's vault open to a master key that looks right - the 16 characters an
+ * install's master key is? A session cookie that doesn't match decrypts to nothing or, now and
+ * then, to rubbish of another length, and anything encrypted under that could never be read
+ * back. For work on many credentials at once (credentialOtpVaultStored()), which is left
+ * undone rather than risked.
+ */
+function vaultSessionOpens() {
+    $ciphertext = $_SESSION['user_encryption_session_ciphertext'] ?? '';
+    $iv = base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
+    $key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
+    if ($ciphertext === '' || strlen($iv) !== 16 || $key === '') {
+        return false;
+    }
+    $master = openssl_decrypt($ciphertext, 'aes-128-cbc', $key, 0, $iv);
+    return is_string($master) && strlen($master) === 16;
+}
+
 function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
     // Split the Credential entry (username/password) into IV and Ciphertext
@@ -200,8 +304,20 @@ function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash
  * that could never be read again.
  */
 function apiDecryptPasswordOpens($api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
+    global $mysqli;
     $key = decryptUserSpecificKey((string) $api_key_decrypt_hash, (string) $api_key_decrypt_password);
-    return is_string($key) && $key !== '';
+    if (!is_string($key) || $key === '') {
+        return false;
+    }
+    // The key's copy of the master key in the format from before - moved to the current one now its password is here,
+    // once the new copy is checked to open, and only over the copy it read
+    if (vaultWrapIsLegacy($api_key_decrypt_hash)) {
+        $rewrapped = setupFirstUserSpecificKey((string) $api_key_decrypt_password, $key);
+        if (decryptUserSpecificKey($rewrapped, (string) $api_key_decrypt_password) === $key) {
+            mysqli_query($mysqli, "UPDATE api_keys SET api_key_decrypt_hash = '" . escapeSql($rewrapped) . "' WHERE api_key_decrypt_hash = '" . escapeSql((string) $api_key_decrypt_hash) . "'");
+        }
+    }
+    return true;
 }
 
 function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {

@@ -1381,7 +1381,7 @@ CREATE TABLE `credentials` (
   `credential_uri_2` varchar(500) DEFAULT NULL,
   `credential_username` varchar(500) DEFAULT NULL,
   `credential_password` varchar(500) DEFAULT NULL,
-  `credential_otp_secret` varchar(200) DEFAULT NULL,
+  `credential_otp_secret` varchar(500) DEFAULT NULL,
   `credential_note` text DEFAULT NULL,
   `credential_favorite` tinyint(1) NOT NULL DEFAULT 0,
   `credential_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -2305,6 +2305,69 @@ CREATE TABLE `managed_instance_commands` (
   `managed_command_done_at` datetime DEFAULT NULL,
   PRIMARY KEY (`managed_command_id`),
   KEY `managed_command_instance_id` (`managed_command_instance_id`,`managed_command_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `managed_instance_issues`
+--
+
+DROP TABLE IF EXISTS `managed_instance_issues`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instance_issues` (
+  `managed_issue_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_issue_instance_id` int(11) NOT NULL,
+  `managed_issue_key` varchar(30) NOT NULL,
+  `managed_issue_tone` varchar(20) NOT NULL DEFAULT '',
+  `managed_issue_text` varchar(255) NOT NULL DEFAULT '',
+  `managed_issue_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `managed_issue_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `managed_issue_cleared_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`managed_issue_id`),
+  KEY `managed_issue_instance` (`managed_issue_instance_id`,`managed_issue_cleared_at`),
+  KEY `managed_issue_ticket_id` (`managed_issue_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `managed_instance_stats`
+--
+
+DROP TABLE IF EXISTS `managed_instance_stats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `managed_instance_stats` (
+  `managed_stat_id` int(11) NOT NULL AUTO_INCREMENT,
+  `managed_stat_instance_id` int(11) NOT NULL,
+  `managed_stat_date` date NOT NULL,
+  `managed_stat_agents` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_invites` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_seat_limit` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_clients` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_uploads_mb` decimal(12,1) NOT NULL DEFAULT 0.0,
+  `managed_stat_db_mb` decimal(12,1) NOT NULL DEFAULT 0.0,
+  `managed_stat_errors` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_error_categories` text DEFAULT NULL,
+  `managed_stat_backup` varchar(10) NOT NULL DEFAULT '',
+  `managed_stat_version` varchar(20) NOT NULL DEFAULT '',
+  `managed_stat_checkins` int(11) NOT NULL DEFAULT 0,
+  `managed_stat_outages` text DEFAULT NULL,
+  `managed_stat_tickets_opened` int(11) DEFAULT NULL,
+  `managed_stat_tickets_email` int(11) DEFAULT NULL,
+  `managed_stat_tickets_resolved` int(11) DEFAULT NULL,
+  `managed_stat_replies` int(11) DEFAULT NULL,
+  `managed_stat_invoices` int(11) DEFAULT NULL,
+  `managed_stat_payments` int(11) DEFAULT NULL,
+  `managed_stat_agent_signins` int(11) DEFAULT NULL,
+  `managed_stat_portal_signins` int(11) DEFAULT NULL,
+  `managed_stat_emails_sent` int(11) DEFAULT NULL,
+  `managed_stat_emails_failed` int(11) DEFAULT NULL,
+  `managed_stat_api_calls` int(11) DEFAULT NULL,
+  `managed_stat_api_keys` text DEFAULT NULL,
+  `managed_stat_agents_30d` int(11) DEFAULT NULL,
+  PRIMARY KEY (`managed_stat_id`),
+  UNIQUE KEY `managed_stat_day` (`managed_stat_instance_id`,`managed_stat_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4105,6 +4168,8 @@ CREATE TABLE `settings` (
   `config_update_details` mediumtext DEFAULT NULL,
   `config_manager_keys` text DEFAULT NULL,
   `config_managed` mediumtext DEFAULT NULL,
+  `config_manager_ticket_level` varchar(20) NOT NULL DEFAULT '',
+  `config_manager_ticket_category_id` int(11) NOT NULL DEFAULT 0,
   `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
   `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_alert_failures` int(11) NOT NULL DEFAULT 10,

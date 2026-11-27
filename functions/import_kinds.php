@@ -769,6 +769,10 @@ function importCredentialRow(array $row, $client_id, $existing_id, $write) {
             if ($otp === false) {
                 return ['error' => "That TOTP isn't a 2FA secret - use the key the site shows under \"can't scan the code\", or the otpauth:// link."];
             }
+            $otp = credentialOtpEncrypt($otp);
+            if ($otp === false) {
+                return ['error' => 'Your vault session has expired, so the login could not be encrypted - sign out and back in, then import.'];
+            }
             $set[] = "credential_otp_secret = '" . escapeSql($otp) . "'";
         }
         foreach (['username', 'password'] as $key) {

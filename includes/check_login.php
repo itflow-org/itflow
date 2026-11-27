@@ -15,3 +15,7 @@ managedRequestGuard('agent');
 
 // The demo - what visitors can't change there (functions/demo.php)
 demoModeGuard();
+
+// 2FA keys saved before they were kept encrypted - encrypted with this agent's vault, once a
+// session until none are left (functions/credential.php)
+credentialOtpVaultStored();

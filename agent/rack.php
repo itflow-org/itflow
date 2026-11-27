@@ -179,7 +179,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-columns me-2 text-secondary"></i>Elevation</h3>
                     <span class="small text-body-secondary d-print-none">
                         <?php if ($can_edit && !$rack_archived_at) { ?>
-                            Click an empty U to add something there, or drag an item to move it
+                            Click an empty U to add something there, drag an item to move it, or use an asset's pen to edit or remove it
                         <?php } ?>
                     </span>
                 </div>

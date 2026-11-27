@@ -36,9 +36,24 @@ const MANAGED_ENROLL_DAYS = 7;
 /* No check-in for this long and the manager calls an instance offline */
 const MANAGED_OFFLINE_MINUTES = 10;
 
+// How long a problem lasts before it opens a ticket - so a blip doesn't (managerIssueTickets())
+const MANAGED_ISSUE_GRACE_MINUTES = 10;
+
+// The usage figures an instance counts each day (managedUsage()), each a managed_instance_stats column
+const MANAGED_USAGE_FIGURES = ['tickets_opened', 'tickets_email', 'tickets_resolved', 'replies', 'invoices', 'payments',
+    'agent_signins', 'portal_signins', 'emails_sent', 'emails_failed', 'api_calls'];
+
 /* A support sign-in link works this long; the session it opens, this long */
 const MANAGED_SUPPORT_LINK_SECONDS = 120;
 const MANAGED_SUPPORT_SESSION_HOURS = 2;
+
+/*
+ * How a check-in's report can travel: as one base64url string of its JSON, for a manager that
+ * says it reads that (report_encoding in its answers). A web application firewall in front of a
+ * manager - ModSecurity's Core Rule Set, say - reads the plain report's cron command
+ * (/usr/bin/php ... cron.php) and any error text in it as an attack and answers 403.
+ */
+const MANAGED_REPORT_ENCODING = 'base64url';
 
 /* The cron jobs that keep running while an instance is read-only or suspended */
 const MANAGED_KEEP_JOBS = [
@@ -155,8 +170,10 @@ function managedHttpJson(string $url, array $body, array $headers = []): array
  *   state                                   what the manager last set (managedState())
  *   support_user_id                         the user support signs in as
  *   last_checkin_at, last_error             how the last check-in went
+ *   report_encoding                         how the manager reads a report - 'base64url', or '' for plain JSON
  *   acks                                    answers to commands, sent with the next check-in
  *   metrics                                 disk and database size, measured every half hour
+ *   usage                                   how much it was used today and yesterday, counted every ten minutes (managedUsage())
  *   white_label_applied                     the key the manager put in, if it did
  *   nonces                                  support links already used, until they expire
  */
@@ -329,6 +346,8 @@ function managedEnroll(string $code, string $self_url, &$error = ''): bool
         'self_url' => rtrim($self_url, '/'),
         'connected_at' => date('Y-m-d H:i:s'),
         'state' => is_array($json['state'] ?? null) ? $json['state'] : [],
+        // So the first check-in, just below, is already sent the way the manager reads it
+        'report_encoding' => ($json['report_encoding'] ?? '') === MANAGED_REPORT_ENCODING ? MANAGED_REPORT_ENCODING : '',
     ]);
     managedApplyState();
 
@@ -429,9 +448,87 @@ function managedDirMb(string $dir): float
 }
 
 /*
+ * How much this ITFlow was used today and yesterday, by its own date - counts only, never what
+ * any of it says: tickets opened (and those by email) and resolved, agents' replies, invoices
+ * made, payments recorded, agents who signed in (not the support user) and client portal
+ * sign-ins, emails sent and failed, and API calls - in all, and under each key's name. With
+ * them, how many agents signed in over the last 30 days. ['days' => [date => counts],
+ * 'agents_30d' => n] - each part that can't be counted (a table not there yet) left out.
+ */
+function managedUsage(): array
+{
+    global $mysqli;
+
+    $since = date('Y-m-d', strtotime('-1 day'));
+    $days = [date('Y-m-d') => [], $since => []];
+    $support = managedSupportUserId();
+    $not_support = $support ? " AND log_user_id <> $support" : '';
+    // Each count, by day - a query giving the day and its figures, each figure under its key
+    $count = function (string $sql, array $keys) use ($mysqli, &$days) {
+        try {
+            $result = mysqli_query($mysqli, $sql);
+            while ($result && ($row = mysqli_fetch_row($result))) {
+                if (isset($days[$row[0]])) {
+                    foreach ($keys as $i => $key) {
+                        $days[$row[0]][$key] = intval($row[$i + 1]);
+                    }
+                }
+            }
+            // A day with none is 0, not missing
+            foreach ($days as $day => $figures) {
+                foreach ($keys as $key) {
+                    $days[$day][$key] = $days[$day][$key] ?? 0;
+                }
+            }
+        } catch (Throwable $e) {
+            // Not counted - left out
+        }
+    };
+    $count("SELECT DATE(ticket_created_at) d, COUNT(*), SUM(ticket_source = 'Email') FROM tickets WHERE ticket_created_at >= '$since' GROUP BY d", ['tickets_opened', 'tickets_email']);
+    $count("SELECT DATE(ticket_resolved_at) d, COUNT(*) FROM tickets WHERE ticket_resolved_at >= '$since' GROUP BY d", ['tickets_resolved']);
+    $count("SELECT DATE(ticket_reply_created_at) d, COUNT(*) FROM ticket_replies WHERE ticket_reply_by > 0 AND ticket_reply_type <> 'Client' AND ticket_reply_created_at >= '$since' GROUP BY d", ['replies']);
+    $count("SELECT DATE(invoice_created_at) d, COUNT(*) FROM invoices WHERE invoice_created_at >= '$since' GROUP BY d", ['invoices']);
+    $count("SELECT DATE(payment_created_at) d, COUNT(*) FROM payments WHERE payment_created_at >= '$since' GROUP BY d", ['payments']);
+    $count("SELECT DATE(log_created_at) d, COUNT(DISTINCT log_user_id) FROM logs WHERE log_type = 'Login' AND log_action = 'Success' AND log_created_at >= '$since'$not_support GROUP BY d", ['agent_signins']);
+    $count("SELECT DATE(log_created_at) d, COUNT(*) FROM logs WHERE log_type = 'Client Login' AND log_action = 'Success' AND log_created_at >= '$since' GROUP BY d", ['portal_signins']);
+    $count("SELECT DATE(email_sent_at) d, COUNT(*) FROM email_queue WHERE email_status = 3 AND email_sent_at >= '$since' GROUP BY d", ['emails_sent']);
+    $count("SELECT DATE(email_failed_at) d, COUNT(*) FROM email_queue WHERE email_status = 2 AND email_failed_at >= '$since' GROUP BY d", ['emails_failed']);
+
+    // API calls, in all and under each key's name - the ten most used
+    try {
+        $result = mysqli_query($mysqli, "SELECT api_key_usage_date, COALESCE(api_key_name, 'A deleted key'), SUM(api_key_usage_calls) AS calls FROM api_key_usage
+            LEFT JOIN api_keys ON api_key_id = api_key_usage_key_id WHERE api_key_usage_date >= '$since' GROUP BY api_key_usage_date, api_key_usage_key_id ORDER BY calls DESC");
+        foreach ($days as $day => $figures) {
+            $days[$day]['api_calls'] = 0;
+            $days[$day]['api_keys'] = [];
+        }
+        while ($result && ($row = mysqli_fetch_row($result))) {
+            if (isset($days[$row[0]])) {
+                $days[$row[0]]['api_calls'] += intval($row[2]);
+                if (count($days[$row[0]]['api_keys']) < 10) {
+                    $name = mb_substr((string) $row[1], 0, 100);
+                    $days[$row[0]]['api_keys'][$name] = ($days[$row[0]]['api_keys'][$name] ?? 0) + intval($row[2]);
+                }
+            }
+        }
+        foreach ($days as $day => $figures) {
+            $days[$day]['api_keys'] = (object) $days[$day]['api_keys'];
+        }
+    } catch (Throwable $e) {
+        // No API usage table yet - left out
+    }
+
+    $agents_30d = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(DISTINCT log_user_id) FROM logs
+        WHERE log_type = 'Login' AND log_action = 'Success' AND log_created_at > NOW() - INTERVAL 30 DAY$not_support"))[0] ?? 0);
+
+    return ['days' => $days, 'agents_30d' => $agents_30d];
+}
+
+/*
  * How this ITFlow is doing, for its manager - versions, updates, cron, backups, errors,
- * agents against the seat limit, and disk and database size (measured every half hour,
- * as walking the uploads folder isn't free). Times carry their offset (managedIsoTime()).
+ * agents against the seat limit and who they are, disk and database size (measured every
+ * half hour, as walking the uploads folder isn't free), and how much it is used (counted every
+ * ten minutes - managedUsage()). Times carry their offset (managedIsoTime()).
  */
 function managedReport(): array
 {
@@ -462,7 +559,51 @@ function managedReport(): array
         WHERE backup_status IN ('Complete', 'Failed') ORDER BY backup_created_at DESC LIMIT 1")) ?: [];
     $backup_ok = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(backup_completed_at) FROM backups WHERE backup_status = 'Complete'"))[0] ?? null;
     $errors = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM app_logs WHERE app_log_type = 'error' AND app_log_created_at > NOW() - INTERVAL 1 DAY"))[0] ?? 0);
+    // The categories they were logged under, the most first - names only, never what they say,
+    // which can hold client details (a mail error has the address and subject)
+    $error_categories = [];
+    if ($errors) {
+        $result = mysqli_query($mysqli, "SELECT COALESCE(app_log_category, '') AS category, COUNT(*) AS logged FROM app_logs
+            WHERE app_log_type = 'error' AND app_log_created_at > NOW() - INTERVAL 1 DAY GROUP BY category ORDER BY logged DESC, category ASC LIMIT 10");
+        while ($category = mysqli_fetch_assoc($result)) {
+            $error_categories[mb_substr((string) $category['category'], 0, 100)] = intval($category['logged']);
+        }
+    }
     $clients = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM clients WHERE client_archived_at IS NULL AND client_lead = 0"))[0] ?? 0);
+
+    // Who holds the seats - the active agents (not the support user, which takes none), then the
+    // invites waiting in date - as getAgentSeatsTaken() counts them
+    $agent_list = [];
+    $support_user_id = managedSupportUserId();
+    $service = function_exists('serviceAccountsReady') && serviceAccountsReady();
+    $result = mysqli_query($mysqli, "SELECT user_name, user_email, user_token, role_name" . ($service ? ', user_service_account' : '') . ",
+            (SELECT MAX(log_created_at) FROM logs WHERE log_user_id = users.user_id AND log_type = 'Login' AND log_action = 'Success') AS last_login
+        FROM users LEFT JOIN user_roles ON role_id = user_role_id
+        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL" . ($support_user_id ? " AND user_id <> $support_user_id" : '') . "
+        ORDER BY user_name ASC LIMIT 500");
+    while ($user = mysqli_fetch_assoc($result)) {
+        $agent_list[] = [
+            'name' => mb_substr((string) $user['user_name'], 0, 120),
+            'email' => mb_substr((string) $user['user_email'], 0, 200),
+            'role' => mb_substr((string) ($user['role_name'] ?? ''), 0, 100),
+            'mfa' => trim((string) ($user['user_token'] ?? '')) !== '',
+            'service' => !empty($user['user_service_account']),
+            'last_login' => managedIsoTime($user['last_login']),
+        ];
+    }
+    if (function_exists('userInvitesReady') && userInvitesReady()) {
+        $result = mysqli_query($mysqli, "SELECT invite_name, invite_email, role_name, invite_expires_at FROM user_invites LEFT JOIN user_roles ON role_id = invite_role_id
+            WHERE invite_accepted_at IS NULL AND invite_cancelled_at IS NULL AND invite_expires_at > NOW() ORDER BY invite_created_at ASC LIMIT 500");
+        while ($invite = mysqli_fetch_assoc($result)) {
+            $agent_list[] = [
+                'name' => mb_substr((string) $invite['invite_name'], 0, 120),
+                'email' => mb_substr((string) $invite['invite_email'], 0, 200),
+                'role' => mb_substr((string) ($invite['role_name'] ?? ''), 0, 100),
+                'invited' => true,
+                'expires_at' => managedIsoTime($invite['invite_expires_at']),
+            ];
+        }
+    }
     $company = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1"))[0] ?? '');
 
     // Disk and database size, every half hour
@@ -471,6 +612,14 @@ function managedReport(): array
         $db_mb = mysqli_fetch_row(mysqli_query($mysqli, "SELECT ROUND(SUM(data_length + index_length) / 1048576, 1) FROM information_schema.TABLES WHERE table_schema = DATABASE()"))[0] ?? 0;
         $metrics = ['uploads_mb' => managedDirMb(dirname(__DIR__) . '/uploads'), 'db_mb' => floatval($db_mb), 'measured_at' => date('Y-m-d H:i:s')];
         $config['metrics'] = $metrics;
+        managedConfigSave($config);
+    }
+
+    // How much it's used - today and yesterday, by its own date - every ten minutes
+    $usage = (array) ($config['usage'] ?? []);
+    if (empty($usage['measured_at']) || strtotime($usage['measured_at']) < strtotime('-10 minutes')) {
+        $usage = managedUsage() + ['measured_at' => date('Y-m-d H:i:s')];
+        $config['usage'] = $usage;
         managedConfigSave($config);
     }
 
@@ -512,13 +661,18 @@ function managedReport(): array
             'last_ok_at' => managedIsoTime($backup_ok),
         ],
         'errors_24h' => $errors,
+        // An object even when empty - {} rather than []
+        'errors_by_category' => (object) $error_categories,
         'agents' => [
             'active' => getActiveAgentUserCount(),
             'invites' => function_exists('userInvitesHoldingSeats') ? userInvitesHoldingSeats() : 0,
             'limit' => getAgentUserLimit(),
+            'list' => $agent_list,
         ],
         'clients' => $clients,
         'disk' => ['measured_at' => managedIsoTime($metrics['measured_at'] ?? null)] + $metrics,
+        // An object even when empty - {} rather than []
+        'usage' => ['days' => (object) ($usage['days'] ?? []), 'agents_30d' => intval($usage['agents_30d'] ?? 0), 'measured_at' => managedIsoTime($usage['measured_at'] ?? null)],
         'mode' => managedMode(),
     ];
 }
@@ -539,10 +693,15 @@ function managedCheckin(): array
     $report = managedReport();
     $config = managedConfig(true);
     $report['acks'] = array_values((array) ($config['acks'] ?? []));
+    // To a manager that reads it, the report goes as one base64url string, which a firewall in
+    // front of the manager has nothing to read as an attack (MANAGED_REPORT_ENCODING)
+    $body = ($config['report_encoding'] ?? '') === MANAGED_REPORT_ENCODING
+        ? ['report' => managedBase64UrlEncode((string) json_encode($report))]
+        : $report;
     // In the body as well as the header - some web servers drop Authorization before PHP sees it
-    $report['auth'] = $config['uuid'] . ':' . $config['secret'];
+    $body['auth'] = $config['uuid'] . ':' . $config['secret'];
 
-    $response = managedHttpJson($config['manager_url'] . '/api/managed/checkin.php', $report,
+    $response = managedHttpJson($config['manager_url'] . '/api/managed/checkin.php', $body,
         ['Authorization: Bearer ' . $config['uuid'] . ':' . $config['secret']]);
 
     if ($response['code'] === 410 && !empty($response['json']['released'])) {
@@ -566,6 +725,8 @@ function managedCheckin(): array
         $config['manager_name'] = $config['state']['manager_name'];
     }
     $config['last_checkin_at'] = date('Y-m-d H:i:s');
+    // How the manager reads the next report - a manager that stops saying gets plain JSON again
+    $config['report_encoding'] = ($json['report_encoding'] ?? '') === MANAGED_REPORT_ENCODING ? MANAGED_REPORT_ENCODING : '';
     unset($config['last_error'], $config['last_error_at']);
     $config['acks'] = [];
     managedConfigSave($config);
@@ -679,9 +840,13 @@ function managedVerifySupportToken(string $token, &$error = ''): ?array
     $config['nonces'] = $nonces;
     managedConfigSave($config);
 
+    // A page to land on instead of the start page - one of this ITFlow's own, as a path
+    $page = (string) ($payload['p'] ?? '');
+
     return [
         'name' => mb_substr(trim((string) ($payload['n'] ?? '')), 0, 120),
         'email' => mb_substr(trim((string) ($payload['e'] ?? '')), 0, 200),
+        'page' => preg_match('#^(admin|agent)/[a-z0-9_]+\.php(\?[a-z0-9_=&%.+-]*)?$#i', $page) ? $page : '',
     ];
 }
 
@@ -951,10 +1116,27 @@ function managedInstanceReport(array $row): array
 }
 
 /*
+ * The categories an instance's errors today were logged under, the most first - [category =>
+ * how many], '' for none. Empty from an instance too old to send them; it sends the count alone.
+ */
+function managedInstanceErrorCategories(array $report): array
+{
+    $categories = [];
+    foreach ((array) ($report['errors_by_category'] ?? []) as $category => $logged) {
+        if (intval($logged) > 0) {
+            $categories[mb_substr((string) $category, 0, 100)] = intval($logged);
+        }
+    }
+    arsort($categories);
+    return $categories;
+}
+
+/*
  * How an instance is doing, from its last report - state (pending: never connected;
  * waiting: connected, but its cron has never run - a new install whose cron job isn't in
- * yet; offline; online), what needs a look (issues, worst first, each [tone, text]), and
- * what the list shows of it.
+ * yet; offline; online), what needs a look (issues, worst first, each [tone, text, key] - the
+ * key stays the same while the text changes, so a ticket follows one problem), and what the
+ * list shows of it.
  */
 function managedInstanceHealth(array $row): array
 {
@@ -975,41 +1157,51 @@ function managedInstanceHealth(array $row): array
 
     $issues = [];
     if ($state === 'waiting') {
-        $issues[] = ['warning', 'Waiting for its cron job - add it in its hosting control panel'];
+        $issues[] = ['warning', 'Waiting for its cron job - add it in its hosting control panel', 'waiting'];
     } elseif ($state === 'offline') {
-        $issues[] = ['danger', $last ? 'Not checked in for ' . str_replace(' ago', '', timeAgo($last)) : 'Connected, but never checked in'];
+        $issues[] = ['danger', $last ? 'Not checked in for ' . str_replace(' ago', '', timeAgo($last)) : 'Connected, but never checked in', 'offline'];
     }
     if ($report && $state !== 'waiting') {
         if (empty($cron['enabled'])) {
-            $issues[] = ['danger', 'Cron is switched off'];
+            $issues[] = ['danger', 'Cron is switched off', 'cron'];
         } elseif (empty($cron['last_dispatch_at']) || strtotime($cron['last_dispatch_at']) < strtotime((string) ($report['reported_at'] ?? 'now')) - 600) {
-            $issues[] = ['danger', 'Cron isn\'t running'];
+            $issues[] = ['danger', 'Cron isn\'t running', 'cron'];
         }
         $app = (array) ($report['app'] ?? []);
         if (!empty($app['db_latest']) && !empty($app['db_version']) && version_compare($app['db_latest'], $app['db_version'], '>')) {
-            $issues[] = ['danger', 'Database update not applied'];
+            $issues[] = ['danger', 'Database update not applied', 'db_update'];
         }
         $update = (array) ($report['update'] ?? []);
         if (!empty($update['last']['error'])) {
-            $issues[] = ['danger', 'The last update failed'];
+            $issues[] = ['danger', 'The last update failed', 'update_failed'];
         }
         if (!empty($update['available'])) {
-            $issues[] = [!empty($update['security']) ? 'danger' : 'info', (!empty($update['security']) ? 'Security update' : 'Update') . ' available' . (!empty($update['release']) ? ' - ' . $update['release'] : '')];
+            $issues[] = [!empty($update['security']) ? 'danger' : 'info', (!empty($update['security']) ? 'Security update' : 'Update') . ' available' . (!empty($update['release']) ? ' - ' . $update['release'] : ''),
+                !empty($update['security']) ? 'security_update' : 'update'];
         }
         $backup = (array) ($report['backup'] ?? []);
         if (($backup['last_status'] ?? '') === 'Failed') {
-            $issues[] = ['warning', 'The last backup failed'];
+            $issues[] = ['warning', 'The last backup failed', 'backup'];
         } elseif (empty($backup['last_ok_at'])) {
-            $issues[] = ['warning', 'No backups made'];
+            $issues[] = ['warning', 'No backups made', 'backup'];
         } elseif (strtotime($backup['last_ok_at']) < strtotime('-3 days')) {
-            $issues[] = ['warning', 'No backup for ' . str_replace(' ago', '', timeAgo($backup['last_ok_at']))];
+            $issues[] = ['warning', 'No backup for ' . str_replace(' ago', '', timeAgo($backup['last_ok_at'])), 'backup'];
         }
-        if (intval($report['errors_24h'] ?? 0) > 0) {
-            $issues[] = ['warning', intval($report['errors_24h']) . ' error' . (intval($report['errors_24h']) === 1 ? '' : 's') . ' logged today'];
+        $error_count = intval($report['errors_24h'] ?? 0);
+        if ($error_count > 0) {
+            // Under which categories, the most first - three named, then how many more
+            $error_categories = managedInstanceErrorCategories($report);
+            $named = [];
+            foreach (array_slice($error_categories, 0, 3, true) as $category => $logged) {
+                $named[] = ($category !== '' ? $category : 'No category') . " ($logged)";
+            }
+            $more = count($error_categories) - count($named);
+            $issues[] = ['warning', "$error_count error" . ($error_count === 1 ? '' : 's') . ' logged today'
+                . ($named ? ' - ' . implode(', ', $named) . ($more > 0 ? " and $more more" : '') : ''), 'errors'];
         }
         $agents = (array) ($report['agents'] ?? []);
         if (intval($agents['limit'] ?? 0) > 0 && intval($agents['active'] ?? 0) + intval($agents['invites'] ?? 0) >= intval($agents['limit'])) {
-            $issues[] = ['info', 'Every seat is taken'];
+            $issues[] = ['info', 'Every seat is taken', 'seats'];
         }
     }
 
@@ -1019,6 +1211,581 @@ function managedInstanceHealth(array $row): array
     });
 
     return ['state' => $state, 'issues' => $issues, 'report' => $report];
+}
+
+/*
+ * ---------- Problems that open tickets ----------
+ * When Admin > Managed Instances says to (managerTicketSettings()), a problem an instance has -
+ * one of managedInstanceHealth()'s issues - opens a ticket on its client, or on your own company
+ * when it has none, once it has lasted MANAGED_ISSUE_GRACE_MINUTES. The same problem again goes
+ * on that ticket while it isn't closed, reopened if it was resolved. When it clears, the ticket
+ * gets a note and is resolved, unless someone has written on it. Each problem is a
+ * managed_instance_issues row from when it is first seen - ticket 0 until it opens one.
+ */
+
+/** Which problems open tickets - level => what it is called. */
+function managerTicketLevels(): array
+{
+    return ['' => 'Off', 'danger' => 'Problems', 'warning' => 'Problems and warnings'];
+}
+
+/** Whether the problems table is there - it arrives with the 4.1.8 database update. */
+function managerTicketsReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            $ready = (bool) mysqli_query($mysqli, "SELECT 1 FROM managed_instance_issues LIMIT 1");
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/** What Admin > Managed Instances sets for tickets - ['level', 'category_id', 'ticketing']. */
+function managerTicketSettings(): array
+{
+    global $mysqli;
+    $settings = ['level' => '', 'category_id' => 0, 'ticketing' => false];
+    if (!managerTicketsReady()) {
+        return $settings;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_manager_ticket_level, config_manager_ticket_category_id, config_module_enable_ticketing FROM settings WHERE company_id = 1"));
+    $level = (string) ($row['config_manager_ticket_level'] ?? '');
+    $settings['level'] = isset(managerTicketLevels()[$level]) ? $level : '';
+    $settings['category_id'] = intval($row['config_manager_ticket_category_id'] ?? 0);
+    $settings['ticketing'] = !empty($row['config_module_enable_ticketing']);
+    return $settings;
+}
+
+/**
+ * Whether a problem opens a ticket at $level. Waiting for its cron job is setting it up, not a
+ * problem; a security update is one only when it isn't updated automatically - when it is, a
+ * failed update is the problem.
+ */
+function managedIssueOpensTicket(array $row, string $key, string $tone, string $level): bool
+{
+    $rank = ['info' => 1, 'warning' => 2, 'danger' => 3];
+    if (!isset($rank[$tone], $rank[$level]) || $rank[$tone] < $rank[$level]) {
+        return false;
+    }
+    return $key !== 'waiting' && !($key === 'security_update' && $row['managed_instance_update_policy'] === 'auto');
+}
+
+/** A problem's ticket subject - words that don't change while it lasts. */
+function managedIssueTitle(string $key, string $text): string
+{
+    if ($key === 'offline') {
+        return 'Stopped checking in';
+    }
+    if ($key === 'errors') {
+        return 'Errors being logged';
+    }
+    if ($key === 'backup' && strpos($text, 'No backup for') === 0) {
+        return 'No recent backup';
+    }
+    return $text;
+}
+
+/** What a problem's ticket says - HTML. */
+function managedIssueDetailsHtml(array $row, string $key, string $text): string
+{
+    $report = managedInstanceReport($row);
+    $app = (array) ($report['app'] ?? []);
+    $last = $row['managed_instance_last_checkin_at'] ?? null;
+    $what_now = [
+        'offline' => 'Look at whether its server is up and its cron job is running - its Admin > Managed By page says why a check-in failed.',
+        'cron' => 'Its cron job runs cron/cron.php - look at it in its hosting control panel, and at Maintenance > Cron on it.',
+        'db_update' => 'Sign in to it as support and apply the database update from Maintenance > Update.',
+        'update_failed' => 'Its page in Managed Instances has what the update stopped with.',
+        'security_update' => 'Update it from its page in Managed Instances.',
+        'backup' => 'Sign in to it as support and look at Maintenance > Backup.',
+        'errors' => 'Its page in Managed Instances links each category to its error log.',
+    ];
+    $facts = [
+        'Instance' => (string) $row['managed_instance_name'],
+        'Address' => (string) $row['managed_instance_url'],
+        'Version' => trim((string) ($app['version'] ?? '') . (!empty($app['branch']) ? ' (' . $app['branch'] . ')' : '')),
+        'Last checked in' => $last ? date('M j, Y g:i A', strtotime($last)) : 'Never',
+    ];
+    $html = '<p><strong>' . escapeHtml($text) . '</strong></p><p>';
+    foreach (array_filter($facts, 'strlen') as $label => $value) {
+        $html .= escapeHtml($label) . ': ' . escapeHtml($value) . '<br>';
+    }
+    $html .= '</p>';
+    if (isset($what_now[$key])) {
+        $html .= '<p>' . escapeHtml($what_now[$key]) . '</p>';
+    }
+    $html .= '<p><a href="' . escapeHtml(managedRequestBaseUrl() . '/admin/managed_instance.php?id=' . intval($row['managed_instance_id'])) . '">Open it in Managed Instances</a></p>';
+    return $html;
+}
+
+/** A ticket for a problem of an instance, on $client_id - its id. */
+function managedIssueTicketOpen(array $row, string $key, string $tone, string $text, int $client_id, int $category_id): int
+{
+    global $mysqli, $session_name;
+
+    $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_ticket_prefix, config_ticket_default_billable FROM settings WHERE company_id = 1"));
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+    $ticket_number = intval(mysqli_insert_id($mysqli));
+
+    $name = (string) $row['managed_instance_name'];
+    $subject = mb_strimwidth("$name: " . managedIssueTitle($key, $text), 0, 200, '...');
+    $prefix = escapeSql((string) $settings['config_ticket_prefix']);
+    $billable = intval($settings['config_ticket_default_billable']) ? 1 : 0;
+    $category = ticketCategoryId($category_id);
+    $priority = $tone === 'danger' ? 'High' : 'Medium';
+    $details = mysqli_real_escape_string($mysqli, managedIssueDetailsHtml($row, $key, $text));
+
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$prefix', ticket_number = $ticket_number, ticket_source = 'Managed', ticket_category = $category,
+        ticket_subject = '" . escapeSql($subject) . "', ticket_details = '$details', ticket_priority = '$priority', ticket_status = " . TICKET_STATUS_NEW . ",
+        ticket_billable = $billable, ticket_created_by = 0, ticket_contact_id = 0, ticket_url_key = '" . randomString(32) . "', ticket_client_id = $client_id");
+    $ticket_id = intval(mysqli_insert_id($mysqli));
+    applyTicketSla($ticket_id);
+
+    $reference = $settings['config_ticket_prefix'] . $ticket_number;
+    logAudit('Ticket', 'Create', "$session_name opened ticket " . escapeSql("$reference for a problem on $name - $text"), $client_id, $ticket_id);
+    logTicketHistory($ticket_id, "Opened by $session_name for a problem on " . escapeSql($name));
+    ticketMailNewTicketAddress($ticket_id, 'managed');
+    triggerCustomAction('ticket_create', $ticket_id);
+    return $ticket_id;
+}
+
+/**
+ * A problem that has lasted - on the ticket the same problem had, if that isn't closed (reopened
+ * if it was resolved), or a new one. 'again' or 'opened', or '' when there is no client to put
+ * it on yet.
+ */
+function managedIssueTicket(array $row, array $issue, int $category_id): string
+{
+    global $mysqli, $config_internal_client_id;
+
+    $instance_id = intval($row['managed_instance_id']);
+    $issue_id = intval($issue['managed_issue_id']);
+    $key = (string) $issue['managed_issue_key'];
+    $name = (string) $row['managed_instance_name'];
+
+    $existing = mysqli_fetch_row(mysqli_query($mysqli, "SELECT managed_issue_ticket_id FROM managed_instance_issues
+        JOIN tickets ON ticket_id = managed_issue_ticket_id
+        WHERE managed_issue_instance_id = $instance_id AND managed_issue_key = '" . escapeSql($key) . "' AND managed_issue_id <> $issue_id
+        AND ticket_status <> " . TICKET_STATUS_CLOSED . " AND ticket_archived_at IS NULL
+        ORDER BY managed_issue_id DESC LIMIT 1"));
+    if ($existing) {
+        $ticket_id = intval($existing[0]);
+        mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_ticket_id = $ticket_id WHERE managed_issue_id = $issue_id");
+        rmmTicketNote($ticket_id, "$name: back again - " . $issue['managed_issue_text']);
+        $ticket = ticketRow($ticket_id);
+        if ($ticket && intval($ticket['ticket_status']) === TICKET_STATUS_RESOLVED) {
+            ticketReopen($ticket, TICKET_STATUS_OPEN, ' - the problem came back');
+        } else {
+            logTicketHistory($ticket_id, escapeSql("$name: the problem came back"));
+        }
+        return 'again';
+    }
+
+    // Its client's, or your own company's when it has none - with neither, it waits for one
+    $client_id = intval($row['managed_instance_client_id']);
+    if (!$client_id || !mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM clients WHERE client_id = $client_id AND client_archived_at IS NULL"))) {
+        $client_id = intval($config_internal_client_id ?? 0);
+    }
+    if (!$client_id) {
+        return '';
+    }
+
+    $ticket_id = managedIssueTicketOpen($row, $key, (string) $issue['managed_issue_tone'], (string) $issue['managed_issue_text'], $client_id, $category_id);
+    mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_ticket_id = $ticket_id WHERE managed_issue_id = $issue_id");
+    return 'opened';
+}
+
+/** A problem that has cleared - a note on its ticket, which is resolved when nothing else keeps it open. True when it was resolved. */
+function managedIssueCleared(array $row, array $issue): bool
+{
+    $ticket_id = intval($issue['managed_issue_ticket_id']);
+    $ticket = $ticket_id ? ticketRow($ticket_id) : null;
+    if (!$ticket || intval($ticket['ticket_status']) === TICKET_STATUS_CLOSED || $ticket['ticket_archived_at'] !== null) {
+        return false;
+    }
+    $name = (string) $row['managed_instance_name'];
+    rmmTicketNote($ticket_id, "$name: this has cleared - " . $issue['managed_issue_text']);
+
+    $status = intval($ticket['ticket_status']);
+    $left = !in_array($status, [TICKET_STATUS_NEW, TICKET_STATUS_OPEN], true) ? 'left ' . getTicketStatusName($status)
+        : (rmmTicketWorked($ticket_id) ? 'left open, as someone has written on it' : '');
+    if ($left !== '') {
+        logTicketHistory($ticket_id, escapeSql("$name: the problem cleared - $left"));
+        return false;
+    }
+    ticketResolve($ticket, ' - the problem cleared');
+    return true;
+}
+
+/**
+ * Look at every connected instance's problems - those first seen open a row, those that have
+ * lasted open tickets, those gone clear theirs. Off with the level off, or ticketing off. Returns
+ * ['opened', 'again', 'cleared', 'resolved'].
+ */
+function managerIssueTickets(): array
+{
+    global $mysqli, $session_name;
+
+    $counts = ['opened' => 0, 'again' => 0, 'cleared' => 0, 'resolved' => 0];
+    $settings = managerTicketSettings();
+    if ($settings['level'] === '' || !$settings['ticketing']) {
+        return $counts;
+    }
+
+    $signed_in_name = $session_name ?? null;
+    $session_name = 'Managed Instances';
+
+    // Gone from here - removed, or no longer connected: its problems are no longer watched
+    mysqli_query($mysqli, "UPDATE managed_instance_issues JOIN managed_instances ON managed_instance_id = managed_issue_instance_id
+        SET managed_issue_cleared_at = NOW()
+        WHERE managed_issue_cleared_at IS NULL AND (managed_instance_archived_at IS NOT NULL OR managed_instance_secret_hash IS NULL)");
+    mysqli_query($mysqli, "UPDATE managed_instance_issues LEFT JOIN managed_instances ON managed_instance_id = managed_issue_instance_id
+        SET managed_issue_cleared_at = NOW() WHERE managed_issue_cleared_at IS NULL AND managed_instance_id IS NULL");
+
+    $instances = mysqli_query($mysqli, "SELECT managed_instance_id, managed_instance_name, managed_instance_client_id, managed_instance_url, managed_instance_mode,
+        managed_instance_update_policy, managed_instance_secret_hash, managed_instance_report, managed_instance_last_checkin_at
+        FROM managed_instances WHERE managed_instance_archived_at IS NULL AND managed_instance_secret_hash IS NOT NULL ORDER BY managed_instance_id");
+    while ($row = mysqli_fetch_assoc($instances)) {
+        $instance_id = intval($row['managed_instance_id']);
+
+        // What it has now, by key - every one, so a problem the level doesn't watch isn't taken as cleared
+        $now = [];
+        foreach (managedInstanceHealth($row)['issues'] as [$tone, $text, $key]) {
+            $now[$key] = $now[$key] ?? [$tone, $text];
+        }
+
+        $open = [];
+        $result = mysqli_query($mysqli, "SELECT managed_issue_id, managed_issue_key, managed_issue_tone, managed_issue_text, managed_issue_ticket_id, managed_issue_created_at
+            FROM managed_instance_issues WHERE managed_issue_instance_id = $instance_id AND managed_issue_cleared_at IS NULL");
+        while ($issue = mysqli_fetch_assoc($result)) {
+            $open[$issue['managed_issue_key']] = $issue;
+        }
+
+        // Cleared - a problem that never lasted long enough for a ticket leaves no trace
+        foreach ($open as $key => $issue) {
+            if (isset($now[$key])) {
+                continue;
+            }
+            if (intval($issue['managed_issue_ticket_id']) === 0) {
+                mysqli_query($mysqli, "DELETE FROM managed_instance_issues WHERE managed_issue_id = " . intval($issue['managed_issue_id']));
+                continue;
+            }
+            mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_cleared_at = NOW() WHERE managed_issue_id = " . intval($issue['managed_issue_id']));
+            $counts['cleared']++;
+            if (managedIssueCleared($row, $issue)) {
+                $counts['resolved']++;
+            }
+        }
+
+        // A suspended instance is left alone - nobody is using it
+        if ($row['managed_instance_mode'] === 'suspended') {
+            continue;
+        }
+
+        foreach ($now as $key => [$tone, $text]) {
+            if (!managedIssueOpensTicket($row, (string) $key, $tone, $settings['level'])) {
+                continue;
+            }
+            // First seen - a ticket once it has lasted
+            if (!isset($open[$key])) {
+                mysqli_query($mysqli, "INSERT INTO managed_instance_issues SET managed_issue_instance_id = $instance_id, managed_issue_key = '" . escapeSql($key) . "',
+                    managed_issue_tone = '" . escapeSql($tone) . "', managed_issue_text = '" . escapeSql(mb_substr($text, 0, 255)) . "'");
+                continue;
+            }
+            $issue = $open[$key];
+            if (intval($issue['managed_issue_ticket_id']) === 0 && strtotime($issue['managed_issue_created_at']) <= strtotime('-' . MANAGED_ISSUE_GRACE_MINUTES . ' minutes')) {
+                // As it is now - the words may have moved on since it was first seen
+                $issue['managed_issue_tone'] = $tone;
+                $issue['managed_issue_text'] = mb_substr($text, 0, 255);
+                mysqli_query($mysqli, "UPDATE managed_instance_issues SET managed_issue_tone = '" . escapeSql($tone) . "', managed_issue_text = '" . escapeSql($issue['managed_issue_text']) . "'
+                    WHERE managed_issue_id = " . intval($issue['managed_issue_id']));
+                $done = managedIssueTicket($row, $issue, $settings['category_id']);
+                if ($done !== '') {
+                    $counts[$done]++;
+                }
+            }
+        }
+    }
+
+    $session_name = $signed_in_name ?? $session_name;
+    return $counts;
+}
+
+/** The tickets an instance's problems are on now - key => ['ticket_id', 'reference', 'client_id'], for its page. */
+function managedInstanceIssueTickets(int $instance_id): array
+{
+    global $mysqli;
+    if (!managerTicketsReady()) {
+        return [];
+    }
+    $tickets = [];
+    $result = mysqli_query($mysqli, "SELECT managed_issue_key, ticket_id, ticket_prefix, ticket_number, ticket_client_id FROM managed_instance_issues
+        JOIN tickets ON ticket_id = managed_issue_ticket_id
+        WHERE managed_issue_instance_id = $instance_id AND managed_issue_cleared_at IS NULL AND ticket_archived_at IS NULL AND ticket_status <> " . TICKET_STATUS_CLOSED);
+    while ($ticket = mysqli_fetch_assoc($result)) {
+        $tickets[$ticket['managed_issue_key']] = ['ticket_id' => intval($ticket['ticket_id']), 'reference' => $ticket['ticket_prefix'] . $ticket['ticket_number'], 'client_id' => intval($ticket['ticket_client_id'])];
+    }
+    return $tickets;
+}
+
+/*
+ * ---------- History ----------
+ * One managed_instance_stats row per instance per day, by this ITFlow's own date, kept up at
+ * each check-in from its report (managedStatsRecord()): agents, invites and the seat limit,
+ * clients, storage, the errors of the last 24 hours under their categories - at the day's last
+ * check-in, that day's own - whether a backup was made, and the version. With them, how many
+ * times it checked in, and each gap between check-ins of more than MANAGED_OFFLINE_MINUTES,
+ * on the day it ended - its uptime is worked out from those. Kept for good: a row a day is
+ * small. managedInstanceHistory() reads a period of it for the instance's page.
+ */
+
+/** Whether the history table is there - it arrives with the 4.1.9 database update. */
+function managedStatsReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            $ready = (bool) mysqli_query($mysqli, "SELECT 1 FROM managed_instance_stats LIMIT 1");
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/** Today's history row for an instance, from the report it just sent - $row as it was before this check-in. */
+function managedStatsRecord(array $row, array $report): void
+{
+    global $mysqli;
+
+    if (!managedStatsReady()) {
+        return;
+    }
+    $instance_id = intval($row['managed_instance_id']);
+    $today = date('Y-m-d');
+    $agents = (array) ($report['agents'] ?? []);
+    $disk = (array) ($report['disk'] ?? []);
+    $backup = (array) ($report['backup'] ?? []);
+    $app = (array) ($report['app'] ?? []);
+
+    $categories = [];
+    foreach ((array) ($report['errors_by_category'] ?? []) as $category => $logged) {
+        $categories[mb_substr((string) $category, 0, 100)] = intval($logged);
+    }
+    $day_of = function ($iso) {
+        $time = $iso ? strtotime((string) $iso) : false;
+        return $time ? date('Y-m-d', $time) : '';
+    };
+    // A backup made today - or one that failed today, unless one was made too
+    $made = $day_of($backup['last_ok_at'] ?? null);
+    $backed = $made === $today ? 'ok' : (($backup['last_status'] ?? '') === 'Failed' && $day_of($backup['last_at'] ?? null) === $today ? 'failed' : '');
+
+    $set = "managed_stat_agents = " . intval($agents['active'] ?? 0) . ", managed_stat_invites = " . intval($agents['invites'] ?? 0) . ",
+        managed_stat_seat_limit = " . intval($agents['limit'] ?? 0) . ", managed_stat_clients = " . intval($report['clients'] ?? 0) . ",
+        managed_stat_uploads_mb = " . round(floatval($disk['uploads_mb'] ?? 0), 1) . ", managed_stat_db_mb = " . round(floatval($disk['db_mb'] ?? 0), 1) . ",
+        managed_stat_errors = " . intval($report['errors_24h'] ?? 0) . ", managed_stat_error_categories = '" . mysqli_real_escape_string($mysqli, (string) json_encode((object) $categories)) . "',
+        managed_stat_version = '" . mysqli_real_escape_string($mysqli, mb_substr((string) ($app['version'] ?? ''), 0, 20)) . "'";
+    mysqli_query($mysqli, "INSERT INTO managed_instance_stats SET managed_stat_instance_id = $instance_id, managed_stat_date = '$today', $set,
+        managed_stat_backup = '$backed', managed_stat_checkins = 1
+        ON DUPLICATE KEY UPDATE $set, managed_stat_checkins = managed_stat_checkins + 1,
+        managed_stat_backup = IF('$backed' = 'ok' OR managed_stat_backup = '', '$backed', managed_stat_backup)");
+
+    // A backup made just before midnight, first reported after it, goes on its own day
+    if ($made !== '' && $made !== $today && $made >= date('Y-m-d', strtotime('-2 days'))) {
+        mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_backup = 'ok'
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$made' AND managed_stat_backup <> 'ok'");
+    }
+
+    // Back after a gap - kept on today's row, from its last check-in to now
+    $last = $row['managed_instance_last_checkin_at'] ?? null;
+    if ($last && strtotime($last) < time() - MANAGED_OFFLINE_MINUTES * 60) {
+        $outages = json_decode((string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT managed_stat_outages FROM managed_instance_stats
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'"))[0] ?? ''), true) ?: [];
+        $outages[] = ['from' => date('Y-m-d H:i:s', strtotime($last)), 'to' => date('Y-m-d H:i:s')];
+        mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_outages = '" . mysqli_real_escape_string($mysqli, (string) json_encode(array_slice($outages, -50))) . "'
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'");
+    }
+
+    // How much it was used - each day it counted (its today and yesterday, by its own date) on
+    // that day's row, when there is one; an instance too old to count sends none
+    if (!managedUsageReady() || !is_array($report['usage'] ?? null)) {
+        return;
+    }
+    $usage = $report['usage'];
+    foreach ((array) ($usage['days'] ?? []) as $date => $figures) {
+        if (!is_array($figures) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date) || $date > $today || $date < date('Y-m-d', strtotime('-3 days'))) {
+            continue;
+        }
+        $set = [];
+        foreach (MANAGED_USAGE_FIGURES as $figure) {
+            $set[] = "managed_stat_$figure = " . (array_key_exists($figure, $figures) ? max(0, intval($figures[$figure])) : 'NULL');
+        }
+        $keys = [];
+        foreach ((array) ($figures['api_keys'] ?? []) as $name => $calls) {
+            $keys[mb_substr((string) $name, 0, 100)] = max(0, intval($calls));
+        }
+        $set[] = "managed_stat_api_keys = " . (array_key_exists('api_keys', $figures) ? "'" . mysqli_real_escape_string($mysqli, (string) json_encode((object) array_slice($keys, 0, 10, true))) . "'" : 'NULL');
+        mysqli_query($mysqli, "UPDATE managed_instance_stats SET " . implode(', ', $set) . "
+            WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '" . escapeSql($date) . "'");
+    }
+    mysqli_query($mysqli, "UPDATE managed_instance_stats SET managed_stat_agents_30d = " . max(0, intval($usage['agents_30d'] ?? 0)) . "
+        WHERE managed_stat_instance_id = $instance_id AND managed_stat_date = '$today'");
+}
+
+/** Whether the history has its usage columns - they arrive with the 4.2.0 database update. */
+function managedUsageReady(): bool
+{
+    global $mysqli;
+    static $ready = null;
+    if ($ready === null) {
+        try {
+            $ready = (bool) mysqli_query($mysqli, "SELECT managed_stat_agents_30d FROM managed_instance_stats LIMIT 1");
+        } catch (Throwable $e) {
+            $ready = false;
+        }
+    }
+    return $ready;
+}
+
+/**
+ * An instance's history for its page - the last $days days, from the first it has. Each day
+ * has its label and agents, invites, seat limit, clients, uploads and database size, errors,
+ * backup, uptime (a percentage) and minutes down - from the gaps that overlap it - null
+ * where there's nothing for that day. With them: since (its first day, or null with no history yet), the
+ * gaps in the period, newest first (from, to, ongoing), uptime over the period, the backups
+ * made and failed, the errors and their categories over the period, most first, and the
+ * storage unit (MB, or GB from 2 GB). Usage, when it reports it: each day's figures
+ * (MANAGED_USAGE_FIGURES - null for a day it didn't), their totals over the period (usage - null
+ * when there were none), the API keys' calls over it, most first, and agents_30d, the latest.
+ */
+function managedInstanceHistory(array $row, int $days): array
+{
+    global $mysqli;
+
+    $instance_id = intval($row['managed_instance_id']);
+    $history = ['since' => null, 'days' => [], 'gaps' => [], 'uptime' => null, 'backups' => ['ok' => 0, 'failed' => 0, 'days' => 0],
+        'errors' => 0, 'categories' => [], 'unit' => 'MB', 'usage' => null, 'api_keys' => [], 'agents_30d' => null];
+    if (!managedStatsReady()) {
+        return $history;
+    }
+    $since = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MIN(managed_stat_date) FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id"))[0] ?? null;
+    if (!$since) {
+        return $history;
+    }
+    $history['since'] = $since;
+    $today = date('Y-m-d');
+    $from = max($since, date('Y-m-d', strtotime('-' . ($days - 1) . ' days')));
+
+    $rows = [];
+    $usage_ready = managedUsageReady();
+    $usage_columns = $usage_ready ? ', managed_stat_' . implode(', managed_stat_', MANAGED_USAGE_FIGURES) . ', managed_stat_api_keys, managed_stat_agents_30d' : '';
+    $result = mysqli_query($mysqli, "SELECT managed_stat_date, managed_stat_agents, managed_stat_invites, managed_stat_seat_limit, managed_stat_clients,
+        managed_stat_uploads_mb, managed_stat_db_mb, managed_stat_errors, managed_stat_error_categories, managed_stat_backup, managed_stat_outages$usage_columns
+        FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id AND managed_stat_date >= '$from' ORDER BY managed_stat_date");
+    while ($stat = mysqli_fetch_assoc($result)) {
+        $rows[$stat['managed_stat_date']] = $stat;
+    }
+
+    // The gaps - each kept on the day it ended, so a gap that began before the period is here
+    // too - and the one going on now, if it has stopped checking in
+    $now = time();
+    $period_start = strtotime($from);
+    $gaps = [];
+    foreach ($rows as $stat) {
+        foreach (json_decode((string) $stat['managed_stat_outages'], true) ?: [] as $gap) {
+            $gaps[] = ['from' => strtotime((string) ($gap['from'] ?? '')), 'to' => strtotime((string) ($gap['to'] ?? '')), 'ongoing' => false];
+        }
+    }
+    $last = $row['managed_instance_last_checkin_at'] ?? null;
+    $watched = !empty($row['managed_instance_secret_hash']) && empty($row['managed_instance_archived_at']);
+    if ($watched && $last && strtotime($last) < $now - MANAGED_OFFLINE_MINUTES * 60) {
+        $gaps[] = ['from' => strtotime($last), 'to' => $now, 'ongoing' => true];
+    }
+    $gaps = array_values(array_filter($gaps, function ($gap) use ($period_start) {
+        return $gap['from'] && $gap['to'] > $gap['from'] && $gap['to'] > $period_start;
+    }));
+    usort($gaps, function ($a, $b) {
+        return $b['from'] <=> $a['from'];
+    });
+    $history['gaps'] = $gaps;
+
+    $mb = 0.0;
+    $down_total = 0;
+    $minutes_total = 0;
+    $day = new DateTime($from);
+    while ($day->format('Y-m-d') <= $today) {
+        $date = $day->format('Y-m-d');
+        $start = $day->getTimestamp();
+        $end = min((clone $day)->modify('+1 day')->getTimestamp(), $now);
+        $down = 0;
+        foreach ($gaps as $gap) {
+            $down += max(0, min($end, $gap['to']) - max($start, max($gap['from'], $period_start)));
+        }
+        $stat = $rows[$date] ?? null;
+        $length = max(1, $end - $start);
+        if ($stat || $down > 0) {
+            $down_total += min($down, $length);
+            $minutes_total += $length;
+        }
+        $entry = [
+            'label' => $day->format('M j'),
+            'date' => $date,
+            'uptime' => $stat || $down > 0 ? round(max(0, 100 * (1 - $down / $length)), 1) : null,
+            'down' => $stat || $down > 0 ? (int) round(min($down, $length) / 60) : null,
+            'agents' => null, 'invites' => null, 'limit' => null, 'clients' => null, 'uploads' => null, 'db' => null, 'errors' => null, 'backup' => null,
+        ];
+        foreach (MANAGED_USAGE_FIGURES as $figure) {
+            $entry[$figure] = null;
+        }
+        if ($stat) {
+            $entry = array_merge($entry, [
+                'agents' => intval($stat['managed_stat_agents']),
+                'invites' => intval($stat['managed_stat_invites']),
+                'limit' => intval($stat['managed_stat_seat_limit']),
+                'clients' => intval($stat['managed_stat_clients']),
+                'uploads' => floatval($stat['managed_stat_uploads_mb']),
+                'db' => floatval($stat['managed_stat_db_mb']),
+                'errors' => intval($stat['managed_stat_errors']),
+                'backup' => (string) $stat['managed_stat_backup'],
+            ]);
+            $mb = max($mb, $entry['uploads'] + $entry['db']);
+            $history['errors'] += $entry['errors'];
+            foreach (json_decode((string) $stat['managed_stat_error_categories'], true) ?: [] as $category => $logged) {
+                $history['categories'][$category] = ($history['categories'][$category] ?? 0) + intval($logged);
+            }
+            // How much it was used, when it said - totals over the period, and the API keys' calls
+            foreach (MANAGED_USAGE_FIGURES as $figure) {
+                if (isset($stat["managed_stat_$figure"])) {
+                    $entry[$figure] = intval($stat["managed_stat_$figure"]);
+                    $history['usage'][$figure] = ($history['usage'][$figure] ?? 0) + $entry[$figure];
+                }
+            }
+            foreach (json_decode((string) ($stat['managed_stat_api_keys'] ?? ''), true) ?: [] as $name => $calls) {
+                $history['api_keys'][$name] = ($history['api_keys'][$name] ?? 0) + intval($calls);
+            }
+            if (isset($stat['managed_stat_agents_30d'])) {
+                $history['agents_30d'] = intval($stat['managed_stat_agents_30d']);
+            }
+            $history['backups']['days']++;
+            if ($entry['backup'] === 'ok') {
+                $history['backups']['ok']++;
+            } elseif ($entry['backup'] === 'failed') {
+                $history['backups']['failed']++;
+            }
+        }
+        $history['days'][] = $entry;
+        $day->modify('+1 day');
+    }
+    arsort($history['categories']);
+    arsort($history['api_keys']);
+    $history['uptime'] = $minutes_total ? round(100 * (1 - $down_total / $minutes_total), 2) : null;
+    $history['unit'] = $mb >= 2048 ? 'GB' : 'MB';
+    return $history;
 }
 
 /*
@@ -1241,6 +2008,8 @@ function managerEnroll(array $body, string $ip): array
         'secret' => $secret,
         'manager' => ['name' => $identity['name'], 'public_key' => managerKeys()['public']],
         'state' => managerStateFor($row),
+        // Reports may come encoded (managedCheckin())
+        'report_encoding' => MANAGED_REPORT_ENCODING,
     ]];
 }
 
@@ -1282,6 +2051,19 @@ function managerCheckin(string $authorization, array $body, string $ip): array
         return [200, ['disconnected' => true]];
     }
 
+    // A report sent encoded (MANAGED_REPORT_ENCODING) - one base64url string of the same JSON
+    if (array_key_exists('report', $body)) {
+        $encoded = is_string($body['report']) ? $body['report'] : '';
+        if (strlen($encoded) > 360000) {
+            return [413, ['error' => 'Report too large']];
+        }
+        $decoded = json_decode(managedBase64UrlDecode($encoded), true);
+        if (!is_array($decoded)) {
+            return [400, ['error' => "The report couldn't be read"]];
+        }
+        $body = $decoded;
+    }
+
     // The report, kept as sent - checked for shape where it's read
     $acks = (array) ($body['acks'] ?? []);
     unset($body['acks']);
@@ -1316,6 +2098,9 @@ function managerCheckin(string $authorization, array $body, string $ip): array
         $row['managed_instance_update_seen_at'] = date('Y-m-d H:i:s');
     }
     mysqli_query($mysqli, "UPDATE managed_instances SET " . implode(', ', $set) . " WHERE managed_instance_id = $instance_id");
+
+    // Today's line of its history - with the gap it is back from, if any
+    managedStatsRecord($row, $body);
 
     // The commands it answered
     foreach ($acks as $ack) {
@@ -1376,22 +2161,28 @@ function managerCheckin(string $authorization, array $body, string $ip): array
         mysqli_query($mysqli, "UPDATE managed_instance_commands SET managed_command_status = 'sent', managed_command_sent_at = NOW() WHERE managed_command_id = " . intval($command['managed_command_id']));
     }
 
-    return [200, ['state' => managerStateFor($row), 'commands' => $commands]];
+    return [200, ['state' => managerStateFor($row), 'commands' => $commands, 'report_encoding' => MANAGED_REPORT_ENCODING]];
 }
 
 /*
  * A link that signs the person asking into an instance as its support user - signed with this
- * ITFlow's key, for that instance only, good for two minutes and once.
+ * ITFlow's key, for that instance only, good for two minutes and once. $page lands it on one of
+ * the instance's pages (admin/app_logs.php?view=error) instead of its start page - an instance
+ * too old to know it lands on its start page.
  */
-function managedSupportLink(array $row, string $name, string $email): string
+function managedSupportLink(array $row, string $name, string $email, string $page = ''): string
 {
-    $token = managerSign([
+    $payload = [
         'i' => $row['managed_instance_uuid'],
         'n' => $name,
         'e' => $email,
         'x' => time() + MANAGED_SUPPORT_LINK_SECONDS,
         'j' => bin2hex(random_bytes(16)),
-    ]);
+    ];
+    if ($page !== '') {
+        $payload['p'] = $page;
+    }
+    $token = managerSign($payload);
 
     return rtrim((string) $row['managed_instance_url'], '/') . '/login_support.php?token=' . rawurlencode($token);
 }

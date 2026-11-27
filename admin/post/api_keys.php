@@ -24,6 +24,10 @@ if (isset($_POST['add_api_key'])) {
 
     // Credential decryption password
     $apikey_specific_encryption_ciphertext = encryptUserSpecificKey($password);
+    if ($apikey_specific_encryption_ciphertext === false) {
+        flashAlert('Your vault session has expired, so the key could not be given access to credentials - sign out and back in, then make it again.', 'error');
+        redirect();
+    }
 
     mysqli_query($mysqli, "INSERT INTO api_keys SET api_key_name = '" . escapeSql($fields['name']) . "', api_key_secret = '" . escapeSql($secret) . "',
         api_key_decrypt_hash = '$apikey_specific_encryption_ciphertext', api_key_expire = '" . escapeSql($fields['expire']) . "', api_key_user_id = " . intval($fields['user_id']));

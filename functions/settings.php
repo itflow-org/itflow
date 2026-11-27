@@ -31,7 +31,9 @@ function settingsGroups() {
 
 /*
  * Every settings page - its group, title, icon, address, what it is for, and
- * the module it belongs to (hidden from the menu while that is off).
+ * the module it belongs to (hidden from the menu while that is off). One with
+ * 'under' is a tab of that admin menu entry (adminNavGroups()) instead - not
+ * in the Settings menu or overview, but still found by Find a setting.
  */
 function settingsPages() {
     return [
@@ -67,7 +69,7 @@ function settingsPages() {
             'about' => 'Contacts signing in to the client portal with their Microsoft 365 account.'],
         'module' => ['group' => 'system', 'title' => 'Modules', 'icon' => 'fa-cube', 'url' => 'settings_module.php',
             'about' => 'The parts of ITFlow in use - IT documentation, ticketing, invoicing, the calendar, the Knowledge Base and the client portal, and the parts that come with them - and white-labelling.'],
-        'logs' => ['group' => 'system', 'title' => 'Logs', 'icon' => 'fa-scroll', 'url' => 'settings_logs.php',
+        'logs' => ['group' => 'system', 'title' => 'Log Settings', 'icon' => 'fa-scroll', 'url' => 'settings_logs.php', 'under' => 'logs',
             'about' => 'How long the audit log and app logs are kept, and sending them on to a syslog server or SIEM.'],
         'telemetry' => ['group' => 'system', 'title' => 'Telemetry', 'icon' => 'fa-satellite-dish', 'url' => 'settings_telemetry.php',
             'about' => 'Whether ITFlow tells the ITFlow project, each night, how it is being used.'],
@@ -138,6 +140,7 @@ function adminNavGroups() {
             ['file' => 'audit_logs.php', 'icon' => 'fa-history', 'label' => 'Audit Logs'],
             ['file' => 'sign_ins.php', 'icon' => 'fa-sign-in-alt', 'label' => 'Sign-ins'],
             ['file' => 'app_logs.php', 'icon' => 'fa-clipboard-list', 'label' => 'App Logs'],
+            ['file' => 'settings_logs.php', 'icon' => 'fa-sliders-h', 'label' => 'Settings'],
         ]],
         'templates' => ['label' => 'Templates', 'icon' => 'fa-copy', 'pages' => array_values(array_filter([
             $ticketing ? ['file' => 'ticket_templates.php', 'icon' => 'fa-life-ring', 'label' => 'Tickets', 'also' => ['ticket_template.php']] : null,
@@ -451,8 +454,13 @@ function settingsFields() {
 function settingsSearchIndex() {
     $pages = settingsPages();
     $index = [];
+    // A tab of another menu entry is where it is - "Logs", "Logs › Settings" - rather than under Settings
+    $under = function ($page) {
+        return empty($page['under']) ? '' : (adminNavGroups()[$page['under']]['label'] ?? '');
+    };
     foreach ($pages as $key => $page) {
-        $index[] = ['label' => $page['title'], 'where' => 'Settings', 'url' => $page['url'], 'icon' => $page['icon'], 'words' => strtolower($page['about']), 'page' => true];
+        $index[] = ['label' => $page['title'], 'where' => $under($page) ?: 'Settings', 'url' => $page['url'], 'icon' => $page['icon'], 'words' => strtolower($page['about']), 'page' => true]
+            + ($under($page) ? ['under' => true] : []);
     }
     foreach (settingsFields() as $name => $field) {
         if (($field['search'] ?? true) === false || !isset($pages[$field['page']])) {
@@ -460,7 +468,9 @@ function settingsSearchIndex() {
         }
         $page = $pages[$field['page']];
         $url = $page['url'] . (isset($field['tab']) ? '?tab=' . $field['tab'] : '') . '#setting=' . $name;
-        $index[] = ['label' => $field['label'], 'where' => $page['title'] . ' › ' . $field['section'], 'url' => $url, 'icon' => $page['icon'], 'words' => strtolower($field['words'] ?? '')];
+        $where = $under($page) ? $under($page) . ' › Settings' : $page['title'];
+        $index[] = ['label' => $field['label'], 'where' => $where . ' › ' . $field['section'], 'url' => $url, 'icon' => $page['icon'], 'words' => strtolower($field['words'] ?? '')]
+            + ($under($page) ? ['under' => true] : []);
     }
     return $index;
 }
@@ -518,7 +528,8 @@ function settingsSearch($raw_query, $limit = 3) {
     });
     $items = [];
     foreach (array_slice($scored, 0, $limit) as [, , $entry]) {
-        $items[] = ['title' => $entry['label'], 'subtitle' => $entry['where'] === 'Settings' ? 'Settings page' : 'Settings › ' . $entry['where'], 'url' => '/admin/' . $entry['url']];
+        $subtitle = !empty($entry['under']) ? $entry['where'] : ($entry['where'] === 'Settings' ? 'Settings page' : 'Settings › ' . $entry['where']);
+        $items[] = ['title' => $entry['label'], 'subtitle' => $subtitle, 'url' => '/admin/' . $entry['url']];
     }
     return $items;
 }
@@ -540,11 +551,17 @@ function settingsPageStart($page_key, $actions_html = '') {
         $settings_kept = $_SESSION['settings_kept'];
     }
     unset($_SESSION['settings_kept']);
-    ob_start(); ?>
+    ob_start();
+    // A tab of another menu entry - its tabs above it, as its other pages have them
+    if (!empty($page['under'])) {
+        echo adminNavGroupTabsHtml($page['under']);
+    } ?>
     <div class="itflow-settings-head" data-settings-page="<?= escapeHtml($page_key) ?>">
         <div class="itflow-settings-head-icon"><i class="fas fa-fw <?= escapeHtml($page['icon']) ?>"></i></div>
         <div class="flex-grow-1 min-w-0">
-            <a href="settings.php" class="small text-body-secondary text-decoration-none"><i class="fas fa-sliders-h me-1"></i>Settings</a>
+            <?php if (empty($page['under'])) { ?>
+                <a href="settings.php" class="small text-body-secondary text-decoration-none"><i class="fas fa-sliders-h me-1"></i>Settings</a>
+            <?php } ?>
             <h1 class="h4 mb-1"><?= escapeHtml($page['title']) ?></h1>
             <p class="text-body-secondary mb-0"><?= escapeHtml($page['about']) ?></p>
         </div>

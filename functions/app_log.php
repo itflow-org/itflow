@@ -8,7 +8,7 @@
  * by level, searched and filtered by category and date, the same way they
  * are exported and cleared (appLogFiltersSql()), each with a quick look
  * (admin/modals/app_log/app_log.php). Nightly keeps them for their own number
- * of days (Admin > Settings > Logs, appLogRetention()).
+ * of days (Admin > Logs > Settings, appLogRetention()).
  */
 
 /** The levels, worst first - each with its label, the word for one, icon and tone. */

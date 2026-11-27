@@ -112,7 +112,7 @@ $lock = '<i class="fas fa-fw fa-lock text-body-secondary ms-1" title="Set by ' .
                     <h3 class="card-title"><i class="fas fa-fw fa-info-circle me-2"></i>What a manager can do</h3>
                 </div>
                 <ul class="list-group list-group-flush small">
-                    <li class="list-group-item d-flex gap-2"><i class="fas fa-fw fa-heartbeat text-body-secondary mt-1"></i><span>See how it's doing - versions, updates, cron, backups, errors and seats. No client data leaves here.</span></li>
+                    <li class="list-group-item d-flex gap-2"><i class="fas fa-fw fa-heartbeat text-body-secondary mt-1"></i><span>See how it's doing - versions, updates, cron, backups, errors, who holds its seats and how much it's used. No client data leaves here.</span></li>
                     <li class="list-group-item d-flex gap-2"><i class="fas fa-fw fa-download text-body-secondary mt-1"></i><span>Update it, by hand or automatically - and then updates come only from there.</span></li>
                     <li class="list-group-item d-flex gap-2"><i class="fas fa-fw fa-users text-body-secondary mt-1"></i><span>Set how many agents it can have, and its white-label key.</span></li>
                     <li class="list-group-item d-flex gap-2"><i class="fas fa-fw fa-headset text-body-secondary mt-1"></i><span>Sign in as support, for two hours at a time - each time in the audit log, and you're notified.</span></li>
@@ -195,7 +195,9 @@ $lock = '<i class="fas fa-fw fa-lock text-body-secondary ms-1" title="Set by ' .
                         <li>its address, company name and time zone</li>
                         <li>its version, database version, PHP version and branch, and whether an update is waiting</li>
                         <li>how the last update went, whether cron is running, and when the last backup was</li>
-                        <li>how many errors were logged today, how many agents and clients it has, and its storage</li>
+                        <li>how many errors were logged today and the categories they were logged under - never what they say - how many clients it has, and its storage</li>
+                        <li>its agents and the invites waiting - name, email, role, whether they sign in with MFA and when they last signed in</li>
+                        <li>how much it's used each day - how many tickets were opened and resolved, replies, invoices, payments, sign-ins and emails sent and failed, and API calls under each key's name - never what any of them say</li>
                     </ul>
                     <p class="mb-0 text-body-secondary">No tickets, documents, credentials, invoices or contacts.</p>
                 </div>

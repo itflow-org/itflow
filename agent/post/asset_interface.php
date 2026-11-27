@@ -167,7 +167,8 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
         flashAlert('Add from 1 to 128 interfaces at a time.', 'error');
         redirect();
     }
-    $names = interfaceSeriesNames(trim((string) ($_POST['name_prefix'] ?? '')), $_POST['interface_start'] ?? 1, $count, $_POST['pad'] ?? 0);
+    // Only the start is trimmed - the space at the end of "Port " goes between the name and the number, as the preview shows
+    $names = interfaceSeriesNames(ltrim((string) ($_POST['name_prefix'] ?? '')), $_POST['interface_start'] ?? 1, $count, $_POST['pad'] ?? 0);
 
     $type = escapeSql(mb_substr(trim((string) ($_POST['type'] ?? '')), 0, 50));
     $network_id = intval(assetClientOwnedId('network', $_POST['network_id'] ?? 0, $client_id));

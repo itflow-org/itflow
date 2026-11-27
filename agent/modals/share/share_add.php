@@ -34,7 +34,8 @@ if ($type === 'Credential') {
     }
     $client_id = intval($credential['credential_client_id']);
     $item_label = $credential['credential_name'];
-    $has_otp = credentialOtpSeed($credential['credential_otp_secret']) !== '' && credentialOtpSeed($credential['credential_otp_secret']) !== false;
+    $otp_seed = credentialOtpSeed(credentialOtpSecret($credential['credential_otp_secret']));
+    $has_otp = $otp_seed !== '' && $otp_seed !== false;
 } elseif ($type === 'Document') {
     $document = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_name, document_client_id FROM documents WHERE document_id = $related_id LIMIT 1"));
     if (!$document) {

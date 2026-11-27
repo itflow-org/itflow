@@ -111,9 +111,11 @@ function billingReminderScheduleText(?array $rules = null) {
 
 /**
  * When an invoice's next reminder goes, from tomorrow on: ['date' => Y-m-d,
- * 'days' => days from its due date], or null - none on the schedule, or
- * reminders are off. With $late_only, none before it is late - autopay
- * charges it on the day.
+ * 'days' => days from its due date, 'with_others' => in the one email for
+ * the client's late invoices, on the days of an older one], or null - none
+ * on the schedule, or reminders are off. With $late_only, none before it is
+ * late - autopay charges it on the day. Before it is late it has reminders
+ * of its own; once it is late, the client's oldest late invoice sets the days.
  */
 function billingReminderNext(array $invoice, ?array $rules = null, $late_only = false) {
     $rules = $rules ?? billingReminderRules();
@@ -127,13 +129,34 @@ function billingReminderNext(array $invoice, ?array $rules = null, $late_only = 
     if ($late_only) {
         $from = max($from, 1);
     }
+    // How many days before this one the client's oldest invoice still owed was due - 0 when it is this one
+    $oldest = billingReminderClientOldestDue(intval($invoice['invoice_client_id'] ?? 0), $due);
+    $offset = intval((new DateTime($oldest))->diff($due_date)->format('%r%a'));
     for ($days = $from; $days <= $from + 400; $days++) {
-        if (billingReminderOnDay($days, $rules)) {
+        if (billingReminderOnDay($days > 0 ? $days + $offset : $days, $rules)) {
             $date = (clone $due_date)->modify(($days >= 0 ? '+' : '') . $days . ' days');
-            return ['date' => $date->format('Y-m-d'), 'days' => $days];
+            return ['date' => $date->format('Y-m-d'), 'days' => $days, 'with_others' => $days > 0 && $offset > 0];
         }
     }
     return null;
+}
+
+/**
+ * The due date of a client's oldest invoice still owed (sent, not paid in
+ * full), or $due when none is older - its days late set when the client's
+ * late invoices are reminded, all in one email (cron/nightly_tasks.php).
+ */
+function billingReminderClientOldestDue($client_id, $due) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    if (!$client_id) {
+        return $due;
+    }
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MIN(invoice_due) FROM invoices
+        WHERE invoice_client_id = $client_id AND invoice_status IN ('Sent', 'Viewed', 'Partial') AND invoice_due IS NOT NULL
+            AND ROUND(invoice_amount - COALESCE((SELECT SUM(payment_amount) FROM payments WHERE payment_invoice_id = invoice_id), 0), 2) > 0"));
+    $oldest = substr((string) ($row[0] ?? ''), 0, 10);
+    return preg_match('/^\d{4}-\d{2}-\d{2}$/', $oldest) && $oldest < $due ? $oldest : $due;
 }
 
 /** Will a recurring autopay charge this invoice on its due date? Then it isn't reminded before. */
@@ -674,6 +697,10 @@ function billingStatement($client_id, $from = '', $to = '', $include_paid = fals
     $today = strtotime(date('Y-m-d'));
     while ($row = mysqli_fetch_assoc($sql)) {
         $row['balance'] = round(floatval($row['invoice_amount']) - floatval($row['paid']), 2);
+        // One marked paid is settled, whatever its payments come to - as everywhere else (invoiceState())
+        if ($row['invoice_status'] === 'Paid') {
+            $row['balance'] = 0.0;
+        }
         if ($row['balance'] <= 0 && !$include_paid) {
             continue;
         }
@@ -707,10 +734,8 @@ function billingStatementPdf(array $statement) {
     return billingStatementPdfRender($statement);
 }
 
-/** A statement email - [subject, email]. $opts: note. */
-function billingStatementEmail(array $statement, array $opts = []) {
-    $currency = $statement['currency'];
-    $company = billingCompany();
+/** A statement's invoices as email lines - each linked, how late, its balance. */
+function billingStatementLines(array $statement) {
     $rows = [];
     foreach ($statement['invoices'] as $invoice) {
         $late = $invoice['balance'] > 0 && $invoice['days'] > 0;
@@ -718,9 +743,16 @@ function billingStatementEmail(array $statement, array $opts = []) {
             ['text' => billingNumber('invoice', $invoice), 'url' => billingGuestUrl('invoice', $invoice)],
             billingEmailDate($invoice['invoice_date']),
             ['text' => billingEmailDate($invoice['invoice_due']) . ($late ? ' (' . $invoice['days'] . 'd late)' : ''), 'tone' => $late ? 'danger' : ''],
-            ['text' => $invoice['balance'] > 0 ? billingMoney($invoice['balance'], $currency) : 'Paid', 'tone' => $invoice['balance'] > 0 ? '' : 'success'],
+            ['text' => $invoice['balance'] > 0 ? billingMoney($invoice['balance'], $statement['currency']) : 'Paid', 'tone' => $invoice['balance'] > 0 ? '' : 'success'],
         ];
     }
+    return ['head' => ['Invoice', 'Date', 'Due', 'Balance'], 'align' => ['left', 'left', 'left', 'right'], 'rows' => $rows];
+}
+
+/** A statement email - [subject, email]. $opts: note. */
+function billingStatementEmail(array $statement, array $opts = []) {
+    $currency = $statement['currency'];
+    $company = billingCompany();
     $summary = ['Statement date' => billingEmailDate(date('Y-m-d')), 'Period' => ucfirst(billingStatementPeriod($statement)), 'Open invoices' => (string) count(array_filter($statement['invoices'], function ($invoice) {
         return $invoice['balance'] > 0;
     }))];
@@ -733,8 +765,38 @@ function billingStatementEmail(array $statement, array $opts = []) {
         'intro' => ['Here is your statement for ' . $statement['client']['client_name'] . ', ' . billingStatementPeriod($statement) . '.' . ($statement['total'] > 0 ? ' Open an invoice to view' . (billingOnlinePayments() ? ' or pay' : '') . ' it.' : ' Nothing is owed - thank you.')],
         'note' => $opts['note'] ?? '',
         'summary' => $summary, 'strong' => 'Total due',
-        'lines' => ['head' => ['Invoice', 'Date', 'Due', 'Balance'], 'align' => ['left', 'left', 'left', 'right'], 'rows' => $rows],
+        'lines' => billingStatementLines($statement),
         'after' => ['Questions about your account? Reply to this email' . (!empty($company['phone_display']) ? ' or call us on ' . $company['phone_display'] : '') . '.'],
+        'footnote' => billingEmailFootnote($statement['client']['client_name']),
+    ]];
+}
+
+/**
+ * One payment reminder for all of a client's late invoices - [subject, email]:
+ * how many are late and what they come to, how late the oldest is, then every
+ * invoice still owed with its link, the late ones marked. From
+ * billingStatement() for the client, with two or more of them late.
+ */
+function billingOverdueEmail(array $statement) {
+    $currency = $statement['currency'];
+    $company = billingCompany();
+    $late = array_filter($statement['invoices'], function ($invoice) {
+        return $invoice['balance'] > 0 && $invoice['days'] > 0;
+    });
+    $count = count($late);
+    $oldest = $late ? max(array_column($late, 'days')) : 0;
+    $overdue = billingMoney($statement['overdue'], $currency);
+    $summary = ['Invoices past due' => (string) $count, 'Oldest' => $oldest . ' day' . ($oldest === 1 ? '' : 's') . ' past due', 'Past due' => $overdue];
+    if ($statement['total'] > $statement['overdue']) {
+        $summary['Not yet due'] = billingMoney($statement['total'] - $statement['overdue'], $currency);
+        $summary['Total owed'] = billingMoney($statement['total'], $currency);
+    }
+    return ["Overdue: $count invoices are past due, $overdue in all", [
+        'kind' => 'Payment reminder', 'tone' => 'danger', 'title' => "$count invoices past due",
+        'intro' => ["$count invoices for " . $statement['client']['client_name'] . " are past due, with $overdue still outstanding - the oldest by $oldest day" . ($oldest === 1 ? '' : 's') . '. Please arrange payment as soon as you can. Open an invoice below to view' . (billingOnlinePayments() ? ' or pay' : '') . ' it.'],
+        'summary' => $summary, 'strong' => 'Past due',
+        'lines' => billingStatementLines($statement),
+        'after' => ['If you have already paid, thank you, and please disregard this reminder. Questions? Reply to this email' . (!empty($company['phone_display']) ? ' or call us on ' . $company['phone_display'] : '') . '.'],
         'footnote' => billingEmailFootnote($statement['client']['client_name']),
     ]];
 }

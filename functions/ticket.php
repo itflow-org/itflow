@@ -976,7 +976,7 @@ function ticketAgentEmailContent(array $row, $kind, array $opts = []) {
         'button' => ['label' => 'Open in ITFlow', 'url' => ticketAgentUrl($row)],
     ];
     if ($kind === 'new') {
-        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'text' => ' by text', 'api' => ' through the API', 'scheduled' => ', as scheduled', 'rmm' => ' by an RMM alert'][$opts['how'] ?? ''] ?? '';
+        $how = ['portal' => ' in the client portal', 'email' => ' by email', 'text' => ' by text', 'api' => ' through the API', 'scheduled' => ', as scheduled', 'rmm' => ' by an RMM alert', 'managed' => ' by a problem on a managed instance'][$opts['how'] ?? ''] ?? '';
         $who = ($opts['how'] ?? '') === 'scheduled' ? 'A recurring ticket was raised' : (trim((string) ($row['contact_name'] ?? '')) !== '' ? $row['contact_name'] . ' raised a ticket' : 'A ticket was raised');
         $email['kind'] = 'New ticket';
         $email['intro'] = [($opts['how'] ?? '') === 'scheduled' ? "$who for $client, as scheduled." : "$who$how for $client."];
@@ -1902,7 +1902,7 @@ function ticketSourceIcon($source) {
     $icons = ['Email' => ['fa-envelope', 'Came in by email'], 'Portal' => ['fa-globe', 'Raised in the client portal'],
         'Recurring' => ['fa-redo-alt', 'Raised by a recurring ticket'], 'API' => ['fa-plug', 'Raised through the API'],
         'Project' => ['fa-project-diagram', 'From a project template'], 'Text' => ['fa-sms', 'Came in by text'], 'RMM' => ['fa-laptop-medical', 'Opened by an RMM alert'],
-        'Phone' => ['fa-phone', 'From a phone call']];
+        'Phone' => ['fa-phone', 'From a phone call'], 'Managed' => ['fa-network-wired', 'Opened by a problem on a managed instance']];
     foreach ($icons as $match => [$icon, $title]) {
         if (stripos((string) $source, $match) !== false) {
             return '<i class="fas fa-fw ' . $icon . '" title="' . $title . '"></i>';

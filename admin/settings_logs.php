@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Admin > Settings > Logs - how long the audit log (with API key use) and
+ * Admin > Logs > Settings - how long the audit log (with API key use) and
  * the app logs are kept, each its own number of days or forever, and sending
  * their entries on to a syslog server or SIEM as they are written
  * (functions/log_forward.php). Saved by edit_log_settings, or

@@ -734,7 +734,13 @@ if (mysqli_num_rows($sql) == 0) {
                         </dd>
                         <?php if ($asset_rack) { ?>
                             <dt>Rack</dt>
-                            <dd><a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a><div class="small text-body-secondary"><?= $asset_rack_position ?></div></dd>
+                            <dd>
+                                <a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a><div class="small text-body-secondary"><?= $asset_rack_position ?></div>
+                                <?php if ($can_edit) { ?>
+                                    <!-- Clicking it on the rack comes here, so moving it or taking it out of the rack is here too -->
+                                    <a href="#" class="small ajax-modal" data-modal-url="modals/rack/rack_device_edit.php?id=<?= intval($asset_rack['unit_id']) ?>"><i class="fas fa-fw fa-pen me-1"></i>Edit or remove</a>
+                                <?php } ?>
+                            </dd>
                         <?php } ?>
                         <?php if ($asset_has_contact || $asset_contact_id) { ?>
                         <dt>Assigned</dt>

@@ -114,6 +114,32 @@ if (isset($_POST['edit_managed_instance'])) {
 
 }
 
+if (isset($_POST['edit_managed_instance_tickets'])) {
+
+    validateCSRFToken();
+
+    if (!managerTicketsReady()) {
+        flashAlert("Problem tickets need this install's database update - apply it from Maintenance &gt; Update first", 'error');
+        redirect('managed_instances.php');
+    }
+
+    $level = (string) ($_POST['ticket_level'] ?? '');
+    $levels = managerTicketLevels();
+    if (!isset($levels[$level])) {
+        $level = '';
+    }
+    $category_id = ticketCategoryId($_POST['ticket_category_id'] ?? 0);
+
+    mysqli_query($mysqli, "UPDATE settings SET config_manager_ticket_level = '" . escapeSql($level) . "', config_manager_ticket_category_id = $category_id WHERE company_id = 1");
+
+    logAudit("Managed Instance", "Edit", "$session_name set the problems that open tickets to " . escapeSql($levels[$level]));
+
+    flashAlert($level === '' ? "Problems no longer open tickets" : "<strong>" . escapeHtml($levels[$level]) . "</strong> now open tickets");
+
+    redirect('managed_instances.php');
+
+}
+
 if (isset($_GET['managed_instance_new_code'])) {
 
     validateCSRFToken();
@@ -184,14 +210,21 @@ if (isset($_GET['managed_support_sign_in'])) {
     $instance_id = intval($row['managed_instance_id']);
     $me = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = " . intval($session_user_id))) ?: [];
 
+    // Straight to its error log, or one category of it - from Errors today on its page
+    $page = '';
+    if (($_GET['to'] ?? '') === 'errors') {
+        $category = is_string($_GET['category'] ?? null) ? mb_substr(trim($_GET['category']), 0, 100) : '';
+        $page = 'admin/app_logs.php?' . http_build_query(array_filter(['view' => 'error', 'category' => $category], 'strlen'));
+    }
+
     try {
-        $link = managedSupportLink($row, (string) ($me['user_name'] ?? ''), (string) ($me['user_email'] ?? ''));
+        $link = managedSupportLink($row, (string) ($me['user_name'] ?? ''), (string) ($me['user_email'] ?? ''), $page);
     } catch (Throwable $e) {
         flashAlert(escapeHtml($e->getMessage()), 'error');
         redirect("managed_instance.php?id=$instance_id");
     }
 
-    logAudit("Managed Instance", "Support", "$session_name signed in to " . escapeSql($row['managed_instance_name']) . " as support", intval($row['managed_instance_client_id']), $instance_id);
+    logAudit("Managed Instance", "Support", "$session_name signed in to " . escapeSql($row['managed_instance_name']) . " as support" . ($page !== '' ? ' to look at its errors' : ''), intval($row['managed_instance_client_id']), $instance_id);
 
     redirect($link);
 
@@ -230,6 +263,12 @@ if (isset($_GET['delete_managed_instance'])) {
     $instance_id = intval($row['managed_instance_id']);
 
     mysqli_query($mysqli, "DELETE FROM managed_instance_commands WHERE managed_command_instance_id = $instance_id");
+    if (managerTicketsReady()) {
+        mysqli_query($mysqli, "DELETE FROM managed_instance_issues WHERE managed_issue_instance_id = $instance_id");
+    }
+    if (managedStatsReady()) {
+        mysqli_query($mysqli, "DELETE FROM managed_instance_stats WHERE managed_stat_instance_id = $instance_id");
+    }
     mysqli_query($mysqli, "DELETE FROM managed_instances WHERE managed_instance_id = $instance_id");
 
     logAudit("Managed Instance", "Delete", "$session_name deleted managed instance " . escapeSql($row['managed_instance_name']), intval($row['managed_instance_client_id']), $instance_id);
