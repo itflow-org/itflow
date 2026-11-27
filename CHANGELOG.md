@@ -4,7 +4,7 @@ This file documents all notable changes made to ITFlow.
 
 ## [26.12.2]
 
-### Upgrading
+### Upgrading to 26.12.2
 
 Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's four database changes (4.1.8 to 4.2.1) in the same pass. They add a table for the problems of instances you manage and two settings for which of them open tickets, and a table for each instance's history with columns for its usage, and make room for a credential's 2FA key to be kept encrypted. Nothing else is required - the 2FA keys already saved are encrypted the first time an agent opens ITFlow after the update, and each agent's copy of the credential vault's key is sealed more strongly the next time they sign in (see Security).
 
