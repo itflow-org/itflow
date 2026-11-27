@@ -37,6 +37,38 @@ if (isset($_GET['queue_backup'])) {
     redirect("backup.php");
 }
 
+/*
+ * Retire the copies of the vault's key still sealed the old, weaker way (functions/security.php) - for
+ * agents who haven't signed in, and API keys not used, since. Only by an admin whose own copy is
+ * current, so a copy that opens the vault is always left.
+ */
+if (isset($_GET['retire_old_vault_copies'])) {
+
+    validateCSRFToken();
+
+    if (vaultWrapIsLegacy(getFieldById('users', $session_user_id, 'user_specific_encryption_ciphertext'))) {
+        flashAlert("Sign out and back in first, so your own copy of the key is sealed the current way.", 'error');
+        redirect("backup.php");
+    }
+
+    $vault = vaultCopies();
+    foreach ($vault['users'] as $vault_user) {
+        mysqli_query($mysqli, "UPDATE users SET user_specific_encryption_ciphertext = '' WHERE user_id = " . intval($vault_user['user_id']) . " AND user_specific_encryption_ciphertext NOT LIKE '" . escapeSql(VAULT_WRAP_FORMAT) . "%'");
+    }
+    foreach ($vault['keys'] as $vault_key) {
+        mysqli_query($mysqli, "UPDATE api_keys SET api_key_decrypt_hash = '' WHERE api_key_id = " . intval($vault_key['api_key_id']) . " AND api_key_decrypt_hash NOT LIKE '" . escapeSql(VAULT_WRAP_FORMAT) . "%'");
+    }
+    $names = array_merge(array_column($vault['users'], 'user_name'), array_map(function ($key) {
+        return $key['api_key_name'] . ' (API key)';
+    }, $vault['keys']));
+    $count = count($names);
+
+    logAudit("Master Key", "Retire", escapeSql(($session_name ?? 'Unknown User') . " retired $count old cop" . ($count === 1 ? 'y' : 'ies') . " of the vault key: " . implode(', ', $names)));
+    flashAlert("Retired <strong>$count</strong> old cop" . ($count === 1 ? 'y' : 'ies') . " of the vault key.");
+
+    redirect("backup.php");
+}
+
 if (isset($_GET['delete_backup'])) {
 
     validateCSRFToken();

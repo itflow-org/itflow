@@ -42,6 +42,11 @@ $schedule_on = !empty($backup_job) && intval($backup_job['cron_job_enabled']) ==
 $schedule_time = substr((string) ($backup_job['cron_job_daily_at'] ?? ''), 0, 5);
 $backup_job_id = intval($backup_job['cron_job_id'] ?? 0);
 
+// The copies of the vault's key - each agent's and API key's - and which are still in the old format (functions/security.php)
+$vault = vaultCopies();
+$vault_old = count($vault['users']) + count($vault['keys']);
+$vault_own_current = !vaultWrapIsLegacy(getFieldById('users', $session_user_id, 'user_specific_encryption_ciphertext'));
+
 // The newest finished backup of each kind cron can make - the vault's key isn't a backup
 $latest = [];
 foreach (backupUnattendedTypes() as $type) {
@@ -675,6 +680,29 @@ $config_dev_mail_to = '<?= escapeHtml($dev_mail_to !== '' ? $dev_mail_to : 'dev@
                 <button type="button" class="btn btn-sm btn-light border ajax-modal" data-modal-url="modals/backup/backup_master_key.php" data-backup-master-key-export>
                     <i class="fas fa-fw fa-key me-2"></i>Export the Master Key
                 </button>
+
+                <hr>
+                <h4 class="h6 mb-2"><i class="fas fa-fw fa-user-lock me-1 text-body-secondary"></i>Copies of the key</h4>
+                <p class="text-body-secondary mb-2">Each agent and each API key with access to credentials has its own copy, sealed under its password with AES-256.
+                    <strong><?= $vault['current'] ?> of <?= $vault['total'] ?></strong> <?= $vault['total'] === 1 ? 'is' : 'are' ?> sealed the current way.
+                    <?php if ($vault_old) { ?>The rest are sealed the weaker way from before, and move on by themselves - an agent's the next time they sign in, an API key's on its next call that reads credentials.<?php } ?>
+                </p>
+                <?php if ($vault_old) { ?>
+                    <ul class="list-unstyled mb-2" data-vault-old>
+                        <?php foreach ($vault['users'] as $vault_user) { ?>
+                            <li><i class="fas fa-fw fa-user text-body-secondary me-1"></i><?= escapeHtml($vault_user['user_name']) ?> <span class="text-body-secondary"><?= escapeHtml($vault_user['user_email']) ?></span></li>
+                        <?php } ?>
+                        <?php foreach ($vault['keys'] as $vault_key) { ?>
+                            <li><i class="fas fa-fw fa-key text-body-secondary me-1"></i><?= escapeHtml($vault_key['api_key_name']) ?> <span class="text-body-secondary">API key</span></li>
+                        <?php } ?>
+                    </ul>
+                    <?php if ($vault_own_current) { ?>
+                        <a class="btn btn-sm btn-outline-danger confirm-link" href="post.php?retire_old_vault_copies=1&amp;csrf_token=<?= $csrf ?>" data-confirm-title="Retire the old copies?"
+                            data-confirm-text="<?= $vault_old ?> old cop<?= $vault_old === 1 ? 'y stops' : 'ies stop' ?> opening the vault. An agent gets it back when an admin resets their password; an API key has to be made again to read credentials." data-confirm-button="Retire them">
+                            <i class="fas fa-fw fa-user-slash me-1"></i>Retire the Old Copies
+                        </a>
+                    <?php } ?>
+                <?php } ?>
             </div>
         </div>
 

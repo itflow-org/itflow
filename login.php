@@ -316,24 +316,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                     // Show role choice screen
                     $show_role_choice = true;
 
-                    // If this is the first time (Step 1), we need to stash allowed ids and (optional) decrypted agent encryption key
+                    // If this is the first time (Step 1), we need to stash allowed ids and open the agent's vault
                     // WITHOUT storing password.
                     if ($is_login_step) {
 
                         $pending_token = bin2hex(random_bytes(32));
 
-                        // If agent has user-specific encryption ciphertext, decrypt it NOW while password is present.
-                        $agent_master_key = null;
-                        $agent_cipher = $agentRow['user_specific_encryption_ciphertext'] ?? null;
-                        if (!empty($agent_cipher)) {
-                            $agent_master_key = decryptUserSpecificKey($agent_cipher, $password);
-                        }
+                        // Open the agent's vault NOW while the password is present - into the vault session, so the master
+                        // key itself is never kept in the session (vaultSignIn()); dropped if they go on as the client
+                        $agent_vault = vaultSignIn(intval($agentRow['user_id']), $agentRow['user_specific_encryption_ciphertext'] ?? null, $password);
 
                         $_SESSION['pending_dual_login'] = [
                             'email'            => $email,
                             'agent_user_id'    => intval($agentRow['user_id']),
                             'client_user_id'   => intval($clientRow['contact_user_id'] ?? 0) ?: intval($clientRow['user_id'] ?? 0),
-                            'agent_master_key' => $agent_master_key, // may be null
+                            'agent_vault'      => $agent_vault,
                             'token'            => $pending_token,
                             'created'          => time()
                         ];
@@ -358,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                 $pending_dual = $_SESSION['pending_dual_login'] ?? null;
                 $pending_mfa  = $_SESSION['pending_mfa_login'] ?? null;
 
-                // NOTE: do NOT unset pending_dual_login here anymore; we may still need agent_master_key for MFA or role-step agent login
+                // NOTE: do NOT unset pending_dual_login here anymore; we may still need agent_vault for MFA or role-step agent login
 
                 $user_id    = intval($selectedRow['user_id']);
                 $user_email = escapeSql($selectedRow['user_email']);
@@ -503,32 +500,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             $config_start_page = "user/mfa_enforcement.php";
                         }
 
-                        // Setup encryption session key WITHOUT PASSWORD IN SESSION
-                        $site_encryption_master_key = null;
-
-                        if ($is_mfa_step) {
-                            // Step 3: MFA submit
-                            $sess = $pending_mfa ?? ($_SESSION['pending_mfa_login'] ?? null);
-                            if ($sess && !empty($sess['agent_master_key'])) {
-                                $site_encryption_master_key = $sess['agent_master_key'];
-                            }
-
-                        } elseif ($is_role_step) {
-                            // Step 2: role choice (no password available)
-                            $sess = $pending_dual ?? ($_SESSION['pending_dual_login'] ?? null);
-                            if ($sess && !empty($sess['agent_master_key'])) {
-                                $site_encryption_master_key = $sess['agent_master_key'];
-                            }
-
-                        } else {
-                            // Step 1: initial login (password available in this request)
-                            if (!empty($user_encryption_ciphertext)) {
-                                $site_encryption_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
-                            }
-                        }
-
-                        if (!empty($site_encryption_master_key)) {
-                            generateUserSessionKey($site_encryption_master_key);
+                        // The vault session WITHOUT PASSWORD IN SESSION - opened at step 1, while the password was here (vaultSignIn()).
+                        // After the role choice or two-step code it is already there; signing straight in, it is opened now.
+                        if (!$is_mfa_step && !$is_role_step) {
+                            vaultSignIn($user_id, $user_encryption_ciphertext, $password);
                         }
 
                         // NOW safe to clear pending sessions AFTER we used them
@@ -553,25 +528,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         // MFA required — store *only what we need*, not password
                         $pending_mfa_token = bin2hex(random_bytes(32));
 
-                        // If we arrived here from role-choice step, the agent master key may be in cached pending_dual
-                        // If we arrived from initial login step, decrypt now (password in memory) and store master key.
-                        $agent_master_key = null;
-
+                        // The vault: from the role choice it was opened at step 1, on a retried code it was opened before,
+                        // and from the initial login step it is opened now, with the password in memory (vaultSignIn())
                         if ($is_role_step) {
                             $sess = $pending_dual ?? ($_SESSION['pending_dual_login'] ?? null);
-                            if ($sess && array_key_exists('agent_master_key', $sess)) {
-                                $agent_master_key = $sess['agent_master_key'];
-                            }
+                            $agent_vault = !empty($sess['agent_vault']);
+                        } elseif ($is_mfa_step) {
+                            $agent_vault = !empty($pending_mfa['agent_vault']);
                         } else {
-                            if (!empty($user_encryption_ciphertext)) {
-                                $agent_master_key = decryptUserSpecificKey($user_encryption_ciphertext, $password);
-                            }
+                            $agent_vault = vaultSignIn($user_id, $user_encryption_ciphertext, $password);
                         }
 
                         $_SESSION['pending_mfa_login'] = [
                             'email'            => $user_email,
                             'agent_user_id'    => $user_id,
-                            'agent_master_key' => $agent_master_key, // may be null
+                            'agent_vault'      => $agent_vault,
                             'token'            => $pending_mfa_token,
                             // Keep the original issue time on a retry so the pending
                             // window actually expires, instead of being pushed forward
@@ -733,10 +704,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             $session_user_id = $user_id;
                             logAudit("Client Login", "Success", "Client contact $user_email successfully logged in locally$client_mfa_how", $client_id, $user_id);
 
-                            // Clear any pending sessions (avoid stale dual-role/MFA state), and an agent's View as contact
+                            // Clear any pending sessions (avoid stale dual-role/MFA state), and an agent's View as contact -
+                            // and the vault a dual-role user's password opened, as they went on as the client
                             unset($_SESSION['pending_dual_login']);
                             unset($_SESSION['pending_mfa_login']);
                             unset($_SESSION['portal_view_as']);
+                            unset($_SESSION['user_encryption_session_ciphertext'], $_SESSION['user_encryption_session_iv']);
 
                             header("Location: client/index.php");
                             exit();

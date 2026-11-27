@@ -221,7 +221,9 @@ function userPasswordProblem($password) {
 function userSetPassword($user_id, $password) {
     global $mysqli;
     $hash = password_hash((string) $password, PASSWORD_DEFAULT);
-    $ciphertext = escapeSql(encryptUserSpecificKey((string) $password));
+    // No copy when this session's vault doesn't open (a reset from the sign-in page) - an admin resetting it later gives them one
+    $ciphertext = encryptUserSpecificKey((string) $password);
+    $ciphertext = escapeSql($ciphertext === false ? '' : $ciphertext);
     mysqli_query($mysqli, "UPDATE users SET user_password = '" . escapeSql($hash) . "', user_specific_encryption_ciphertext = '$ciphertext' WHERE user_id = " . intval($user_id));
     userSessionRestamp($user_id, $hash);
 }
