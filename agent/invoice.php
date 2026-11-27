@@ -337,7 +337,7 @@ echo agentBannersHtml($client_id);
                                 <?php } elseif (!$client_reminders) { ?>
                                     Off for <?= escapeHtml($invoice['client_name']) ?>
                                 <?php } elseif ($reminder_next) { ?>
-                                    Next <?= escapeHtml(billingEmailDate($reminder_next['date'])) ?> - <?= escapeHtml(billingReminderWhen($reminder_next['days'])) ?>
+                                    Next <?= escapeHtml(billingEmailDate($reminder_next['date'])) ?> - <?= escapeHtml(billingReminderWhen($reminder_next['days'])) ?><?= $reminder_next['with_others'] ? ', in one reminder with their other late invoices' : '' ?>
                                 <?php } else { ?>
                                     No more on the schedule
                                 <?php } ?>

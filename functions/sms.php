@@ -1611,6 +1611,38 @@ function smsInvoiceNotify(array $invoice, string $kind, array $recipients): arra
 }
 
 /*
+ * The one reminder for a client's late invoices (billingOverdueEmail()), texted the same way -
+ * how many and what they come to, with the oldest one's link. $statement as billingStatement()
+ * gives it. Who it went to.
+ */
+function smsClientOverdueNotify(array $statement, array $recipients): array
+{
+    if (!smsReady() || !smsClientSettings()['config_sms_client_invoices']) {
+        return [];
+    }
+    $late = array_values(array_filter($statement['invoices'], function ($invoice) {
+        return $invoice['balance'] > 0 && $invoice['days'] > 0;
+    }));
+    if (!$late) {
+        return [];
+    }
+    usort($late, function ($a, $b) {
+        return $b['days'] <=> $a['days'];
+    });
+    $oldest = $late[0];
+    $text = smsCompanyName() . ': a reminder - ' . count($late) . ' invoices are past due, ' . billingMoney($statement['overdue'], $statement['currency']) . ' in all. The oldest, invoice '
+        . billingNumber('invoice', $oldest) . ', is ' . $oldest['days'] . ' day' . ($oldest['days'] === 1 ? '' : 's') . ' overdue: ' . billingGuestUrl('invoice', $oldest);
+    $texted = [];
+    foreach ($recipients as $recipient) {
+        $contact = smsContactTextable(intval($recipient['id'] ?? 0));
+        if ($contact && smsNotifyContact(intval($contact['contact_id']), $text, ['purpose' => 'invoice_reminder'])) {
+            $texted[] = $contact['contact_name'] . ' (' . smsNumberText($contact['number']) . ')';
+        }
+    }
+    return $texted;
+}
+
+/*
  * Turn a contact's texts on or off - $by says how they agreed, for the record ("Alex Rivera,
  * with their say-so", "them, in the client portal"). Turned on by the contact themselves, a STOP
  * they sent before is lifted: this is them asking again. An agent turning it on doesn't lift one.
